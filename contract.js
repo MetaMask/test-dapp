@@ -110,6 +110,7 @@ const initialize = () => {
     if (!isMetaMaskInstalled()) {
       onboardButton.innerText = 'Click here to install MetaMask!'
       onboardButton.onclick = onClickInstall
+      onboardButton.disabled = false
     } else if (isMetaMaskConnected()) {
       onboardButton.innerText = 'Connected'
       onboardButton.disabled = true
@@ -119,6 +120,7 @@ const initialize = () => {
     } else {
       onboardButton.innerText = 'Connect'
       onboardButton.onclick = onClickConnect
+      onboardButton.disabled = false
     }
   }
 
