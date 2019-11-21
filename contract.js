@@ -30,7 +30,7 @@ The `piggybankContract` is compiled from:
   }
 */
 
-const forwarderOrigin = 'http://localhost:9010'
+const forwarderOrigin = 'https://fwd.metamask.io'
 
 const isMetaMaskInstalled = () => {
   return Boolean(window.ethereum && window.ethereum.isMetaMask)
