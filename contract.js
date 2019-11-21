@@ -75,6 +75,7 @@ const initialize = () => {
     approveTokens,
     transferTokensWithoutGas,
     approveTokensWithoutGas,
+    signTypedData,
   ]
 
   for (const button of accountButtons) {
@@ -103,6 +104,7 @@ const initialize = () => {
       deployButton.disabled = false
       sendButton.disabled = false
       createToken.disabled = false
+      signTypedData.disabled = false
     }
 
     if (!isMetaMaskInstalled()) {
