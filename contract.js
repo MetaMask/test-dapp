@@ -78,10 +78,6 @@ const initialize = () => {
     signTypedData,
   ]
 
-  for (const button of accountButtons) {
-    button.disabled = true
-  }
-
   const isMetaMaskConnected = () => accounts && accounts.length > 0
 
   const onClickInstall = () => {
