@@ -39,13 +39,23 @@
     </div>
   </div>
   <div style="display: flex; flex-flow: column;">
+    <div style="display: flex; font-size: 1.25rem;">Ecrypt/decrypt message</div>
+    <div style="display: flex;">
+      <button id="encriptionPublicKeyButton">Receive encription public key</button>
+	  <textarea id="rawMessage"></textarea>
+	  <textarea readonly id="ecryptedRawMessage"></textarea>
+	  <button id="decryptMessageButton">Decrypt message</button>
+      <div id="decryptedRawMessage"></div>
+    </div>
+  </div>
+  <div style="display: flex; flex-flow: column;">
     <div>Network: <div id="networkDiv"></div></div>
     <div>ChainId: <div id="chainIdDiv"></div></div>
     <div>Accounts: <div id="accountsDiv"></div></div>
     <div style="display: flex;">
   </div>
 
-<script src="contract.js"></script>
+<script src="bundle.js"></script>
 </body>
 
 </html>

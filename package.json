@@ -1,0 +1,29 @@
+{
+  "name": "test-dapp",
+  "version": "1.0.0",
+  "description": "Simplest dapp for use with [MetaMask](https://metamask.io).",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MetaMask/test-dapp.git"
+  },
+  "author": "danjm",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MetaMask/test-dapp/issues"
+  },
+  "homepage": "https://github.com/MetaMask/test-dapp#readme",
+  "dependencies": {
+    "eth-sig-util": "^2.5.2"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.9.0",
+    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}

@@ -29,8 +29,14 @@ The `piggybankContract` is compiled from:
       }
   }
 */
+var sigUtil = require('eth-sig-util')
+window.initialized = false;
 
 web3.currentProvider.enable().then(() => {
+  if (window.initialized) { // to avoid multiple event listeners
+	  return;
+  }
+  window.initialized = true;
   var piggybankContract = web3.eth.contract([{'constant': false, 'inputs': [{'name': 'withdrawAmount', 'type': 'uint256'}], 'name': 'withdraw', 'outputs': [{'name': 'remainingBal', 'type': 'uint256'}], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function'}, {'constant': true, 'inputs': [], 'name': 'owner', 'outputs': [{'name': '', 'type': 'address'}], 'payable': false, 'stateMutability': 'view', 'type': 'function'}, {'constant': false, 'inputs': [], 'name': 'deposit', 'outputs': [{'name': '', 'type': 'uint256'}], 'payable': true, 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor'}])
   const deployButton = document.getElementById('deployButton')
   const depositButton = document.getElementById('depositButton')
@@ -43,6 +49,11 @@ web3.currentProvider.enable().then(() => {
   const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
   const getAccountsButton = document.getElementById('getAccounts')
   const getAccountsResult = document.getElementById('getAccountsResult')
+  const encriptionPublicKeyButton = document.getElementById('encriptionPublicKeyButton')
+  const rawMessage = document.getElementById('rawMessage')
+  const ecryptedRawMessage = document.getElementById('ecryptedRawMessage')
+  const decryptMessageButton = document.getElementById('decryptMessageButton')
+  const decryptedRawMessage = document.getElementById('decryptedRawMessage')
 
   deployButton.addEventListener('click', async function () {
     document.getElementById('contractStatus').innerHTML = 'Deploying'
@@ -174,6 +185,43 @@ web3.currentProvider.enable().then(() => {
   getAccountsButton.addEventListener('click', async function () {
     const accounts = await ethereum.send({ method: 'eth_accounts' })
     getAccountsResult.innerHTML = accounts[0] || 'Not able to get accounts'
+  })
+  
+  encriptionPublicKeyButton.addEventListener('click', async function () {
+	  web3.currentProvider.sendAsync({
+			jsonrpc: '2.0',
+			method: 'encryption_public_key',
+			params: [web3.eth.defaultAccount],
+			from: web3.eth.defaultAccount,
+		}, function(error, encryptionpublickey) {
+			if (!error) {
+				window.encryptionpublickey = encryptionpublickey.result;
+			} else {
+				console.log(error);
+			}
+		})
+  })
+  
+  rawMessage.addEventListener('keyup', async function () {
+	if (window.encryptionpublickey) {
+	  ecryptedRawMessage.value = web3.toHex(JSON.stringify(sigUtil.encrypt(window.encryptionpublickey, {'data': rawMessage.value}, 'x25519-xsalsa20-poly1305')));
+	}
+  })
+
+  decryptMessageButton.addEventListener('click', async function () {
+	  web3.currentProvider.sendAsync({
+			jsonrpc: '2.0',
+			method: 'eth_decryptMessage',
+			params: [ecryptedRawMessage.value, web3.eth.defaultAccount],
+			from: web3.eth.defaultAccount,
+		}, function(error, message) {
+			console.log(error, message);
+			if (!error) {
+				decryptedRawMessage.innerHTML = "Source message: `" + message.result + "`";
+			} else {
+				decryptedRawMessage.innerHTML = "Error: " + error.message;
+			}
+		});
   })
 })
 
