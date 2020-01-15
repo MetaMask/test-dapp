@@ -268,7 +268,7 @@ const initialize = () => {
       )
     }
 
-    signTypedData.addEventListener('click', () => {
+    signTypedData.onclick(() => {
       const typedData = {
         types: {
           EIP712Domain: [
@@ -319,7 +319,7 @@ const initialize = () => {
       })
     })
 
-    getAccountsButton.addEventListener('click', async () => {
+    getAccountsButton.onclick(async () => {
       try {
         const accounts = await ethereum.send({ method: 'eth_accounts' })
         getAccountsResults.innerHTML = accounts[0] || 'Not able to get accounts'
