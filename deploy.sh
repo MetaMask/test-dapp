@@ -96,7 +96,7 @@ function main {
     git checkout "${deploy_branch}"
   else
     git checkout -b "${deploy_branch}"
-    rm *
+    git rm -r ./*
   fi
   git checkout "${source_branch}" -- contract.js index.html || die "Failed to checkout files from ${source_branch}"
 
