@@ -268,7 +268,7 @@ const initialize = () => {
       )
     }
 
-    signTypedData.onclick(() => {
+    signTypedData.onclick = () => {
       const typedData = {
         types: {
           EIP712Domain: [
@@ -317,9 +317,9 @@ const initialize = () => {
           signTypedDataResults.innerHTML = JSON.stringify(result)
         }
       })
-    })
+    }
 
-    getAccountsButton.onclick(async () => {
+    getAccountsButton.onclick = async () => {
       try {
         const accounts = await ethereum.send({ method: 'eth_accounts' })
         getAccountsResults.innerHTML = accounts[0] || 'Not able to get accounts'
@@ -327,7 +327,7 @@ const initialize = () => {
         console.error(error)
         getAccountsResults.innerHTML = `Error: ${error}`
       }
-    })
+    }
 
   }
 
