@@ -6,7 +6,11 @@ set -o pipefail
 readonly __SCRIPT_NAME__="${0##*/}"
 readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more information."
 
-function die {
+GH_REMOTE='origin'
+SOURCE_BRANCH='master'
+DEPLOY_BRANCH='gh-pages'
+
+function abort {
   local message="${1}"
 
   printf "ERROR: %s\\n" "${message}" >&2
@@ -39,11 +43,44 @@ function replace_onboarding_src {
   sed -i "" -e "s/${local_src}/${web_src}/g" "${target_file}"
 }
 
-function main {
+function preprocess_and_publish {
 
-  local gh_remote='origin'
-  local source_branch='master'
-  local deploy_branch='gh-pages'
+  git fetch
+
+  # checkout gh-pages, update local files
+  if git show-ref "refs/heads/${DEPLOY_BRANCH}"
+  then
+    git checkout "${DEPLOY_BRANCH}"
+    git pull
+  else
+    git checkout -t "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+    git rm -r ./*
+  fi
+  git checkout "${SOURCE_BRANCH}" -- contract.js index.html || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
+
+  # make changes for web publication
+  replace_onboarding_src || abort "Failed to replace onboarding script source"
+
+  # compute shorthash
+  local _hash
+  
+  _hash=$(git show-ref "refs/heads/${SOURCE_BRANCH}")
+
+  if ! _hash
+  then
+    abort "Source branch '${SOURCE_BRANCH}' has no head"
+  fi
+
+  _hash="${_hash:6}"
+
+  # commit to destination branch with shorthash in message
+  git commit -am "update using ${SOURCE_BRANCH}/${_hash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
+
+  git push -u "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+  echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
+}
+
+function main {
 
   while :; do
     case "${1-default}" in
@@ -57,7 +94,7 @@ function main {
           printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        source_branch="${2}"
+        SOURCE_BRANCH="${2}"
         shift
         ;;
       -d|--destination)
@@ -66,7 +103,7 @@ function main {
           printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        deploy_branch="${2}"
+        DEPLOY_BRANCH="${2}"
         shift
         ;;
       -r|--remote)
@@ -75,7 +112,7 @@ function main {
           printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        gh_remote="${2}"
+        GH_REMOTE="${2}"
         shift
         ;;
       *)
@@ -87,25 +124,11 @@ function main {
 
   if is_working_tree_dirty
   then
-    die 'Working tree is dirty; please clean it up and try again'
+    abort 'Working tree is dirty; please clean it up and try again'
   fi
 
-  # checkout gh-pages, update files
-  if git show-ref "refs/heads/${deploy_branch}"
-  then
-    git checkout "${deploy_branch}"
-  else
-    git checkout -b "${deploy_branch}"
-    git rm -r ./*
-  fi
-  git checkout "${source_branch}" -- contract.js index.html || die "Failed to checkout files from ${source_branch}"
-
-  # make changes for web publication
-  replace_onboarding_src
-
-  git commit -am "update to latest master" || die "Failed to commit to ${deploy_branch}"
-  git push -f -u ${gh_remote} ${deploy_branch} || die "Failed to push to ${gh_remote}/${deploy_branch}"
-  echo "Successfully pushed to ${gh_remote}/${deploy_branch}"
+  preprocess_and_publish
+  exit 0
 }
 
 main "${@}"

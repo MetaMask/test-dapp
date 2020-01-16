@@ -13,6 +13,10 @@
     "type": "git",
     "url": "git+https://github.com/MetaMask/test-dapp.git"
   },
+  "files": [
+    "/contract.js",
+    "/index.html"
+  ],
   "author": "MetaMask",
   "license": "MIT",
   "bugs": {
