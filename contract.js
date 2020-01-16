@@ -155,7 +155,7 @@ const initialize = () => {
               (result) => {
                 console.log(result)
                 contractStatus.innerHTML = 'Deposit completed'
-              }
+              },
             )
           }
           withdrawButton.onclick = () => {
@@ -165,10 +165,10 @@ const initialize = () => {
               (result) => {
                 console.log(result)
                 contractStatus.innerHTML = 'Withdrawn'
-              }
+              },
             )
           }
-        }
+        },
       )
       console.log(piggybank)
     }
@@ -264,7 +264,7 @@ const initialize = () => {
               console.log(result)
             })
           }
-        }
+        },
       )
     }
 
