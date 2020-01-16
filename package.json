@@ -4,7 +4,6 @@
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
     "deploy": "./deploy.sh",
-    "temp": "./temp.sh",
     "lint": "eslint . --ext js,json",
     "lint:fix": "eslint . --fix --ext js,json",
     "test": "echo \"Error: no test specified\" && exit 1"
