@@ -57,7 +57,7 @@ function main {
           printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        deploy_branch="${2}"
+        source_branch="${2}"
         shift
         ;;
       -d|--destination)
