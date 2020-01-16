@@ -91,7 +91,7 @@ function main {
   fi
 
   # checkout gh-pages, update files
-  if [ `git branch --list $deploy_branch`]
+  if git show-ref "refs/heads/${deploy_branch}"
   then
     git checkout "${deploy_branch}"
   else
