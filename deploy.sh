@@ -7,22 +7,22 @@ readonly __SCRIPT_NAME__="${0##*/}"
 readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more information."
 
 function die {
-	local message="${1}"
+  local message="${1}"
 
-	printf "ERROR: %s\\n" "${message}" >&2
+  printf "ERROR: %s\\n" "${message}" >&2
 
-	exit 1
+  exit 1
 }
 
 function show_help {
-	cat << EOF
+  cat << EOF
 ${__SCRIPT_NAME__}"
 Deploy site to GitHub Pages branch
 Options:
-	-h, --help                    Show help text
-	-s, --source <branch>         Upstream branch (defaults to 'master')
-	-d, --destination <branch>    Branch to deploy to (defaults to 'gh-pages')
-	-r, --remote <remote>	        Remote to deploy to (defaults to 'origin')
+  -h, --help                    Show help text
+  -s, --source <branch>         Upstream branch (defaults to 'master')
+  -d, --destination <branch>    Branch to deploy to (defaults to 'gh-pages')
+  -r, --remote <remote>          Remote to deploy to (defaults to 'origin')
 EOF
 }
 
@@ -45,45 +45,45 @@ function main {
   local source_branch='master'
   local deploy_branch='gh-pages'
 
-	while :; do
-		case "${1-default}" in
-			-h|--help)
-				show_help
-				exit
-				;;
-			-s|--source)
+  while :; do
+    case "${1-default}" in
+      -h|--help)
+        show_help
+        exit
+        ;;
+      -s|--source)
         if [[ -z $2 ]]; then
-					printf "'source' option requires an argument.\\n" >&2
-					printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
-					exit 1
-				fi
+          printf "'source' option requires an argument.\\n" >&2
+          printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
+          exit 1
+        fi
         deploy_branch="${2}"
         shift
-				;;
-			-d|--destination)
+        ;;
+      -d|--destination)
         if [[ -z $2 ]]; then
-					printf "'destination' option requires an argument.\\n" >&2
-					printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
-					exit 1
-				fi
+          printf "'destination' option requires an argument.\\n" >&2
+          printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
+          exit 1
+        fi
         deploy_branch="${2}"
         shift
-				;;
-			-r|--remote)
+        ;;
+      -r|--remote)
         if [[ -z $2 ]]; then
-					printf "'remote' option requires an argument.\\n" >&2
-					printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
-					exit 1
-				fi
+          printf "'remote' option requires an argument.\\n" >&2
+          printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
+          exit 1
+        fi
         gh_remote="${2}"
         shift
-				;;
-			*)
-				break
-		esac
+        ;;
+      *)
+        break
+    esac
 
-		shift
-	done
+    shift
+  done
 
   if is_working_tree_dirty
   then
