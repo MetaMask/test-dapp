@@ -51,7 +51,7 @@ function preprocess_and_publish {
   if git show-ref "refs/heads/${DEPLOY_BRANCH}"
   then
     git checkout "${DEPLOY_BRANCH}"
-    git pull
+    git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}"
   else
     git checkout -t "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
     git rm -r ./*
