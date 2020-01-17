@@ -1,0 +1,32 @@
+{
+  "name": "metamask-test-dapp",
+  "version": "1.0.0",
+  "description": "A simple dapp used in MetaMask e2e tests.",
+  "scripts": {
+    "deploy": "./deploy.sh",
+    "lint": "eslint . --ext js,json",
+    "lint:fix": "eslint . --fix --ext js,json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MetaMask/test-dapp.git"
+  },
+  "files": [
+    "/contract.js",
+    "/index.html"
+  ],
+  "author": "MetaMask",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MetaMask/test-dapp/issues"
+  },
+  "homepage": "https://github.com/MetaMask/test-dapp#readme",
+  "dependencies": {
+    "@metamask/onboarding": "^0.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-plugin-json": "^2.0.1"
+  }
+}
