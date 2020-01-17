@@ -45,16 +45,16 @@ function replace_onboarding_src {
 
 function preprocess_and_publish {
 
-  git fetch
+  git fetch || abort "Failed to fetch"
 
   # checkout gh-pages, update local files
   if git show-ref "refs/heads/${DEPLOY_BRANCH}"
   then
-    git checkout "${DEPLOY_BRANCH}"
-    git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}"
+    git checkout "${DEPLOY_BRANCH}" || abort "Failed to check out ${DEPLOY_BRANCH}"
+    git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to reset to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   else
     git checkout -t "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
-    git rm -r ./*
+    git rm -r ./* || abort "Failed to clean git index"
   fi
   git checkout "${SOURCE_BRANCH}" -- contract.js index.html || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
@@ -76,7 +76,7 @@ function preprocess_and_publish {
   # commit to destination branch with shorthash in message
   git commit -am "update using ${SOURCE_BRANCH}/${_hash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
 
-  git push -u "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+  git push "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 }
 
