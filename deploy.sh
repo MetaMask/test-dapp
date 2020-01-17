@@ -66,6 +66,7 @@ function preprocess_and_publish {
   
   shorthash=$(git show-ref "refs/heads/$SOURCE_BRANCH")
 
+  # the full hash is 40 bytes long, and the ref will contain at least that
   if [ ${#shorthash} -lt 40 ]
   then
     abort "Source branch '$SOURCE_BRANCH' has no head"
@@ -76,6 +77,7 @@ function preprocess_and_publish {
   # commit to destination branch with shorthash in message
   git commit -am "update using $SOURCE_BRANCH/$shorthash" || abort "Failed to commit to destination branch '$DEPLOY_BRANCH'"
 
+  # the "-u" here is if the branch was created
   git push -u "$GH_REMOTE" "$DEPLOY_BRANCH" || abort "Failed to push to '$GH_REMOTE/$DEPLOY_BRANCH'"
   echo "Successfully pushed to $GH_REMOTE/$DEPLOY_BRANCH"
 }
