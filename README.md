@@ -4,7 +4,7 @@ This is a simple test dapp for use in MetaMask e2e tests.
 
 Currently hosted [here](https://metamask.github.io/test-dapp/).
 
-After merging or pushing to `master`, please `npm run deploy` in the project root
+After merging or pushing to `master`, please `yarn deploy` in the project root
 directory if any of the following files have changed:
 
 - `contract.js`
