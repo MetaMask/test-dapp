@@ -4,23 +4,23 @@ set -u
 set -o pipefail
 
 readonly __SCRIPT_NAME__="${0##*/}"
-readonly __SEE_HELP_MESSAGE__="See '$__SCRIPT_NAME__ --help' for more information."
+readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more information."
 
 GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
 
 function abort {
-  local message="$1"
+  local message="${1}"
 
-  printf "ERROR: %s\\n" "$message" >&2
+  printf "ERROR: %s\\n" "${message}" >&2
 
   exit 1
 }
 
 function show_help {
   cat << EOF
-$__SCRIPT_NAME__
+${__SCRIPT_NAME__}
 Deploy site to GitHub Pages branch
 Options:
   -h, --help                    Show help text
@@ -40,7 +40,7 @@ function replace_onboarding_src {
   local web_src="https://unpkg.com/@metamask/onboarding"
   local target_file="index.html"
 
-  sed -i "" -e "s#$local_src#$web_src#g" "$target_file"
+  sed -i "" -e "s#${local_src}#${web_src}#g" "${target_file}"
 }
 
 function preprocess_and_publish {
@@ -48,15 +48,15 @@ function preprocess_and_publish {
   git fetch || abort "Failed to fetch"
 
   # checkout gh-pages, update local files
-  if git show-ref "refs/heads/$DEPLOY_BRANCH"
+  if git show-ref "refs/heads/${DEPLOY_BRANCH}"
   then
-    git checkout "$DEPLOY_BRANCH" || abort "Failed to check out $DEPLOY_BRANCH"
-    git reset --hard "$GH_REMOTE/$DEPLOY_BRANCH" || abort "Failed to reset to '$GH_REMOTE/$DEPLOY_BRANCH'"
+    git checkout "${DEPLOY_BRANCH}" || abort "Failed to check out ${DEPLOY_BRANCH}"
+    git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to reset to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   else
-    git checkout -b "$DEPLOY_BRANCH" || abort "Failed to checkout '$GH_REMOTE/$DEPLOY_BRANCH'"
+    git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
     git rm -r ./\* || abort "Failed to clean git index"
   fi
-  git checkout "$SOURCE_BRANCH" -- contract.js index.html || abort "Failed to checkout files from '$SOURCE_BRANCH'"
+  git checkout "${SOURCE_BRANCH}" -- contract.js index.html || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # make changes for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
@@ -64,22 +64,22 @@ function preprocess_and_publish {
   # compute shorthash
   local shorthash
   
-  shorthash=$(git show-ref "refs/heads/$SOURCE_BRANCH")
+  shorthash=$(git show-ref "refs/heads/${SOURCE_BRANCH}")
 
   # the full hash is 40 bytes long, and the ref will contain at least that
   if [ ${#shorthash} -lt 40 ]
   then
-    abort "Source branch '$SOURCE_BRANCH' has no head"
+    abort "Source branch '${SOURCE_BRANCH}' has no head"
   fi
 
   shorthash="${shorthash:6}"
 
   # commit to destination branch with shorthash in message
-  git commit -am "update using $SOURCE_BRANCH/$shorthash" || abort "Failed to commit to destination branch '$DEPLOY_BRANCH'"
+  git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
 
   # the "-u" here is if the branch was created
-  git push -u "$GH_REMOTE" "$DEPLOY_BRANCH" || abort "Failed to push to '$GH_REMOTE/$DEPLOY_BRANCH'"
-  echo "Successfully pushed to $GH_REMOTE/$DEPLOY_BRANCH"
+  git push -u "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+  echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 }
 
 function main {
@@ -91,30 +91,30 @@ function main {
         exit
         ;;
       -s|--source)
-        if [[ -z $2 ]]; then
+        if [[ -z ${2} ]]; then
           printf "'source' option requires an argument.\\n" >&2
-          printf "%s\\n" "$__SEE_HELP_MESSAGE__" >&2
+          printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        SOURCE_BRANCH="$2"
+        SOURCE_BRANCH="${2}"
         shift
         ;;
       -d|--destination)
-        if [[ -z $2 ]]; then
+        if [[ -z ${2} ]]; then
           printf "'destination' option requires an argument.\\n" >&2
-          printf "%s\\n" "$__SEE_HELP_MESSAGE__" >&2
+          printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        DEPLOY_BRANCH="$2"
+        DEPLOY_BRANCH="${2}"
         shift
         ;;
       -r|--remote)
-        if [[ -z $2 ]]; then
+        if [[ -z ${2} ]]; then
           printf "'remote' option requires an argument.\\n" >&2
-          printf "%s\\n" "$__SEE_HELP_MESSAGE__" >&2
+          printf "%s\\n" "${__SEE_HELP_MESSAGE__}" >&2
           exit 1
         fi
-        GH_REMOTE="$2"
+        GH_REMOTE="${2}"
         shift
         ;;
       *)
