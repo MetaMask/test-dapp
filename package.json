@@ -7,7 +7,7 @@
     "lint": "eslint . --ext js,json",
     "lint:fix": "eslint . --fix --ext js,json",
     "serve": "static-server . --port 9011",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "yarn lint"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "@metamask/onboarding": "^0.2.0"
   },
   "devDependencies": {
+    "@metamask/eslint-config": "^1.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-json": "^2.0.1",
     "static-server": "^2.2.1"
