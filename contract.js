@@ -66,6 +66,7 @@ const initialize = () => {
   }
   let accounts
   let piggybankContract
+  let accountButtonsInitialized = false
 
   const accountButtons = [
     deployButton,
@@ -119,6 +120,12 @@ const initialize = () => {
   }
 
   const initializeAccountButtons = () => {
+
+    if (accountButtonsInitialized) {
+      return
+    }
+    accountButtonsInitialized = true
+
     piggybankContract = web3.eth.contract([{ 'constant': false, 'inputs': [{ 'name': 'withdrawAmount', 'type': 'uint256' }], 'name': 'withdraw', 'outputs': [{ 'name': 'remainingBal', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'owner', 'outputs': [{ 'name': '', 'type': 'address' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [], 'name': 'deposit', 'outputs': [{ 'name': '', 'type': 'uint256' }], 'payable': true, 'stateMutability': 'payable', 'type': 'function' }, { 'inputs': [], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor' }])
     deployButton.onclick = async () => {
       contractStatus.innerHTML = 'Deploying'
