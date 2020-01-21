@@ -66,7 +66,7 @@ function preprocess_and_publish {
   
   shorthash=$(git show-ref "refs/heads/${SOURCE_BRANCH}")
 
-  # the full hash is 40 bytes long, and the ref will contain at least that
+  # the full hash is 40 characters long, and the ref will contain at least that
   if [ ${#shorthash} -lt 40 ]
   then
     abort "Source branch '${SOURCE_BRANCH}' has no head"
