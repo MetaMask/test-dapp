@@ -33,7 +33,7 @@ The `piggybankContract` is compiled from:
 const forwarderOrigin = 'http://localhost:9010'
 
 const isMetaMaskInstalled = () => {
-  return Boolean(window.ethereum && window.ethereum.isMetaMask)
+  return Boolean(ethereum && ethereum.isMetaMask)
 }
 
 const initialize = () => {
@@ -66,6 +66,7 @@ const initialize = () => {
   }
   let accounts
   let piggybankContract
+  let accountButtonsInitialized = false
 
   const accountButtons = [
     deployButton,
@@ -86,10 +87,6 @@ const initialize = () => {
     onboardButton.innerText = 'Onboarding in progress'
     onboardButton.disabled = true
     onboarding.startOnboarding()
-  }
-
-  const onClickConnect = async () => {
-    await window.ethereum.enable()
   }
 
   const updateButtons = () => {
@@ -123,6 +120,12 @@ const initialize = () => {
   }
 
   const initializeAccountButtons = () => {
+
+    if (accountButtonsInitialized) {
+      return
+    }
+    accountButtonsInitialized = true
+
     piggybankContract = web3.eth.contract([{ 'constant': false, 'inputs': [{ 'name': 'withdrawAmount', 'type': 'uint256' }], 'name': 'withdraw', 'outputs': [{ 'name': 'remainingBal', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'owner', 'outputs': [{ 'name': '', 'type': 'address' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [], 'name': 'deposit', 'outputs': [{ 'name': '', 'type': 'uint256' }], 'payable': true, 'stateMutability': 'payable', 'type': 'function' }, { 'inputs': [], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor' }])
     deployButton.onclick = async () => {
       contractStatus.innerHTML = 'Deploying'
@@ -309,7 +312,7 @@ const initialize = () => {
           contents: 'Hello, Bob!',
         },
       }
-      web3.currentProvider.sendAsync({
+      ethereum.sendAsync({
         method: 'eth_signTypedData_v3',
         params: [ethereum.selectedAddress, JSON.stringify(typedData)],
         from: ethereum.selectedAddress,
@@ -323,35 +326,68 @@ const initialize = () => {
     }
 
     getAccountsButton.onclick = async () => {
-      try {
-        const accounts = await ethereum.send({ method: 'eth_accounts' })
-        getAccountsResults.innerHTML = accounts[0] || 'Not able to get accounts'
-      } catch (error) {
-        console.error(error)
-        getAccountsResults.innerHTML = `Error: ${error}`
-      }
+      ethereum.sendAsync({ method: 'eth_accounts' }, (error, response) => {
+        if (error) {
+          console.error(error)
+          getAccountsResults.innerHTML = `Error: ${error}`
+        } else {
+          getAccountsResults.innerHTML = response.result[0] || 'Not able to get accounts'
+        }
+      })
     }
+  }
 
+  const handleNewAccounts = (newAccounts) => {
+    accounts = newAccounts
+    accountsDiv.innerHTML = accounts
+    if (isMetaMaskConnected()) {
+      initializeAccountButtons()
+    }
+    updateButtons()
+  }
+
+  const handleNewChain = (chainId) => {
+    chainIdDiv.innerHTML = chainId
+  }
+
+  const handleNewNetwork = (networkId) => {
+    networkDiv.innerHTML = networkId
+  }
+
+  const getNetworkAndChainId = () => {
+    ethereum.sendAsync({ method: 'eth_chainId' }, (err, response) => {
+      if (err) {
+        console.error(err)
+      } else {
+        handleNewChain(response.result)
+      }
+    })
+
+    ethereum.sendAsync({ method: 'net_version' }, (err, response) => {
+      if (err) {
+        console.error(err)
+      } else {
+        handleNewNetwork(response.result)
+      }
+    })
+  }
+
+  const onClickConnect = async () => {
+    try {
+      await ethereum.enable()
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   updateButtons()
+
   if (isMetaMaskInstalled()) {
     ethereum.autoRefreshOnNetworkChange = false
-    ethereum.on('networkChanged', (networkId) => {
-      networkDiv.innerHTML = networkId
-    })
-    ethereum.on('chainIdChanged', (chainId) => {
-      chainIdDiv.innerHTML = chainId
-    })
-    ethereum.on('accountsChanged', (newAccounts) => {
-      const connecting = Boolean((!accounts || !accounts.length) && newAccounts && newAccounts.length)
-      accounts = newAccounts
-      accountsDiv.innerHTML = accounts
-      if (connecting) {
-        initializeAccountButtons()
-      }
-      updateButtons()
-    })
+    getNetworkAndChainId()
+    ethereum.on('chainIdChanged', handleNewChain)
+    ethereum.on('networkChanged', handleNewNetwork)
+    ethereum.on('accountsChanged', handleNewAccounts)
   }
 }
 window.addEventListener('DOMContentLoaded', initialize)

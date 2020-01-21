@@ -80,6 +80,7 @@ function preprocess_and_publish {
   # the "-u" here is if the branch was created
   git push -u "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
+  git checkout "${SOURCE_BRANCH}" || abort "Failed to checkout source branch after publishing"
 }
 
 function main {

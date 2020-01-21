@@ -6,7 +6,7 @@
     "deploy": "./deploy.sh",
     "lint": "eslint . --ext js,json",
     "lint:fix": "eslint . --fix --ext js,json",
-    "start": "static-server . --port 9010",
+    "serve": "static-server . --port 9011",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
