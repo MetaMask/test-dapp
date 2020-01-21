@@ -72,7 +72,7 @@ function preprocess_and_publish {
     abort "Source branch '${SOURCE_BRANCH}' has no head"
   fi
 
-  shorthash="${shorthash:6}"
+  shorthash="${shorthash:0:7}"
 
   # commit to destination branch with shorthash in message
   git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
