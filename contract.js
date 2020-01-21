@@ -89,6 +89,14 @@ const initialize = () => {
     onboarding.startOnboarding()
   }
 
+  const onClickConnect = async () => {
+    try {
+      await ethereum.enable()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const updateButtons = () => {
     const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected()
     if (accountButtonsDisabled) {
@@ -370,14 +378,6 @@ const initialize = () => {
         handleNewNetwork(response.result)
       }
     })
-  }
-
-  const onClickConnect = async () => {
-    try {
-      await ethereum.enable()
-    } catch (error) {
-      console.error(error)
-    }
   }
 
   updateButtons()
