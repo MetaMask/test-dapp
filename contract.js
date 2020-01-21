@@ -66,7 +66,6 @@ const initialize = () => {
   }
   let accounts
   let piggybankContract
-  let connected = false
 
   const accountButtons = [
     deployButton,
@@ -334,8 +333,7 @@ const initialize = () => {
   const handleNewAccounts = (newAccounts) => {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
-    if (!connected && accounts && accounts.length) {
-      connected = true
+    if (isMetaMaskConnected()) {
       initializeAccountButtons()
     }
     updateButtons()
@@ -369,16 +367,17 @@ const initialize = () => {
 
   const onClickConnect = async () => {
     try {
-      handleNewAccounts(await ethereum.enable())
+      await ethereum.enable()
     } catch (error) {
       console.error(error)
     }
-    getNetworkAndChainId()
   }
 
   updateButtons()
+
   if (isMetaMaskInstalled()) {
     ethereum.autoRefreshOnNetworkChange = false
+    getNetworkAndChainId()
     ethereum.on('chainIdChanged', handleNewChain)
     ethereum.on('networkChanged', handleNewNetwork)
     ethereum.on('accountsChanged', handleNewAccounts)
