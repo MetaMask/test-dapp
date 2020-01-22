@@ -61,18 +61,14 @@ function preprocess_and_publish {
   # make changes for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
 
-  # compute shorthash
-  local shorthash
-  
-  shorthash=$(git show-ref "refs/heads/${SOURCE_BRANCH}")
+  # get shorthash
+  local shorthash=$(git rev-parse --short "refs/heads/${SOURCE_BRANCH}")
 
-  # the full hash is 40 bytes long, and the ref will contain at least that
-  if [ ${#shorthash} -lt 40 ]
+  # the shorthash is 7 characters long
+  if [ ${#shorthash} -lt 7 ]
   then
-    abort "Source branch '${SOURCE_BRANCH}' has no head"
+    abort "git rev-parse returned an invalid shorthash from branch '${SOURCE_BRANCH}'"
   fi
-
-  shorthash="${shorthash:6}"
 
   # commit to destination branch with shorthash in message
   git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
