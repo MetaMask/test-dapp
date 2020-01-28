@@ -5,6 +5,7 @@
   <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
   <script src="contract.js" defer></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body>
   <header>
@@ -13,57 +14,152 @@
   <main>
     <section>
       <h2>Connect</h2>
-      <button id="connectButton" disabled></button>
+      <div class="row">
+        <div class="col-sm">
+          <button id="connectButton" class="btn btn-primary btn-lg btn-block" disabled></button>
+        </div>
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
     </section>
     <section>
       <h2>Contract</h2>
-      <div>
-        <button id="deployButton" disabled>Deploy Contract</button>
-        <button id="depositButton" disabled>Deposit</button>
-        <button id="withdrawButton" disabled>Withdraw</button>
+      <div class="row">
+        <div class="col-sm">
+          <button id="deployButton" class="btn btn-primary btn-lg btn-block" disabled>
+            Deploy Contract
+          </button>
+        </div>
+        <div class="col-sm">
+          <button id="depositButton" class="btn btn-primary btn-lg btn-block" disabled>
+            Deposit
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
       </div>
-      <div>
+      <br/><br/>
+      <div class="row">
+        <div class="col-sm">
+          <button id="withdrawButton" class="btn btn-primary btn-lg btn-block" disabled>
+            Withdraw
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <div class="info-text">
         Contract Status: <span id="contractStatus">Not clicked</span>
       </div>
     </section>
     <section>
       <h2>Send Eth</h2>
-      <button id="sendButton" disabled>Send</button>
+      <div class="row">
+        <div class="col-sm">
+          <button id="sendButton" class="btn btn-primary btn-lg btn-block" disabled>
+            Send
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
     </section>
     <section>
       <h2>Send Tokens</h2>
-      <div>
+      <div class="info-text">
         Token: <span id="tokenAddress"></span>
       </div>
-      <div>
-        <button id="createToken" disabled>Create Token</button>
-        <button id="transferTokens" disabled>Transfer Tokens</button>
-        <button id="approveTokens" disabled>Approve Tokens</button>
-        <button id="transferTokensWithoutGas" disabled>Transfer Tokens Without Gas</button>
-        <button id="approveTokensWithoutGas" disabled>Approve Tokens Without Gas</button>
+      <div class="row">
+        <div class="col-sm">
+          <button id="createToken" class="btn btn-primary btn-lg btn-block" disabled>
+            Create Token
+          </button>
+        </div>
+        <div class="col-sm">
+          <button id="transferTokens" class="btn btn-primary btn-lg btn-block" disabled>
+            Transfer Tokens
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br/><br/>
+      <div class="row">
+        <div class="col-sm">
+          <button id="approveTokens" class="btn btn-primary btn-lg btn-block" disabled>
+            Approve Tokens
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <br/><br/>
+      <div class="row">
+        <div class="col-sm">
+          <button id="transferTokensWithoutGas" class="btn btn-primary btn-lg btn-block" disabled>
+            Transfer Tokens Without Gas
+          </button>
+        </div>
+        <div class="col-sm">
+          <button id="approveTokensWithoutGas" class="btn btn-primary btn-lg btn-block" disabled>
+            Approve Tokens Without Gas
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
       </div>
     </section>
     <section>
       <h2>Get Accounts</h2>
-      <button id="getAccounts">eth_accounts</button>
+      <div class="row">
+        <div class="col-sm">
+          <button id="getAccounts" class="btn btn-primary btn-lg btn-block" disabled>
+            eth_accounts
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
       <div id="getAccountsResult"></div>
     </section>
     <section>
       <h2>Status</h2>
-      <div>
+      <div class="info-text">
         Network: <span id="network"></span>
       </div>
-      <div>
+      <div class="info-text">
         ChainId: <span id="chainId"></span>
       </div>
-      <div>
+      <div class="info-text">
         Accounts: <span id="accounts"></span>
       </div>
     </section>
     <section>
       <h2>Sign Typed Data</h2>
-      <button id="signTypedData" disabled>Sign</button>
-      <div>Sign Typed Data Result: <span id="signTypedDataResult"></span></div>
+      <div class="row">
+        <div class="col-sm">
+          <button id="signTypedData" class="btn btn-primary btn-lg btn-block" disabled>
+            Sign
+          </button>
+        </div>
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+      <div class="info-text">
+        Sign Typed Data Result: <span id="signTypedDataResult"></span>
+      </div>
     </section>
   </main>
 </body>
