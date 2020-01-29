@@ -3,6 +3,10 @@ body {
   margin: 20px;
 }
 
+section {
+  margin: 20px 0 20px 0;
+}
+
 section > div.buttons {
   display: flex;
   flex-direction: row;
