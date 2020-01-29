@@ -51,13 +51,13 @@ function preprocess_and_publish {
   # checkout gh-pages, update local files
   if git show-ref "refs/heads/${DEPLOY_BRANCH}"
   then
-    git checkout "${DEPLOY_BRANCH}" || abort "Failed to check out ${DEPLOY_BRANCH}"
+    git checkout "${DEPLOY_BRANCH}" || abort "Failed to checkout ${DEPLOY_BRANCH}"
     git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to reset to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   else
     git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
     git rm -r ./\* || abort "Failed to clean git index"
   fi
-  git checkout "${SOURCE_BRANCH}" -- "${DEPLOY_FILES}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
+  git checkout "${SOURCE_BRANCH}" -- $DEPLOY_FILES || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # make changes for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
