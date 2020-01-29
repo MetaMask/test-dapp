@@ -3,8 +3,16 @@ version: 2.1
 workflows:
   lint:
     jobs:
-      - prep-deps
+      - prep-deps:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
       - test-lint:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
           requires:
             - prep-deps
 
@@ -25,8 +33,8 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-          - node_modules
-          - build-artifacts
+            - node_modules
+            - build-artifacts
 
   test-lint:
     docker:
