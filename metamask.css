@@ -1,0 +1,22 @@
+
+body {
+  margin: 20px;
+}
+
+section > div.buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.buttons > button.btn {
+  display: block;
+  margin: 20px;
+  flex: 0 0 31%;
+  margin: 1%;
+  padding: .5rem 1rem;
+}
+
+.info-text {
+  font-size: large;
+}
