@@ -5,3 +5,7 @@ section {
 .info-text {
   font-size: x-large;
 }
+
+body {
+  margin: 20px;
+}
