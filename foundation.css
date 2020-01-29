@@ -2737,7 +2737,7 @@ select {
 .button {
   display: inline-block;
   vertical-align: middle;
-  margin: 0 0 1rem 0;
+  margin: 0 1.5rem 1.5rem 0;
   padding: 0.85em 1em;
   border: 1px solid transparent;
   border-radius: 0;
