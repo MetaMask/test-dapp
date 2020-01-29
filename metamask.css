@@ -1,0 +1,12 @@
+
+body {
+  margin: 20px;
+}
+
+div > button {
+  margin: 20px;
+}
+
+.info-text {
+  font-size: large;
+}

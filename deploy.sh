@@ -9,6 +9,7 @@ readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more informat
 GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
+DEPLOY_FILES='index.html metamask.css contract.js'
 
 function abort {
   local message="${1}"
@@ -56,7 +57,7 @@ function preprocess_and_publish {
     git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
     git rm -r ./\* || abort "Failed to clean git index"
   fi
-  git checkout "${SOURCE_BRANCH}" -- contract.js index.html || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
+  git checkout "${SOURCE_BRANCH}" -- "${DEPLOY_FILES}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # make changes for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"

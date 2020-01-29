@@ -4,7 +4,10 @@
   <title>E2E Test Dapp</title>
   <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
   <script src="contract.js" defer></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+  <!-- <link rel="stylesheet" href="foundation.min.css" type="text/css"> -->
+  <link rel="stylesheet" href="foundation.css" type="text/css">
+  <link rel="stylesheet" href="metamask.css" type="text/css">
 </head>
 <body>
   <header>
@@ -12,58 +15,60 @@
   </header>
   <main>
     <section>
+      <h2>Status</h2>
+      <div class="info-text">
+        Network: <span id="network"></span>
+      </div>
+      <div class="info-text">
+        ChainId: <span id="chainId"></span>
+      </div>
+      <div class="info-text">
+        Accounts: <span id="accounts"></span>
+      </div>
+    </section>
+    <section>
       <h2>Connect</h2>
-      <button id="connectButton" disabled></button>
+      <button class="button large" id="connectButton" disabled></button>
     </section>
     <section>
       <h2>Contract</h2>
       <div>
-        <button id="deployButton" disabled>Deploy Contract</button>
-        <button id="depositButton" disabled>Deposit</button>
-        <button id="withdrawButton" disabled>Withdraw</button>
+        <button class="button large" id="deployButton" disabled>Deploy Contract</button>
+        <button class="button large" id="depositButton" disabled>Deposit</button>
+        <button class="button large" id="withdrawButton" disabled>Withdraw</button>
       </div>
-      <div>
+      <div class="info-text">
         Contract Status: <span id="contractStatus">Not clicked</span>
       </div>
     </section>
     <section>
       <h2>Send Eth</h2>
-      <button id="sendButton" disabled>Send</button>
+      <button class="button large" id="sendButton" disabled>Send</button>
     </section>
     <section>
       <h2>Send Tokens</h2>
-      <div>
+      <div class="info-text">
         Token: <span id="tokenAddress"></span>
       </div>
       <div>
-        <button id="createToken" disabled>Create Token</button>
-        <button id="transferTokens" disabled>Transfer Tokens</button>
-        <button id="approveTokens" disabled>Approve Tokens</button>
-        <button id="transferTokensWithoutGas" disabled>Transfer Tokens Without Gas</button>
-        <button id="approveTokensWithoutGas" disabled>Approve Tokens Without Gas</button>
+        <button class="button large" id="createToken" disabled>Create Token</button>
+        <button class="button large" id="transferTokens" disabled>Transfer Tokens</button>
+        <button class="button large" id="approveTokens" disabled>Approve Tokens</button>
+        <button class="button large" id="transferTokensWithoutGas" disabled>Transfer Tokens Without Gas</button>
+        <button class="button large" id="approveTokensWithoutGas" disabled>Approve Tokens Without Gas</button>
       </div>
     </section>
     <section>
       <h2>Get Accounts</h2>
-      <button id="getAccounts">eth_accounts</button>
+      <button class="button large" id="getAccounts">eth_accounts</button>
       <div id="getAccountsResult"></div>
     </section>
     <section>
-      <h2>Status</h2>
-      <div>
-        Network: <span id="network"></span>
-      </div>
-      <div>
-        ChainId: <span id="chainId"></span>
-      </div>
-      <div>
-        Accounts: <span id="accounts"></span>
-      </div>
-    </section>
-    <section>
       <h2>Sign Typed Data</h2>
-      <button id="signTypedData" disabled>Sign</button>
-      <div>Sign Typed Data Result: <span id="signTypedDataResult"></span></div>
+      <button class="button large" id="signTypedData" disabled>Sign</button>
+      <div class="info-text">
+        Sign Typed Data Result: <span id="signTypedDataResult"></span>
+      </div>
     </section>
   </main>
 </body>
