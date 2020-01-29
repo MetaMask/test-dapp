@@ -13,15 +13,42 @@
   </header>
   <main>
     <section>
-      <h2>Connect</h2>
+      <h2>Status</h2>
+      <div class="info-text">
+        Network: <span id="network"></span>
+      </div>
+      <div class="info-text">
+        ChainId: <span id="chainId"></span>
+      </div>
+      <div class="info-text">
+        Accounts: <span id="accounts"></span>
+      </div>
+    </section>
+    <section>
+      <div class="row">
+        <div class="col-sm">
+          <h2>Connect</h2>
+        </div>
+        <div class="col-sm">
+          <h2>Get Accounts</h2>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
       <div class="row">
         <div class="col-sm">
           <button id="connectButton" class="btn btn-primary btn-lg btn-block" disabled></button>
         </div>
         <div class="col-sm">
+          <button id="getAccounts" class="btn btn-primary btn-lg btn-block">
+            eth_accounts
+          </button>
         </div>
         <div class="col-sm">
         </div>
+      </div>
+      <div class="info-text">
+        eth_accounts result: <span id="getAccountsResult"></span>
       </div>
     </section>
     <section>
@@ -38,18 +65,9 @@
           </button>
         </div>
         <div class="col-sm">
-        </div>
-      </div>
-      <br/><br/>
-      <div class="row">
-        <div class="col-sm">
           <button id="withdrawButton" class="btn btn-primary btn-lg btn-block" disabled>
             Withdraw
           </button>
-        </div>
-        <div class="col-sm">
-        </div>
-        <div class="col-sm">
         </div>
       </div>
       <div class="info-text">
@@ -57,7 +75,16 @@
       </div>
     </section>
     <section>
-      <h2>Send Eth</h2>
+      <div class="row">
+        <div class="col-sm">
+          <h2>Send Eth</h2>
+        </div>
+        <div class="col-sm">
+          <h2>Sign Typed Data</h2>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
       <div class="row">
         <div class="col-sm">
           <button id="sendButton" class="btn btn-primary btn-lg btn-block" disabled>
@@ -65,9 +92,15 @@
           </button>
         </div>
         <div class="col-sm">
+          <button id="signTypedData" class="btn btn-primary btn-lg btn-block" disabled>
+            Sign
+          </button>
         </div>
         <div class="col-sm">
         </div>
+      </div>
+      <div class="info-text">
+        Sign Typed Data Result: <span id="signTypedDataResult"></span>
       </div>
     </section>
     <section>
@@ -87,18 +120,9 @@
           </button>
         </div>
         <div class="col-sm">
-        </div>
-      </div>
-      <br/><br/>
-      <div class="row">
-        <div class="col-sm">
           <button id="approveTokens" class="btn btn-primary btn-lg btn-block" disabled>
             Approve Tokens
           </button>
-        </div>
-        <div class="col-sm">
-        </div>
-        <div class="col-sm">
         </div>
       </div>
       <br/><br/>
@@ -115,50 +139,6 @@
         </div>
         <div class="col-sm">
         </div>
-      </div>
-    </section>
-    <section>
-      <h2>Get Accounts</h2>
-      <div class="row">
-        <div class="col-sm">
-          <button id="getAccounts" class="btn btn-primary btn-lg btn-block" disabled>
-            eth_accounts
-          </button>
-        </div>
-        <div class="col-sm">
-        </div>
-        <div class="col-sm">
-        </div>
-      </div>
-      <div id="getAccountsResult"></div>
-    </section>
-    <section>
-      <h2>Status</h2>
-      <div class="info-text">
-        Network: <span id="network"></span>
-      </div>
-      <div class="info-text">
-        ChainId: <span id="chainId"></span>
-      </div>
-      <div class="info-text">
-        Accounts: <span id="accounts"></span>
-      </div>
-    </section>
-    <section>
-      <h2>Sign Typed Data</h2>
-      <div class="row">
-        <div class="col-sm">
-          <button id="signTypedData" class="btn btn-primary btn-lg btn-block" disabled>
-            Sign
-          </button>
-        </div>
-        <div class="col-sm">
-        </div>
-        <div class="col-sm">
-        </div>
-      </div>
-      <div class="info-text">
-        Sign Typed Data Result: <span id="signTypedDataResult"></span>
       </div>
     </section>
   </main>
