@@ -34,7 +34,7 @@ window.initialized = false;
 
 web3.currentProvider.enable().then(() => {
   if (window.initialized) { // to avoid multiple event listeners
-	  return;
+      return;
   }
   window.initialized = true;
   var piggybankContract = web3.eth.contract([{'constant': false, 'inputs': [{'name': 'withdrawAmount', 'type': 'uint256'}], 'name': 'withdraw', 'outputs': [{'name': 'remainingBal', 'type': 'uint256'}], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function'}, {'constant': true, 'inputs': [], 'name': 'owner', 'outputs': [{'name': '', 'type': 'address'}], 'payable': false, 'stateMutability': 'view', 'type': 'function'}, {'constant': false, 'inputs': [], 'name': 'deposit', 'outputs': [{'name': '', 'type': 'uint256'}], 'payable': true, 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor'}])
@@ -49,6 +49,9 @@ web3.currentProvider.enable().then(() => {
   const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
   const getAccountsButton = document.getElementById('getAccounts')
   const getAccountsResult = document.getElementById('getAccountsResult')
+  const personalMessage = document.getElementById('personalMessage')
+  const personalMessageButton = document.getElementById('personalMessageButton')
+  const signedPersonalMessage = document.getElementById('signedPersonalMessage')
   const encriptionPublicKeyButton = document.getElementById('encriptionPublicKeyButton')
   const rawMessage = document.getElementById('rawMessage')
   const ecryptedRawMessage = document.getElementById('ecryptedRawMessage')
@@ -187,41 +190,57 @@ web3.currentProvider.enable().then(() => {
     getAccountsResult.innerHTML = accounts[0] || 'Not able to get accounts'
   })
   
+  personalMessageButton.addEventListener('click', async function () {
+    web3.currentProvider.sendAsync({
+            jsonrpc: '2.0',
+            method: 'personal_sign',
+            params: [personalMessage.value, web3.eth.defaultAccount],
+            from: web3.eth.defaultAccount,
+        }, function(error, message) {
+            console.log(error, message);
+            if (!error) {
+                signedPersonalMessage.innerHTML = "Signed message: `" + message.result + "`";
+            } else {
+                signedPersonalMessage.innerHTML = "Error: " + error.message;
+            }
+        });
+  })
+
   encriptionPublicKeyButton.addEventListener('click', async function () {
-	  web3.currentProvider.sendAsync({
-			jsonrpc: '2.0',
-			method: 'encryption_public_key',
-			params: [web3.eth.defaultAccount],
-			from: web3.eth.defaultAccount,
-		}, function(error, encryptionpublickey) {
-			if (!error) {
-				window.encryptionpublickey = encryptionpublickey.result;
-			} else {
-				console.log(error);
-			}
-		})
+      web3.currentProvider.sendAsync({
+            jsonrpc: '2.0',
+            method: 'encryption_public_key',
+            params: [web3.eth.defaultAccount],
+            from: web3.eth.defaultAccount,
+        }, function(error, encryptionpublickey) {
+            if (!error) {
+                window.encryptionpublickey = encryptionpublickey.result;
+            } else {
+                console.log(error);
+            }
+        })
   })
   
   rawMessage.addEventListener('keyup', async function () {
-	if (window.encryptionpublickey) {
-	  ecryptedRawMessage.value = web3.toHex(JSON.stringify(sigUtil.encrypt(window.encryptionpublickey, {'data': rawMessage.value}, 'x25519-xsalsa20-poly1305')));
-	}
+    if (window.encryptionpublickey) {
+      ecryptedRawMessage.value = web3.toHex(JSON.stringify(sigUtil.encrypt(window.encryptionpublickey, {'data': rawMessage.value}, 'x25519-xsalsa20-poly1305')));
+    }
   })
 
   decryptMessageButton.addEventListener('click', async function () {
-	  web3.currentProvider.sendAsync({
-			jsonrpc: '2.0',
-			method: 'eth_decryptMessage',
-			params: [ecryptedRawMessage.value, web3.eth.defaultAccount],
-			from: web3.eth.defaultAccount,
-		}, function(error, message) {
-			console.log(error, message);
-			if (!error) {
-				decryptedRawMessage.innerHTML = "Source message: `" + message.result + "`";
-			} else {
-				decryptedRawMessage.innerHTML = "Error: " + error.message;
-			}
-		});
+      web3.currentProvider.sendAsync({
+            jsonrpc: '2.0',
+            method: 'eth_decryptMessage',
+            params: [ecryptedRawMessage.value, web3.eth.defaultAccount],
+            from: web3.eth.defaultAccount,
+        }, function(error, message) {
+            console.log(error, message);
+            if (!error) {
+                decryptedRawMessage.innerHTML = "Source message: `" + message.result + "`";
+            } else {
+                decryptedRawMessage.innerHTML = "Error: " + error.message;
+            }
+        });
   })
 })
 
