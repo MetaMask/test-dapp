@@ -209,7 +209,7 @@ web3.currentProvider.enable().then(() => {
   encriptionPublicKeyButton.addEventListener('click', async function () {
       web3.currentProvider.sendAsync({
             jsonrpc: '2.0',
-            method: 'encryption_public_key',
+            method: 'eth_getEncryptionPublicKey',
             params: [web3.eth.defaultAccount],
             from: web3.eth.defaultAccount,
         }, function(error, encryptionpublickey) {
@@ -230,7 +230,7 @@ web3.currentProvider.enable().then(() => {
   decryptMessageButton.addEventListener('click', async function () {
       web3.currentProvider.sendAsync({
             jsonrpc: '2.0',
-            method: 'eth_decryptMessage',
+            method: 'eth_decrypt',
             params: [ecryptedRawMessage.value, web3.eth.defaultAccount],
             from: web3.eth.defaultAccount,
         }, function(error, message) {
