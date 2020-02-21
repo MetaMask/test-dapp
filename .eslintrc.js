@@ -1,6 +1,6 @@
 module.exports = {
   parserOptions: {
-    'sourceType': 'module',
+    'sourceType': 'script',
     'ecmaVersion': 2017,
     'ecmaFeatures': {
       'experimentalObjectRestSpread': true,

@@ -151,7 +151,7 @@ const initialize = () => {
             return
           }
 
-          console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash)
+          console.log(`Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`)
           contractStatus.innerHTML = 'Deployed'
           depositButton.disabled = false
           withdrawButton.disabled = false
@@ -196,7 +196,7 @@ const initialize = () => {
       })
     }
 
-    createToken.onclick = async () => {
+    createToken.onclick = () => {
       const _initialAmount = 100
       const _tokenName = 'TST'
       const _decimalUnits = 0
@@ -221,7 +221,7 @@ const initialize = () => {
             return
           }
 
-          console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash)
+          console.log(`Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`)
           tokenAddress.innerHTML = contract.address
           transferTokens.disabled = false
           approveTokens.disabled = false
@@ -280,8 +280,8 @@ const initialize = () => {
     }
 
     signTypedData.onclick = () => {
-      const networkId = parseInt(networkDiv.innerHTML)
-      const chainId = parseInt(chainIdDiv.innerHTML) || networkId
+      const networkId = parseInt(networkDiv.innerHTML, 10)
+      const chainId = parseInt(chainIdDiv.innerHTML, 10) || networkId
 
       const typedData = {
         types: {
@@ -333,7 +333,7 @@ const initialize = () => {
       })
     }
 
-    getAccountsButton.onclick = async () => {
+    getAccountsButton.onclick = () => {
       ethereum.sendAsync({ method: 'eth_accounts' }, (error, response) => {
         if (error) {
           console.error(error)
