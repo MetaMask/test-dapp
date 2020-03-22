@@ -1,27 +1,37 @@
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>E2E Test Dapp</title>
   <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
   <script src="contract.js" defer></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="metamask.css" type="text/css">
 </head>
+
 <body>
   <header>
     <h1>E2E Test Dapp</h1>
   </header>
-  <main>
+  <main class="container-fluid">
     <section>
-      <h2>Status</h2>
-      <div class="info-text">
-        Network: <span id="network"></span>
-      </div>
-      <div class="info-text">
-        ChainId: <span id="chainId"></span>
-      </div>
-      <div class="info-text">
-        Accounts: <span id="accounts"></span>
+      <div class="row">
+        <div class="card col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <div class="card-body">
+            <h3 class="card-title">Status</h3>
+            <div>
+              <p class="info-text alert alert-primary">Network: <span id="network"></span></p>
+            </div>
+            <div>
+              <p class="info-text alert alert-secondary">ChainId: <span id="chainId"></span></p>
+            </div>
+            <div>
+              <p class="info-text alert alert-success">Accounts: <span id="accounts"></span></p>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </section>
     <section>
@@ -60,8 +70,10 @@
         <button class="btn btn-primary btn-lg btn-block" id="createToken" disabled>Create Token</button>
         <button class="btn btn-primary btn-lg btn-block" id="transferTokens" disabled>Transfer Tokens</button>
         <button class="btn btn-primary btn-lg btn-block" id="approveTokens" disabled>Approve Tokens</button>
-        <button class="btn btn-primary btn-lg btn-block" id="transferTokensWithoutGas" disabled>Transfer Tokens Without Gas</button>
-        <button class="btn btn-primary btn-lg btn-block" id="approveTokensWithoutGas" disabled>Approve Tokens Without Gas</button>
+        <button class="btn btn-primary btn-lg btn-block" id="transferTokensWithoutGas" disabled>Transfer Tokens Without
+          Gas</button>
+        <button class="btn btn-primary btn-lg btn-block" id="approveTokensWithoutGas" disabled>Approve Tokens Without
+          Gas</button>
       </div>
     </section>
 
@@ -76,4 +88,5 @@
     </section>
   </main>
 </body>
+
 </html>
