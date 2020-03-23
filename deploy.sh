@@ -9,7 +9,7 @@ readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more informat
 GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
-DEPLOY_FILES='index.html metamask.css contract.js .circleci'
+DEPLOY_FILES='index.html metamask.css contract.js metamask-fox.svg .circleci'
 
 function abort {
   local message="${1}"
