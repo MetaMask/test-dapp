@@ -37,26 +37,36 @@ const isMetaMaskInstalled = () => {
 }
 
 const initialize = () => {
+  //Dapp Status Section
+  const networkDiv = document.getElementById('network')
+  const chainIdDiv = document.getElementById('chainId')
+  const accountsDiv = document.getElementById('accounts')
+
+  //Basic Actions Section
   const onboardButton = document.getElementById('connectButton')
+  const getAccountsButton = document.getElementById('getAccounts')
+  const getAccountsResults = document.getElementById('getAccountsResult')
+
+  //Contract Section
   const deployButton = document.getElementById('deployButton')
   const depositButton = document.getElementById('depositButton')
   const withdrawButton = document.getElementById('withdrawButton')
+  const contractStatus = document.getElementById('contractStatus')
+
+  //Send Eth Section
   const sendButton = document.getElementById('sendButton')
+
+  //Send Tokens Section
+  const tokenAddress = document.getElementById('tokenAddress')
   const createToken = document.getElementById('createToken')
   const transferTokens = document.getElementById('transferTokens')
   const approveTokens = document.getElementById('approveTokens')
   const transferTokensWithoutGas = document.getElementById('transferTokensWithoutGas')
   const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
+
+  //Signed Type Data Section
   const signTypedData = document.getElementById('signTypedData')
   const signTypedDataResults = document.getElementById('signTypedDataResult')
-  const getAccountsButton = document.getElementById('getAccounts')
-  const getAccountsResults = document.getElementById('getAccountsResult')
-
-  const contractStatus = document.getElementById('contractStatus')
-  const tokenAddress = document.getElementById('tokenAddress')
-  const networkDiv = document.getElementById('network')
-  const chainIdDiv = document.getElementById('chainId')
-  const accountsDiv = document.getElementById('accounts')
 
   let onboarding
   try {
