@@ -4,12 +4,10 @@
   <meta charset="UTF-8">
   <title>E2E Test Dapp</title>
   <link rel="icon" type="image/png" href="metamask-fox.svg">
-  <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
-  <script src="contract.js" defer></script>
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
-  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css" rel="stylesheet"> -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css" rel="stylesheet">
   <link rel="stylesheet" href="metamask.css" type="text/css">
 </head>
 
@@ -58,8 +56,8 @@
           <div class="card full-width">
             <div class="card-body">
               <h4 class="card-title">Contract</h4>
-              <button class="btn btn-primary btn-lg btn-block" id="deployButton" disabled>Deploy Contract</button>
-              <button class="btn btn-primary btn-lg btn-block" id="depositButton" disabled>Deposit</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="deployButton" disabled>Deploy Contract</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="depositButton" disabled>Deposit</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="withdrawButton" disabled>Withdraw</button>
               <p class="info-text alert alert-secondary">Contract Status: <span id="contractStatus">Not clicked</span></p>
             </div>
@@ -85,10 +83,10 @@
             <div class="card-body">
               <h4 class="card-title">Send Tokens</h4>
               <p class="info-text alert alert-success">Token: <span id="tokenAddress"></span></p>
-              <button class="btn btn-primary btn-lg btn-block" id="createToken" disabled>Create Token</button>
-              <button class="btn btn-primary btn-lg btn-block" id="transferTokens" disabled>Transfer Tokens</button>
-              <button class="btn btn-primary btn-lg btn-block" id="approveTokens" disabled>Approve Tokens</button>
-              <button class="btn btn-primary btn-lg btn-block" id="transferTokensWithoutGas" disabled>Transfer Tokens
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="createToken" disabled>Create Token</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="transferTokens" disabled>Transfer Tokens</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="approveTokens" disabled>Approve Tokens</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="transferTokensWithoutGas" disabled>Transfer Tokens
                 Without Gas</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="approveTokensWithoutGas" disabled>Approve Tokens
                 Without Gas</button>
@@ -98,11 +96,10 @@
         </div>
       </div>
     </section>
-
-    <section>
-
-    </section>
   </main>
+
+  <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
+  <script src="contract.js" defer></script>
 </body>
 
 </html>
