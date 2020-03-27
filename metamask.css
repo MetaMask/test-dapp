@@ -7,19 +7,19 @@ section {
   margin: 20px 0 20px 0;
 }
 
-section > div.buttons {
+/* section > div.buttons {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-}
+} */
 
-.buttons > button.btn {
+/* .buttons > button.btn {
   display: block;
   margin: 20px;
   flex: 0 0 31%;
   margin: 1%;
   padding: .5rem 1rem;
-}
+} */
 
 .info-text {
   font-size: 1.1em;
