@@ -35,8 +35,6 @@ const forwarderOrigin = 'http://localhost:9010'
 const isMetaMaskInstalled = () => {
   return Boolean(ethereum && ethereum.isMetaMask)
 }
-
-const initialize = () => {
   //Dapp Status Section
   const networkDiv = document.getElementById('network')
   const chainIdDiv = document.getElementById('chainId')
@@ -67,6 +65,8 @@ const initialize = () => {
   //Signed Type Data Section
   const signTypedData = document.getElementById('signTypedData')
   const signTypedDataResults = document.getElementById('signTypedDataResult')
+
+const initialize = () => {
 
   let onboarding
   try {
