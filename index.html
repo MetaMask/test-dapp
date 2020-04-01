@@ -14,7 +14,10 @@
 <body>
   <main class="container-fluid">
     <header>
-      <h1 class="text-center">E2E Test Dapp</h1>
+      <div id="logo-container">
+        <h1 id="logo-text" class="text-center">E2E Test Dapp</h1>
+        <img id="mm-logo" src="./metamask-fox.svg"/>
+      </div>
     </header>
     <section>
       <h3 class="card-title">Status</h3>
@@ -36,13 +39,10 @@
       <div class="row d-flex justify-content-center">
         <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
           <div class="card">
-            <img class="card-img-top" src="https://metamask.github.io/metamask-docs/ethereum-metamask-chrome.png"
-              alt="Card image cap">
             <div class="card-body">
               <h4 class="card-title">Basic Actions</h4>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="connectButton" disabled></button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="getAccounts">eth_accounts</button>
-              <p class="info-text alert alert-success">Accounts: <span id="accounts"></span></p>
               <p class="info-text alert alert-secondary">eth_accounts result: <span id="getAccountsResult"></span></p>
             </div>
           </div>
