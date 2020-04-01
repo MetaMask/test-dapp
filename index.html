@@ -4,90 +4,102 @@
   <meta charset="UTF-8">
   <title>E2E Test Dapp</title>
   <link rel="icon" type="image/png" href="metamask-fox.svg">
-  <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
-  <script src="contract.js" defer></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css" rel="stylesheet">
   <link rel="stylesheet" href="metamask.css" type="text/css">
 </head>
 
 <body>
-  <header>
-    <h1>E2E Test Dapp</h1>
-  </header>
   <main class="container-fluid">
+    <header>
+      <h1 class="text-center">E2E Test Dapp</h1>
+    </header>
     <section>
+      <h3 class="card-title">Status</h3>
       <div class="row">
-        <div class="card col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
-          <div class="card-body">
-            <h3 class="card-title">Status</h3>
-            <div>
-              <p class="info-text alert alert-primary">Network: <span id="network"></span></p>
-            </div>
-            <div>
-              <p class="info-text alert alert-secondary">ChainId: <span id="chainId"></span></p>
-            </div>
-            <div>
-              <p class="info-text alert alert-success">Accounts: <span id="accounts"></span></p>
-            </div>
-          </div>
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-primary">Network: <span id="network"></span></p>
         </div>
-        
-      </div>
-    </section>
-    <section>
-      <h2>Basic Actions</h2>
-      <div class="buttons">
-        <button class="btn btn-primary btn-lg btn-block" id="connectButton" disabled></button>
-        <button class="btn btn-primary btn-lg btn-block" id="getAccounts">eth_accounts</button>
-      </div>
-      <div class="info-text">
-        eth_accounts result: <span id="getAccountsResult"></span>
-      </div>
-    </section>
-    <section>
-      <h2>Contract</h2>
-      <div class="buttons">
-        <button class="btn btn-primary btn-lg btn-block" id="deployButton" disabled>Deploy Contract</button>
-        <button class="btn btn-primary btn-lg btn-block" id="depositButton" disabled>Deposit</button>
-        <button class="btn btn-primary btn-lg btn-block" id="withdrawButton" disabled>Withdraw</button>
-      </div>
-      <div class="info-text">
-        Contract Status: <span id="contractStatus">Not clicked</span>
-      </div>
-    </section>
-    <section>
-      <h2>Send Eth</h2>
-      <div class="buttons">
-        <button class="btn btn-primary btn-lg btn-block" id="sendButton" disabled>Send</button>
-      </div>
-    </section>
-    <section>
-      <h2>Send Tokens</h2>
-      <div class="info-text">
-        Token: <span id="tokenAddress"></span>
-      </div>
-      <div class="buttons">
-        <button class="btn btn-primary btn-lg btn-block" id="createToken" disabled>Create Token</button>
-        <button class="btn btn-primary btn-lg btn-block" id="transferTokens" disabled>Transfer Tokens</button>
-        <button class="btn btn-primary btn-lg btn-block" id="approveTokens" disabled>Approve Tokens</button>
-        <button class="btn btn-primary btn-lg btn-block" id="transferTokensWithoutGas" disabled>Transfer Tokens Without
-          Gas</button>
-        <button class="btn btn-primary btn-lg btn-block" id="approveTokensWithoutGas" disabled>Approve Tokens Without
-          Gas</button>
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-secondary">ChainId: <span id="chainId"></span></p>
+        </div>
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-success">Accounts: <span id="accounts"></span></p>
+        </div>
+
       </div>
     </section>
 
     <section>
-      <h2>Sign Typed Data</h2>
-      <div class="buttons">
-        <button class="btn btn-primary btn-lg btn-block" id="signTypedData" disabled>Sign</button>
+      <div class="row d-flex justify-content-center">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <div class="card">
+            <img class="card-img-top" src="https://metamask.github.io/metamask-docs/ethereum-metamask-chrome.png"
+              alt="Card image cap">
+            <div class="card-body">
+              <h4 class="card-title">Basic Actions</h4>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="connectButton" disabled></button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="getAccounts">eth_accounts</button>
+              <p class="info-text alert alert-success">Accounts: <span id="accounts"></span></p>
+              <p class="info-text alert alert-secondary">eth_accounts result: <span id="getAccountsResult"></span></p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="info-text">
-        Sign Typed Data Result: <span id="signTypedDataResult"></span>
+    </section>
+
+    <section>
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">Contract</h4>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="deployButton" disabled>Deploy Contract</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="depositButton" disabled>Deposit</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="withdrawButton" disabled>Withdraw</button>
+              <p class="info-text alert alert-secondary">Contract Status: <span id="contractStatus">Not clicked</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">Send Eth</h4>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="sendButton" disabled>Send</button>
+              <p class="info-text alert alert-info">Contract Status: <span id="contractStatus">Not clicked</span></p>
+              <hr />
+              <h4>Sign Typed Data</h4>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="signTypedData" disabled>Sign</button>
+              <p class="info-text alert alert-warning">Sign Typed Data Result: <span id="signTypedDataResult"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">Send Tokens</h4>
+              <p class="info-text alert alert-success">Token: <span id="tokenAddress"></span></p>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="createToken" disabled>Create Token</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="transferTokens" disabled>Transfer Tokens</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="approveTokens" disabled>Approve Tokens</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="transferTokensWithoutGas" disabled>Transfer Tokens
+                Without Gas</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="approveTokensWithoutGas" disabled>Approve Tokens
+                Without Gas</button>
+              <p class="info-text alert alert-info">Contract Status: <span id="contractStatus">Not clicked</span></p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
+
+  <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
+  <script src="contract.js" defer></script>
 </body>
 
 </html>
