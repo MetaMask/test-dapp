@@ -33,6 +33,7 @@ The `piggybankContract` is compiled from:
 const forwarderOrigin = 'http://localhost:9010'
 
 const isMetaMaskInstalled = () => {
+  const { ethereum } = window
   return Boolean(ethereum && ethereum.isMetaMask)
 }
 // Dapp Status Section
