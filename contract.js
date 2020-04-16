@@ -104,7 +104,7 @@ const initialize = () => {
 
   const onClickConnect = async () => {
     try {
-      const accounts = await ethereum.send('eth_requestAccounts')
+      accounts = await ethereum.send('eth_requestAccounts')
       handleNewAccounts(accounts)
     } catch (error) {
       console.error(error)
@@ -359,7 +359,7 @@ const initialize = () => {
     }
   }
 
-  const handleNewAccounts = (newAccounts) => {
+  function handleNewAccounts (newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
     if (isMetaMaskConnected()) {
@@ -368,15 +368,15 @@ const initialize = () => {
     updateButtons()
   }
 
-  const handleNewChain = (chainId) => {
+  function handleNewChain (chainId) {
     chainIdDiv.innerHTML = chainId
   }
 
-  const handleNewNetwork = (networkId) => {
+  function handleNewNetwork (networkId) {
     networkDiv.innerHTML = networkId
   }
 
-  const getNetworkAndChainId = () => {
+  function getNetworkAndChainId () {
     ethereum.sendAsync({ method: 'eth_chainId' }, (err, response) => {
       if (err) {
         console.error(err)
