@@ -104,8 +104,8 @@ const initialize = () => {
 
   const onClickConnect = async () => {
     try {
-      accounts = await ethereum.send('eth_requestAccounts')
-      handleNewAccounts(accounts)
+      const newAccounts = await ethereum.send('eth_requestAccounts')
+      handleNewAccounts(newAccounts)
     } catch (error) {
       console.error(error)
     }
