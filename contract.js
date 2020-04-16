@@ -36,6 +36,7 @@ const isMetaMaskInstalled = () => {
   const { ethereum } = window
   return Boolean(ethereum && ethereum.isMetaMask)
 }
+
 // Dapp Status Section
 const networkDiv = document.getElementById('network')
 const chainIdDiv = document.getElementById('chainId')
@@ -75,6 +76,7 @@ const initialize = () => {
   } catch (error) {
     console.error(error)
   }
+
   let accounts
   let piggybankContract
   let accountButtonsInitialized = false
@@ -102,7 +104,8 @@ const initialize = () => {
 
   const onClickConnect = async () => {
     try {
-      await ethereum.enable()
+      const newAccounts = await ethereum.send('eth_requestAccounts')
+      handleNewAccounts(newAccounts)
     } catch (error) {
       console.error(error)
     }
@@ -356,7 +359,7 @@ const initialize = () => {
     }
   }
 
-  const handleNewAccounts = (newAccounts) => {
+  function handleNewAccounts (newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
     if (isMetaMaskConnected()) {
@@ -365,15 +368,15 @@ const initialize = () => {
     updateButtons()
   }
 
-  const handleNewChain = (chainId) => {
+  function handleNewChain (chainId) {
     chainIdDiv.innerHTML = chainId
   }
 
-  const handleNewNetwork = (networkId) => {
+  function handleNewNetwork (networkId) {
     networkDiv.innerHTML = networkId
   }
 
-  const getNetworkAndChainId = () => {
+  function getNetworkAndChainId () {
     ethereum.sendAsync({ method: 'eth_chainId' }, (err, response) => {
       if (err) {
         console.error(err)
@@ -394,11 +397,22 @@ const initialize = () => {
   updateButtons()
 
   if (isMetaMaskInstalled()) {
+
     ethereum.autoRefreshOnNetworkChange = false
     getNetworkAndChainId()
+
     ethereum.on('chainIdChanged', handleNewChain)
     ethereum.on('networkChanged', handleNewNetwork)
     ethereum.on('accountsChanged', handleNewAccounts)
+
+    ethereum.sendAsync({ method: 'eth_accounts' }, (err, response) => {
+      if (err) {
+        console.error('Error on init when getting accounts', err)
+      } else {
+        handleNewAccounts(response.result)
+      }
+    })
   }
 }
+
 window.addEventListener('DOMContentLoaded', initialize)
