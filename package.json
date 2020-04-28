@@ -1,5 +1,5 @@
 {
-  "name": "metamask-test-dapp",
+  "name": "@metamask/test-dapp",
   "version": "1.0.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
@@ -14,8 +14,9 @@
     "url": "git+https://github.com/MetaMask/test-dapp.git"
   },
   "files": [
-    "/contract.js",
-    "/index.html"
+    "/index.js",
+    "/index.html",
+    "/www"
   ],
   "author": "MetaMask",
   "license": "MIT",
