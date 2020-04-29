@@ -57,11 +57,11 @@ function preprocess_and_publish {
     git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
     git rm -r ./\* || abort "Failed to clean git index"
   fi
-  git checkout "${SOURCE_BRANCH}" -- $WEBSITE_DIR || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
+  git checkout "${SOURCE_BRANCH}" -- "${WEBSITE_DIR}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # move website files to root dir, delete website folder
-  mv $WEBSITE_DIR/\* .
-  rm -rf $WEBSITE_DIR
+  cp -r "${WEBSITE_DIR}/." "."
+  rm -rf "${WEBSITE_DIR}"
 
   # string transforms for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
