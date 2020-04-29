@@ -9,7 +9,8 @@ readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more informat
 GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
-WEBSITE_DIR='website'
+WEBSITE_DIR_PATH='website'
+GITIGNORE_PATH='.gitignore'
 
 function abort {
   local message="${1}"
@@ -57,11 +58,11 @@ function preprocess_and_publish {
     git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
     git rm -r ./* || abort "Failed to clean git index"
   fi
-  git checkout "${SOURCE_BRANCH}" -- "${WEBSITE_DIR}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
+  git checkout "${SOURCE_BRANCH}" -- "${WEBSITE_DIR_PATH}" "${GITIGNORE_PATH}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # move website files to root dir, delete website folder
-  mv "${WEBSITE_DIR}"/* .
-  rm -rf "${WEBSITE_DIR}"
+  mv "${WEBSITE_DIR_PATH}"/* .
+  rm -rf "${WEBSITE_DIR_PATH}"
 
   # string transforms for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
@@ -76,7 +77,8 @@ function preprocess_and_publish {
   fi
 
   # commit to destination branch with shorthash in message
-  git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
+  git add .
+  git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
 
   # the "-u" here is if the branch was created
   git push -u "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
