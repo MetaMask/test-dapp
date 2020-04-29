@@ -10,7 +10,6 @@ GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
 WEBSITE_DIR_PATH='website'
-GITIGNORE_PATH='.gitignore'
 
 function abort {
   local message="${1}"
@@ -40,29 +39,14 @@ function is_working_tree_dirty {
 function replace_onboarding_src {
   local local_src="../node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js"
   local web_src="https://unpkg.com/@metamask/onboarding@0.2.1/dist/metamask-onboarding.bundle.js"
-  local target_file="index.html"
+  local target_file="${WEBSITE_DIR_PATH}/index.html"
 
   sed -i "" -e "s#${local_src}#${web_src}#g" "${target_file}"
 }
 
 function preprocess_and_publish {
 
-  git fetch || abort "Failed to fetch"
-
-  # checkout gh-pages, update local files
-  if git show-ref "refs/heads/${DEPLOY_BRANCH}"
-  then
-    git checkout "${DEPLOY_BRANCH}" || abort "Failed to checkout ${DEPLOY_BRANCH}"
-    git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to reset to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
-  else
-    git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
-    git rm -r ./* || abort "Failed to clean git index"
-  fi
-  git checkout "${SOURCE_BRANCH}" -- "${WEBSITE_DIR_PATH}" "${GITIGNORE_PATH}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
-
-  # move website files to root dir, delete website folder
-  mv "${WEBSITE_DIR_PATH}"/* .
-  rm -rf "${WEBSITE_DIR_PATH}"
+  git checkout "${SOURCE_BRANCH}" || abort "Failed to checkout ${SOURCE_BRANCH} branch"
 
   # string transforms for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
@@ -77,13 +61,12 @@ function preprocess_and_publish {
   fi
 
   # commit to destination branch with shorthash in message
-  git add .
-  git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
+  git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
 
-  # the "-u" here is if the branch was created
-  git push -u "${GH_REMOTE}" "${DEPLOY_BRANCH}" || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+  # executes a forced "git subtree push" (git subtree does not take a force so we have to next)
+  git push "${GH_REMOTE}" `git subtree split --prefix "${WEBSITE_DIR_PATH}" "${SOURCE_BRANCH}"`:"${DEPLOY_BRANCH}" --force || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
-  git checkout "${SOURCE_BRANCH}" || abort "Failed to checkout source branch after publishing"
+  git reset --hard HEAD~1 || abort "Failed to reset after publishing"
 }
 
 function main {
