@@ -9,6 +9,9 @@
     "start": "static-server ./website --port 9011",
     "test": "yarn lint"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MetaMask/test-dapp.git"
