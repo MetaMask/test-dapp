@@ -55,12 +55,12 @@ function preprocess_and_publish {
     git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to reset to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   else
     git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
-    git rm -r ./\* || abort "Failed to clean git index"
+    git rm -r ./* || abort "Failed to clean git index"
   fi
   git checkout "${SOURCE_BRANCH}" -- "${WEBSITE_DIR}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # move website files to root dir, delete website folder
-  cp -r "${WEBSITE_DIR}/." "."
+  mv "${WEBSITE_DIR}"/* .
   rm -rf "${WEBSITE_DIR}"
 
   # string transforms for web publication
