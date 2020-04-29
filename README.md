@@ -4,7 +4,14 @@ This is a simple test dapp for use in MetaMask e2e tests.
 
 Currently hosted [here](https://metamask.github.io/test-dapp/).
 
-## NOTE: Requires Manual Deployment
+## Usage
 
-After merging or pushing to `master`, please `yarn deploy` in the project root
-directory if any file in the `website/` directory has changed.
+If you wish to use this dapp in your e2e tests, install this package and set up a script of e.g. the following form:
+
+```shell
+static-server node_modules/@metamask/test-dapp/website --port 9011
+```
+
+### Development Note: Requires Manual Deployment
+
+After merging or pushing to `master`, please run `yarn deploy` in the package root directory if the contents of the `website/` directory have changed.
