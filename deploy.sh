@@ -46,13 +46,15 @@ function replace_onboarding_src {
 
 function preprocess_and_publish {
 
+  local shorthash
+
   git checkout "${SOURCE_BRANCH}" || abort "Failed to checkout ${SOURCE_BRANCH} branch"
 
   # string transforms for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
 
   # get shorthash
-  local shorthash=$(git rev-parse --short "refs/heads/${SOURCE_BRANCH}")
+  shorthash=$(git rev-parse --short "refs/heads/${SOURCE_BRANCH}")
 
   # the shorthash is 7 characters long
   if [ ${#shorthash} -lt 7 ]
@@ -64,7 +66,7 @@ function preprocess_and_publish {
   git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
 
   # executes a forced "git subtree push" (git subtree does not take a force so we have to nest)
-  git push "${GH_REMOTE}" `git subtree split --prefix "${WEBSITE_DIR_PATH}" "${SOURCE_BRANCH}"`:"${DEPLOY_BRANCH}" --force || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+  git push "${GH_REMOTE}" "$(git subtree split --prefix "${WEBSITE_DIR_PATH}" "${SOURCE_BRANCH}")":"${DEPLOY_BRANCH}" --force || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
   git reset --hard HEAD~1 || abort "Failed to reset after publishing"
 }
