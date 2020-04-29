@@ -60,7 +60,7 @@ function preprocess_and_publish {
   git checkout "${SOURCE_BRANCH}" -- $WEBSITE_DIR || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
   # move website files to root dir, delete website folder
-  mv $WEBSITE_DIR/* .
+  mv $WEBSITE_DIR/\* .
   rm -rf $WEBSITE_DIR
 
   # string transforms for web publication
