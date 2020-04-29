@@ -9,7 +9,7 @@ readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more informat
 GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
-DEPLOY_FILES='index.html metamask.css contract.js metamask-fox.svg .circleci'
+WEBSITE_DIR='website'
 
 function abort {
   local message="${1}"
@@ -37,7 +37,7 @@ function is_working_tree_dirty {
 
 # for gh-pages, use unpkg.com for dependencies
 function replace_onboarding_src {
-  local local_src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js"
+  local local_src="../node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js"
   local web_src="https://unpkg.com/@metamask/onboarding@0.2.1/dist/metamask-onboarding.bundle.js"
   local target_file="index.html"
 
@@ -55,11 +55,15 @@ function preprocess_and_publish {
     git reset --hard "${GH_REMOTE}/${DEPLOY_BRANCH}" || abort "Failed to reset to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   else
     git checkout -b "${DEPLOY_BRANCH}" || abort "Failed to checkout '${GH_REMOTE}/${DEPLOY_BRANCH}'"
-    git rm -r ./\* || abort "Failed to clean git index"
+    git rm -r ./* || abort "Failed to clean git index"
   fi
-  git checkout "${SOURCE_BRANCH}" -- $DEPLOY_FILES || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
+  git checkout "${SOURCE_BRANCH}" -- "${WEBSITE_DIR}" || abort "Failed to checkout files from '${SOURCE_BRANCH}'"
 
-  # make changes for web publication
+  # move website files to root dir, delete website folder
+  mv "${WEBSITE_DIR}"/* .
+  rm -rf "${WEBSITE_DIR}"
+
+  # string transforms for web publication
   replace_onboarding_src || abort "Failed to replace onboarding script source"
 
   # get shorthash

@@ -1,12 +1,12 @@
 {
-  "name": "metamask-test-dapp",
+  "name": "@metamask/test-dapp",
   "version": "1.0.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
     "deploy": "./deploy.sh",
     "lint": "eslint . --ext js,json",
     "lint:fix": "eslint . --fix --ext js,json",
-    "start": "static-server . --port 9011",
+    "start": "static-server ./website --port 9011",
     "test": "yarn lint"
   },
   "repository": {
@@ -14,8 +14,7 @@
     "url": "git+https://github.com/MetaMask/test-dapp.git"
   },
   "files": [
-    "/contract.js",
-    "/index.html"
+    "/website"
   ],
   "author": "MetaMask",
   "license": "MIT",
