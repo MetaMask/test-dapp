@@ -6,7 +6,7 @@
     "deploy": "./deploy.sh",
     "lint": "eslint . --ext js,json",
     "lint:fix": "eslint . --fix --ext js,json",
-    "serve": "static-server . --port 9011",
+    "start": "static-server . --port 9011",
     "test": "yarn lint"
   },
   "repository": {
