@@ -63,7 +63,7 @@ function preprocess_and_publish {
   # commit to destination branch with shorthash in message
   git commit -am "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
 
-  # executes a forced "git subtree push" (git subtree does not take a force so we have to next)
+  # executes a forced "git subtree push" (git subtree does not take a force so we have to nest)
   git push "${GH_REMOTE}" `git subtree split --prefix "${WEBSITE_DIR_PATH}" "${SOURCE_BRANCH}"`:"${DEPLOY_BRANCH}" --force || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
   git reset --hard HEAD~1 || abort "Failed to reset after publishing"
