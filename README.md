@@ -30,6 +30,6 @@ For example, consider this old bug:
 
 This appears on the page as `Approve Tokens Without Gas`. In reality, the value included the whitespace on the second line, and caused XPath queries for the intended value to fail:
 
-```
+```html
 Approve Tokens                Without Gas
 ```
