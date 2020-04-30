@@ -4,8 +4,8 @@
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
     "deploy": "./deploy.sh",
-    "lint": "eslint . --ext js,json",
-    "lint:fix": "eslint . --fix --ext js,json",
+    "lint": "eslint . --ext js,json && prettier ./website -c",
+    "lint:fix": "eslint . --fix --ext js,json && prettier ./website -c --write",
     "start": "static-server ./website --port 9011",
     "test": "yarn lint"
   },
@@ -33,6 +33,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-json": "^2.0.1",
+    "prettier": "^2.0.5",
     "static-server": "^2.2.1"
   }
 }
