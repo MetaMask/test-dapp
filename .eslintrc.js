@@ -19,6 +19,12 @@ module.exports = {
     'browser': true,
   },
 
+  globals: {
+    'web3': 'readonly',
+    'ethereum': 'readonly',
+    'MetamaskOnboarding': 'readonly',
+  },
+
   plugins: [
     'json',
   ],
@@ -27,8 +33,4 @@ module.exports = {
     '@metamask/eslint-config',
     '@metamask/eslint-config/config/nodejs',
   ],
-
-  globals: {
-    'web3': true,
-  },
 }
