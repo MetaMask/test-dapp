@@ -31,4 +31,8 @@ module.exports = {
   globals: {
     'web3': true,
   },
+
+  ignorePatterns: [
+    '*bundle.js',
+  ],
 }
