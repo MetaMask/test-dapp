@@ -37,7 +37,7 @@ function is_working_tree_dirty {
 
 # for gh-pages, use unpkg.com for dependencies
 function replace_onboarding_src {
-  local local_src="../node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js"
+  local local_src="./metamask-onboarding.bundle.js"
   local web_src="https://unpkg.com/@metamask/onboarding@0.2.1/dist/metamask-onboarding.bundle.js"
   local target_file="${WEBSITE_DIR_PATH}/index.html"
 
