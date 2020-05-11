@@ -23,10 +23,10 @@
   resolved "https://registry.yarnpkg.com/@metamask/eslint-config/-/eslint-config-2.0.0.tgz#4abeccbaafecd2e55be4dc97308e732e2eaa6799"
   integrity sha512-RowWMIelQNviIH1e9pgsUpQ5oeTXwuzjXAUmW5GXSJz0f3B9MN9OC9krs+ctLZVnf9ec8chcepCTTZFEcVIXRQ==
 
-"@metamask/onboarding@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@metamask/onboarding/-/onboarding-0.2.1.tgz#76e864634d6436a486fcfa743f09a25b1934a11e"
-  integrity sha512-wSwgkIfVHM6IWja0xfNbK+wMFweOazNe1Z1RVqS0ZKG5v8vCPT93N5IQF2mKCDD+RnBpremE1VYslPPQxQz25g==
+"@metamask/onboarding@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@metamask/onboarding/-/onboarding-0.3.0.tgz#c41d2452f5ee1eeece2d18c53309123abdc93812"
+  integrity sha512-89bc4x9Tz4av0L8hew1dwx4z0TDZFQ2P5LnkObwxOSxNn/aGaXEjNG1wh4hRTc0prNY3m/FGmvY0wpSmkPs8WQ==
   dependencies:
     bowser "^2.5.4"
 
