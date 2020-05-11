@@ -35,23 +35,11 @@ function is_working_tree_dirty {
   ! git diff --quiet
 }
 
-# for gh-pages, use unpkg.com for dependencies
-function replace_onboarding_src {
-  local local_src="./metamask-onboarding.bundle.js"
-  local web_src="https://unpkg.com/@metamask/onboarding@0.2.1/dist/metamask-onboarding.bundle.js"
-  local target_file="${WEBSITE_DIR_PATH}/index.html"
-
-  sed -i "" -e "s#${local_src}#${web_src}#g" "${target_file}"
-}
-
 function preprocess_and_publish {
 
   local shorthash
 
   git checkout "${SOURCE_BRANCH}" || abort "Failed to checkout ${SOURCE_BRANCH} branch"
-
-  # string transforms for web publication
-  replace_onboarding_src || abort "Failed to replace onboarding script source"
 
   # get shorthash
   shorthash=$(git rev-parse --short "refs/heads/${SOURCE_BRANCH}")
