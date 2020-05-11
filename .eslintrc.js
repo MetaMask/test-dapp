@@ -33,4 +33,8 @@ module.exports = {
     '@metamask/eslint-config',
     '@metamask/eslint-config/config/nodejs',
   ],
+
+  ignorePatterns: [
+    '*bundle.js',
+  ],
 }

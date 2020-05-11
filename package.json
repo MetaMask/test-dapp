@@ -7,6 +7,7 @@
     "lint": "eslint . --ext js,json && prettier ./website -c",
     "lint:fix": "eslint . --fix --ext js,json && prettier ./website -c --write",
     "start": "static-server ./website --port 9011",
+    "postinstall": "cp ./node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js ./website",
     "test": "yarn lint"
   },
   "publishConfig": {
