@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/MetaMask/test-dapp#readme",
   "dependencies": {
-    "@metamask/onboarding": "^0.2.1"
+    "@metamask/onboarding": "^0.3.0"
   },
   "devDependencies": {
     "@metamask/eslint-config": "^2.0.0",
