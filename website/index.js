@@ -66,7 +66,7 @@ const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas
 const signTypedData = document.getElementById('signTypedData')
 const signTypedDataResults = document.getElementById('signTypedDataResult')
 
-const initialize = () => {
+const initialize = async () => {
 
   let onboarding
   try {
@@ -102,7 +102,9 @@ const initialize = () => {
 
   const onClickConnect = async () => {
     try {
-      const newAccounts = await ethereum.send('eth_requestAccounts')
+      const newAccounts = await ethereum.request({
+        method: 'eth_requestAccounts',
+      })
       handleNewAccounts(newAccounts)
     } catch (error) {
       console.error(error)
@@ -291,7 +293,7 @@ const initialize = () => {
       )
     }
 
-    signTypedData.onclick = () => {
+    signTypedData.onclick = async () => {
       const networkId = parseInt(networkDiv.innerHTML, 10)
       const chainId = parseInt(chainIdDiv.innerHTML, 10) || networkId
 
@@ -332,28 +334,28 @@ const initialize = () => {
           contents: 'Hello, Bob!',
         },
       }
-      ethereum.sendAsync({
-        method: 'eth_signTypedData_v3',
-        params: [ethereum.selectedAddress, JSON.stringify(typedData)],
-        from: ethereum.selectedAddress,
-      }, (err, result) => {
-        if (err) {
-          console.log(err)
-        } else {
-          signTypedDataResults.innerHTML = JSON.stringify(result)
-        }
-      })
+
+      try {
+        const result = await ethereum.request({
+          method: 'eth_signTypedData_v3',
+          params: [accounts[0], JSON.stringify(typedData)],
+        })
+        signTypedDataResults.innerHTML = JSON.stringify(result)
+      } catch (err) {
+        console.error(err)
+      }
     }
 
-    getAccountsButton.onclick = () => {
-      ethereum.sendAsync({ method: 'eth_accounts' }, (error, response) => {
-        if (error) {
-          console.error(error)
-          getAccountsResults.innerHTML = `Error: ${error}`
-        } else {
-          getAccountsResults.innerHTML = response.result[0] || 'Not able to get accounts'
-        }
-      })
+    getAccountsButton.onclick = async () => {
+      try {
+        const _accounts = await ethereum.request({
+          method: 'eth_accounts',
+        })
+        getAccountsResults.innerHTML = _accounts[0] || 'Not able to get accounts'
+      } catch (err) {
+        console.error(err)
+        getAccountsResults.innerHTML = `Error: ${err}`
+      }
     }
   }
 
@@ -374,22 +376,20 @@ const initialize = () => {
     networkDiv.innerHTML = networkId
   }
 
-  function getNetworkAndChainId () {
-    ethereum.sendAsync({ method: 'eth_chainId' }, (err, response) => {
-      if (err) {
-        console.error(err)
-      } else {
-        handleNewChain(response.result)
-      }
-    })
+  async function getNetworkAndChainId () {
+    try {
+      const chainId = await ethereum.request({
+        method: 'eth_chainId',
+      })
+      handleNewChain(chainId)
 
-    ethereum.sendAsync({ method: 'net_version' }, (err, response) => {
-      if (err) {
-        console.error(err)
-      } else {
-        handleNewNetwork(response.result)
-      }
-    })
+      const networkId = await ethereum.request({
+        method: 'net_version',
+      })
+      handleNewNetwork(networkId)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   updateButtons()
@@ -403,13 +403,14 @@ const initialize = () => {
     ethereum.on('networkChanged', handleNewNetwork)
     ethereum.on('accountsChanged', handleNewAccounts)
 
-    ethereum.sendAsync({ method: 'eth_accounts' }, (err, response) => {
-      if (err) {
-        console.error('Error on init when getting accounts', err)
-      } else {
-        handleNewAccounts(response.result)
-      }
-    })
+    try {
+      const newAccounts = await ethereum.request({
+        method: 'eth_accounts',
+      })
+      handleNewAccounts(newAccounts)
+    } catch (err) {
+      console.error('Error on init when getting accounts', err)
+    }
   }
 }
 
