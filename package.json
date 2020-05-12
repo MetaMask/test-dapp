@@ -7,8 +7,10 @@
     "lint": "eslint . --ext js,json && prettier ./website -c",
     "lint:fix": "eslint . --fix --ext js,json && prettier ./website -c --write",
     "start": "static-server ./website --port 9011",
-    "postinstall": "cp ./node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js ./website",
-    "test": "yarn lint"
+    "test": "yarn lint",
+    "prepare": "yarn prepare:dir && yarn prepare:copy",
+    "prepare:dir": "mkdir -p ./website/scripts",
+    "prepare:copy": "cp ./node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js ./website/scripts"
   },
   "publishConfig": {
     "access": "public"
@@ -26,11 +28,10 @@
     "url": "https://github.com/MetaMask/test-dapp/issues"
   },
   "homepage": "https://github.com/MetaMask/test-dapp#readme",
-  "dependencies": {
-    "@metamask/onboarding": "^0.3.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@metamask/eslint-config": "^2.0.0",
+    "@metamask/onboarding": "^0.3.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-json": "^2.0.1",
