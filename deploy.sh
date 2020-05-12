@@ -10,6 +10,7 @@ GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
 WEBSITE_DIR_PATH='website'
+WEBSITE_SCRIPT_FILES_PATH='website/scripts/*'
 
 function abort {
   local message="${1}"
@@ -50,9 +51,14 @@ function preprocess_and_publish {
     abort "git rev-parse returned an invalid shorthash from branch '${SOURCE_BRANCH}'"
   fi
 
+  # commit to destination branch with shorthash in message
+  git add -f "${WEBSITE_SCRIPT_FILES_PATH}"
+  git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
+
   # executes a forced "git subtree push" (git subtree does not take a force so we have to nest)
   git push "${GH_REMOTE}" "$(git subtree split --prefix "${WEBSITE_DIR_PATH}" "${SOURCE_BRANCH}")":"${DEPLOY_BRANCH}" --force || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
+  git reset --hard HEAD~1 || abort "Failed to reset after publishing"
 }
 
 function main {
