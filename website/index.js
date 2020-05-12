@@ -399,7 +399,7 @@ const initialize = async () => {
     ethereum.autoRefreshOnNetworkChange = false
     getNetworkAndChainId()
 
-    ethereum.on('chainIdChanged', handleNewChain)
+    ethereum.on('chainChanged', handleNewChain)
     ethereum.on('networkChanged', handleNewNetwork)
     ethereum.on('accountsChanged', handleNewAccounts)
 
