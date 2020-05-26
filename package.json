@@ -3,7 +3,7 @@
   "version": "2.0.1",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
-    "deploy": "./deploy.sh",
+    "deploy": "yarn prepare && ./deploy.sh",
     "lint": "eslint . --ext js,json && prettier ./website -c",
     "lint:fix": "eslint . --fix --ext js,json && prettier ./website -c --write",
     "start": "static-server ./website --port 9011",

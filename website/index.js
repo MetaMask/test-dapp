@@ -384,7 +384,7 @@ const initialize = async () => {
         getAccountsResults.innerHTML = _accounts[0] || 'Not able to get accounts'
       } catch (err) {
         console.error(err)
-        getAccountsResults.innerHTML = `Error: ${err}`
+        getAccountsResults.innerHTML = `Error: ${err.message}`
       }
     }
   }
