@@ -45,6 +45,11 @@ const onboardButton = document.getElementById('connectButton')
 const getAccountsButton = document.getElementById('getAccounts')
 const getAccountsResults = document.getElementById('getAccountsResult')
 
+// Permissions Actions Section
+const requestPermissionsButton = document.getElementById('requestPermissions')
+const getPermissionsButton = document.getElementById('getPermissions')
+const permissionsResult = document.getElementById('permissionsResult')
+
 // Contract Section
 const deployButton = document.getElementById('deployButton')
 const depositButton = document.getElementById('depositButton')
@@ -346,6 +351,31 @@ const initialize = async () => {
       }
     }
 
+    requestPermissionsButton.onclick = async () => {
+      try {
+        const permissionsArray = await ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }],
+        })
+        permissionsResult.innerHTML = getPermissionsDisplayString(permissionsArray)
+      } catch (err) {
+        console.error(err)
+        permissionsResult.innerHTML = `Error: ${err.message}`
+      }
+    }
+
+    getPermissionsButton.onclick = async () => {
+      try {
+        const permissionsArray = await ethereum.request({
+          method: 'wallet_getPermissions',
+        })
+        permissionsResult.innerHTML = getPermissionsDisplayString(permissionsArray)
+      } catch (err) {
+        console.error(err)
+        permissionsResult.innerHTML = `Error: ${err.message}`
+      }
+    }
+
     getAccountsButton.onclick = async () => {
       try {
         const _accounts = await ethereum.request({
@@ -415,3 +445,12 @@ const initialize = async () => {
 }
 
 window.addEventListener('DOMContentLoaded', initialize)
+
+function getPermissionsDisplayString (permissionsArray) {
+  if (permissionsArray.length === 0) {
+    return 'No permissions found.'
+  }
+  const permissionNames = permissionsArray.map((perm) => perm.parentCapability)
+  return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
+}
+
