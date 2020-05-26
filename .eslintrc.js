@@ -18,6 +18,8 @@ module.exports = {
     '@metamask/eslint-config/config/nodejs',
   ],
   ignorePatterns: [
+    '!.eslintrc.js',
     '*bundle.js',
+    '*min.js',
   ],
 }
