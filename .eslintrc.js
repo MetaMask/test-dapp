@@ -21,4 +21,7 @@ module.exports = {
     '!.eslintrc.js',
     'website',
   ],
+  rules: {
+    'no-process-exit': 'off',
+  },
 }
