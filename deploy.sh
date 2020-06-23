@@ -10,7 +10,7 @@ GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
 WEBSITE_DIR_PATH='website'
-WEBSITE_SCRIPT_FILES_PATH='website/scripts/*'
+RETURN_PATH='..'
 
 function abort {
   local message="${1}"
@@ -36,13 +36,10 @@ function is_working_tree_dirty {
   ! git diff --quiet
 }
 
-function preprocess_and_publish {
+function get_shorthash {
 
   local shorthash
 
-  git checkout "${SOURCE_BRANCH}" || abort "Failed to checkout ${SOURCE_BRANCH} branch"
-
-  # get shorthash
   shorthash=$(git rev-parse --short "refs/heads/${SOURCE_BRANCH}")
 
   # the shorthash is 7 characters long
@@ -51,17 +48,25 @@ function preprocess_and_publish {
     abort "git rev-parse returned an invalid shorthash from branch '${SOURCE_BRANCH}'"
   fi
 
-  # force add and commit website scripts to source branch
-  git add -f "${WEBSITE_SCRIPT_FILES_PATH}"
-  git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit to destination branch '${DEPLOY_BRANCH}'"
+  echo "${shorthash}"
+}
 
-  # executes a forced "git subtree push" to destination branch
-  # (git subtree does not accept the force option so we have to nest the commands)
-  git push "${GH_REMOTE}" "$(git subtree split --prefix "${WEBSITE_DIR_PATH}" "${SOURCE_BRANCH}")":"${DEPLOY_BRANCH}" --force || abort "Failed to push to '${GH_REMOTE}/${DEPLOY_BRANCH}'"
+function preprocess_and_publish {
+
+  yarn prepare
+
+  local shorthash
+  shorthash=$(get_shorthash)
+
+  cd ${WEBSITE_DIR_PATH} || abort "Failed to navigate to website directory"
+
+  git init || abort "Failed to initialize git repository in website directory"
+  git add -A . || abort "Failed to stage website files"
+  git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit website files"
+  git push -f git@github.com:MetaMask/test-dapp.git ${SOURCE_BRANCH}:${DEPLOY_BRANCH} || abort "Failed to push to ${GH_REMOTE}/${DEPLOY_BRANCH}"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 
-  # reset source branch to remove website scripts
-  git reset --hard HEAD~1 || abort "Failed to reset after publishing"
+  cd ${RETURN_PATH} || abort "Failed to navigate back to root directory"
 }
 
 function main {

@@ -19,7 +19,6 @@ module.exports = {
   ],
   ignorePatterns: [
     '!.eslintrc.js',
-    '*bundle.js',
-    '*min.js',
+    'website',
   ],
 }
