@@ -257,6 +257,71 @@
           </div>
         </div>
       </section>
+
+      <section>
+        <div class="row">
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Encrypt / Decrypt
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="getEncryptionKeyButton"
+                  disabled
+                >
+                  Get Encryption Key
+                </button>
+
+                <hr />
+
+                <div id="encrypt-message-form">
+                  <input
+                    class="form-control"
+                    type="text"
+                    placeholder="Message to encrypt"
+                    id="encryptMessageInput"
+                  />
+
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="encryptButton"
+                    disabled
+                  >
+                    Encrypt
+                  </button>
+                </div>
+
+                <hr />
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="decryptButton"
+                  disabled
+                >
+                  Decrypt
+                </button>
+
+                <p class="info-text alert alert-secondary">
+                  Encryption key: <span id="encryptionKeyDisplay"></span>
+                </p>
+
+                <p class="info-text text-truncate alert alert-secondary">
+                  Ciphertext: <span id="ciphertextDisplay"></span>
+                </p>
+
+                <p class="info-text alert alert-secondary">
+                  Cleartext: <span id="cleartextDisplay"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="./scripts/metamask-onboarding.bundle.js" defer></script>

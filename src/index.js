@@ -28,6 +28,8 @@ The `piggybankContract` is compiled from:
   }
 */
 
+const sigUtil = require('eth-sig-util')
+
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
   ? 'http://localhost:9010'
@@ -74,6 +76,15 @@ const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas
 const signTypedData = document.getElementById('signTypedData')
 const signTypedDataResults = document.getElementById('signTypedDataResult')
 
+// Encrypt / Decrypt Section
+const getEncryptionKeyButton = document.getElementById('getEncryptionKeyButton')
+const encryptMessageInput = document.getElementById('encryptMessageInput')
+const encryptButton = document.getElementById('encryptButton')
+const decryptButton = document.getElementById('decryptButton')
+const encryptionKeyDisplay = document.getElementById('encryptionKeyDisplay')
+const ciphertextDisplay = document.getElementById('ciphertextDisplay')
+const cleartextDisplay = document.getElementById('cleartextDisplay')
+
 const initialize = async () => {
 
   let onboarding
@@ -98,6 +109,10 @@ const initialize = async () => {
     transferTokensWithoutGas,
     approveTokensWithoutGas,
     signTypedData,
+    getEncryptionKeyButton,
+    encryptMessageInput,
+    encryptButton,
+    decryptButton,
   ]
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0
@@ -119,17 +134,26 @@ const initialize = async () => {
     }
   }
 
+  const clearTextDisplays = () => {
+    encryptionKeyDisplay.innerText = ''
+    encryptMessageInput.value = ''
+    ciphertextDisplay.innerText = ''
+    cleartextDisplay.innerText = ''
+  }
+
   const updateButtons = () => {
     const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected()
     if (accountButtonsDisabled) {
       for (const button of accountButtons) {
         button.disabled = true
       }
+      clearTextDisplays()
     } else {
       deployButton.disabled = false
       sendButton.disabled = false
       createToken.disabled = false
       signTypedData.disabled = false
+      getEncryptionKeyButton.disabled = false
     }
 
     if (!isMetaMaskInstalled()) {
@@ -155,6 +179,10 @@ const initialize = async () => {
       return
     }
     accountButtonsInitialized = true
+
+    /**
+     * Contract Interactions
+     */
 
     piggybankContract = web3.eth.contract([{ 'constant': false, 'inputs': [{ 'name': 'withdrawAmount', 'type': 'uint256' }], 'name': 'withdraw', 'outputs': [{ 'name': 'remainingBal', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'owner', 'outputs': [{ 'name': '', 'type': 'address' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [], 'name': 'deposit', 'outputs': [{ 'name': '', 'type': 'uint256' }], 'payable': true, 'stateMutability': 'payable', 'type': 'function' }, { 'inputs': [], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor' }])
     deployButton.onclick = async () => {
@@ -206,6 +234,10 @@ const initialize = async () => {
       console.log(piggybank)
     }
 
+    /**
+     * Sending ETH
+     */
+
     sendButton.onclick = () => {
       web3.eth.sendTransaction({
         from: accounts[0],
@@ -217,6 +249,10 @@ const initialize = async () => {
         console.log(result)
       })
     }
+
+    /**
+     * ERC20 Token
+     */
 
     createToken.onclick = () => {
       const _initialAmount = 100
@@ -301,6 +337,10 @@ const initialize = async () => {
       )
     }
 
+    /**
+     * Sign Typed Data
+     */
+
     signTypedData.onclick = async () => {
       const networkId = parseInt(networkDiv.innerHTML, 10)
       const chainId = parseInt(chainIdDiv.innerHTML, 10) || networkId
@@ -354,6 +394,10 @@ const initialize = async () => {
       }
     }
 
+    /**
+     * Permissions
+     */
+
     requestPermissionsButton.onclick = async () => {
       try {
         const permissionsArray = await ethereum.request({
@@ -388,6 +432,65 @@ const initialize = async () => {
       } catch (err) {
         console.error(err)
         getAccountsResults.innerHTML = `Error: ${err.message}`
+      }
+    }
+
+    /**
+     * Encrypt / Decrypt
+     */
+
+    getEncryptionKeyButton.onclick = async () => {
+      try {
+        encryptionKeyDisplay.innerText = await ethereum.request({
+          method: 'eth_getEncryptionPublicKey',
+          params: [accounts[0]],
+        })
+        encryptMessageInput.disabled = false
+      } catch (error) {
+        encryptionKeyDisplay.innerText = `Error: ${error.message}`
+        encryptMessageInput.disabled = true
+        encryptButton.disabled = true
+        decryptButton.disabled = true
+      }
+    }
+
+    encryptMessageInput.onkeyup = () => {
+      if (
+        !getEncryptionKeyButton.disabled &&
+        encryptMessageInput.value.length > 0
+      ) {
+        if (encryptButton.disabled) {
+          encryptButton.disabled = false
+        }
+      } else if (!encryptButton.disabled) {
+        encryptButton.disabled = true
+      }
+    }
+
+    encryptButton.onclick = () => {
+      try {
+        ciphertextDisplay.innerText = web3.toHex(JSON.stringify(
+          sigUtil.encrypt(
+            encryptionKeyDisplay.innerText,
+            { 'data': encryptMessageInput.value },
+            'x25519-xsalsa20-poly1305',
+          ),
+        ))
+        decryptButton.disabled = false
+      } catch (error) {
+        ciphertextDisplay.innerText = `Error: ${error.message}`
+        decryptButton.disabled = true
+      }
+    }
+
+    decryptButton.onclick = async () => {
+      try {
+        cleartextDisplay.innerText = await ethereum.request({
+          method: 'eth_decrypt',
+          params: [ciphertextDisplay.innerText, ethereum.selectedAddress],
+        })
+      } catch (error) {
+        cleartextDisplay.innerText = `Error: ${error.message}`
       }
     }
   }

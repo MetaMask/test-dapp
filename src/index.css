@@ -35,3 +35,9 @@ header {
 #mm-logo {
   width: 100%;
 }
+
+/* Encrypt/Decrypt */
+
+#encryptMessageInput {
+  margin-bottom: 1rem;
+}
