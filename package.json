@@ -1,6 +1,6 @@
 {
   "name": "@metamask/test-dapp",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
     "deploy": "./deploy.sh",
@@ -19,7 +19,7 @@
     "url": "git+https://github.com/MetaMask/test-dapp.git"
   },
   "files": [
-    "/website"
+    "website/"
   ],
   "author": "MetaMask",
   "license": "MIT",
