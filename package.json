@@ -1,6 +1,6 @@
 {
   "name": "@metamask/test-dapp",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "scripts": {
     "deploy": "./deploy.sh",
