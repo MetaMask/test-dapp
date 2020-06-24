@@ -66,6 +66,8 @@ function preprocess_and_publish {
   git push -f git@github.com:MetaMask/test-dapp.git ${SOURCE_BRANCH}:${DEPLOY_BRANCH} || abort "Failed to push to ${GH_REMOTE}/${DEPLOY_BRANCH}"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 
+  rm -rf .git || abort "Failed to delete .git folder in ${WEBSITE_DIR_PATH}"
+
   cd ${RETURN_PATH} || abort "Failed to navigate back to root directory"
 }
 
