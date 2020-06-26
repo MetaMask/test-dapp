@@ -18,11 +18,14 @@ const BUNDLE_SOURCE_NAME = 'index.js'
 const log = (str) => console.log(chalk.blue('#'), str)
 const error = (str, err) => console.log(chalk.red('#'), 'Error:', str, err)
 
+const rebuildHandler = getWatchHandler(rebuild)
+const unlinkHandler = getWatchHandler(unlink)
+
 chokidar.watch(WATCH_DIR, { ignoreInitial: true })
   .on('ready', initialBuild)
-  .on('add', getWatchHandler(rebuild))
-  .on('change', getWatchHandler(rebuild))
-  .on('unlink', getWatchHandler(deleteFile))
+  .on('add', rebuildHandler)
+  .on('change', rebuildHandler)
+  .on('unlink', unlinkHandler)
   .on('error', (err) => {
     error('Unexpected watcher error.', err)
     process.exit(1)
@@ -32,22 +35,31 @@ log(`Watching '${WATCH_DIR}' and rebuilding website on changes.`)
 
 // Watch event middleware
 
-function getWatchHandler (handler) {
+/**
+ * Returns a wrapper for a specific watch event action, that performs some
+ * work/validation required in all cases.
+ * 
+ * @param {Function} action - The watch event action.
+ * @returns {Function} The wrapped watch event action.
+ */
+function getWatchHandler (action) {
   return (filePath) => {
     const fileName = pathUtils.basename(filePath)
     stat(filePath, (err, statResult) => {
       if (err) {
+
         if (err.code === 'ENOENT') {
-          return // file was already deleted
+          return // file was deleted
         }
         error('Unexpected fs.stat error', err)
-        process.exit(1)
 
+        process.exit(1)
       } else if (statResult.isDirectory()) {
+
         error(`Unexpected directory '${filePath}' in 'src' folder. Directories are not supported; please flatten 'src' and try again.`)
         process.exit(1)
       } else {
-        handler({ srcFilePath: filePath, fileName })
+        action({ srcFilePath: filePath, fileName })
       }
     })
   }
