@@ -8,7 +8,6 @@ module.exports = {
   globals: {
     'web3': 'readonly',
     'ethereum': 'readonly',
-    'MetamaskOnboarding': 'readonly',
   },
   plugins: [
     'json',
@@ -17,8 +16,14 @@ module.exports = {
     '@metamask/eslint-config',
     '@metamask/eslint-config/config/nodejs',
   ],
+  overrides: [{
+    'files': ['src/index.js'],
+    'parserOptions': {
+      'sourceType': 'module',
+    },
+  }],
   ignorePatterns: [
     '!.eslintrc.js',
-    'website',
+    'dist',
   ],
 }

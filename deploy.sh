@@ -9,7 +9,7 @@ readonly __SEE_HELP_MESSAGE__="See '${__SCRIPT_NAME__} --help' for more informat
 GH_REMOTE='origin'
 SOURCE_BRANCH='master'
 DEPLOY_BRANCH='gh-pages'
-WEBSITE_DIR_PATH='website'
+WEBSITE_DIR_PATH='dist'
 RETURN_PATH='..'
 
 function abort {
