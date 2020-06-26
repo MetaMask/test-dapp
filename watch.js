@@ -19,7 +19,7 @@ const log = (str) => console.log(chalk.blue('#'), str)
 const error = (str, err) => console.log(chalk.red('#'), 'Error:', str, err)
 
 const rebuildHandler = getWatchHandler(rebuild)
-const unlinkHandler = getWatchHandler(unlink)
+const unlinkHandler = getWatchHandler(deleteFile)
 
 chokidar.watch(WATCH_DIR, { ignoreInitial: true })
   .on('ready', initialBuild)
@@ -38,7 +38,7 @@ log(`Watching '${WATCH_DIR}' and rebuilding website on changes.`)
 /**
  * Returns a wrapper for a specific watch event action, that performs some
  * work/validation required in all cases.
- * 
+ *
  * @param {Function} action - The watch event action.
  * @returns {Function} The wrapped watch event action.
  */
