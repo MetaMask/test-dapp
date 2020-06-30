@@ -28,7 +28,8 @@ The `piggybankContract` is compiled from:
   }
 */
 
-const sigUtil = require('eth-sig-util')
+import sigUtil from 'eth-sig-util'
+import MetamaskOnboarding from '@metamask/onboarding'
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'

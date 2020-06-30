@@ -9,14 +9,14 @@ Currently hosted [here](https://metamask.github.io/test-dapp/).
 If you wish to use this dapp in your e2e tests, install this package and set up a script of e.g. the following form:
 
 ```shell
-static-server node_modules/@metamask/test-dapp/website --port 9011
+static-server node_modules/@metamask/test-dapp/dist --port 9011
 ```
 
 ## Development
 
 ### Requires Manual Deployment
 
-After merging or pushing to `master`, please run `yarn deploy` in the package root directory if the contents of the `website/` directory have changed.
+After merging or pushing to `master`, please run `yarn deploy` in the package root directory if the contents of the `dist/` directory have changed.
 
 ### Elements Must Be Selectable by XPath
 
