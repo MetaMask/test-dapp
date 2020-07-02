@@ -30,7 +30,7 @@
   "dependencies": {},
   "devDependencies": {
     "@metamask/eslint-config": "^2.0.0",
-    "@metamask/onboarding": "^0.4.0",
+    "@metamask/onboarding": "^1.0.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.0.2",
     "eslint": "^6.8.0",
