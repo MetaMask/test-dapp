@@ -29,7 +29,7 @@ The `piggybankContract` is compiled from:
 */
 
 import sigUtil from 'eth-sig-util'
-import MetamaskOnboarding from '@metamask/onboarding'
+import MetaMaskOnboarding from '@metamask/onboarding'
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
@@ -90,7 +90,7 @@ const initialize = async () => {
 
   let onboarding
   try {
-    onboarding = new MetamaskOnboarding({ forwarderOrigin })
+    onboarding = new MetaMaskOnboarding({ forwarderOrigin })
   } catch (error) {
     console.error(error)
   }
