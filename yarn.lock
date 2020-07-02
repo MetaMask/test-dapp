@@ -23,12 +23,12 @@
   resolved "https://registry.yarnpkg.com/@metamask/eslint-config/-/eslint-config-2.0.0.tgz#4abeccbaafecd2e55be4dc97308e732e2eaa6799"
   integrity sha512-RowWMIelQNviIH1e9pgsUpQ5oeTXwuzjXAUmW5GXSJz0f3B9MN9OC9krs+ctLZVnf9ec8chcepCTTZFEcVIXRQ==
 
-"@metamask/onboarding@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@metamask/onboarding/-/onboarding-0.4.0.tgz#addecd4de988e178495cd64467807c6a2c793894"
-  integrity sha512-vowfzGEsOK3Z38uTwdiQclnqnt0aKwdaHUojgTVrFDEbIp4LDMC9wx/3oUNDBFcBKF8qS/CEaVmYOIw66oP9Pg==
+"@metamask/onboarding@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@metamask/onboarding/-/onboarding-1.0.0.tgz#500c65b58d1e09419b049638024db040cce30dc6"
+  integrity sha512-GnR1Sv87plYM58RYRC7V04oo52JEL4zDmgoLKLdjr59ma60lK6LzZz3k9uJscqUAfwtgKurXHz2Hx5r2oBC6vQ==
   dependencies:
-    bowser "^2.5.4"
+    bowser "^2.9.0"
     tslib "^1.11.0"
 
 "@nodelib/fs.scandir@2.1.3":
@@ -621,10 +621,10 @@ bonjour@^3.5.0:
     multicast-dns "^6.0.1"
     multicast-dns-service-types "^1.1.0"
 
-bowser@^2.5.4:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.8.1.tgz#35b74165e17b80ba8af6aa4736c2861b001fc09e"
-  integrity sha512-FxxltGKqMHkVa3KtpA+kdnxH0caHPDewccyrK3vW1bsMw6Zco4vRPmMunowX0pXlDZqhxkKSpToADQI2Sk4OeQ==
+bowser@^2.9.0:
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.9.0.tgz#3bed854233b419b9a7422d9ee3e85504373821c9"
+  integrity sha512-2ld76tuLBNFekRgmJfT2+3j5MIrP6bFict8WAIT3beq+srz1gcKNAdNKMqHqauQt63NmAa88HfP1/Ypa9Er3HA==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
