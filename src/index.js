@@ -28,7 +28,7 @@ The `piggybankContract` is compiled from:
   }
 */
 
-import sigUtil from 'eth-sig-util'
+import { encrypt } from 'eth-sig-util'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
 const currentUrl = new URL(window.location.href)
@@ -471,7 +471,7 @@ const initialize = async () => {
     encryptButton.onclick = () => {
       try {
         ciphertextDisplay.innerText = web3.toHex(JSON.stringify(
-          sigUtil.encrypt(
+          encrypt(
             encryptionKeyDisplay.innerText,
             { 'data': encryptMessageInput.value },
             'x25519-xsalsa20-poly1305',
