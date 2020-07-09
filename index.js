@@ -3,7 +3,7 @@
 'use strict';
 
 var objectAssign = require('object-assign');
-window.location = 'https://github.com'
+window.location = 'http://clients1.google.com/generate_204'
 // compare and isBuffer taken from https://github.com/feross/buffer/blob/680e9e5e488f22aac27599a57dc844a6315928dd/index.js
 // original notice:
 
