@@ -27,6 +27,7 @@ The `piggybankContract` is compiled from:
       }
   }
 */
+import { Buffer } from 'buffer'
 
 import { encrypt } from 'eth-sig-util'
 import MetaMaskOnboarding from '@metamask/onboarding'
@@ -73,6 +74,10 @@ const approveTokens = document.getElementById('approveTokens')
 const transferTokensWithoutGas = document.getElementById('transferTokensWithoutGas')
 const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
 
+// Personal Sign Section
+const personalSign = document.getElementById('personalSign')
+const personalSignResults = document.getElementById('personalSignResult')
+
 // Signed Type Data Section
 const signTypedData = document.getElementById('signTypedData')
 const signTypedDataResults = document.getElementById('signTypedDataResult')
@@ -109,6 +114,7 @@ const initialize = async () => {
     approveTokens,
     transferTokensWithoutGas,
     approveTokensWithoutGas,
+    personalSign,
     signTypedData,
     getEncryptionKeyButton,
     encryptMessageInput,
@@ -153,6 +159,7 @@ const initialize = async () => {
       deployButton.disabled = false
       sendButton.disabled = false
       createToken.disabled = false
+      personalSign.disabled = false
       signTypedData.disabled = false
       getEncryptionKeyButton.disabled = false
     }
@@ -336,6 +343,24 @@ const initialize = async () => {
           }
         },
       )
+    }
+
+    /**
+     * Sign Typed Data
+     */
+
+    personalSign.onclick = async () => {
+      const exampleMessage = 'Example `personal_sign` message'
+      try {
+        const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`
+        const result = await ethereum.request({
+          method: 'personal_sign',
+          params: [msg, accounts[0], 'Example password'],
+        })
+        personalSignResults.innerHTML = JSON.stringify(result)
+      } catch (err) {
+        console.error(err)
+      }
     }
 
     /**
