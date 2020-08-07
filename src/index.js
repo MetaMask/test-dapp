@@ -37,10 +37,7 @@ const forwarderOrigin = currentUrl.hostname === 'localhost'
   ? 'http://localhost:9010'
   : undefined
 
-const isMetaMaskInstalled = () => {
-  const { ethereum } = window
-  return Boolean(ethereum && ethereum.isMetaMask)
-}
+const { isMetaMaskInstalled } = MetaMaskOnboarding
 
 // Dapp Status Section
 const networkDiv = document.getElementById('network')
@@ -585,4 +582,3 @@ function getPermissionsDisplayString (permissionsArray) {
   const permissionNames = permissionsArray.map((perm) => perm.parentCapability)
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
-
