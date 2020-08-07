@@ -146,7 +146,7 @@ const initialize = async () => {
   }
 
   const updateButtons = () => {
-    const accountButtonsDisabled = !MetaMaskOnboarding.isMetaMaskInstalled() || !isMetaMaskConnected()
+    const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected()
     if (accountButtonsDisabled) {
       for (const button of accountButtons) {
         button.disabled = true
@@ -582,4 +582,3 @@ function getPermissionsDisplayString (permissionsArray) {
   const permissionNames = permissionsArray.map((perm) => perm.parentCapability)
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
-
