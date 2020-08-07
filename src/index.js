@@ -33,7 +33,6 @@ import { ethers } from 'ethers'
 import { encrypt } from 'eth-sig-util'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
-import { stringToHex } from './utils'
 import { hstBytecode, piggybankBytecode } from './constants.json'
 
 const ethersProvider = new ethers.providers.Web3Provider(window.ethereum)
@@ -484,12 +483,12 @@ const initialize = async () => {
 
     encryptButton.onclick = () => {
       try {
-        ciphertextDisplay.innerText = stringToHex(JSON.stringify(
-          encrypt(
+        ciphertextDisplay.innerText = ethers.utils.hexlify(Buffer.from(
+          JSON.stringify(encrypt(
             encryptionKeyDisplay.innerText,
             { 'data': encryptMessageInput.value },
             'x25519-xsalsa20-poly1305',
-          ),
+          )),
         ))
         decryptButton.disabled = false
       } catch (error) {
