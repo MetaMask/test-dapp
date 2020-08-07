@@ -6,7 +6,6 @@ module.exports = {
     'ecmaVersion': 2018,
   },
   globals: {
-    'web3': 'readonly',
     'ethereum': 'readonly',
   },
   plugins: [
@@ -17,7 +16,7 @@ module.exports = {
     '@metamask/eslint-config/config/nodejs',
   ],
   overrides: [{
-    'files': ['src/index.js'],
+    'files': ['src/*.js'],
     'parserOptions': {
       'sourceType': 'module',
     },
