@@ -336,6 +336,45 @@
               </div>
             </div>
           </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4 class="card-title">
+                  JSON RPC
+                </h4>
+
+
+                <div id="encrypt-message-form">
+                  <input
+                    class="form-control mb-3"
+                    type="text"
+                    placeholder="RPC method"
+                    id="rpcMethodInput"
+                  />
+                  
+                  <input
+                    class="form-control mb-3"
+                    type="text"
+                    placeholder="Parameters"
+                    id="rpcParamsInput"
+                  />
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="rpcRequestButton"
+                  >
+                    Request
+                  </button>
+                </div>
+
+                <p class="info-text alert alert-secondary">
+                  RPC response: <span id="rpcResultDisplay"></span>
+                </p>
+
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>

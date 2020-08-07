@@ -91,6 +91,12 @@ const encryptionKeyDisplay = document.getElementById('encryptionKeyDisplay')
 const ciphertextDisplay = document.getElementById('ciphertextDisplay')
 const cleartextDisplay = document.getElementById('cleartextDisplay')
 
+// JSON RPC section
+const rpcMethodInput = document.getElementById('rpcMethodInput')
+const rpcParamsInput = document.getElementById('rpcParamsInput')
+const rpcRequestButton = document.getElementById('rpcRequestButton')
+const rpcResultDisplay = document.getElementById('rpcResultDisplay')
+
 const initialize = async () => {
 
   let onboarding
@@ -119,7 +125,7 @@ const initialize = async () => {
     getEncryptionKeyButton,
     encryptMessageInput,
     encryptButton,
-    decryptButton,
+    decryptButton
   ]
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0
@@ -146,6 +152,7 @@ const initialize = async () => {
     encryptMessageInput.value = ''
     ciphertextDisplay.innerText = ''
     cleartextDisplay.innerText = ''
+    rpcResultDisplay.innerText = ''
   }
 
   const updateButtons = () => {
@@ -517,6 +524,21 @@ const initialize = async () => {
         })
       } catch (error) {
         cleartextDisplay.innerText = `Error: ${error.message}`
+      }
+    }
+
+    /**
+     * RPC Method
+     */
+
+    rpcRequestButton.onclick = async () => {
+      try {
+        rpcResultDisplay.innerText = await ethereum.request({
+          method: rpcMethodInput.value,
+          params: [rpcParamsInput.value],
+        })
+      } catch (error) {
+        rpcResultDisplay.innerText = `Error: ${error.message}`
       }
     }
   }
