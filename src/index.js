@@ -582,4 +582,3 @@ function getPermissionsDisplayString (permissionsArray) {
   const permissionNames = permissionsArray.map((perm) => perm.parentCapability)
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
-
