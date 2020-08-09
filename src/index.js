@@ -357,7 +357,7 @@ const initialize = async () => {
 
     signTypedData.onclick = async () => {
       const networkId = parseInt(networkDiv.innerHTML, 10)
-      const chainId = parseInt(chainIdDiv.innerHTML, 10) || networkId
+      const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId
 
       const typedData = {
         types: {
@@ -483,12 +483,10 @@ const initialize = async () => {
 
     encryptButton.onclick = () => {
       try {
-        ciphertextDisplay.innerText = ethers.utils.hexlify(Buffer.from(
-          JSON.stringify(encrypt(
-            encryptionKeyDisplay.innerText,
-            { 'data': encryptMessageInput.value },
-            'x25519-xsalsa20-poly1305',
-          )),
+        ciphertextDisplay.innerText = stringifiableToHex(encrypt(
+          encryptionKeyDisplay.innerText,
+          { 'data': encryptMessageInput.value },
+          'x25519-xsalsa20-poly1305',
         ))
         decryptButton.disabled = false
       } catch (error) {
@@ -566,10 +564,16 @@ const initialize = async () => {
 
 window.addEventListener('DOMContentLoaded', initialize)
 
+// utils
+
 function getPermissionsDisplayString (permissionsArray) {
   if (permissionsArray.length === 0) {
     return 'No permissions found.'
   }
   const permissionNames = permissionsArray.map((perm) => perm.parentCapability)
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
+}
+
+function stringifiableToHex (value) {
+  return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)))
 }
