@@ -29,7 +29,7 @@
   "homepage": "https://github.com/MetaMask/test-dapp#readme",
   "dependencies": {},
   "devDependencies": {
-    "@metamask/eslint-config": "^2.0.0",
+    "@metamask/eslint-config": "^3.1.0",
     "@metamask/onboarding": "^1.0.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.0.2",
