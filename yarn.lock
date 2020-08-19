@@ -18,10 +18,10 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@metamask/eslint-config@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@metamask/eslint-config/-/eslint-config-2.0.0.tgz#4abeccbaafecd2e55be4dc97308e732e2eaa6799"
-  integrity sha512-RowWMIelQNviIH1e9pgsUpQ5oeTXwuzjXAUmW5GXSJz0f3B9MN9OC9krs+ctLZVnf9ec8chcepCTTZFEcVIXRQ==
+"@metamask/eslint-config@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@metamask/eslint-config/-/eslint-config-3.1.0.tgz#8412ddd3f660748598902fd8dbef6fadc060f25e"
+  integrity sha512-He/zV0Cb5W421mEQveaqSegLarONJbJPReJppQkwhi239PCE7j+6eRji/j2Unwq8TBuOlgQtqL49+dtvks+lPQ==
 
 "@metamask/onboarding@^1.0.0":
   version "1.0.0"
