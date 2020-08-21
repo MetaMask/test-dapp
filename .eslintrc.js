@@ -17,7 +17,7 @@ module.exports = {
     '@metamask/eslint-config/config/nodejs',
   ],
   overrides: [{
-    'files': ['src/index.js'],
+    'files': ['src/index.js', 'src/modules/*.js'],
     'parserOptions': {
       'sourceType': 'module',
     },
