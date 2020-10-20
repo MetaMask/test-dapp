@@ -2,6 +2,9 @@
   "name": "@metamask/test-dapp",
   "version": "3.1.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
+  "engines": {
+    "node": ">= 10"
+  },
   "scripts": {
     "deploy": "./deploy.sh",
     "lint": "eslint . --ext js,json && prettier ./src -c",
@@ -29,13 +32,14 @@
   "homepage": "https://github.com/MetaMask/test-dapp#readme",
   "dependencies": {},
   "devDependencies": {
-    "@metamask/eslint-config": "^3.1.0",
+    "@metamask/eslint-config": "^4.0.0",
     "@metamask/onboarding": "^1.0.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.0.2",
-    "eslint": "^6.8.0",
-    "eslint-plugin-import": "^2.20.1",
+    "eslint": "^7.7.0",
+    "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-json": "^2.0.1",
+    "eslint-plugin-node": "^11.1.0",
     "eth-sig-util": "^2.5.3",
     "prettier": "^2.0.5",
     "webpack": "^4.43.0",
