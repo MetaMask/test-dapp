@@ -27,8 +27,6 @@ The `piggybankContract` is compiled from:
       }
   }
 */
-import { Buffer } from 'buffer'
-
 import { encrypt } from 'eth-sig-util'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
