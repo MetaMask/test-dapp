@@ -27,15 +27,13 @@ The `piggybankContract` is compiled from:
       }
   }
 */
-import { Buffer } from 'buffer'
-import { ethers } from 'ethers'
-
-import { encrypt } from 'eth-sig-util'
 import MetaMaskOnboarding from '@metamask/onboarding'
-
+import { encrypt } from 'eth-sig-util'
+import { ethers } from 'ethers'
 import { hstBytecode, piggybankBytecode } from './constants.json'
 
-const ethersProvider = new ethers.providers.Web3Provider(window.ethereum)
+// We must specify the network as 'any' for ethers to allow network changes
+const ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any')
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
