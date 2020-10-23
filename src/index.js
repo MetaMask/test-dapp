@@ -1,39 +1,22 @@
-/*
-The `piggybankContract` is compiled from:
-
-  pragma solidity ^0.4.0;
-  contract PiggyBank {
-
-      uint private balance;
-      address public owner;
-
-      function PiggyBank() public {
-          owner = msg.sender;
-          balance = 0;
-      }
-
-      function deposit() public payable returns (uint) {
-          balance += msg.value;
-          return balance;
-      }
-
-      function withdraw(uint withdrawAmount) public returns (uint remainingBal) {
-          require(msg.sender == owner);
-          balance -= withdrawAmount;
-
-          msg.sender.transfer(withdrawAmount);
-
-          return balance;
-      }
-  }
-*/
 import MetaMaskOnboarding from '@metamask/onboarding'
 import { encrypt } from 'eth-sig-util'
 import { ethers } from 'ethers'
-import { hstBytecode, piggybankBytecode } from './constants.json'
+import { hstBytecode, hstAbi, piggybankBytecode, piggybankAbi } from './constants.json'
 
 // We must specify the network as 'any' for ethers to allow network changes
 const ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any')
+
+const hstFactory = new ethers.ContractFactory(
+  hstAbi,
+  hstBytecode,
+  ethersProvider.getSigner(),
+)
+
+const piggybankFactory = new ethers.ContractFactory(
+  piggybankAbi,
+  piggybankBytecode,
+  ethersProvider.getSigner(),
+)
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
@@ -101,7 +84,6 @@ const initialize = async () => {
   }
 
   let accounts
-  let piggybankContract
   let accountButtonsInitialized = false
 
   const accountButtons = [
@@ -192,19 +174,12 @@ const initialize = async () => {
      * Contract Interactions
      */
 
-    const piggybankAbi = [{ 'constant': false, 'inputs': [{ 'name': 'withdrawAmount', 'type': 'uint256' }], 'name': 'withdraw', 'outputs': [{ 'name': 'remainingBal', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'owner', 'outputs': [{ 'name': '', 'type': 'address' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [], 'name': 'deposit', 'outputs': [{ 'name': '', 'type': 'uint256' }], 'payable': true, 'stateMutability': 'payable', 'type': 'function' }, { 'inputs': [], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor' }]
-    piggybankContract = new ethers.ContractFactory(
-      piggybankAbi,
-      piggybankBytecode,
-      ethersProvider.getSigner(),
-    )
-
     deployButton.onclick = async () => {
       let contract
       contractStatus.innerHTML = 'Deploying'
 
       try {
-        contract = await piggybankContract.deploy()
+        contract = await piggybankFactory.deploy()
         await contract.deployTransaction.wait()
       } catch (error) {
         contractStatus.innerHTML = 'Deployment Failed'
@@ -265,13 +240,6 @@ const initialize = async () => {
       const _tokenName = 'TST'
       const _decimalUnits = 0
       const _tokenSymbol = 'TST'
-
-      const hstAbi = [{ 'constant': true, 'inputs': [], 'name': 'name', 'outputs': [{ 'name': '', 'type': 'string' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [{ 'name': '_spender', 'type': 'address' }, { 'name': '_value', 'type': 'uint256' }], 'name': 'approve', 'outputs': [{ 'name': 'success', 'type': 'bool' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'totalSupply', 'outputs': [{ 'name': '', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [{ 'name': '_from', 'type': 'address' }, { 'name': '_to', 'type': 'address' }, { 'name': '_value', 'type': 'uint256' }], 'name': 'transferFrom', 'outputs': [{ 'name': 'success', 'type': 'bool' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'decimals', 'outputs': [{ 'name': '', 'type': 'uint8' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'version', 'outputs': [{ 'name': '', 'type': 'string' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': true, 'inputs': [{ 'name': '_owner', 'type': 'address' }], 'name': 'balanceOf', 'outputs': [{ 'name': 'balance', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': true, 'inputs': [], 'name': 'symbol', 'outputs': [{ 'name': '', 'type': 'string' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'constant': false, 'inputs': [{ 'name': '_to', 'type': 'address' }, { 'name': '_value', 'type': 'uint256' }], 'name': 'transfer', 'outputs': [{ 'name': 'success', 'type': 'bool' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': false, 'inputs': [{ 'name': '_spender', 'type': 'address' }, { 'name': '_value', 'type': 'uint256' }, { 'name': '_extraData', 'type': 'bytes' }], 'name': 'approveAndCall', 'outputs': [{ 'name': 'success', 'type': 'bool' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'function' }, { 'constant': true, 'inputs': [{ 'name': '_owner', 'type': 'address' }, { 'name': '_spender', 'type': 'address' }], 'name': 'allowance', 'outputs': [{ 'name': 'remaining', 'type': 'uint256' }], 'payable': false, 'stateMutability': 'view', 'type': 'function' }, { 'inputs': [{ 'name': '_initialAmount', 'type': 'uint256' }, { 'name': '_tokenName', 'type': 'string' }, { 'name': '_decimalUnits', 'type': 'uint8' }, { 'name': '_tokenSymbol', 'type': 'string' }], 'payable': false, 'stateMutability': 'nonpayable', 'type': 'constructor' }, { 'payable': false, 'stateMutability': 'nonpayable', 'type': 'fallback' }, { 'anonymous': false, 'inputs': [{ 'indexed': true, 'name': '_from', 'type': 'address' }, { 'indexed': true, 'name': '_to', 'type': 'address' }, { 'indexed': false, 'name': '_value', 'type': 'uint256' }], 'name': 'Transfer', 'type': 'event' }, { 'anonymous': false, 'inputs': [{ 'indexed': true, 'name': '_owner', 'type': 'address' }, { 'indexed': true, 'name': '_spender', 'type': 'address' }, { 'indexed': false, 'name': '_value', 'type': 'uint256' }], 'name': 'Approval', 'type': 'event' }]
-      const hstFactory = new ethers.ContractFactory(
-        hstAbi,
-        hstBytecode,
-        ethersProvider.getSigner(),
-      )
 
       try {
         const contract = await hstFactory.deploy(
