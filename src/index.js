@@ -1,6 +1,9 @@
+/* eslint-disable linebreak-style */
 import MetaMaskOnboarding from '@metamask/onboarding'
-import { encrypt } from 'eth-sig-util'
+// eslint-disable-next-line camelcase
+import { encrypt, recoverPersonalSignature, recoverTypedSignatureLegacy, recoverTypedSignature, recoverTypedSignature_v4 } from 'eth-sig-util'
 import { ethers } from 'ethers'
+import { toChecksumAddress } from 'ethereumjs-util'
 import { hstBytecode, hstAbi, piggybankBytecode, piggybankAbi } from './constants.json'
 
 // We must specify the network as 'any' for ethers to allow network changes
@@ -74,6 +77,15 @@ const encryptionKeyDisplay = document.getElementById('encryptionKeyDisplay')
 const ciphertextDisplay = document.getElementById('ciphertextDisplay')
 const cleartextDisplay = document.getElementById('cleartextDisplay')
 
+// Ethereum Signature Secrtion
+const ethSign = document.getElementById('ethSign')
+const ethSignResult = document.getElementById('ethSignResult')
+const personalSignTest = document.getElementById('personalSignTest')
+const personalRecoverTest = document.getElementById('personalRecoverTest')
+const signTypedDataTest = document.getElementById('signTypedDataTest')
+const signTypedDataV3Test = document.getElementById('signTypedDataV3Test')
+const signTypedDataV4Test = document.getElementById('signTypedDataV4Test')
+
 const initialize = async () => {
 
   let onboarding
@@ -102,6 +114,12 @@ const initialize = async () => {
     encryptMessageInput,
     encryptButton,
     decryptButton,
+    ethSign,
+    personalSignTest,
+    personalRecoverTest,
+    signTypedDataTest,
+    signTypedDataV3Test,
+    signTypedDataV4Test,
   ]
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0
@@ -144,6 +162,12 @@ const initialize = async () => {
       personalSign.disabled = false
       signTypedData.disabled = false
       getEncryptionKeyButton.disabled = false
+      ethSign.disabled = false
+      personalSignTest.disabled = false
+      personalRecoverTest.disabled = false
+      signTypedDataTest.disabled = false
+      signTypedDataV3Test.disabled = false
+      signTypedDataV4Test.disabled = false
     }
 
     if (!isMetaMaskInstalled()) {
@@ -473,6 +497,256 @@ const initialize = async () => {
     }
   }
 
+  /**
+   * Ethereum Signature
+   */
+  ethSign.onclick = async () => {
+    try {
+      // const msg = 'Sample message to hash for signature'
+      // const msgHash = keccak256(msg)
+      const msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
+      const ethResult = await ethereum.request({
+        method: 'eth_sign',
+        params: [accounts[0], msg],
+      })
+      console.log('signed:', JSON.stringify(ethResult))
+      ethSignResult.innerHTML = JSON.stringify(ethResult)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  /**
+     * Personal Sign
+     */
+
+  personalSignTest.onclick = async () => {
+    const exampleMessage = 'Sample message forpersonal sign test'
+    try {
+      const from = accounts[0]
+      const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`
+      const result = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      })
+      console.log('recovering!!!')
+      const recoveredAddr = recoverPersonalSignature({
+        'data': msg,
+        'sig': result,
+      })
+      if (recoveredAddr === from) {
+        console.log(`SigUtil Successfully verified signer as ${recoveredAddr}`)
+      } else {
+        console.log(`SigUtil Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
+        console.log(`Failed comparing ${recoveredAddr} to ${from}`)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  /**
+   * Personal ecRecover Test
+   */
+  personalRecoverTest.onclick = async () => {
+    const exampleMessage = 'Sample message for personal ec Recover Test'
+    try {
+      const from = accounts[0]
+      const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`
+      const result = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      })
+      console.log(result)
+      console.log('recovering!!!')
+      const ecRecoverAddr = await ethereum.request({
+        method: 'personal_ecRecover',
+        params: [msg, result],
+      })
+      if (ecRecoverAddr === from) {
+        console.log(`Successfully ecRecovered signer as ${ecRecoverAddr}`)
+      } else {
+        console.log(`Failed to verify signer when comparing ${ecRecoverAddr} to ${from}`)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  /**
+   * Sign Typed Data Test
+  */
+  signTypedDataTest.onclick = async () => {
+    const msgParams = [
+      {
+        type: 'string',
+        name: 'Message',
+        value: 'Hi, Alice!',
+      },
+      {
+        type: 'uint32',
+        name: 'A number',
+        value: '1337',
+      },
+    ]
+
+    try {
+      const from = accounts[0]
+      const signTypedResult = await ethereum.request({
+        method: 'eth_signTypedData',
+        params: [msgParams, from],
+      })
+      console.log(signTypedResult)
+      console.log('recovering!!!')
+      const recoveredAddr = recoverTypedSignatureLegacy({
+        'data': msgParams,
+        'sig': signTypedResult,
+      })
+      console.log(recoveredAddr)
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`)
+      } else {
+        console.log(`Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  /**
+   * Sign Typed Data Version 3 Test
+   */
+  signTypedDataV3Test.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10)
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId
+
+    const msgParams = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents', type: 'string' },
+        ],
+      },
+      primaryType: 'Mail',
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      },
+      message: {
+        sender: {
+          name: 'Cow',
+          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+        },
+        recipient: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+        contents: 'Hello, Bob!',
+      },
+    }
+    try {
+      const from = accounts[0]
+      const signTypedV3 = await ethereum.request({
+        method: 'eth_signTypedData_v3',
+        params: [from, JSON.stringify(msgParams)],
+      })
+      console.log(signTypedV3)
+      console.log('recovering!!!')
+      const recoveredAddr = recoverTypedSignature({
+        'data': msgParams,
+        'sig': signTypedV3,
+      })
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`)
+      } else {
+        console.log(`Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  signTypedDataV4Test.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10)
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId
+    const msgParams = {
+      domain: {
+        chainId,
+        name: 'Ether Mail',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      message: {
+        contents: 'Hello, Bob!',
+        from: {
+          name: 'Cow',
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+          ],
+        },
+        to: [
+          {
+            name: 'Bob',
+            wallets: [
+              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+              '0xB0B0b0b0b0b0B000000000000000000000000000',
+            ],
+          },
+        ],
+      },
+      primaryType: 'Mail',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Group: [{ name: 'name', type: 'string' }, { name: 'members', type: 'Person[]' }],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person[]' },
+          { name: 'contents', type: 'string' },
+        ],
+        Person: [{ name: 'name', type: 'string' }, { name: 'wallets', type: 'address[]' }],
+      },
+    }
+    try {
+      const from = accounts[0]
+      const signTypedV4 = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      })
+      console.log(signTypedV4)
+      console.log('recovering!!!')
+      const recoveredAddr = recoverTypedSignature_v4({
+        'data': msgParams,
+        'sig': signTypedV4,
+      })
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`)
+      } else {
+        console.log(`Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
   function handleNewAccounts (newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
