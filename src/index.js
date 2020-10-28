@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 import MetaMaskOnboarding from '@metamask/onboarding'
 // eslint-disable-next-line camelcase
 import { encrypt, recoverPersonalSignature, recoverTypedSignatureLegacy, recoverTypedSignature, recoverTypedSignature_v4 } from 'eth-sig-util'
@@ -521,7 +520,7 @@ const initialize = async () => {
      */
 
   personalSignTest.onclick = async () => {
-    const exampleMessage = 'Sample message forpersonal sign test'
+    const exampleMessage = 'Sample message for personal sign test'
     try {
       const from = accounts[0]
       const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`
