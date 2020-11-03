@@ -71,8 +71,6 @@ const cleartextDisplay = document.getElementById('cleartextDisplay')
 // Ethereum Signature Section
 const ethSign = document.getElementById('ethSign')
 const ethSignResult = document.getElementById('ethSignResult')
-const ethSignVerify = document.getElementById('ethSignVerify')
-const ethSignVerifyResult = document.getElementById('ethSignVerifyResult')
 const personalSign = document.getElementById('personalSign')
 const personalSignResult = document.getElementById('personalSignResult')
 const personalSignVerify = document.getElementById('personalSignVerify')
@@ -118,7 +116,6 @@ const initialize = async () => {
     encryptButton,
     decryptButton,
     ethSign,
-    ethSignVerify,
     personalSign,
     personalSignVerify,
     signTypedData,
@@ -441,21 +438,6 @@ const initialize = async () => {
         params: [accounts[0], msg],
       })
       ethSignResult.innerHTML = JSON.stringify(ethResult)
-      ethSignVerify.disabled = false
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  /**
-   * eth_sign verification
-   */
-  ethSignVerify.onclick = async () => {
-    // const msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
-    try {
-      const sign = ethSignResult.innerHTML
-      console.log(sign.length)
-      ethSignVerifyResult.innerHTML = 'pending!!'
     } catch (err) {
       console.log(err)
     }
