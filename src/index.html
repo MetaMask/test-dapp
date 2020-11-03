@@ -128,6 +128,18 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
+                  Send Eth
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendButton"
+                  disabled
+                >
+                  Send
+                </button>
+                <hr />
+                <h4 class="card-title">
                   Contract
                 </h4>
 
@@ -157,60 +169,6 @@
 
                 <p class="info-text alert alert-secondary">
                   Contract Status: <span id="contractStatus">Not clicked</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
-          >
-            <div class="card full-width">
-              <div class="card-body">
-                <h4 class="card-title">
-                  Send Eth
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="sendButton"
-                  disabled
-                >
-                  Send
-                </button>
-
-                <hr />
-
-                <h4>
-                  Personal Sign
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="personalSign"
-                  disabled
-                >
-                  Sign
-                </button>
-
-                <p class="info-text alert alert-warning">
-                  Personal Sign Result: <span id="personalSignResult"></span>
-                </p>
-
-                <h4>
-                  Sign Typed Data
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="signTypedData"
-                  disabled
-                >
-                  Sign
-                </button>
-
-                <p class="info-text alert alert-warning">
-                  Sign Typed Data Result: <span id="signTypedDataResult"></span>
                 </p>
               </div>
             </div>
@@ -271,11 +229,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="row">
           <div
             class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
@@ -336,71 +289,193 @@
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="row">
           <div
             class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
             <div class="card full-width">
               <div class="card-body">
-                <h4 class="card-title">
-                  Ethereum Signature
+                <h4>
+                  ETH_SIGN
                 </h4>
-                <!--Eth Sign-->
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="ethSign"
                   disabled
                 >
-                  Eth Sign
+                  Sign
                 </button>
 
                 <p class="info-text alert alert-warning">
-                  Eth Sign Result: <span id="ethSignResult"></span>
+                  eth_sign Result: <span id="ethSignResult"></span>
                 </p>
 
-                <!--Personal Sign-->
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="personalSignTest"
+                  id="ethSignVerify"
                   disabled
                 >
+                  Verify
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Public Key verified as: <span id="ethSignVerifyResult"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
                   Personal Sign
-                </button>
+                </h4>
 
-                <!--Personal ecRecover-->
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="personalRecoverTest"
+                  id="personalSign"
                   disabled
                 >
-                  Personal ecRecover Test
+                  Sign
                 </button>
 
-                <!--Sign Typed Data-->
+                <p class="info-text alert alert-warning">
+                  Personal Sign Result: <span id="personalSignResult"></span>
+                </p>
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="signTypedDataTest"
+                  id="personalSignVerify"
                   disabled
                 >
-                  Sign Typed Data Test
+                  Verify
                 </button>
 
-                <!--Sign Typed Data V3-->
+                <p class="info-text alert alert-warning">
+                  Public Key verified with Sigutil:
+                  <span id="personalSignVerifySigUtilResult"></span>
+                </p>
+                <p class="info-text alert alert-warning">
+                  Public Key verified with personal ecRecover:
+                  <span id="personalSignVerifyECRecoverResult"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Sign Typed Data
+                </h4>
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="signTypedDataV3Test"
+                  id="signTypedData"
                   disabled
                 >
-                  Sign Typed Data V3 Test
+                  Sign
                 </button>
 
-                <!--Sign Typed Data V4-->
+                <p class="info-text alert alert-warning">
+                  Sign Typed Data Result: <span id="signTypedDataResult"></span>
+                </p>
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="signTypedDataV4Test"
+                  id="signTypedDataVerify"
                   disabled
                 >
-                  Sign Typed Data V4 Test
+                  Verify
                 </button>
+
+                <p class="info-text alert alert-warning">
+                  Public Key verified as:
+                  <span id="signTypedDataVerifyResult"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Sign Typed Data V3
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signTypedDataV3"
+                  disabled
+                >
+                  Sign
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Sign Typed Data V3 Result:
+                  <span id="signTypedDataV3Result"></span>
+                </p>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signTypedDataV3Verify"
+                  disabled
+                >
+                  Verify
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Public Key verified as:
+                  <span id="signTypedDataV3VerifyResult"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Sign Typed Data V4
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signTypedDataV4"
+                  disabled
+                >
+                  Sign
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Sign Typed Data V4 Result:
+                  <span id="signTypedDataV4Result"></span>
+                </p>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signTypedDataV4Verify"
+                  disabled
+                >
+                  Verify
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Public Key verified as:
+                  <span id="signTypedDataV4VerifyResult"></span>
+                </p>
               </div>
             </div>
           </div>
