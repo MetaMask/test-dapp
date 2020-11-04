@@ -53,7 +53,8 @@ function get_shorthash {
 
 function preprocess_and_publish {
 
-  yarn prepare
+  yarn lint || abort "Lint failure"
+  yarn build || abort "Failed to build"
 
   local shorthash
   shorthash=$(get_shorthash)
