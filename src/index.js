@@ -5,20 +5,9 @@ import { ethers } from 'ethers'
 import { toChecksumAddress } from 'ethereumjs-util'
 import { hstBytecode, hstAbi, piggybankBytecode, piggybankAbi } from './constants.json'
 
-// We must specify the network as 'any' for ethers to allow network changes
-const ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any')
-
-const hstFactory = new ethers.ContractFactory(
-  hstAbi,
-  hstBytecode,
-  ethersProvider.getSigner(),
-)
-
-const piggybankFactory = new ethers.ContractFactory(
-  piggybankAbi,
-  piggybankBytecode,
-  ethersProvider.getSigner(),
-)
+let ethersProvider
+let hstFactory
+let piggybankFactory
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
@@ -90,6 +79,22 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
 const initialize = async () => {
+  try {
+    // We must specify the network as 'any' for ethers to allow network changes
+    ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any')
+    hstFactory = new ethers.ContractFactory(
+      hstAbi,
+      hstBytecode,
+      ethersProvider.getSigner(),
+    )
+    piggybankFactory = new ethers.ContractFactory(
+      piggybankAbi,
+      piggybankBytecode,
+      ethersProvider.getSigner(),
+    )
+  } catch (error) {
+    console.error(error)
+  }
 
   let onboarding
   try {
