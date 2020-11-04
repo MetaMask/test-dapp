@@ -439,14 +439,14 @@ const initialize = async () => {
       })
       ethSignResult.innerHTML = JSON.stringify(ethResult)
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      ethSign.innerHTML = `Error: ${err.message}`
     }
   }
 
   /**
    * Personal Sign
    */
-
   personalSign.onclick = async () => {
     const exampleMessage = 'Example `personal_sign` message'
     try {
@@ -460,6 +460,7 @@ const initialize = async () => {
       personalSignVerify.disabled = false
     } catch (err) {
       console.error(err)
+      personalSign.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -495,6 +496,8 @@ const initialize = async () => {
       }
     } catch (err) {
       console.error(err)
+      personalSignVerifySigUtilResult.innerHTML = `Error: ${err.message}`
+      personalSignVerifyECRecoverResult.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -523,7 +526,8 @@ const initialize = async () => {
       signTypedDataResult.innerHTML = sign
       signTypedDataVerify.disabled = false
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      signTypedDataResult.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -544,10 +548,8 @@ const initialize = async () => {
       },
     ]
     try {
-      console.log('recovering!!!')
       const from = accounts[0]
       const sign = signTypedDataResult.innerHTML
-      console.log(sign)
       const recoveredAddr = await recoverTypedSignatureLegacy({
         'data': msgParams,
         'sig': sign,
@@ -559,7 +561,8 @@ const initialize = async () => {
         console.log(`Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
       }
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      signTypedDataV3VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -616,7 +619,8 @@ const initialize = async () => {
       signTypedDataV3Result.innerHTML = sign
       signTypedDataV3Verify.disabled = false
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      signTypedDataV3Result.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -665,7 +669,6 @@ const initialize = async () => {
       },
     }
     try {
-      console.log('recovering!!!')
       const from = accounts[0]
       const sign = signTypedDataV3Result.innerHTML
       const recoveredAddr = await recoverTypedSignature({
@@ -679,7 +682,8 @@ const initialize = async () => {
         console.log(`Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
       }
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      signTypedDataV3VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -742,7 +746,8 @@ const initialize = async () => {
       signTypedDataV4Result.innerHTML = sign
       signTypedDataV4Verify.disabled = false
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      signTypedDataV4Result.innerHTML = `Error: ${err.message}`
     }
   }
 
@@ -799,7 +804,6 @@ const initialize = async () => {
     try {
       const from = accounts[0]
       const sign = signTypedDataV4Result.innerHTML
-      console.log('recovering!!!')
       const recoveredAddr = recoverTypedSignature_v4({
         'data': msgParams,
         'sig': sign,
@@ -811,7 +815,8 @@ const initialize = async () => {
         console.log(`Failed to verify signer when comparing ${recoveredAddr} to ${from}`)
       }
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
   function handleNewAccounts (newAccounts) {
