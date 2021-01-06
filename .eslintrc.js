@@ -6,7 +6,6 @@ module.exports = {
     'ecmaVersion': 2018,
   },
   globals: {
-    'web3': 'readonly',
     'ethereum': 'readonly',
   },
   plugins: [
