@@ -59,12 +59,15 @@ function preprocess_and_publish {
   local shorthash
   shorthash=$(get_shorthash)
 
+  local remote_url
+  remote_url=$(git remote get-url "${GH_REMOTE}")
+
   cd ${WEBSITE_DIR_PATH} || abort "Failed to navigate to website directory"
 
   git init || abort "Failed to initialize git repository in website directory"
   git add -A . || abort "Failed to stage website files"
   git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit website files"
-  git push -f git@github.com:MetaMask/test-dapp.git ${SOURCE_BRANCH}:${DEPLOY_BRANCH} || abort "Failed to push to ${GH_REMOTE}/${DEPLOY_BRANCH}"
+  git push -f "${remote_url}" ${SOURCE_BRANCH}:${DEPLOY_BRANCH} || abort "Failed to push to ${GH_REMOTE}/${DEPLOY_BRANCH}"
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 
   rm -rf .git || abort "Failed to delete .git folder in ${WEBSITE_DIR_PATH}"
