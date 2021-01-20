@@ -3,7 +3,10 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import { encrypt, recoverPersonalSignature, recoverTypedSignatureLegacy, recoverTypedSignature, recoverTypedSignature_v4 } from 'eth-sig-util'
 import { ethers } from 'ethers'
 import { toChecksumAddress } from 'ethereumjs-util'
+import Web3 from 'web3'
 import { hstBytecode, hstAbi, piggybankBytecode, piggybankAbi } from './constants.json'
+
+const web3 = new Web3(window.ethereum)
 
 let ethersProvider
 let hstFactory
@@ -274,19 +277,31 @@ const initialize = async () => {
       const _tokenSymbol = 'TST'
 
       try {
-        const contract = await hstFactory.deploy(
-          _initialAmount,
-          _tokenName,
-          _decimalUnits,
-          _tokenSymbol,
-        )
-        await contract.deployTransaction.wait()
-        if (contract.address === undefined) {
-          return undefined
-        }
-
-        console.log(`Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`)
-        tokenAddress.innerHTML = contract.address
+        const MyContract = new web3.eth.Contract(hstAbi)
+        let contract
+        MyContract.deploy({
+          data: hstBytecode,
+          arguments: [_initialAmount, _tokenName, _decimalUnits, _tokenSymbol],
+        })
+          .send({
+            from: accounts[0],
+          })
+          .on('error', function (error) {
+            console.log('ERROR', error)
+          })
+          .on('transactionHash', function (transactionHash) {
+            console.log('HASH', transactionHash)
+          })
+          .on('receipt', function (receipt) {
+            console.log('APPROVE RECEIPT', receipt.contractAddress) // contains the new contract address
+          })
+          .on('confirmation', function (confirmationNumber, receipt) {
+            console.log('CONFIRM', confirmationNumber, receipt)
+          })
+          .then(function (newContractInstance) {
+            console.log('NEW ADDRESS', newContractInstance.options.address) // instance with the new contract address
+            contract = newContractInstance
+          })
         transferTokens.disabled = false
         approveTokens.disabled = false
         transferTokensWithoutGas.disabled = false
@@ -302,12 +317,27 @@ const initialize = async () => {
         }
 
         approveTokens.onclick = async () => {
-          const result = await contract.approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000', {
+          // const result = await contract.approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000', {
+          //   from: accounts[0],
+          //   gasLimit: 60000,
+          //   gasPrice: '20000000000',
+          // })
+          // console.log(result)
+          contract.methods.approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000').send({
             from: accounts[0],
-            gasLimit: 60000,
-            gasPrice: '20000000000',
           })
-          console.log(result)
+            .on('error', function (error) {
+              console.log('APPROVE ERROR', error)
+            })
+            .on('transactionHash', function (transactionHash) {
+              console.log('APPROVE HASH', transactionHash)
+            })
+            .on('receipt', function (receipt) {
+              console.log('APPROVE RECEIPT', receipt.contractAddress) // contains the new contract address
+            })
+            .on('confirmation', function (confirmationNumber, receipt) {
+              console.log('APPROVE CONFIRM', confirmationNumber, receipt)
+            })
         }
 
         transferTokensWithoutGas.onclick = async () => {
