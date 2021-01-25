@@ -1,0 +1,13 @@
+{
+  "author": "https://metamask.io",
+  "description": "__MSG_appDescription__",
+  "manifest_version": 2,
+  "name": "__MSG_appName__",
+  "permissions": [],
+  "short_name": "__MSG_appName__",
+  "version": "9.0.2",
+  "web_accessible_resources": [
+    "index.html"
+  ],
+  "minimum_chrome_version": "63"
+}
