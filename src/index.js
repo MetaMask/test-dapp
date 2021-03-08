@@ -78,6 +78,9 @@ const signTypedDataV4Result = document.getElementById('signTypedDataV4Result')
 const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
+// Miscellaneous
+const addEthereumChain = document.getElementById('addEthereumChain')
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -193,6 +196,19 @@ const initialize = async () => {
       onboardButton.onclick = onClickConnect
       onboardButton.disabled = false
     }
+  }
+
+  addEthereumChain.onclick = async () => {
+    await ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [{
+        chainId: '0x64',
+        rpcUrls: ['https://dai.poa.network'],
+        chainName: 'xDAI Chain',
+        nativeCurrency: { name: 'xDAI', decimals: 18, symbol: 'xDAI' },
+        blockExplorerUrls: ['https://blockscout.com/poa/xdai'],
+      }],
+    })
   }
 
   const initializeAccountButtons = () => {
