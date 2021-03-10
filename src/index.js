@@ -181,14 +181,14 @@ const initialize = async () => {
       signTypedDataV4.disabled = false
     }
 
-    if (!isMetaMaskInstalled()) {
+    if (isMetaMaskInstalled()) {
+      addEthereumChain.disabled = false
+    } else {
       onboardButton.innerText = 'Click here to install MetaMask!'
       onboardButton.onclick = onClickInstall
       onboardButton.disabled = false
-    } else {
-      addEthereumChain.disabled = false
     }
-    
+
     if (isMetaMaskConnected()) {
       onboardButton.innerText = 'Connected'
       onboardButton.disabled = true
