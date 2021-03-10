@@ -181,11 +181,15 @@ const initialize = async () => {
       signTypedDataV4.disabled = false
     }
 
-    if (!isMetaMaskInstalled()) {
+    if (isMetaMaskInstalled()) {
+      addEthereumChain.disabled = false
+    } else {
       onboardButton.innerText = 'Click here to install MetaMask!'
       onboardButton.onclick = onClickInstall
       onboardButton.disabled = false
-    } else if (isMetaMaskConnected()) {
+    }
+
+    if (isMetaMaskConnected()) {
       onboardButton.innerText = 'Connected'
       onboardButton.disabled = true
       if (onboarding) {
@@ -840,6 +844,7 @@ const initialize = async () => {
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
+
   function handleNewAccounts (newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
