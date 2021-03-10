@@ -185,7 +185,11 @@ const initialize = async () => {
       onboardButton.innerText = 'Click here to install MetaMask!'
       onboardButton.onclick = onClickInstall
       onboardButton.disabled = false
-    } else if (isMetaMaskConnected()) {
+    } else {
+      addEthereumChain.disabled = false
+    }
+    
+    if (isMetaMaskConnected()) {
       onboardButton.innerText = 'Connected'
       onboardButton.disabled = true
       if (onboarding) {
@@ -840,6 +844,7 @@ const initialize = async () => {
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
+
   function handleNewAccounts (newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
