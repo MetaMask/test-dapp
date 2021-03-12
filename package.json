@@ -42,7 +42,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eth-sig-util": "^2.5.3",
     "ethereumjs-util": "^5.1.1",
-    "ethers": "^5.0.18",
+    "ethers": "^5.0.32",
     "prettier": "^2.0.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
