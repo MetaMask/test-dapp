@@ -64,7 +64,7 @@ function preprocess_and_publish {
 
   cd ${WEBSITE_DIR_PATH} || abort "Failed to navigate to website directory"
 
-  git init || abort "Failed to initialize git repository in website directory"
+  git init -b ${SOURCE_BRANCH} || abort "Failed to initialize git repository in website directory"
   git add -A . || abort "Failed to stage website files"
   git commit -m "update using ${SOURCE_BRANCH}/${shorthash}" || abort "Failed to commit website files"
   git push -f "${remote_url}" ${SOURCE_BRANCH}:${DEPLOY_BRANCH} || abort "Failed to push to ${GH_REMOTE}/${DEPLOY_BRANCH}"
