@@ -16,7 +16,7 @@ static-server node_modules/@metamask/test-dapp/dist --port 9011
 
 ### Requires Manual Deployment
 
-After merging or pushing to `master`, please run `yarn deploy` in the package root directory if the contents of the `dist/` directory have changed.
+After merging or pushing to `main`, please run `yarn deploy` in the package root directory if the contents of the `dist/` directory have changed.
 
 ### Elements Must Be Selectable by XPath
 
