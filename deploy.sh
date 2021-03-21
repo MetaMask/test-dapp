@@ -3,11 +3,11 @@
 set -u
 set -o pipefail
 
-GH_REMOTE="origin"
-SOURCE_BRANCH="main"
-DEPLOY_BRANCH="gh-pages"
-WEBSITE_DIR_PATH="dist"
-GH_PAGES_BIN_PATH="./node_modules/gh-pages/bin/gh-pages.js"
+readonly GH_REMOTE="origin"
+readonly SOURCE_BRANCH="main"
+readonly DEPLOY_BRANCH="gh-pages"
+readonly WEBSITE_DIR_PATH="dist"
+readonly GH_PAGES_BIN_PATH="./node_modules/gh-pages/bin/gh-pages.js"
 
 function abort {
   local message="${1}"
