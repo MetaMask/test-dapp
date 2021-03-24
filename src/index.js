@@ -296,9 +296,6 @@ const initialize = async () => {
       try {
         const contract = await hstFactory.deploy(
           _initialAmount,
-          _tokenName,
-          _decimalUnits,
-          _tokenSymbol,
         )
         await contract.deployTransaction.wait()
         if (contract.address === undefined) {
