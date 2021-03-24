@@ -7,7 +7,6 @@ readonly GH_REMOTE="origin"
 readonly SOURCE_BRANCH="main"
 readonly DEPLOY_BRANCH="gh-pages"
 readonly WEBSITE_DIR_PATH="dist"
-readonly GH_PAGES_BIN_PATH="./node_modules/gh-pages/bin/gh-pages.js"
 
 function abort {
   local message="${1}"
@@ -46,7 +45,7 @@ function preprocess_and_deploy {
 
   local commitMessage="Update using ${SOURCE_BRANCH}/${shorthash}"
 
-  node "$GH_PAGES_BIN_PATH" --dist "$WEBSITE_DIR_PATH" --message "$commitMessage" || abort "gh-pages failed to deploy"
+  yarn gh-pages --dist "$WEBSITE_DIR_PATH" --message "$commitMessage" || abort "gh-pages failed to deploy"
 
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 }
