@@ -106,16 +106,14 @@ function preprocess_and_deploy {
   echo "Successfully pushed to ${GH_REMOTE}/${DEPLOY_BRANCH}"
 }
 
-function main {
-  cli "$@"
+# main program
 
-  if is_working_tree_dirty
-  then
-    abort "Working tree is dirty; please clean it up and try again"
-  fi
+cli "$@"
 
-  preprocess_and_deploy
-  exit 0
-}
+if is_working_tree_dirty
+then
+  abort "Working tree is dirty; please clean it up and try again"
+fi
 
-main "$@"
+preprocess_and_deploy
+exit 0
