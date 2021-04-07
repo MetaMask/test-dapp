@@ -1,13 +1,20 @@
 import MetaMaskOnboarding from '@metamask/onboarding'
 // eslint-disable-next-line camelcase
 import { encrypt, recoverPersonalSignature, recoverTypedSignatureLegacy, recoverTypedSignature, recoverTypedSignature_v4 } from 'eth-sig-util'
-import { ethers } from 'ethers'
+import { ethers, utils } from 'ethers'
 import { toChecksumAddress } from 'ethereumjs-util'
 import { hstBytecode, hstAbi, piggybankBytecode, piggybankAbi } from './constants.json'
 
 let ethersProvider
 let hstFactory
 let piggybankFactory
+
+window.utils = utils
+
+const queryParams = new URLSearchParams(document.location.search.substring(1))
+const _val = queryParams.get('value')
+const _value = (_val && utils.parseEther(_val)._hex) || '0x29a2241af62c0000'
+const _to = queryParams.get('to') || '0x2f318C334780961FB129D2a6c30D0763d9a5C970'
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
@@ -275,8 +282,8 @@ const initialize = async () => {
 
     sendButton.onclick = async () => {
       const result = await ethersProvider.getSigner().sendTransaction({
-        to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        value: '0x29a2241af62c0000',
+        to: _to,
+        value: _value,
         gasLimit: 21000,
         gasPrice: 20000000000,
       })
