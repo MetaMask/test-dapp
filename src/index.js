@@ -80,6 +80,7 @@ const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4Veri
 
 // Miscellaneous
 const addEthereumChain = document.getElementById('addEthereumChain')
+const switchEthereumChain = document.getElementById('switchEthereumChain')
 
 const initialize = async () => {
   try {
@@ -183,6 +184,7 @@ const initialize = async () => {
 
     if (isMetaMaskInstalled()) {
       addEthereumChain.disabled = false
+      switchEthereumChain.disabled = false
     } else {
       onboardButton.innerText = 'Click here to install MetaMask!'
       onboardButton.onclick = onClickInstall
@@ -211,6 +213,15 @@ const initialize = async () => {
         chainName: 'xDAI Chain',
         nativeCurrency: { name: 'xDAI', decimals: 18, symbol: 'xDAI' },
         blockExplorerUrls: ['https://blockscout.com/poa/xdai'],
+      }],
+    })
+  }
+
+  switchEthereumChain.onclick = async () => {
+    await ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{
+        chainId: '0x64',
       }],
     })
   }
