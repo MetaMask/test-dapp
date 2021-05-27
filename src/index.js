@@ -43,6 +43,7 @@ const sendButton = document.getElementById('sendButton')
 // Send Tokens Section
 const tokenAddress = document.getElementById('tokenAddress')
 const createToken = document.getElementById('createToken')
+const watchAsset = document.getElementById('watchAsset')
 const transferTokens = document.getElementById('transferTokens')
 const approveTokens = document.getElementById('approveTokens')
 const transferTokensWithoutGas = document.getElementById('transferTokensWithoutGas')
@@ -115,6 +116,7 @@ const initialize = async () => {
     withdrawButton,
     sendButton,
     createToken,
+    watchAsset,
     transferTokens,
     approveTokens,
     transferTokensWithoutGas,
@@ -307,10 +309,27 @@ const initialize = async () => {
 
         console.log(`Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`)
         tokenAddress.innerHTML = contract.address
+        watchAsset.disabled = false
         transferTokens.disabled = false
         approveTokens.disabled = false
         transferTokensWithoutGas.disabled = false
         approveTokensWithoutGas.disabled = false
+
+        watchAsset.onclick = async () => {
+          const result = await ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC20',
+              options: {
+                address: contract.address,
+                symbol: _tokenSymbol,
+                decimals: _decimalUnits,
+                image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+              },
+            },
+          })
+          console.log('result', result)
+        }
 
         transferTokens.onclick = async () => {
           const result = await contract.transfer('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '15000', {
