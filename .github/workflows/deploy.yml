@@ -19,6 +19,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn --frozen-lockfile
       - run: yarn build
-      - run: git config --global user.email "admin@metamask.io"
-      - run: git config --global user.name "MetaMask bot"
-      - run: yarn deploy
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
