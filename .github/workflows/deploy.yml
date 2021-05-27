@@ -19,4 +19,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn --frozen-lockfile
       - run: yarn build
+      - run: git config --global user.email "admin@metamask.io"
+      - run: git config --global user.name "MetaMask bot"
       - run: yarn deploy
