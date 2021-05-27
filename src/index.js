@@ -314,7 +314,7 @@ const initialize = async () => {
         approveTokens.disabled = false
         transferTokensWithoutGas.disabled = false
         approveTokensWithoutGas.disabled = false
-        
+
         watchAsset.onclick = async () => {
           const result = await ethereum.request({
             method: 'wallet_watchAsset',
