@@ -739,7 +739,7 @@ const initialize = async () => {
     const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId
     const msgParams = {
       domain: {
-        chainId,
+        chainId: chainId.toString(),
         name: 'Ether Mail',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
