@@ -982,7 +982,7 @@ const initialize = async () => {
   }
 
   function handleEIP1559Support (supported) {
-    if (supported) {
+    if (supported && Array.isArray(accounts) && accounts.length >= 1) {
       sendEIP1559Button.disabled = false
       sendEIP1559Button.hidden = false
       sendButton.innerText = 'Send Legacy Transaction'
@@ -1041,7 +1041,15 @@ const initialize = async () => {
       })
     })
     ethereum.on('networkChanged', handleNewNetwork)
-    ethereum.on('accountsChanged', handleNewAccounts)
+    ethereum.on('accountsChanged', (newAccounts) => {
+      ethereum.request({
+        method: 'eth_getBlockByNumber',
+        params: ['latest', false],
+      }).then((block) => {
+        handleEIP1559Support(block.baseFeePerGas !== undefined)
+      })
+      handleNewAccounts(newAccounts)
+    })
 
     try {
       const newAccounts = await ethereum.request({
