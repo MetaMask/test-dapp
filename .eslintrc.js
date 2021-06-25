@@ -17,9 +17,6 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
       },
-      rules: {
-        camelcase: ['error'],
-      },
     },
   ],
 
