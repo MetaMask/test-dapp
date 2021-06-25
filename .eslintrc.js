@@ -1,28 +1,24 @@
 module.exports = {
+  root: true,
+
   env: {
-    'browser': true,
+    browser: true,
   },
-  parserOptions: {
-    'ecmaVersion': 2018,
-  },
+
   globals: {
-    'ethereum': 'readonly',
+    ethereum: 'readonly',
   },
-  plugins: [
-    'json',
-  ],
-  extends: [
-    '@metamask/eslint-config',
-    '@metamask/eslint-config/config/nodejs',
-  ],
-  overrides: [{
-    'files': ['src/*.js'],
-    'parserOptions': {
-      'sourceType': 'module',
+
+  extends: ['@metamask/eslint-config', '@metamask/eslint-config-nodejs'],
+
+  overrides: [
+    {
+      files: ['src/*.js'],
+      parserOptions: {
+        sourceType: 'module',
+      },
     },
-  }],
-  ignorePatterns: [
-    '!.eslintrc.js',
-    'dist',
   ],
-}
+
+  ignorePatterns: ['!.eslintrc.js', 'dist'],
+};
