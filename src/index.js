@@ -48,8 +48,8 @@ const withdrawButton = document.getElementById('withdrawButton');
 const contractStatus = document.getElementById('contractStatus');
 
 // Send Eth Section
-const sendButton = document.getElementById('sendButton')
-const sendEIP1559Button = document.getElementById('sendEIP1559Button')
+const sendButton = document.getElementById('sendButton');
+const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
 const tokenAddress = document.getElementById('tokenAddress');
@@ -331,17 +331,19 @@ const initialize = async () => {
     sendEIP1559Button.onclick = async () => {
       const result = await ethereum.request({
         method: 'eth_sendTransaction',
-        params: [{
-          from: accounts[0],
-          to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-          value: '0x29a2241af62c0000',
-          gasLimit: '0x5028',
-          maxFeePerGas: '0x2540be400',
-          maxPriorityFeePerGas: '0x3b9aca00',
-        }],
-      })
-      console.log(result)
-    }
+        params: [
+          {
+            from: accounts[0],
+            to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+            value: '0x29a2241af62c0000',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      console.log(result);
+    };
 
     /**
      * ERC20 Token
@@ -981,21 +983,20 @@ const initialize = async () => {
     chainIdDiv.innerHTML = chainId;
   }
 
-  function handleEIP1559Support (supported) {
+  function handleEIP1559Support(supported) {
     if (supported && Array.isArray(accounts) && accounts.length >= 1) {
-      sendEIP1559Button.disabled = false
-      sendEIP1559Button.hidden = false
-      sendButton.innerText = 'Send Legacy Transaction'
+      sendEIP1559Button.disabled = false;
+      sendEIP1559Button.hidden = false;
+      sendButton.innerText = 'Send Legacy Transaction';
     } else {
-      sendEIP1559Button.disabled = true
-      sendEIP1559Button.hidden = true
-      sendButton.innerText = 'Send'
+      sendEIP1559Button.disabled = true;
+      sendEIP1559Button.hidden = true;
+      sendButton.innerText = 'Send';
     }
-
   }
 
-  function handleNewNetwork (networkId) {
-    networkDiv.innerHTML = networkId
+  function handleNewNetwork(networkId) {
+    networkDiv.innerHTML = networkId;
   }
 
   async function getNetworkAndChainId() {
@@ -1007,16 +1008,15 @@ const initialize = async () => {
 
       const networkId = await ethereum.request({
         method: 'net_version',
-      })
-      handleNewNetwork(networkId)
+      });
+      handleNewNetwork(networkId);
 
       const block = await ethereum.request({
         method: 'eth_getBlockByNumber',
         params: ['latest', false],
-      })
+      });
 
-      handleEIP1559Support(block.baseFeePerGas !== undefined)
-
+      handleEIP1559Support(block.baseFeePerGas !== undefined);
     } catch (err) {
       console.error(err);
     }
@@ -1028,28 +1028,32 @@ const initialize = async () => {
     ethereum.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
-    ethereum.autoRefreshOnNetworkChange = false
-    getNetworkAndChainId()
+    ethereum.autoRefreshOnNetworkChange = false;
+    getNetworkAndChainId();
 
     ethereum.on('chainChanged', (chain) => {
-      handleNewChain(chain)
-      ethereum.request({
-        method: 'eth_getBlockByNumber',
-        params: ['latest', false],
-      }).then((block) => {
-        handleEIP1559Support(block.baseFeePerGas !== undefined)
-      })
-    })
-    ethereum.on('networkChanged', handleNewNetwork)
+      handleNewChain(chain);
+      ethereum
+        .request({
+          method: 'eth_getBlockByNumber',
+          params: ['latest', false],
+        })
+        .then((block) => {
+          handleEIP1559Support(block.baseFeePerGas !== undefined);
+        });
+    });
+    ethereum.on('networkChanged', handleNewNetwork);
     ethereum.on('accountsChanged', (newAccounts) => {
-      ethereum.request({
-        method: 'eth_getBlockByNumber',
-        params: ['latest', false],
-      }).then((block) => {
-        handleEIP1559Support(block.baseFeePerGas !== undefined)
-      })
-      handleNewAccounts(newAccounts)
-    })
+      ethereum
+        .request({
+          method: 'eth_getBlockByNumber',
+          params: ['latest', false],
+        })
+        .then((block) => {
+          handleEIP1559Support(block.baseFeePerGas !== undefined);
+        });
+      handleNewAccounts(newAccounts);
+    });
 
     try {
       const newAccounts = await ethereum.request({
