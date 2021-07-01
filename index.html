@@ -89,79 +89,7 @@
       </section>
 
       <section>
-        <div class="row d-flex justify-content-center">
-          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">
-                  Permissions Actions
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="requestPermissions"
-                >
-                  Request Permissions
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="getPermissions"
-                >
-                  Get Permissions
-                </button>
-
-                <p class="info-text alert alert-secondary">
-                  Permissions result: <span id="permissionsResult"></span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section>
         <div class="row">
-          <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
-          >
-            <div class="card full-width">
-              <div class="card-body">
-                <h4 class="card-title">
-                  Contract
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="deployButton"
-                  disabled
-                >
-                  Deploy Contract
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="depositButton"
-                  disabled
-                >
-                  Deposit
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="withdrawButton"
-                  disabled
-                >
-                  Withdraw
-                </button>
-
-                <p class="info-text alert alert-secondary">
-                  Contract Status: <span id="contractStatus">Not clicked</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
           <div
             class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
@@ -178,24 +106,7 @@
                 >
                   Send
                 </button>
-
                 <hr />
-
-                <h4>
-                  Sign Typed Data
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="signTypedData"
-                  disabled
-                >
-                  Sign
-                </button>
-
-                <p class="info-text alert alert-warning">
-                  Sign Typed Data Result: <span id="signTypedDataResult"></span>
-                </p>
               </div>
             </div>
           </div>
@@ -229,102 +140,11 @@
                   Transfer Tokens
                 </button>
 
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="approveTokens"
-                  disabled
-                >
-                  Approve Tokens
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="transferTokensWithoutGas"
-                  disabled
-                >
-                  Transfer Tokens Without Gas
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="approveTokensWithoutGas"
-                  disabled
-                >
-                  Approve Tokens Without Gas
-                </button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="row">
-          <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
-          >
-            <div class="card full-width">
-              <div class="card-body">
-                <h4 class="card-title">
-                  Encrypt / Decrypt
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="getEncryptionKeyButton"
-                  disabled
-                >
-                  Get Encryption Key
-                </button>
-
-                <hr />
-
-                <div id="encrypt-message-form">
-                  <input
-                    class="form-control"
-                    type="text"
-                    placeholder="Message to encrypt"
-                    id="encryptMessageInput"
-                  />
-
-                  <button
-                    class="btn btn-primary btn-lg btn-block mb-3"
-                    id="encryptButton"
-                    disabled
-                  >
-                    Encrypt
-                  </button>
-                </div>
-
-                <hr />
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="decryptButton"
-                  disabled
-                >
-                  Decrypt
-                </button>
-
-                <p class="info-text alert alert-secondary">
-                  Encryption key: <span id="encryptionKeyDisplay"></span>
-                </p>
-
-                <p class="info-text text-truncate alert alert-secondary">
-                  Ciphertext: <span id="ciphertextDisplay"></span>
-                </p>
-
-                <p class="info-text alert alert-secondary">
-                  Cleartext: <span id="cleartextDisplay"></span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
 
-    <script src="./scripts/metamask-onboarding.bundle.js" defer></script>
     <script src="index.js" defer></script>
   </body>
 </html>
