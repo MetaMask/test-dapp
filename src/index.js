@@ -50,6 +50,9 @@ const contractStatus = document.getElementById('contractStatus');
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
+const sendFeelessEIP1559Button = document.getElementById(
+  'sendFeelessEIP1559Button',
+);
 
 // Send Tokens Section
 const tokenAddress = document.getElementById('tokenAddress');
@@ -335,10 +338,25 @@ const initialize = async () => {
           {
             from: accounts[0],
             to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-            value: '0x29a2241af62c0000',
+            value: '0x0',
             gasLimit: '0x5028',
             maxFeePerGas: '0x2540be400',
             maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      console.log(result);
+    };
+
+    sendFeelessEIP1559Button.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: accounts[0],
+            to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+            value: '0x29a2241af62c0000',
+            gasLimit: '0x5028',
           },
         ],
       });
@@ -986,11 +1004,15 @@ const initialize = async () => {
   function handleEIP1559Support(supported) {
     if (supported && Array.isArray(accounts) && accounts.length >= 1) {
       sendEIP1559Button.disabled = false;
+      sendFeelessEIP1559Button.disabled = false;
       sendEIP1559Button.hidden = false;
+      sendFeelessEIP1559Button.hidden = false;
       sendButton.innerText = 'Send Legacy Transaction';
     } else {
       sendEIP1559Button.disabled = true;
+      sendFeelessEIP1559Button.disabled = true;
       sendEIP1559Button.hidden = true;
+      sendFeelessEIP1559Button.hidden = true;
       sendButton.innerText = 'Send';
     }
   }
