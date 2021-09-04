@@ -258,12 +258,17 @@
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="getEncryptionKeyButton"
-                  disabled
                 >
-                  Get Encryption Key
+                  Get Public Encryption Key
                 </button>
 
+                <p class="info-text alert alert-secondary">
+                  Public Encryption key: <span id="encryptionKeyDisplay"></span>
+                </p>
                 <hr />
+                <h5 class="card-title">
+                  Encrypt
+                </h5>
 
                 <div id="encrypt-message-form">
                   <input
@@ -272,33 +277,45 @@
                     placeholder="Message to encrypt"
                     id="encryptMessageInput"
                   />
+                  <input
+                    class="form-control"
+                    type="text"
+                    placeholder="Recipient's Public Encryption Key"
+                    id="publicKeyInput"
+                  />
 
                   <button
                     class="btn btn-primary btn-lg btn-block mb-3"
                     id="encryptButton"
-                    disabled
                   >
                     Encrypt
                   </button>
+
+                  <p class="info-text alert alert-secondary">
+                    Ciphertext: <span id="ciphertextDisplay"></span>
+                  </p>
                 </div>
 
                 <hr />
+                <h5 class="card-title">
+                  Decrypt 
+                </h5>
+
+
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="Encrypted Message"
+                  id="encryptedMessageInput"
+                />
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="decryptButton"
-                  disabled
                 >
                   Decrypt
                 </button>
 
-                <p class="info-text alert alert-secondary">
-                  Encryption key: <span id="encryptionKeyDisplay"></span>
-                </p>
-
-                <p class="info-text text-truncate alert alert-secondary">
-                  Ciphertext: <span id="ciphertextDisplay"></span>
-                </p>
 
                 <p class="info-text alert alert-secondary">
                   Cleartext: <span id="cleartextDisplay"></span>
