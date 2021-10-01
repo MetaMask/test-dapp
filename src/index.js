@@ -319,11 +319,18 @@ const initialize = async () => {
      */
 
     sendButton.onclick = async () => {
-      const result = await ethersProvider.getSigner().sendTransaction({
-        to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        value: '0x29a2241af62c0000',
-        gasLimit: 21000,
-        gasPrice: 20000000000,
+      const result = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: accounts[0],
+            to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+            value: '0x16345785d8a0000',
+            gasLimit: '0x5028',
+            gasPrice: '0x2540be400',
+            type: '0x0',
+          },
+        ],
       });
       console.log(result);
     };
