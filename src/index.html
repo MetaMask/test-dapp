@@ -513,6 +513,88 @@
           </div>
         </div>
       </section>
+      <section>
+        <div class="row d-flex justify-content-center">
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Send form
+                </h4>
+                <div class="form-group">
+                  <label>From</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="fromInput"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>To</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="toInput"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="amountInput"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Type</label>
+                  <select class="browser-default custom-select" id="typeInput">
+                    <option value="0x0">0x0</option>
+                    <option value="0x2">0x2</option>
+                  </select>
+                </div>
+                <div class="form-group" id="gasPriceDiv">
+                  <label>Gas Price</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="gasInput"
+                  />
+                </div>
+                <div class="form-group" id="maxFeeDiv">
+                  <label>Max Fee</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="maxFeeInput"
+                  />
+                </div>
+                <div class="form-group" id="maxPriorityDiv">
+                  <label>Max Priority Fee</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="maxPriorityFeeInput"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Data</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="dataInput"
+                  />
+                </div>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="submitForm"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="bundle.js" defer></script>

@@ -106,6 +106,20 @@ const signTypedDataV4VerifyResult = document.getElementById(
   'signTypedDataV4VerifyResult',
 );
 
+// Send form section
+const fromDiv = document.getElementById('fromInput');
+const toDiv = document.getElementById('toInput');
+const type = document.getElementById('typeInput');
+const amount = document.getElementById('amountInput');
+const gasPrice = document.getElementById('gasInput');
+const maxFee = document.getElementById('maxFeeInput');
+const maxPriority = document.getElementById('maxPriorityFeeInput');
+const data = document.getElementById('dataInput');
+const gasPriceDiv = document.getElementById('gasPriceDiv');
+const maxFeeDiv = document.getElementById('maxFeeDiv');
+const maxPriorityDiv = document.getElementById('maxPriorityDiv');
+const submitFormButton = document.getElementById('submitForm');
+
 // Miscellaneous
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
@@ -559,6 +573,51 @@ const initialize = async () => {
     };
   };
 
+  type.onchange = async () => {
+    if (type.value === '0x0') {
+      gasPriceDiv.style.display = 'block';
+      maxFeeDiv.style.display = 'none';
+      maxPriorityDiv.style.display = 'none';
+    } else {
+      gasPriceDiv.style.display = 'none';
+      maxFeeDiv.style.display = 'block';
+      maxPriorityDiv.style.display = 'block';
+    }
+  };
+
+  submitFormButton.onclick = async () => {
+    let params;
+    if (type.value === '0x0') {
+      params = [
+        {
+          from: accounts[0],
+          to: toDiv.value,
+          value: amount.value,
+          gasPrice: gasPrice.value,
+          type: type.value,
+          data: data.value,
+        },
+      ];
+    } else {
+      params = [
+        {
+          from: accounts[0],
+          to: toDiv.value,
+          value: amount.value,
+          maxFeePerGas: maxFee.value,
+          maxPriorityFeePerGas: maxPriority.value,
+          type: type.value,
+          data: data.value,
+        },
+      ];
+    }
+    const result = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params,
+    });
+    console.log(result);
+  };
+
   /**
    * eth_sign
    */
@@ -980,6 +1039,10 @@ const initialize = async () => {
   function handleNewAccounts(newAccounts) {
     accounts = newAccounts;
     accountsDiv.innerHTML = accounts;
+    fromDiv.value = accounts;
+    gasPriceDiv.style.display = 'block';
+    maxFeeDiv.style.display = 'none';
+    maxPriorityDiv.style.display = 'none';
     if (isMetaMaskConnected()) {
       initializeAccountButtons();
     }
