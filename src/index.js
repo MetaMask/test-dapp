@@ -1052,6 +1052,12 @@ const initialize = async () => {
 
   function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId;
+
+    if (chainId === '0x1') {
+      warningDiv.classList.remove('warning-invisible');
+    } else {
+      warningDiv.classList.add('warning-invisible');
+    }
   }
 
   function handleEIP1559Support(supported) {
@@ -1068,12 +1074,6 @@ const initialize = async () => {
 
   function handleNewNetwork(networkId) {
     networkDiv.innerHTML = networkId;
-
-    if (networkId === '1') {
-      warningDiv.classList.remove('warning-invisible');
-    } else {
-      warningDiv.classList.add('warning-invisible');
-    }
   }
 
   async function getNetworkAndChainId() {
