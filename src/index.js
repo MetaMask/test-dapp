@@ -30,6 +30,7 @@ const { isMetaMaskInstalled } = MetaMaskOnboarding;
 const networkDiv = document.getElementById('network');
 const chainIdDiv = document.getElementById('chainId');
 const accountsDiv = document.getElementById('accounts');
+const warningDiv = document.getElementById('warning');
 
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
@@ -105,6 +106,20 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
 const signTypedDataV4VerifyResult = document.getElementById(
   'signTypedDataV4VerifyResult',
 );
+
+// Send form section
+const fromDiv = document.getElementById('fromInput');
+const toDiv = document.getElementById('toInput');
+const type = document.getElementById('typeInput');
+const amount = document.getElementById('amountInput');
+const gasPrice = document.getElementById('gasInput');
+const maxFee = document.getElementById('maxFeeInput');
+const maxPriority = document.getElementById('maxPriorityFeeInput');
+const data = document.getElementById('dataInput');
+const gasPriceDiv = document.getElementById('gasPriceDiv');
+const maxFeeDiv = document.getElementById('maxFeeDiv');
+const maxPriorityDiv = document.getElementById('maxPriorityDiv');
+const submitFormButton = document.getElementById('submitForm');
 
 // Miscellaneous
 const addEthereumChain = document.getElementById('addEthereumChain');
@@ -359,7 +374,7 @@ const initialize = async () => {
     createToken.onclick = async () => {
       const _initialAmount = 100;
       const _tokenName = 'TST';
-      const _decimalUnits = 0;
+      const _decimalUnits = 4;
       const _tokenSymbol = 'TST';
 
       try {
@@ -559,6 +574,51 @@ const initialize = async () => {
     };
   };
 
+  type.onchange = async () => {
+    if (type.value === '0x0') {
+      gasPriceDiv.style.display = 'block';
+      maxFeeDiv.style.display = 'none';
+      maxPriorityDiv.style.display = 'none';
+    } else {
+      gasPriceDiv.style.display = 'none';
+      maxFeeDiv.style.display = 'block';
+      maxPriorityDiv.style.display = 'block';
+    }
+  };
+
+  submitFormButton.onclick = async () => {
+    let params;
+    if (type.value === '0x0') {
+      params = [
+        {
+          from: accounts[0],
+          to: toDiv.value,
+          value: amount.value,
+          gasPrice: gasPrice.value,
+          type: type.value,
+          data: data.value,
+        },
+      ];
+    } else {
+      params = [
+        {
+          from: accounts[0],
+          to: toDiv.value,
+          value: amount.value,
+          maxFeePerGas: maxFee.value,
+          maxPriorityFeePerGas: maxPriority.value,
+          type: type.value,
+          data: data.value,
+        },
+      ];
+    }
+    const result = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params,
+    });
+    console.log(result);
+  };
+
   /**
    * eth_sign
    */
@@ -740,11 +800,11 @@ const initialize = async () => {
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
       },
       message: {
-        sender: {
+        from: {
           name: 'Cow',
           wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
         },
-        recipient: {
+        to: {
           name: 'Bob',
           wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
         },
@@ -798,11 +858,11 @@ const initialize = async () => {
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
       },
       message: {
-        sender: {
+        from: {
           name: 'Cow',
           wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
         },
-        recipient: {
+        to: {
           name: 'Bob',
           wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
         },
@@ -980,6 +1040,10 @@ const initialize = async () => {
   function handleNewAccounts(newAccounts) {
     accounts = newAccounts;
     accountsDiv.innerHTML = accounts;
+    fromDiv.value = accounts;
+    gasPriceDiv.style.display = 'block';
+    maxFeeDiv.style.display = 'none';
+    maxPriorityDiv.style.display = 'none';
     if (isMetaMaskConnected()) {
       initializeAccountButtons();
     }
@@ -988,6 +1052,12 @@ const initialize = async () => {
 
   function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId;
+
+    if (chainId === '0x1') {
+      warningDiv.classList.remove('warning-invisible');
+    } else {
+      warningDiv.classList.add('warning-invisible');
+    }
   }
 
   function handleEIP1559Support(supported) {
