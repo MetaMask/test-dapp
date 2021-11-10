@@ -30,6 +30,7 @@ const { isMetaMaskInstalled } = MetaMaskOnboarding;
 const networkDiv = document.getElementById('network');
 const chainIdDiv = document.getElementById('chainId');
 const accountsDiv = document.getElementById('accounts');
+const warningDiv = document.getElementById('warning');
 
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
@@ -1051,6 +1052,12 @@ const initialize = async () => {
 
   function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId;
+
+    if (chainId === '0x1') {
+      warningDiv.classList.remove('warning-invisible');
+    } else {
+      warningDiv.classList.add('warning-invisible');
+    }
   }
 
   function handleEIP1559Support(supported) {
