@@ -374,7 +374,7 @@ const initialize = async () => {
     createToken.onclick = async () => {
       const _initialAmount = 100;
       const _tokenName = 'TST';
-      const _decimalUnits = 0;
+      const _decimalUnits = 4;
       const _tokenSymbol = 'TST';
 
       try {
