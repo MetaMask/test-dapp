@@ -52,7 +52,9 @@ const withdrawButton = document.getElementById('withdrawButton');
 const contractStatus = document.getElementById('contractStatus');
 
 // Collectibles Section
-const deployCollectiblesButton = document.getElementById('deployCollectiblesButton');
+const deployCollectiblesButton = document.getElementById(
+  'deployCollectiblesButton',
+);
 const mintButton = document.getElementById('mintButton');
 const mintAmountInput = document.getElementById('mintAmountInput');
 const collectiblesStatus = document.getElementById('collectiblesStatus');
@@ -151,8 +153,8 @@ const initialize = async () => {
     collectiblesFactory = new ethers.ContractFactory(
       collectiblesAbi,
       collectiblesBytecode,
-      ethersProvider.getSigner()
-    )
+      ethersProvider.getSigner(),
+    );
   } catch (error) {
     console.error(error);
   }
