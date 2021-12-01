@@ -14,11 +14,14 @@ import {
   hstAbi,
   piggybankBytecode,
   piggybankAbi,
+  collectiblesAbi,
+  collectiblesBytecode,
 } from './constants.json';
 
 let ethersProvider;
 let hstFactory;
 let piggybankFactory;
+let collectiblesFactory;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -47,6 +50,14 @@ const deployButton = document.getElementById('deployButton');
 const depositButton = document.getElementById('depositButton');
 const withdrawButton = document.getElementById('withdrawButton');
 const contractStatus = document.getElementById('contractStatus');
+
+// Collectibles Section
+const deployCollectiblesButton = document.getElementById(
+  'deployCollectiblesButton',
+);
+const mintButton = document.getElementById('mintButton');
+const mintAmountInput = document.getElementById('mintAmountInput');
+const collectiblesStatus = document.getElementById('collectiblesStatus');
 
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
@@ -139,6 +150,11 @@ const initialize = async () => {
       piggybankBytecode,
       ethersProvider.getSigner(),
     );
+    collectiblesFactory = new ethers.ContractFactory(
+      collectiblesAbi,
+      collectiblesBytecode,
+      ethersProvider.getSigner(),
+    );
   } catch (error) {
     console.error(error);
   }
@@ -157,6 +173,9 @@ const initialize = async () => {
     deployButton,
     depositButton,
     withdrawButton,
+    deployCollectiblesButton,
+    mintButton,
+    mintAmountInput,
     sendButton,
     createToken,
     watchAsset,
@@ -215,6 +234,7 @@ const initialize = async () => {
       clearTextDisplays();
     } else {
       deployButton.disabled = false;
+      deployCollectiblesButton.disabled = false;
       sendButton.disabled = false;
       createToken.disabled = false;
       personalSign.disabled = false;
@@ -324,6 +344,46 @@ const initialize = async () => {
         });
         console.log(result);
         contractStatus.innerHTML = 'Withdrawn';
+      };
+
+      console.log(contract);
+    };
+
+    /**
+     * ERC721 Token
+     */
+
+    deployCollectiblesButton.onclick = async () => {
+      let contract;
+      collectiblesStatus.innerHTML = 'Deploying';
+
+      try {
+        contract = await collectiblesFactory.deploy();
+        await contract.deployTransaction.wait();
+      } catch (error) {
+        collectiblesStatus.innerHTML = 'Deployment Failed';
+        throw error;
+      }
+
+      if (contract.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
+      );
+      collectiblesStatus.innerHTML = 'Deployed';
+      mintButton.disabled = false;
+      mintAmountInput.disabled = false;
+
+      mintButton.onclick = async () => {
+        collectiblesStatus.innerHTML = 'Mint initiated';
+        let result = await contract.mintCollectibles(mintAmountInput.value, {
+          from: accounts[0],
+        });
+        result = await result.wait();
+        console.log(result);
+        collectiblesStatus.innerHTML = 'Mint completed';
       };
 
       console.log(contract);
