@@ -16,12 +16,15 @@ import {
   piggybankAbi,
   collectiblesAbi,
   collectiblesBytecode,
+  failingContractAbi,
+  failingContractBytecode,
 } from './constants.json';
 
 let ethersProvider;
 let hstFactory;
 let piggybankFactory;
 let collectiblesFactory;
+let failingContractFactory;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -50,6 +53,9 @@ const deployButton = document.getElementById('deployButton');
 const depositButton = document.getElementById('depositButton');
 const withdrawButton = document.getElementById('withdrawButton');
 const contractStatus = document.getElementById('contractStatus');
+const deployFailingButton = document.getElementById('deployFailingButton');
+const sendFailingButton = document.getElementById('sendFailingButton');
+const failingContractStatus = document.getElementById('failingContractStatus');
 
 // Collectibles Section
 const deployCollectiblesButton = document.getElementById(
@@ -155,6 +161,11 @@ const initialize = async () => {
       collectiblesBytecode,
       ethersProvider.getSigner(),
     );
+    failingContractFactory = new ethers.ContractFactory(
+      failingContractAbi,
+      failingContractBytecode,
+      ethersProvider.getSigner(),
+    );
   } catch (error) {
     console.error(error);
   }
@@ -176,6 +187,8 @@ const initialize = async () => {
     deployCollectiblesButton,
     mintButton,
     mintAmountInput,
+    deployFailingButton,
+    sendFailingButton,
     sendButton,
     createToken,
     watchAsset,
@@ -236,6 +249,7 @@ const initialize = async () => {
       deployButton.disabled = false;
       deployCollectiblesButton.disabled = false;
       sendButton.disabled = false;
+      deployFailingButton.disabled = false;
       createToken.disabled = false;
       personalSign.disabled = false;
       signTypedData.disabled = false;
@@ -347,6 +361,56 @@ const initialize = async () => {
       };
 
       console.log(contract);
+    };
+
+    deployFailingButton.disabled = false;
+
+    deployFailingButton.onclick = async () => {
+      let failingContractDeployed;
+      failingContractStatus.innerHTML = 'Deploying';
+
+      try {
+        failingContractDeployed = await failingContractFactory.deploy();
+        await failingContractDeployed.deployTransaction.wait();
+      } catch (error) {
+        failingContractStatus.innerHTML = 'Deployment Failed';
+        throw error;
+      }
+
+      if (failingContractDeployed.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${failingContractDeployed.address} transactionHash: ${failingContractDeployed.transactionHash}`,
+      );
+      failingContractStatus.innerHTML = 'Deployed';
+
+      sendFailingButton.disabled = false;
+
+      sendFailingButton.onclick = async () => {
+        try {
+          const result = await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [
+              {
+                from: accounts[0],
+                to: failingContractDeployed.address,
+                value: '0x0',
+                gasLimit: '0x5028',
+                maxFeePerGas: '0x2540be400',
+                maxPriorityFeePerGas: '0x3b9aca00',
+              },
+            ],
+          });
+          failingContractStatus.innerHTML =
+            'Failed transaction process completed as expected.';
+          console.log('send failing contract result', result);
+        } catch (error) {
+          console.log('error', error);
+          throw error;
+        }
+      };
     };
 
     /**
