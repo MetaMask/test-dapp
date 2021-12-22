@@ -27,8 +27,9 @@ let hstWeb3;
 let piggybankFactory;
 let piggybankWeb3;
 let collectiblesFactory;
-let failingContractFactory;
 let collectiblesWeb3;
+let failingContractFactory;
+let failingContractWeb3;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -166,6 +167,11 @@ let collectiblesContract;
 let ethersCollectiblesContract;
 let web3CollectiblesContract;
 
+// Deployed failing smart contract
+let failingContract;
+let ethersFailingContract;
+let web3FailingContract;
+
 // Smart contract buttons state
 radioEthers.addEventListener('click', (event) => {
   handleLibraryChange(event);
@@ -192,6 +198,8 @@ function handleLibraryChange(event) {
     hstContract = web3HstContract;
     // Deployed collectibles smart contract with web3 library
     collectiblesContract = web3CollectiblesContract;
+    // Deployed failing smart contract with web3 library
+    failingContract = web3FailingContract;
   } else {
     // Deployed piggy bank smart contract with ethers library
     piggyBankContract = ethersPiggyBankContract;
@@ -199,6 +207,8 @@ function handleLibraryChange(event) {
     hstContract = ethersHstContract;
     // Deployed collectibles smart contract with ethers library
     collectiblesContract = ethersCollectiblesContract;
+    // Deployed failing smart contract with ethers library
+    failingContract = ethersFailingContract;
   }
 
   // Changing buttons and label state when piggy bank contract is deployed
@@ -243,6 +253,15 @@ function handleLibraryChange(event) {
     approveTokensWithoutGas.disabled = true;
   }
 
+  // Changing buttons and label state when failing contract is deployed
+  if (failingContract) {
+    failingContractStatus.innerHTML = 'Deployed';
+    sendFailingButton.disabled = false;
+  } else {
+    failingContractStatus.innerHTML = 'Not clicked';
+    sendFailingButton.disabled = true;
+  }
+
   console.log(libraryInUse);
 }
 
@@ -262,6 +281,11 @@ const initialize = async () => {
       collectiblesAbi,
       address,
       collectiblesBytecode,
+    );
+    failingContractWeb3 = new web3.eth.Contract(
+      failingContractAbi,
+      address,
+      failingContractBytecode,
     );
   } catch (error) {
     console.log(error);
@@ -511,24 +535,10 @@ const initialize = async () => {
     deployFailingButton.disabled = false;
 
     deployFailingButton.onclick = async () => {
-      let failingContractDeployed;
       failingContractStatus.innerHTML = 'Deploying';
 
-      try {
-        failingContractDeployed = await failingContractFactory.deploy();
-        await failingContractDeployed.deployTransaction.wait();
-      } catch (error) {
-        failingContractStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
+      await deployFailingContract();
 
-      if (failingContractDeployed.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${failingContractDeployed.address} transactionHash: ${failingContractDeployed.transactionHash}`,
-      );
       failingContractStatus.innerHTML = 'Deployed';
 
       sendFailingButton.disabled = false;
@@ -540,7 +550,10 @@ const initialize = async () => {
             params: [
               {
                 from: accounts[0],
-                to: failingContractDeployed.address,
+                to:
+                  libraryInUse === 'ethers'
+                    ? failingContract.address
+                    : failingContract.options.address,
                 value: '0x0',
                 gasLimit: '0x5028',
                 maxFeePerGas: '0x2540be400',
@@ -1622,15 +1635,58 @@ async function deployHstContract() {
       );
       await ethersHstContract.deployTransaction.wait();
       hstContract = ethersHstContract;
-      if (hstContract.address === undefined) {
-        return undefined;
-      }
       console.log(
         `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.transactionHash}`,
       );
       return hstContract;
     } catch (error) {
       tokenAddress.innerHTML = 'Creation Failed';
+      throw error;
+    }
+  }
+}
+
+async function deployFailingContract() {
+  if (libraryInUse === 'web3') {
+    try {
+      // Get connected accounts
+      const accounts = await ethereum.request({
+        method: 'eth_accounts',
+      });
+      web3FailingContract = await failingContractWeb3
+        .deploy({
+          data: failingContractBytecode,
+          arguments: [],
+        })
+        .send({
+          from: accounts[0],
+          gas: 4700000,
+        })
+        .on('receipt', function (receipt) {
+          console.log(receipt);
+          if (typeof receipt.contractAddress !== undefined) {
+            console.log(
+              `Contract mined! address: ${receipt.contractAddress} transactionHash: ${receipt.transactionHash}`,
+            );
+          }
+        });
+      failingContract = web3FailingContract;
+      return failingContract;
+    } catch (error) {
+      failingContractStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+  } else {
+    try {
+      ethersFailingContract = await failingContractFactory.deploy();
+      await ethersFailingContract.deployTransaction.wait();
+      failingContract = ethersFailingContract;
+      console.log(
+        `Contract mined! address: ${failingContract.address} transactionHash: ${failingContract.transactionHash}`,
+      );
+      return failingContract;
+    } catch (error) {
+      failingContractStatus.innerHTML = 'Deployment Failed';
       throw error;
     }
   }
