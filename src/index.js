@@ -8,6 +8,7 @@ import {
   recoverTypedSignature_v4 as recoverTypedSignatureV4,
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
+import Web3 from 'web3';
 import { toChecksumAddress } from 'ethereumjs-util';
 import {
   hstBytecode,
@@ -22,9 +23,12 @@ import {
 
 let ethersProvider;
 let hstFactory;
+let hstWeb3;
 let piggybankFactory;
+let piggybankWeb3;
 let collectiblesFactory;
 let failingContractFactory;
+let collectiblesWeb3;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -142,7 +146,126 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+// Library switch feature
+let libraryInUse = 'ethers';
+const radioEthers = document.getElementById('radio-ethers');
+const radioWeb3 = document.getElementById('radio-web3');
+
+// Deployed piggy bank smart contract
+let piggyBankContract;
+let ethersPiggyBankContract;
+let web3PiggyBankContract;
+
+// Deployed hst smart contract
+let hstContract;
+let ethersHstContract;
+let web3HstContract;
+
+// Deployed collectibles smart contract
+let collectiblesContract;
+let ethersCollectiblesContract;
+let web3CollectiblesContract;
+
+// Smart contract buttons state
+radioEthers.addEventListener('click', (event) => {
+  handleLibraryChange(event);
+});
+
+radioWeb3.addEventListener('click', (event) => {
+  handleLibraryChange(event);
+});
+
+function initializeLibrarySwitches() {
+  if (libraryInUse === 'ethers') {
+    radioEthers.checked = true;
+  } else {
+    radioWeb3.checked = true;
+  }
+}
+
+function handleLibraryChange(event) {
+  libraryInUse = event.target.value;
+  if (libraryInUse === 'web3') {
+    // Deployed piggy bank smart contract with web3 library
+    piggyBankContract = web3PiggyBankContract;
+    // Deployed hst smart contract with web3 library
+    hstContract = web3HstContract;
+    // Deployed collectibles smart contract with web3 library
+    collectiblesContract = web3CollectiblesContract;
+  } else {
+    // Deployed piggy bank smart contract with ethers library
+    piggyBankContract = ethersPiggyBankContract;
+    // Deployed hst smart contract with ethers library
+    hstContract = ethersHstContract;
+    // Deployed collectibles smart contract with ethers library
+    collectiblesContract = ethersCollectiblesContract;
+  }
+
+  // Changing buttons and label state when piggy bank contract is deployed
+  if (piggyBankContract) {
+    contractStatus.innerHTML = 'Deployed';
+    depositButton.disabled = false;
+    withdrawButton.disabled = false;
+  } else {
+    contractStatus.innerHTML = 'Not clicked';
+    depositButton.disabled = true;
+    withdrawButton.disabled = true;
+  }
+
+  // Changing buttons and label state when collectibles contract is deployed
+  if (collectiblesContract) {
+    collectiblesStatus.innerHTML = 'Deployed';
+    mintButton.disabled = false;
+    mintAmountInput.disabled = false;
+  } else {
+    collectiblesStatus.innerHTML = '';
+    mintButton.disabled = true;
+    mintAmountInput.disabled = true;
+  }
+
+  // Changing buttons and label state when hst contract is deployed
+  if (hstContract) {
+    tokenAddress.innerHTML =
+      libraryInUse === 'web3'
+        ? hstContract.options.address
+        : hstContract.address;
+    watchAsset.disabled = false;
+    transferTokens.disabled = false;
+    approveTokens.disabled = false;
+    transferTokensWithoutGas.disabled = false;
+    approveTokensWithoutGas.disabled = false;
+  } else {
+    tokenAddress.innerHTML = '';
+    watchAsset.disabled = true;
+    transferTokens.disabled = true;
+    approveTokens.disabled = true;
+    transferTokensWithoutGas.disabled = true;
+    approveTokensWithoutGas.disabled = true;
+  }
+
+  console.log(libraryInUse);
+}
+
 const initialize = async () => {
+  // Initialize library switch radio buttons
+  initializeLibrarySwitches();
+  try {
+    const web3 = new Web3(window.ethereum);
+    const address = null;
+    hstWeb3 = new web3.eth.Contract(hstAbi, address, hstBytecode);
+    piggybankWeb3 = new web3.eth.Contract(
+      piggybankAbi,
+      address,
+      piggybankBytecode,
+    );
+    collectiblesWeb3 = new web3.eth.Contract(
+      collectiblesAbi,
+      address,
+      collectiblesBytecode,
+    );
+  } catch (error) {
+    console.log(error);
+  }
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
@@ -320,51 +443,69 @@ const initialize = async () => {
      */
 
     deployButton.onclick = async () => {
-      let contract;
       contractStatus.innerHTML = 'Deploying';
 
-      try {
-        contract = await piggybankFactory.deploy();
-        await contract.deployTransaction.wait();
-      } catch (error) {
-        contractStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
+      await deployPiggyBankContract();
 
-      if (contract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
-      );
       contractStatus.innerHTML = 'Deployed';
       depositButton.disabled = false;
       withdrawButton.disabled = false;
 
-      depositButton.onclick = async () => {
-        contractStatus.innerHTML = 'Deposit initiated';
-        const result = await contract.deposit({
-          from: accounts[0],
-          value: '0x3782dace9d900000',
-        });
-        console.log(result);
-        const receipt = await result.wait();
-        console.log(receipt);
-        contractStatus.innerHTML = 'Deposit completed';
-      };
+      // Deposit button functionality with different library
+      if (libraryInUse === 'ethers') {
+        depositButton.onclick = async () => {
+          contractStatus.innerHTML = 'Deposit initiated';
+          const result = await piggyBankContract.deposit({
+            from: accounts[0],
+            value: '0x3782dace9d900000',
+          });
+          console.log(result);
+          const receipt = await result.wait();
+          console.log(receipt);
+          contractStatus.innerHTML = 'Deposit completed';
+        };
+      } else {
+        depositButton.onclick = async () => {
+          contractStatus.innerHTML = 'Deposit initiated';
+          await piggyBankContract.methods
+            .deposit()
+            .send({
+              from: accounts[0],
+              value: '0x3782dace9d900000',
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+          contractStatus.innerHTML = 'Deposit completed';
+        };
+      }
 
-      withdrawButton.onclick = async () => {
-        const result = await contract.withdraw('0xde0b6b3a7640000', {
-          from: accounts[0],
-        });
-        console.log(result);
-        const receipt = await result.wait();
-        console.log(receipt);
-        contractStatus.innerHTML = 'Withdrawn';
-      };
+      // Withdraw button functionality with different library
+      if (libraryInUse === 'ethers') {
+        withdrawButton.onclick = async () => {
+          const result = await piggyBankContract.withdraw('0xde0b6b3a7640000', {
+            from: accounts[0],
+          });
+          console.log(result);
+          const receipt = await result.wait();
+          console.log(receipt);
+          contractStatus.innerHTML = 'Withdrawn';
+        };
+      } else {
+        withdrawButton.onclick = async () => {
+          await piggyBankContract.methods
+            .withdraw('0xde0b6b3a7640000')
+            .send({
+              from: accounts[0],
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+          contractStatus.innerHTML = 'Withdrawn';
+        };
+      }
 
-      console.log(contract);
+      console.log(piggyBankContract);
     };
 
     deployFailingButton.disabled = false;
@@ -422,39 +563,44 @@ const initialize = async () => {
      */
 
     deployCollectiblesButton.onclick = async () => {
-      let contract;
       collectiblesStatus.innerHTML = 'Deploying';
 
-      try {
-        contract = await collectiblesFactory.deploy();
-        await contract.deployTransaction.wait();
-      } catch (error) {
-        collectiblesStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
+      await deployCollectiblesContract();
 
-      if (contract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
-      );
       collectiblesStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
       mintAmountInput.disabled = false;
 
-      mintButton.onclick = async () => {
-        collectiblesStatus.innerHTML = 'Mint initiated';
-        let result = await contract.mintCollectibles(mintAmountInput.value, {
-          from: accounts[0],
-        });
-        result = await result.wait();
-        console.log(result);
-        collectiblesStatus.innerHTML = 'Mint completed';
-      };
+      // Mint button functionality with different library
+      if (libraryInUse === 'ethers') {
+        mintButton.onclick = async () => {
+          collectiblesStatus.innerHTML = 'Mint initiated';
+          let result = await collectiblesContract.mintCollectibles(
+            mintAmountInput.value,
+            {
+              from: accounts[0],
+            },
+          );
+          result = await result.wait();
+          console.log(result);
+          collectiblesStatus.innerHTML = 'Mint completed';
+        };
+      } else {
+        mintButton.onclick = async () => {
+          collectiblesStatus.innerHTML = 'Mint initiated';
+          await collectiblesContract.methods
+            .mintCollectibles(mintAmountInput.value)
+            .send({
+              from: accounts[0],
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+          collectiblesStatus.innerHTML = 'Mint completed';
+        };
+      }
 
-      console.log(contract);
+      console.log(collectiblesContract);
     };
 
     /**
@@ -500,51 +646,44 @@ const initialize = async () => {
      */
 
     createToken.onclick = async () => {
-      const _initialAmount = 100;
-      const _tokenName = 'TST';
       const _decimalUnits = 4;
       const _tokenSymbol = 'TST';
 
-      try {
-        const contract = await hstFactory.deploy(
-          _initialAmount,
-          _tokenName,
-          _decimalUnits,
-          _tokenSymbol,
-        );
-        await contract.deployTransaction.wait();
-        if (contract.address === undefined) {
-          return undefined;
-        }
+      await deployHstContract();
 
-        console.log(
-          `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
-        );
-        tokenAddress.innerHTML = contract.address;
-        watchAsset.disabled = false;
-        transferTokens.disabled = false;
-        approveTokens.disabled = false;
-        transferTokensWithoutGas.disabled = false;
-        approveTokensWithoutGas.disabled = false;
+      tokenAddress.innerHTML =
+        libraryInUse === 'web3'
+          ? hstContract.options.address
+          : hstContract.address;
+      watchAsset.disabled = false;
+      transferTokens.disabled = false;
+      approveTokens.disabled = false;
+      transferTokensWithoutGas.disabled = false;
+      approveTokensWithoutGas.disabled = false;
 
-        watchAsset.onclick = async () => {
-          const result = await ethereum.request({
-            method: 'wallet_watchAsset',
-            params: {
-              type: 'ERC20',
-              options: {
-                address: contract.address,
-                symbol: _tokenSymbol,
-                decimals: _decimalUnits,
-                image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
-              },
+      watchAsset.onclick = async () => {
+        const result = await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address:
+                libraryInUse === 'web3'
+                  ? hstContract.options.address
+                  : hstContract.address,
+              symbol: _tokenSymbol,
+              decimals: _decimalUnits,
+              image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
             },
-          });
-          console.log('result', result);
-        };
+          },
+        });
+        console.log('result', result);
+      };
 
+      // Transfer tokens button functionality with different library
+      if (libraryInUse === 'ethers') {
         transferTokens.onclick = async () => {
-          const result = await contract.transfer(
+          const result = await hstContract.transfer(
             '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
             '15000',
             {
@@ -555,9 +694,25 @@ const initialize = async () => {
           );
           console.log('result', result);
         };
+      } else {
+        transferTokens.onclick = async () => {
+          await hstContract.methods
+            .transfer('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '15000')
+            .send({
+              from: accounts[0],
+              gas: 60000,
+              gasPrice: '20000000000',
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+        };
+      }
 
+      // Approve tokens button functionality with different library
+      if (libraryInUse === 'ethers') {
         approveTokens.onclick = async () => {
-          const result = await contract.approve(
+          const result = await hstContract.approve(
             '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
             '70000',
             {
@@ -568,9 +723,25 @@ const initialize = async () => {
           );
           console.log(result);
         };
+      } else {
+        approveTokens.onclick = async () => {
+          await hstContract.methods
+            .approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000')
+            .send({
+              from: accounts[0],
+              gas: 60000,
+              gasPrice: '20000000000',
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+        };
+      }
 
+      // Transfer tokens without gas button functionality with different library
+      if (libraryInUse === 'ethers') {
         transferTokensWithoutGas.onclick = async () => {
-          const result = await contract.transfer(
+          const result = await hstContract.transfer(
             '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
             '15000',
             {
@@ -579,9 +750,24 @@ const initialize = async () => {
           );
           console.log('result', result);
         };
+      } else {
+        transferTokensWithoutGas.onclick = async () => {
+          await hstContract.methods
+            .transfer('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '15000')
+            .send({
+              from: accounts[0],
+              gasPrice: '20000000000',
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+        };
+      }
 
+      // Approve tokens without gas button functionality with different library
+      if (libraryInUse === 'ethers') {
         approveTokensWithoutGas.onclick = async () => {
-          const result = await contract.approve(
+          const result = await hstContract.approve(
             '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
             '70000',
             {
@@ -590,11 +776,18 @@ const initialize = async () => {
           );
           console.log(result);
         };
-
-        return contract;
-      } catch (error) {
-        tokenAddress.innerHTML = 'Creation Failed';
-        throw error;
+      } else {
+        approveTokensWithoutGas.onclick = async () => {
+          await hstContract.methods
+            .approve('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '70000')
+            .send({
+              from: accounts[0],
+              gasPrice: '20000000000',
+            })
+            .then((receipt) => {
+              console.log(receipt);
+            });
+        };
       }
     };
 
@@ -1287,4 +1480,158 @@ function getPermissionsDisplayString(permissionsArray) {
 
 function stringifiableToHex(value) {
   return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)));
+}
+
+async function deployPiggyBankContract() {
+  if (libraryInUse === 'web3') {
+    try {
+      // Get connected accounts
+      const accounts = await ethereum.request({
+        method: 'eth_accounts',
+      });
+      web3PiggyBankContract = await piggybankWeb3
+        .deploy({
+          data: piggybankBytecode,
+          arguments: [],
+        })
+        .send({
+          from: accounts[0],
+          gas: 201747,
+          gasPrice: '1500000011',
+        })
+        .on('receipt', function (receipt) {
+          console.log(receipt);
+          if (typeof receipt.contractAddress !== undefined) {
+            console.log(
+              `Contract mined! address: ${receipt.contractAddress} transactionHash: ${receipt.transactionHash}`,
+            );
+          }
+        });
+      piggyBankContract = web3PiggyBankContract;
+      return piggyBankContract;
+    } catch (error) {
+      contractStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+  } else {
+    try {
+      ethersPiggyBankContract = await piggybankFactory.deploy();
+      await ethersPiggyBankContract.deployTransaction.wait();
+      piggyBankContract = ethersPiggyBankContract;
+      console.log(
+        `Contract mined! address: ${piggyBankContract.address} transactionHash: ${piggyBankContract.transactionHash}`,
+      );
+      return piggyBankContract;
+    } catch (error) {
+      contractStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+  }
+}
+
+async function deployCollectiblesContract() {
+  if (libraryInUse === 'web3') {
+    try {
+      // Get connected accounts
+      const accounts = await ethereum.request({
+        method: 'eth_accounts',
+      });
+      web3CollectiblesContract = await collectiblesWeb3
+        .deploy({
+          data: collectiblesBytecode,
+          arguments: [],
+        })
+        .send({
+          from: accounts[0],
+          gas: 2554907,
+          gasPrice: '1500000015',
+        })
+        .on('receipt', function (receipt) {
+          console.log(receipt);
+          if (typeof receipt.contractAddress !== undefined) {
+            console.log(
+              `Contract mined! address: ${receipt.contractAddress} transactionHash: ${receipt.transactionHash}`,
+            );
+          }
+        });
+      collectiblesContract = web3CollectiblesContract;
+      return collectiblesContract;
+    } catch (error) {
+      collectiblesStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+  } else {
+    try {
+      ethersCollectiblesContract = await collectiblesFactory.deploy();
+      await ethersCollectiblesContract.deployTransaction.wait();
+      collectiblesContract = ethersCollectiblesContract;
+      console.log(
+        `Contract mined! address: ${collectiblesContract.address} transactionHash: ${collectiblesContract.transactionHash}`,
+      );
+      return collectiblesContract;
+    } catch (error) {
+      collectiblesStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+  }
+}
+
+async function deployHstContract() {
+  const _initialAmount = 100;
+  const _tokenName = 'TST';
+  const _decimalUnits = 4;
+  const _tokenSymbol = 'TST';
+
+  if (libraryInUse === 'web3') {
+    try {
+      // Get connected accounts
+      const accounts = await ethereum.request({
+        method: 'eth_accounts',
+      });
+      web3HstContract = await hstWeb3
+        .deploy({
+          data: hstBytecode,
+          arguments: [_initialAmount, _tokenName, _decimalUnits, _tokenSymbol],
+        })
+        .send({
+          from: accounts[0],
+          gas: 1157888,
+          gasPrice: '1763384463',
+        })
+        .on('receipt', function (receipt) {
+          console.log(receipt);
+          if (typeof receipt.contractAddress !== undefined) {
+            console.log(
+              `Contract mined! address: ${receipt.contractAddress} transactionHash: ${receipt.transactionHash}`,
+            );
+          }
+        });
+      hstContract = web3HstContract;
+      return hstContract;
+    } catch (error) {
+      tokenAddress.innerHTML = 'Creation Failed';
+      throw error;
+    }
+  } else {
+    try {
+      ethersHstContract = await hstFactory.deploy(
+        _initialAmount,
+        _tokenName,
+        _decimalUnits,
+        _tokenSymbol,
+      );
+      await ethersHstContract.deployTransaction.wait();
+      hstContract = ethersHstContract;
+      if (hstContract.address === undefined) {
+        return undefined;
+      }
+      console.log(
+        `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.transactionHash}`,
+      );
+      return hstContract;
+    } catch (error) {
+      tokenAddress.innerHTML = 'Creation Failed';
+      throw error;
+    }
+  }
 }

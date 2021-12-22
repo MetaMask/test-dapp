@@ -33,7 +33,9 @@
     "url": "https://github.com/MetaMask/test-dapp/issues"
   },
   "homepage": "https://metamask.github.io/test-dapp",
-  "dependencies": {},
+  "dependencies": {
+    "web3": "^1.6.1"
+  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^1.0.6",
     "@metamask/auto-changelog": "^2.5.0",
