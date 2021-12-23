@@ -64,7 +64,12 @@
       "sha3": true,
       "secp256k1": true,
       "keccak": true,
-      "fsevents": true
+      "fsevents": true,
+      "web3": false,
+      "web3-bzz": false,
+      "bufferutil": false,
+      "utf-8-validate": false,
+      "web3-shh": false
     }
   }
 }

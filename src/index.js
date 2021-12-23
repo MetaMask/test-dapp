@@ -1509,8 +1509,6 @@ async function deployPiggyBankContract() {
         })
         .send({
           from: accounts[0],
-          gas: 201747,
-          gasPrice: '1500000011',
         })
         .on('receipt', function (receipt) {
           console.log(receipt);
@@ -1556,8 +1554,6 @@ async function deployCollectiblesContract() {
         })
         .send({
           from: accounts[0],
-          gas: 2554907,
-          gasPrice: '1500000015',
         })
         .on('receipt', function (receipt) {
           console.log(receipt);
@@ -1608,8 +1604,6 @@ async function deployHstContract() {
         })
         .send({
           from: accounts[0],
-          gas: 1157888,
-          gasPrice: '1763384463',
         })
         .on('receipt', function (receipt) {
           console.log(receipt);
@@ -1660,7 +1654,6 @@ async function deployFailingContract() {
         })
         .send({
           from: accounts[0],
-          gas: 4700000,
         })
         .on('receipt', function (receipt) {
           console.log(receipt);
