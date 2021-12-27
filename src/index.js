@@ -192,22 +192,14 @@ function initializeLibrarySwitches() {
 function handleLibraryChange(event) {
   libraryInUse = event.target.value;
   if (libraryInUse === 'web3') {
-    // Deployed piggy bank smart contract with web3 library
     piggyBankContract = web3PiggyBankContract;
-    // Deployed hst smart contract with web3 library
     hstContract = web3HstContract;
-    // Deployed collectibles smart contract with web3 library
     collectiblesContract = web3CollectiblesContract;
-    // Deployed failing smart contract with web3 library
     failingContract = web3FailingContract;
   } else {
-    // Deployed piggy bank smart contract with ethers library
     piggyBankContract = ethersPiggyBankContract;
-    // Deployed hst smart contract with ethers library
     hstContract = ethersHstContract;
-    // Deployed collectibles smart contract with ethers library
     collectiblesContract = ethersCollectiblesContract;
-    // Deployed failing smart contract with ethers library
     failingContract = ethersFailingContract;
   }
 
@@ -217,7 +209,7 @@ function handleLibraryChange(event) {
     depositButton.disabled = false;
     withdrawButton.disabled = false;
   } else {
-    contractStatus.innerHTML = 'Not clicked';
+    contractStatus.innerHTML = 'Not deployed';
     depositButton.disabled = true;
     withdrawButton.disabled = true;
   }
@@ -258,11 +250,9 @@ function handleLibraryChange(event) {
     failingContractStatus.innerHTML = 'Deployed';
     sendFailingButton.disabled = false;
   } else {
-    failingContractStatus.innerHTML = 'Not clicked';
+    failingContractStatus.innerHTML = 'Not deployed';
     sendFailingButton.disabled = true;
   }
-
-  console.log(libraryInUse);
 }
 
 const initialize = async () => {
@@ -499,8 +489,12 @@ const initialize = async () => {
             })
             .then((receipt) => {
               console.log(receipt);
+              contractStatus.innerHTML = 'Deposit completed';
+            })
+            .catch((error) => {
+              console.log(error);
+              contractStatus.innerHTML = 'Contract call error';
             });
-          contractStatus.innerHTML = 'Deposit completed';
         };
       }
 
@@ -524,12 +518,14 @@ const initialize = async () => {
             })
             .then((receipt) => {
               console.log(receipt);
+              contractStatus.innerHTML = 'Withdrawn';
+            })
+            .catch((error) => {
+              console.log(error);
+              contractStatus.innerHTML = 'Contract call error';
             });
-          contractStatus.innerHTML = 'Withdrawn';
         };
       }
-
-      console.log(piggyBankContract);
     };
 
     deployFailingButton.disabled = false;
@@ -606,9 +602,7 @@ const initialize = async () => {
             .send({
               from: accounts[0],
             })
-            .then((receipt) => {
-              console.log(receipt);
-            });
+            .then((receipt) => console.log(receipt));
           collectiblesStatus.innerHTML = 'Mint completed';
         };
       }
@@ -716,9 +710,7 @@ const initialize = async () => {
               gas: 60000,
               gasPrice: '20000000000',
             })
-            .then((receipt) => {
-              console.log(receipt);
-            });
+            .then((receipt) => console.log(receipt));
         };
       }
 
@@ -745,9 +737,7 @@ const initialize = async () => {
               gas: 60000,
               gasPrice: '20000000000',
             })
-            .then((receipt) => {
-              console.log(receipt);
-            });
+            .then((receipt) => console.log(receipt));
         };
       }
 
@@ -771,9 +761,7 @@ const initialize = async () => {
               from: accounts[0],
               gasPrice: '20000000000',
             })
-            .then((receipt) => {
-              console.log(receipt);
-            });
+            .then((receipt) => console.log(receipt));
         };
       }
 
@@ -797,9 +785,7 @@ const initialize = async () => {
               from: accounts[0],
               gasPrice: '20000000000',
             })
-            .then((receipt) => {
-              console.log(receipt);
-            });
+            .then((receipt) => console.log(receipt));
         };
       }
     };
