@@ -1,4 +1,6 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
+import WalletConnect from '@walletconnect/client';
+import QRCodeModal from '@walletconnect/qrcode-modal';
 // eslint-disable-next-line camelcase
 import {
   encrypt,
@@ -31,6 +33,10 @@ const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
 
 const { isMetaMaskInstalled } = MetaMaskOnboarding;
+let wcConnector = new WalletConnect({
+  bridge: 'https://bridge.walletconnect.org', // Required
+  qrcodeModal: QRCodeModal,
+});
 
 // Dapp Status Section
 const networkDiv = document.getElementById('network');
@@ -142,6 +148,11 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+// Wallet Connect
+const connectWC = document.getElementById('connectWC');
+const addEthereumChainWC = document.getElementById('addEthereumChainWC');
+const switchEthereumChainWC = document.getElementById('switchEthereumChainWC');
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -212,6 +223,7 @@ const initialize = async () => {
   ];
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
+  const isWCConnected = () => wcConnector.connected;
 
   const onClickInstall = () => {
     onboardButton.innerText = 'Onboarding in progress';
@@ -280,6 +292,16 @@ const initialize = async () => {
       onboardButton.innerText = 'Connect';
       onboardButton.onclick = onClickConnect;
       onboardButton.disabled = false;
+    }
+
+    if (isWCConnected()) {
+      connectWC.disabled = true;
+      addEthereumChainWC.disabled = false;
+      switchEthereumChainWC.disabled = false;
+    } else {
+      connectWC.disabled = false;
+      addEthereumChainWC.disabled = true;
+      switchEthereumChainWC.disabled = true;
     }
   };
 
@@ -1159,6 +1181,85 @@ const initialize = async () => {
       console.error(err);
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`;
     }
+  };
+
+  connectWC.onclick = async () => {
+    wcConnector.createSession();
+    wcConnector.on('connect', (error, payload) => {
+      if (error) {
+        throw error;
+      }
+      const { chainId } = payload.params[0];
+      console.log(`Get provided accounts and chainId (s${chainId})`);
+      updateButtons();
+    });
+
+    wcConnector.on('session_update', (error, payload) => {
+      if (error) {
+        throw error;
+      }
+
+      const { chainId } = payload.params[0];
+      console.log(`Get provided accounts and chainId (${chainId})`);
+    });
+
+    wcConnector.on('disconnect', (error, _) => {
+      console.log('disconnect');
+      if (error) {
+        throw error;
+      }
+      wcConnector = null;
+      updateButtons();
+    });
+  };
+
+  addEthereumChainWC.onclick = async () => {
+    console.log('addEthereumChainWC');
+    const customRequest = {
+      jsonrpc: '2.0',
+      method: 'wallet_addEthereumChain',
+      params: [
+        {
+          chainId: '0x64',
+          rpcUrls: ['https://dai.poa.network'],
+          chainName: 'xDAI Chain',
+          nativeCurrency: { name: 'xDAI', decimals: 18, symbol: 'xDAI' },
+          blockExplorerUrls: ['https://blockscout.com/poa/xdai'],
+        },
+      ],
+    };
+    wcConnector
+      .sendCustomRequest(customRequest)
+      .then((result) => {
+        // Returns request result
+        console.log(result);
+      })
+      .catch((error) => {
+        // Error returned when rejected
+        console.error(error);
+      });
+  };
+
+  switchEthereumChainWC.onclick = async () => {
+    const customRequest = {
+      jsonrpc: '2.0',
+      method: 'wallet_switchEthereumChain',
+      params: [
+        {
+          chainId: '0x64',
+        },
+      ],
+    };
+    wcConnector
+      .sendCustomRequest(customRequest)
+      .then((result) => {
+        // Returns request result
+        console.log(result);
+      })
+      .catch((error) => {
+        // Error returned when rejected
+        console.error(error);
+      });
   };
 
   function handleNewAccounts(newAccounts) {
