@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [5.0.0]
 ### Added
 - Add buttons to send transaction and deploy contract that will fail([#139](git+https://github.com/MetaMask/test-dapp/pull/139))
 - add deploy and mint buttons for collectibles flow ([#136](git+https://github.com/MetaMask/test-dapp/pull/136))
@@ -22,4 +24,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](git+https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](git+https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: git+https://github.com/MetaMask/test-dapp/
+[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.0.0...HEAD
+[5.0.0]: git+https://github.com/MetaMask/test-dapp/releases/tag/v5.0.0
