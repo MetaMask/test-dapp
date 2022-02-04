@@ -349,6 +349,8 @@ const initialize = async () => {
           value: '0x3782dace9d900000',
         });
         console.log(result);
+        const receipt = await result.wait();
+        console.log(receipt);
         contractStatus.innerHTML = 'Deposit completed';
       };
 
@@ -357,6 +359,8 @@ const initialize = async () => {
           from: accounts[0],
         });
         console.log(result);
+        const receipt = await result.wait();
+        console.log(receipt);
         contractStatus.innerHTML = 'Withdrawn';
       };
 
