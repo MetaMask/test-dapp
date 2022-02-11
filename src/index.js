@@ -763,7 +763,7 @@ const initialize = async () => {
       ethSignResult.innerHTML = JSON.stringify(ethResult);
     } catch (err) {
       console.error(err);
-      ethSign.innerHTML = `Error: ${err.message}`;
+      ethSignResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
@@ -783,7 +783,7 @@ const initialize = async () => {
       personalSignVerify.disabled = false;
     } catch (err) {
       console.error(err);
-      personalSign.innerHTML = `Error: ${err.message}`;
+      personalSignResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
