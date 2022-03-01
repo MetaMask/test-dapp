@@ -4,6 +4,7 @@ section {
 
 .info-text {
   font-size: 1.1em;
+  word-break: break-word;
 }
 
 .full-width {
@@ -23,8 +24,10 @@ header {
 }
 
 #logo-container {
+  padding-top: 2rem;
   display: inline-flex;
   flex-direction: column;
+  align-items: center;
 }
 
 #logo-text {
@@ -32,8 +35,9 @@ header {
   padding-bottom: 5px;
 }
 
-#mm-logo {
-  width: 100%;
+#logo {
+  width: 65px;
+  height: 66px;
 }
 
 /* Encrypt/Decrypt */
