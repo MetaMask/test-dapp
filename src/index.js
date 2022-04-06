@@ -1271,7 +1271,7 @@ const initialize = async () => {
   }
 };
 
-window.addEventListener('DOMContentLoaded', initialize);
+window.addEventListener('load', initialize);
 
 // utils
 
