@@ -123,6 +123,11 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
 const signTypedDataV4VerifyResult = document.getElementById(
   'signTypedDataV4VerifyResult',
 );
+const siwe = document.getElementById('siwe');
+const siweResources = document.getElementById('siweResources');
+const siweBadDomain = document.getElementById('siweBadDomain');
+const siweMalformed = document.getElementById('siweMalformed');
+const siweResult = document.getElementById('siweResult');
 
 // Send form section
 const fromDiv = document.getElementById('fromInput');
@@ -209,6 +214,10 @@ const initialize = async () => {
     signTypedDataV3Verify,
     signTypedDataV4,
     signTypedDataV4Verify,
+    siwe,
+    siweResources,
+    siweBadDomain,
+    siweMalformed,
   ];
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
@@ -259,6 +268,10 @@ const initialize = async () => {
       signTypedData.disabled = false;
       signTypedDataV3.disabled = false;
       signTypedDataV4.disabled = false;
+      siwe.disabled = false;
+      siweResources.disabled = false;
+      siweBadDomain.disabled = false;
+      siweMalformed.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -784,6 +797,96 @@ const initialize = async () => {
     } catch (err) {
       console.error(err);
       personalSign.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Sign In With Ethereum
+   */
+  siwe.onclick = async () => {
+    const domain = window.location.host;
+    const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
+
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
+      const sign = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      });
+      siweResult.innerHTML = sign;
+    } catch (err) {
+      console.error(err);
+      siweResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Sign In With Ethereum (with Resources)
+   */
+  siweResources.onclick = async () => {
+    const domain = window.location.host;
+    const siweMessageResources = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
+
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(siweMessageResources, 'utf8').toString(
+        'hex',
+      )}`;
+      const sign = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      });
+      siweResult.innerHTML = sign;
+    } catch (err) {
+      console.error(err);
+      siweResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Sign In With Ethereum (Bad Domain)
+   */
+  siweBadDomain.onclick = async () => {
+    const domain = window.location.host;
+    const siweMessageBadDomain = `metamask.badactor.io wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
+
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(siweMessageBadDomain, 'utf8').toString(
+        'hex',
+      )}`;
+      const sign = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      });
+      siweResult.innerHTML = sign;
+    } catch (err) {
+      console.error(err);
+      siweResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Sign In With Ethereum (Malformed)
+   */
+  siweMalformed.onclick = async () => {
+    const domain = window.location.host;
+    const siweMessageMissing = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z`;
+
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(siweMessageMissing, 'utf8').toString(
+        'hex',
+      )}`;
+      const sign = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      });
+      siweResult.innerHTML = sign;
+    } catch (err) {
+      console.error(err);
+      siweResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
