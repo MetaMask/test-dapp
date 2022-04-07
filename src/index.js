@@ -801,12 +801,10 @@ const initialize = async () => {
   };
 
   /**
-   * Sign In With Ethereum
+   * Sign In With Ethereum helper
    */
-  siwe.onclick = async () => {
-    const domain = window.location.host;
-    const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
 
+  const siweSign = async (siweMessage) => {
     try {
       const from = accounts[0];
       const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
@@ -822,26 +820,21 @@ const initialize = async () => {
   };
 
   /**
+   * Sign In With Ethereum
+   */
+  siwe.onclick = async () => {
+    const domain = window.location.host;
+    const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
+    siweSign(siweMessage);
+  };
+
+  /**
    * Sign In With Ethereum (with Resources)
    */
   siweResources.onclick = async () => {
     const domain = window.location.host;
     const siweMessageResources = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
-
-    try {
-      const from = accounts[0];
-      const msg = `0x${Buffer.from(siweMessageResources, 'utf8').toString(
-        'hex',
-      )}`;
-      const sign = await ethereum.request({
-        method: 'personal_sign',
-        params: [msg, from, 'Example password'],
-      });
-      siweResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      siweResult.innerHTML = `Error: ${err.message}`;
-    }
+    siweSign(siweMessageResources);
   };
 
   /**
@@ -850,21 +843,7 @@ const initialize = async () => {
   siweBadDomain.onclick = async () => {
     const domain = window.location.host;
     const siweMessageBadDomain = `metamask.badactor.io wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
-
-    try {
-      const from = accounts[0];
-      const msg = `0x${Buffer.from(siweMessageBadDomain, 'utf8').toString(
-        'hex',
-      )}`;
-      const sign = await ethereum.request({
-        method: 'personal_sign',
-        params: [msg, from, 'Example password'],
-      });
-      siweResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      siweResult.innerHTML = `Error: ${err.message}`;
-    }
+    siweSign(siweMessageBadDomain);
   };
 
   /**
@@ -873,21 +852,7 @@ const initialize = async () => {
   siweMalformed.onclick = async () => {
     const domain = window.location.host;
     const siweMessageMissing = `${domain} wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z`;
-
-    try {
-      const from = accounts[0];
-      const msg = `0x${Buffer.from(siweMessageMissing, 'utf8').toString(
-        'hex',
-      )}`;
-      const sign = await ethereum.request({
-        method: 'personal_sign',
-        params: [msg, from, 'Example password'],
-      });
-      siweResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      siweResult.innerHTML = `Error: ${err.message}`;
-    }
+    siweSign(siweMessageMissing);
   };
 
   /**
