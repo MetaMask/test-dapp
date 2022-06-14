@@ -289,10 +289,10 @@ const initialize = async () => {
       params: [
         {
           chainId: '0x64',
-          rpcUrls: ['https://dai.poa.network'],
-          chainName: 'xDAI Chain',
+          rpcUrls: ['https://rpc.gnosischain.com'],
+          chainName: 'Gnosis Chain',
           nativeCurrency: { name: 'xDAI', decimals: 18, symbol: 'xDAI' },
-          blockExplorerUrls: ['https://blockscout.com/poa/xdai'],
+          blockExplorerUrls: ['https://blockscout.com/xdai/mainnet'],
         },
       ],
     });
