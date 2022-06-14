@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Use local Ganache instance for `wallet_addEthereumChain` instead of XDAI ([#174](git+https://github.com/MetaMask/test-dapp/pull/174))
+
+### Fixed
+- Fix event used for accessing provider ([#163](git+https://github.com/MetaMask/test-dapp/pull/163))
+- fix: replace networkChanged with chainChanged ([#162](git+https://github.com/MetaMask/test-dapp/pull/162))
+- wait for the transaction to be mined ([#138](git+https://github.com/MetaMask/test-dapp/pull/138))
 
 ## [5.0.0]
 ### Added
