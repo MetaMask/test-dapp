@@ -292,7 +292,7 @@ const initialize = async () => {
           rpcUrls: ['https://127.0.0.1:8546'],
           chainName: 'Localhost 8546',
           nativeCurrency: { name: 'TEST', decimals: 18, symbol: 'TEST' },
-          blockExplorerUrls: [],
+          blockExplorerUrls: null,
         },
       ],
     });
