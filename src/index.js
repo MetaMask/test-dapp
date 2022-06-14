@@ -288,11 +288,11 @@ const initialize = async () => {
       method: 'wallet_addEthereumChain',
       params: [
         {
-          chainId: '0x64',
-          rpcUrls: ['https://dai.poa.network'],
-          chainName: 'xDAI Chain',
-          nativeCurrency: { name: 'xDAI', decimals: 18, symbol: 'xDAI' },
-          blockExplorerUrls: ['https://blockscout.com/poa/xdai'],
+          chainId: '0x53a',
+          rpcUrls: ['https://127.0.0.1:8546'],
+          chainName: 'Localhost 8546',
+          nativeCurrency: { name: 'TEST', decimals: 18, symbol: 'TEST' },
+          blockExplorerUrls: null,
         },
       ],
     });
