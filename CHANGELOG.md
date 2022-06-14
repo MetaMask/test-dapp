@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [5.1.1]
+### Fixed
+- Fix RPC info for local Ganache instance ([#178](git+https://github.com/MetaMask/test-dapp/pull/178))
+
+## [5.1.0]
 ### Added
 - Use local Ganache instance for `wallet_addEthereumChain` instead of XDAI ([#174](git+https://github.com/MetaMask/test-dapp/pull/174))
 
