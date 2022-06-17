@@ -36,6 +36,17 @@ header {
   width: 100%;
 }
 
+/* Radio buttons switch */
+
+input[type='radio'] { 
+  transform: scale(1.5); 
+  margin: 0 5px 0 5px;
+}
+
+.libraryLabel {
+  font-size: large;
+}
+
 /* Encrypt/Decrypt */
 
 #encryptMessageInput {

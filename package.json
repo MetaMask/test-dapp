@@ -33,7 +33,9 @@
     "url": "https://github.com/MetaMask/test-dapp/issues"
   },
   "homepage": "https://metamask.github.io/test-dapp",
-  "dependencies": {},
+  "dependencies": {
+    "web3": "^1.6.1"
+  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^1.0.6",
     "@metamask/auto-changelog": "^2.5.0",
@@ -62,7 +64,12 @@
       "sha3": true,
       "secp256k1": true,
       "keccak": true,
-      "fsevents": true
+      "fsevents": true,
+      "web3": false,
+      "web3-bzz": false,
+      "bufferutil": false,
+      "utf-8-validate": false,
+      "web3-shh": false
     }
   }
 }
