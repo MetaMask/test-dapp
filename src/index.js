@@ -25,10 +25,16 @@ let hstFactory;
 let piggybankFactory;
 let collectiblesFactory;
 let failingContractFactory;
+let hstContract;
+let piggybankContract;
+let collectiblesContract;
+let failingContract;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
+const urlSearchParams = new URLSearchParams(window.location.search);
+const deployedContractAddress = urlSearchParams.get('contract');
 
 const { isMetaMaskInstalled } = MetaMaskOnboarding;
 
@@ -70,6 +76,8 @@ const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
+const decimalUnits = 4;
+const tokenSymbol = 'TST';
 const tokenAddress = document.getElementById('tokenAddress');
 const createToken = document.getElementById('createToken');
 const watchAsset = document.getElementById('watchAsset');
@@ -146,6 +154,28 @@ const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    if (deployedContractAddress) {
+      hstContract = new ethers.Contract(
+        deployedContractAddress,
+        hstAbi,
+        ethersProvider.getSigner(),
+      );
+      piggybankContract = new ethers.Contract(
+        deployedContractAddress,
+        piggybankAbi,
+        ethersProvider.getSigner(),
+      );
+      collectiblesContract = new ethers.Contract(
+        deployedContractAddress,
+        collectiblesAbi,
+        ethersProvider.getSigner(),
+      );
+      failingContract = new ethers.Contract(
+        deployedContractAddress,
+        failingContractAbi,
+        ethersProvider.getSigner(),
+      );
+    }
     hstFactory = new ethers.ContractFactory(
       hstAbi,
       hstBytecode,
@@ -281,6 +311,27 @@ const initialize = async () => {
       onboardButton.onclick = onClickConnect;
       onboardButton.disabled = false;
     }
+
+    if (deployedContractAddress) {
+      // Piggy bank contract
+      contractStatus.innerHTML = 'Deployed';
+      depositButton.disabled = false;
+      withdrawButton.disabled = false;
+      // Failing contract
+      failingContractStatus.innerHTML = 'Deployed';
+      sendFailingButton.disabled = false;
+      // ERC721 Token - Collectibles contract
+      collectiblesStatus.innerHTML = 'Deployed';
+      mintButton.disabled = false;
+      mintAmountInput.disabled = false;
+      // ERC20 Token - Send Tokens
+      tokenAddress.innerHTML = hstContract.address;
+      watchAsset.disabled = false;
+      transferTokens.disabled = false;
+      approveTokens.disabled = false;
+      transferTokensWithoutGas.disabled = false;
+      approveTokensWithoutGas.disabled = false;
+    }
   };
 
   addEthereumChain.onclick = async () => {
@@ -316,105 +367,102 @@ const initialize = async () => {
     accountButtonsInitialized = true;
 
     /**
-     * Contract Interactions
+     * Piggy bank
      */
 
     deployButton.onclick = async () => {
-      let contract;
       contractStatus.innerHTML = 'Deploying';
 
       try {
-        contract = await piggybankFactory.deploy();
-        await contract.deployTransaction.wait();
+        piggybankContract = await piggybankFactory.deploy();
+        await piggybankContract.deployTransaction.wait();
       } catch (error) {
         contractStatus.innerHTML = 'Deployment Failed';
         throw error;
       }
 
-      if (contract.address === undefined) {
+      if (piggybankContract.address === undefined) {
         return;
       }
 
       console.log(
-        `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
+        `Contract mined! address: ${piggybankContract.address} transactionHash: ${piggybankContract.deployTransaction.hash}`,
       );
       contractStatus.innerHTML = 'Deployed';
       depositButton.disabled = false;
       withdrawButton.disabled = false;
-
-      depositButton.onclick = async () => {
-        contractStatus.innerHTML = 'Deposit initiated';
-        const result = await contract.deposit({
-          from: accounts[0],
-          value: '0x3782dace9d900000',
-        });
-        console.log(result);
-        const receipt = await result.wait();
-        console.log(receipt);
-        contractStatus.innerHTML = 'Deposit completed';
-      };
-
-      withdrawButton.onclick = async () => {
-        const result = await contract.withdraw('0xde0b6b3a7640000', {
-          from: accounts[0],
-        });
-        console.log(result);
-        const receipt = await result.wait();
-        console.log(receipt);
-        contractStatus.innerHTML = 'Withdrawn';
-      };
-
-      console.log(contract);
     };
 
-    deployFailingButton.disabled = false;
+    depositButton.onclick = async () => {
+      contractStatus.innerHTML = 'Deposit initiated';
+      const result = await piggybankContract.deposit({
+        from: accounts[0],
+        value: '0x3782dace9d900000',
+      });
+      console.log(result);
+      const receipt = await result.wait();
+      console.log(receipt);
+      contractStatus.innerHTML = 'Deposit completed';
+    };
+
+    withdrawButton.onclick = async () => {
+      const result = await piggybankContract.withdraw('0xde0b6b3a7640000', {
+        from: accounts[0],
+      });
+      console.log(result);
+      const receipt = await result.wait();
+      console.log(receipt);
+      contractStatus.innerHTML = 'Withdrawn';
+    };
+
+    /**
+     * Failing
+     */
 
     deployFailingButton.onclick = async () => {
-      let failingContractDeployed;
       failingContractStatus.innerHTML = 'Deploying';
 
       try {
-        failingContractDeployed = await failingContractFactory.deploy();
-        await failingContractDeployed.deployTransaction.wait();
+        failingContract = await failingContractFactory.deploy();
+        await failingContract.deployTransaction.wait();
       } catch (error) {
         failingContractStatus.innerHTML = 'Deployment Failed';
         throw error;
       }
 
-      if (failingContractDeployed.address === undefined) {
+      if (failingContract.address === undefined) {
         return;
       }
 
       console.log(
-        `Contract mined! address: ${failingContractDeployed.address} transactionHash: ${failingContractDeployed.transactionHash}`,
+        `Contract mined! address: ${failingContract.address} transactionHash: ${failingContract.deployTransaction.hash}`,
       );
       failingContractStatus.innerHTML = 'Deployed';
-
       sendFailingButton.disabled = false;
+    };
 
-      sendFailingButton.onclick = async () => {
-        try {
-          const result = await ethereum.request({
-            method: 'eth_sendTransaction',
-            params: [
-              {
-                from: accounts[0],
-                to: failingContractDeployed.address,
-                value: '0x0',
-                gasLimit: '0x5028',
-                maxFeePerGas: '0x2540be400',
-                maxPriorityFeePerGas: '0x3b9aca00',
-              },
-            ],
-          });
-          failingContractStatus.innerHTML =
-            'Failed transaction process completed as expected.';
-          console.log('send failing contract result', result);
-        } catch (error) {
-          console.log('error', error);
-          throw error;
-        }
-      };
+    sendFailingButton.onclick = async () => {
+      try {
+        const result = await ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: accounts[0],
+              to: failingContract.address,
+              value: '0x0',
+              gasLimit: '0x5028',
+              maxFeePerGas: '0x2540be400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+            },
+          ],
+        });
+        failingContractStatus.innerHTML =
+          'Failed transaction process completed as expected.';
+        console.log('send failing contract result', result);
+      } catch (error) {
+        console.log('error', error);
+        throw error;
+      }
     };
 
     /**
@@ -422,39 +470,39 @@ const initialize = async () => {
      */
 
     deployCollectiblesButton.onclick = async () => {
-      let contract;
       collectiblesStatus.innerHTML = 'Deploying';
 
       try {
-        contract = await collectiblesFactory.deploy();
-        await contract.deployTransaction.wait();
+        collectiblesContract = await collectiblesFactory.deploy();
+        await collectiblesContract.deployTransaction.wait();
       } catch (error) {
         collectiblesStatus.innerHTML = 'Deployment Failed';
         throw error;
       }
 
-      if (contract.address === undefined) {
+      if (collectiblesContract.address === undefined) {
         return;
       }
 
       console.log(
-        `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
+        `Contract mined! address: ${collectiblesContract.address} transactionHash: ${collectiblesContract.deployTransaction.hash}`,
       );
       collectiblesStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
       mintAmountInput.disabled = false;
+    };
 
-      mintButton.onclick = async () => {
-        collectiblesStatus.innerHTML = 'Mint initiated';
-        let result = await contract.mintCollectibles(mintAmountInput.value, {
+    mintButton.onclick = async () => {
+      collectiblesStatus.innerHTML = 'Mint initiated';
+      let result = await collectiblesContract.mintCollectibles(
+        mintAmountInput.value,
+        {
           from: accounts[0],
-        });
-        result = await result.wait();
-        console.log(result);
-        collectiblesStatus.innerHTML = 'Mint completed';
-      };
-
-      console.log(contract);
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      collectiblesStatus.innerHTML = 'Mint completed';
     };
 
     /**
@@ -502,100 +550,97 @@ const initialize = async () => {
     createToken.onclick = async () => {
       const _initialAmount = 100;
       const _tokenName = 'TST';
-      const _decimalUnits = 4;
-      const _tokenSymbol = 'TST';
 
       try {
-        const contract = await hstFactory.deploy(
+        hstContract = await hstFactory.deploy(
           _initialAmount,
           _tokenName,
-          _decimalUnits,
-          _tokenSymbol,
+          decimalUnits,
+          tokenSymbol,
         );
-        await contract.deployTransaction.wait();
-        if (contract.address === undefined) {
-          return undefined;
-        }
-
-        console.log(
-          `Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`,
-        );
-        tokenAddress.innerHTML = contract.address;
-        watchAsset.disabled = false;
-        transferTokens.disabled = false;
-        approveTokens.disabled = false;
-        transferTokensWithoutGas.disabled = false;
-        approveTokensWithoutGas.disabled = false;
-
-        watchAsset.onclick = async () => {
-          const result = await ethereum.request({
-            method: 'wallet_watchAsset',
-            params: {
-              type: 'ERC20',
-              options: {
-                address: contract.address,
-                symbol: _tokenSymbol,
-                decimals: _decimalUnits,
-                image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
-              },
-            },
-          });
-          console.log('result', result);
-        };
-
-        transferTokens.onclick = async () => {
-          const result = await contract.transfer(
-            '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-            '15000',
-            {
-              from: accounts[0],
-              gasLimit: 60000,
-              gasPrice: '20000000000',
-            },
-          );
-          console.log('result', result);
-        };
-
-        approveTokens.onclick = async () => {
-          const result = await contract.approve(
-            '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-            '70000',
-            {
-              from: accounts[0],
-              gasLimit: 60000,
-              gasPrice: '20000000000',
-            },
-          );
-          console.log(result);
-        };
-
-        transferTokensWithoutGas.onclick = async () => {
-          const result = await contract.transfer(
-            '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-            '15000',
-            {
-              gasPrice: '20000000000',
-            },
-          );
-          console.log('result', result);
-        };
-
-        approveTokensWithoutGas.onclick = async () => {
-          const result = await contract.approve(
-            '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-            '70000',
-            {
-              gasPrice: '20000000000',
-            },
-          );
-          console.log(result);
-        };
-
-        return contract;
+        await hstContract.deployTransaction.wait();
       } catch (error) {
         tokenAddress.innerHTML = 'Creation Failed';
         throw error;
       }
+
+      if (hstContract.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
+      );
+      tokenAddress.innerHTML = hstContract.address;
+      watchAsset.disabled = false;
+      transferTokens.disabled = false;
+      approveTokens.disabled = false;
+      transferTokensWithoutGas.disabled = false;
+      approveTokensWithoutGas.disabled = false;
+    };
+
+    watchAsset.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: hstContract.address,
+            symbol: tokenSymbol,
+            decimals: decimalUnits,
+            image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+          },
+        },
+      });
+      console.log('result', result);
+    };
+
+    transferTokens.onclick = async () => {
+      const result = await hstContract.transfer(
+        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+        '15000',
+        {
+          from: accounts[0],
+          gasLimit: 60000,
+          gasPrice: '20000000000',
+        },
+      );
+      console.log('result', result);
+    };
+
+    approveTokens.onclick = async () => {
+      const result = await hstContract.approve(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        '70000',
+        {
+          from: accounts[0],
+          gasLimit: 60000,
+          gasPrice: '20000000000',
+        },
+      );
+      console.log('result', result);
+    };
+
+    transferTokensWithoutGas.onclick = async () => {
+      const result = await hstContract.transfer(
+        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+        '15000',
+        {
+          gasPrice: '20000000000',
+        },
+      );
+      console.log('result', result);
+    };
+
+    approveTokensWithoutGas.onclick = async () => {
+      const result = await hstContract.approve(
+        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+        '70000',
+        {
+          gasPrice: '20000000000',
+        },
+      );
+      console.log('result', result);
     };
 
     /**
