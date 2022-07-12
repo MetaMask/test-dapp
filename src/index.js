@@ -69,6 +69,13 @@ const deployCollectiblesButton = document.getElementById(
 );
 const mintButton = document.getElementById('mintButton');
 const mintAmountInput = document.getElementById('mintAmountInput');
+const approveTokenInput = document.getElementById('approveTokenInput');
+const approveButton = document.getElementById('approveButton');
+const setApprovalForAllButton = document.getElementById(
+  'setApprovalForAllButton',
+);
+const transferTokenInput = document.getElementById('transferTokenInput');
+const transferFromButton = document.getElementById('transferFromButton');
 const collectiblesStatus = document.getElementById('collectiblesStatus');
 
 // Send Eth Section
@@ -217,6 +224,11 @@ const initialize = async () => {
     deployCollectiblesButton,
     mintButton,
     mintAmountInput,
+    approveTokenInput,
+    approveButton,
+    setApprovalForAllButton,
+    transferTokenInput,
+    transferFromButton,
     deployFailingButton,
     sendFailingButton,
     sendButton,
@@ -324,6 +336,11 @@ const initialize = async () => {
       collectiblesStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
       mintAmountInput.disabled = false;
+      approveTokenInput.disabled = false;
+      approveButton.disabled = false;
+      setApprovalForAllButton.disabled = false;
+      transferTokenInput.disabled = false;
+      transferFromButton.disabled = false;
       // ERC20 Token - Send Tokens
       tokenAddress.innerHTML = hstContract.address;
       watchAsset.disabled = false;
@@ -503,6 +520,54 @@ const initialize = async () => {
       result = await result.wait();
       console.log(result);
       collectiblesStatus.innerHTML = 'Mint completed';
+      approveTokenInput.disabled = false;
+      approveButton.disabled = false;
+      setApprovalForAllButton.disabled = false;
+      transferTokenInput.disabled = false;
+      transferFromButton.disabled = false;
+    };
+
+    approveButton.onclick = async () => {
+      collectiblesStatus.innerHTML = 'Approve initiated';
+      let result = await collectiblesContract.approve(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        approveTokenInput.value,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      collectiblesStatus.innerHTML = 'Approve completed';
+    };
+
+    setApprovalForAllButton.onclick = async () => {
+      collectiblesStatus.innerHTML = 'Set Approval For All initiated';
+      let result = await collectiblesContract.setApprovalForAll(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        true,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      collectiblesStatus.innerHTML = 'Set Approval For All completed';
+    };
+
+    transferFromButton.onclick = async () => {
+      collectiblesStatus.innerHTML = 'Transfer From initiated';
+      let result = await collectiblesContract.transferFrom(
+        accounts[0],
+        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+        transferTokenInput.value,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      collectiblesStatus.innerHTML = 'Transfer From completed';
     };
 
     /**
