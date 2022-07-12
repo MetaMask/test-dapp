@@ -71,7 +71,9 @@ const mintButton = document.getElementById('mintButton');
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
 const approveButton = document.getElementById('approveButton');
-const setApprovalForAllButton = document.getElementById('setApprovalForAllButton');
+const setApprovalForAllButton = document.getElementById(
+  'setApprovalForAllButton',
+);
 const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const collectiblesStatus = document.getElementById('collectiblesStatus');
