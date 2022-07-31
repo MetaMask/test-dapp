@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.0]
+### Added
+- Add NFT contract interaction buttons ([#181](git+https://github.com/MetaMask/test-dapp/pull/181))
+- Allow specifying already existing contract address ([#180](git+https://github.com/MetaMask/test-dapp/pull/180))
+
+## [5.1.1]
+### Fixed
+- Fix RPC info for local Ganache instance ([#178](git+https://github.com/MetaMask/test-dapp/pull/178))
+
+## [5.1.0]
+### Added
+- Use local Ganache instance for `wallet_addEthereumChain` instead of XDAI ([#174](git+https://github.com/MetaMask/test-dapp/pull/174))
+
+### Fixed
+- Fix event used for accessing provider ([#163](git+https://github.com/MetaMask/test-dapp/pull/163))
+- fix: replace networkChanged with chainChanged ([#162](git+https://github.com/MetaMask/test-dapp/pull/162))
+- wait for the transaction to be mined ([#138](git+https://github.com/MetaMask/test-dapp/pull/138))
+
 ## [5.0.0]
 ### Added
 - Add buttons to send transaction and deploy contract that will fail([#139](git+https://github.com/MetaMask/test-dapp/pull/139))
@@ -24,5 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](git+https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](git+https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.0.0...HEAD
+[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.1...HEAD
+[5.1.1]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.0...v5.1.1
+[5.1.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.0.0...v5.1.0
 [5.0.0]: git+https://github.com/MetaMask/test-dapp/releases/tag/v5.0.0
