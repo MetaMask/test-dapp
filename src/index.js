@@ -74,6 +74,7 @@ const approveButton = document.getElementById('approveButton');
 const setApprovalForAllButton = document.getElementById(
   'setApprovalForAllButton',
 );
+const revokeButton = document.getElementById('revokeButton');
 const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const collectiblesStatus = document.getElementById('collectiblesStatus');
@@ -227,6 +228,7 @@ const initialize = async () => {
     approveTokenInput,
     approveButton,
     setApprovalForAllButton,
+    revokeButton,
     transferTokenInput,
     transferFromButton,
     deployFailingButton,
@@ -339,6 +341,7 @@ const initialize = async () => {
       approveTokenInput.disabled = false;
       approveButton.disabled = false;
       setApprovalForAllButton.disabled = false;
+      revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
       // ERC20 Token - Send Tokens
@@ -523,6 +526,7 @@ const initialize = async () => {
       approveTokenInput.disabled = false;
       approveButton.disabled = false;
       setApprovalForAllButton.disabled = false;
+      revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
     };
@@ -553,6 +557,20 @@ const initialize = async () => {
       result = await result.wait();
       console.log(result);
       collectiblesStatus.innerHTML = 'Set Approval For All completed';
+    };
+
+    revokeButton.onclick = async () => {
+      collectiblesStatus.innerHTML = 'Revoke initiated';
+      let result = await collectiblesContract.setApprovalForAll(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        false,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      collectiblesStatus.innerHTML = 'Revoke completed';
     };
 
     transferFromButton.onclick = async () => {
