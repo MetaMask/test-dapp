@@ -1132,6 +1132,7 @@ const initialize = async () => {
   };
 
   /**
+
    * Sign Typed Data V4
    */
   signTypedDataV4.onclick = async () => {
