@@ -124,9 +124,14 @@ const signTypedDataV4VerifyResult = document.getElementById(
   'signTypedDataV4VerifyResult',
 );
 const signTypedDataV4Custom = document.getElementById('signTypedDataV4Custom');
-const signTypedDataV4VerifyCustom = document.getElementById('signTypedDataV4VerifyCustom');
+const signTypedDataV4VerifyCustom = document.getElementById(
+  'signTypedDataV4VerifyCustom',
+);
 const signTypedDataV4VerifyResultCustom = document.getElementById(
   'signTypedDataV4VerifyResultCustom',
+);
+const signTypedDataV4ResultCustom = document.getElementById(
+  'signTypedDataV4ResultCustom',
 );
 
 // Send form section
@@ -215,7 +220,7 @@ const initialize = async () => {
     signTypedDataV4,
     signTypedDataV4Verify,
     signTypedDataV4Custom,
-    signTypedDataV4VerifyCustom
+    signTypedDataV4VerifyCustom,
   ];
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
@@ -266,7 +271,7 @@ const initialize = async () => {
       signTypedData.disabled = false;
       signTypedDataV3.disabled = false;
       signTypedDataV4.disabled = false;
-      signTypedDataV4Custom.disabled = false
+      signTypedDataV4Custom.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -1081,52 +1086,50 @@ const initialize = async () => {
     };
   };
 
-    /**
+  /**
    * Sign Typed Data V4 Custom
    */
-     signTypedDataV4Custom.onclick = async () => {
-      let msgParams = document.getElementById("signTypedDataV4InputCustom").value;
-      msgParams = msgParams.replace(/^\s+|\s+$/g, '');
+  signTypedDataV4Custom.onclick = async () => {
+    let msgParams = document.getElementById('signTypedDataV4InputCustom').value;
+    msgParams = msgParams.replace(/^\s+|\s+$/gu, '');
 
-      try {
-        const json = JSON.parse(msgParams);
+    try {
+      const from = accounts[0];
+      const sign = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, msgParams],
+      });
+      signTypedDataV4ResultCustom.innerHTML = sign;
+      signTypedDataV4VerifyCustom.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV4ResultCustom.innerHTML = `Error: ${err.message}`;
+    }
+  };
 
-        const from = accounts[0];
-        const sign = await ethereum.request({
-          method: 'eth_signTypedData_v4',
-          params: [from, msgParams],
-        });
-        signTypedDataV4ResultCustom.innerHTML = sign;
-        signTypedDataV4VerifyCustom.disabled = false;
-      } catch (err) {
-        console.error(err);
-        signTypedDataV4ResultCustom.innerHTML = `Error: ${err.message}`;
+  signTypedDataV4VerifyCustom.onclick = async () => {
+    let msgParams = document.getElementById('signTypedDataV4InputCustom').value;
+    msgParams = msgParams.replace(/^\s+|\s+$/gu, '');
+    try {
+      const from = accounts[0];
+      const sign = signTypedDataV4ResultCustom.innerHTML;
+      const recoveredAddr = recoverTypedSignatureV4({
+        data: JSON.parse(msgParams),
+        sig: sign,
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        signTypedDataV4VerifyResultCustom.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
       }
-    };
-
-    signTypedDataV4VerifyCustom.onclick = async () => {
-      let msgParams = document.getElementById("signTypedDataV4InputCustom").value;
-      msgParams = msgParams.replace(/^\s+|\s+$/g, '');
-      try {
-        const from = accounts[0];
-        const sign = signTypedDataV4ResultCustom.innerHTML;
-        const recoveredAddr = recoverTypedSignatureV4({
-          data: JSON.parse(msgParams),
-          sig: sign,
-        });
-        if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
-          console.log(`Successfully verified signer as ${recoveredAddr}`);
-          signTypedDataV4VerifyResultCustom.innerHTML = recoveredAddr;
-        } else {
-          console.log(
-            `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-          );
-        }
-      } catch (err) {
-        console.error(err);
-        signTypedDataV4VerifyResultCustom.innerHTML = `Error: ${err.message}`;
-      }
-    };
+    } catch (err) {
+      console.error(err);
+      signTypedDataV4VerifyResultCustom.innerHTML = `Error: ${err.message}`;
+    }
+  };
 
   /**
    * Sign Typed Data V4
