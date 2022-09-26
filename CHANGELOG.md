@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.1]
+### Added
+- Add button to revoke NFT allowances ([#187](git+https://github.com/MetaMask/test-dapp/pull/187))
+
 ## [5.2.0]
 ### Added
 - Add NFT contract interaction buttons ([#181](git+https://github.com/MetaMask/test-dapp/pull/181))
@@ -42,7 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](git+https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](git+https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.1...HEAD
+[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.2.0...HEAD
+[5.2.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.1...v5.2.0
 [5.1.1]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.0...v5.1.1
 [5.1.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.0.0...v5.1.0
 [5.0.0]: git+https://github.com/MetaMask/test-dapp/releases/tag/v5.0.0
