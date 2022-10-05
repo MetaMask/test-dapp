@@ -10,7 +10,7 @@ import {
   recoverTypedSignature_v4 as recoverTypedSignatureV4,
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
-import { toChecksumAddress } from 'ethereumjs-util';
+import { keccak256, toChecksumAddress } from 'ethereumjs-util';
 import {
   hstBytecode,
   hstAbi,
@@ -27,6 +27,7 @@ let hstFactory;
 let piggybankFactory;
 let collectiblesFactory;
 let failingContractFactory;
+let wcChainId;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -37,6 +38,8 @@ let wcConnector = new WalletConnect({
   bridge: 'https://bridge.walletconnect.org', // Required
   qrcodeModal: QRCodeModal,
 });
+
+console.log('ENTER WCCONECNTOR', wcConnector);
 
 // Dapp Status Section
 const networkDiv = document.getElementById('network');
@@ -152,6 +155,52 @@ const switchEthereumChain = document.getElementById('switchEthereumChain');
 const connectWC = document.getElementById('connectWC');
 const addEthereumChainWC = document.getElementById('addEthereumChainWC');
 const switchEthereumChainWC = document.getElementById('switchEthereumChainWC');
+const disconnectWC = document.getElementById('disconnectWC');
+
+const wcEthSign = document.getElementById('wcEthSign');
+const wcEthSignResult = document.getElementById('wcEthSignResult');
+const wcPersonalSign = document.getElementById('wcPersonalSign');
+const wcPersonalSignResult = document.getElementById('wcPersonalSignResult');
+const wcPersonalSignVerify = document.getElementById('wcPersonalSignVerify');
+const wcPersonalSignVerifySigUtilResult = document.getElementById(
+  'wcPersonalSignVerifySigUtilResult',
+);
+const wcPersonalSignVerifyECRecoverResult = document.getElementById(
+  'wcPersonalSignVerifyECRecoverResult',
+);
+
+const wcSignTypedDataV3 = document.getElementById('wcSignTypedDataV3');
+const wcSignTypedDataV3Result = document.getElementById(
+  'wcSignTypedDataV3Result',
+);
+const wcSignTypedDataV3Verify = document.getElementById(
+  'wcSignTypedDataV3Verify',
+);
+const wcSignTypedDataV3VerifyResult = document.getElementById(
+  'wcSignTypedDataV3VerifyResult',
+);
+const wcSignTypedDataV4 = document.getElementById('wcSignTypedDataV4');
+const wcSignTypedDataV4Result = document.getElementById(
+  'wcSignTypedDataV4Result',
+);
+const wcSignTypedDataV4Verify = document.getElementById(
+  'wcSignTypedDataV4Verify',
+);
+const wcSignTypedDataV4VerifyResult = document.getElementById(
+  'wcSignTypedDataV4VerifyResult',
+);
+const wcDefaultSignTypedData = document.getElementById(
+  'wcDefaultSignTypedData',
+);
+const wcDefaultSignTypedDataResult = document.getElementById(
+  'wcDefaultSignTypedDataResult',
+);
+const wcDefaultSignTypedDataVerify = document.getElementById(
+  'wcDefaultSignTypedDataVerify',
+);
+const wcDefaultSignTypedDataVerifyResult = document.getElementById(
+  'wcDefaultSignTypedDataVerifyResult',
+);
 
 const initialize = async () => {
   try {
@@ -236,6 +285,7 @@ const initialize = async () => {
       const newAccounts = await ethereum.request({
         method: 'eth_requestAccounts',
       });
+
       handleNewAccounts(newAccounts);
     } catch (error) {
       console.error(error);
@@ -298,10 +348,26 @@ const initialize = async () => {
       connectWC.disabled = true;
       addEthereumChainWC.disabled = false;
       switchEthereumChainWC.disabled = false;
+      disconnectWC.disabled = false;
+      personalSign.disabled = false;
+      signTypedData.disabled = false;
+
+      wcEthSign.disabled = false;
+      wcPersonalSign.disabled = false;
+      wcSignTypedDataV3.disabled = false;
+      wcSignTypedDataV4.disabled = false;
+      wcDefaultSignTypedData.disabled = false;
     } else {
       connectWC.disabled = false;
       addEthereumChainWC.disabled = true;
       switchEthereumChainWC.disabled = true;
+      disconnectWC.disabled = true;
+
+      wcEthSign.disabled = true;
+      wcPersonalSign.disabled = true;
+      wcSignTypedDataV3.disabled = true;
+      wcSignTypedDataV4.disabled = true;
+      wcDefaultSignTypedData.disabled = true;
     }
   };
 
@@ -770,13 +836,13 @@ const initialize = async () => {
    */
   ethSign.onclick = async () => {
     try {
-      // const msg = 'Sample message to hash for signature'
-      // const msgHash = keccak256(msg)
-      const msg =
-        '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
+      const msg = 'Sample message to hash for signature';
+      const msgHash = keccak256(msg);
+      /* const msg =
+        '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'; */
       const ethResult = await ethereum.request({
         method: 'eth_sign',
-        params: [accounts[0], msg],
+        params: [accounts[0], msgHash],
       });
       ethSignResult.innerHTML = JSON.stringify(ethResult);
     } catch (err) {
@@ -1191,6 +1257,8 @@ const initialize = async () => {
       }
       const { chainId } = payload.params[0];
       console.log(`Get provided accounts and chainId (s${chainId})`);
+      handleNewAccounts(payload.params[0].accounts);
+      wcChainId = chainId;
       updateButtons();
     });
 
@@ -1213,6 +1281,16 @@ const initialize = async () => {
     });
   };
 
+  disconnectWC.onclick = async () => {
+    try {
+      await wcConnector.killSession();
+
+      updateButtons();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   addEthereumChainWC.onclick = async () => {
     console.log('addEthereumChainWC');
     const customRequest = {
@@ -1221,7 +1299,7 @@ const initialize = async () => {
       params: [
         {
           chainId: '0x64',
-          rpcUrls: ['https://dai.poa.network'],
+          rpcUrls: ['https://rpc.gnosischain.com'],
           chainName: 'xDAI Chain',
           nativeCurrency: { name: 'xDAI', decimals: 18, symbol: 'xDAI' },
           blockExplorerUrls: ['https://blockscout.com/poa/xdai'],
@@ -1233,6 +1311,7 @@ const initialize = async () => {
       .then((result) => {
         // Returns request result
         console.log(result);
+        wcChainId = '0x64';
       })
       .catch((error) => {
         // Error returned when rejected
@@ -1255,6 +1334,7 @@ const initialize = async () => {
       .then((result) => {
         // Returns request result
         console.log(result);
+        wcChainId = '0x64';
       })
       .catch((error) => {
         // Error returned when rejected
@@ -1274,6 +1354,471 @@ const initialize = async () => {
     }
     updateButtons();
   }
+
+  /**
+   *  WC eth_sign
+   */
+  wcEthSign.onclick = async () => {
+    try {
+      const msg = 'Sample message to hash for signature';
+      const msgHash = keccak256(msg);
+      const from = accounts[0];
+
+      /*  const msg =
+        '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
+ */
+      const msgParams = [from, msgHash];
+
+      const customRequest = {
+        jsonrpc: '2.0',
+        method: 'eth_sign',
+        params: msgParams,
+      };
+
+      const result = await wcConnector.sendCustomRequest(customRequest);
+      wcEthSignResult.innerHTML = JSON.stringify(result);
+    } catch (err) {
+      console.error(err);
+      wcEthSignResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Personal Sign
+   */
+  wcPersonalSign.onclick = async () => {
+    const exampleMessage = 'Example `personal_sign` message';
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
+      const msgParams = [msg, from, 'Example password'];
+
+      const customRequest = {
+        jsonrpc: '2.0',
+        method: 'personal_sign',
+        params: msgParams,
+      };
+
+      const sign = await wcConnector.sendCustomRequest(customRequest);
+      wcPersonalSignResult.innerHTML = sign;
+      wcPersonalSignVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      wcPersonalSignVerify.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Personal Sign Verify
+   */
+  wcPersonalSignVerify.onclick = async () => {
+    const exampleMessage = 'Example `personal_sign` message';
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
+      const sign = wcPersonalSignResult.innerHTML;
+      const recoveredAddr = recoverPersonalSignature({
+        data: msg,
+        sig: sign,
+      });
+      console.log('ENTER recoveredAddr', recoveredAddr);
+      console.log('ENTER from', from);
+      if (recoveredAddr === from) {
+        console.log(`SigUtil Successfully verified signer as ${recoveredAddr}`);
+        wcPersonalSignVerifySigUtilResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `SigUtil Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+        console.log(`Failed comparing ${recoveredAddr} to ${from}`);
+      }
+      const customRequest = {
+        jsonrpc: '2.0',
+        method: 'personal_ecRecover',
+        params: [msg, sign],
+      };
+      const ecRecoverAddr = await wcConnector.sendCustomRequest(customRequest);
+      if (ecRecoverAddr === from) {
+        console.log(`Successfully ecRecovered signer as ${ecRecoverAddr}`);
+        wcPersonalSignVerifyECRecoverResult.innerHTML = ecRecoverAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${ecRecoverAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      wcPersonalSignVerifySigUtilResult.innerHTML = `Error: ${err.message}`;
+      wcPersonalSignVerifyECRecoverResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * WC Sign Typed Data Version 3 Test
+   */
+  wcSignTypedDataV3.onclick = async () => {
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents', type: 'string' },
+        ],
+      },
+      primaryType: 'Mail',
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: wcChainId,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      },
+      message: {
+        from: {
+          name: 'Cow',
+          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+        },
+        to: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+        contents: 'Hello, Bob!',
+      },
+    };
+    try {
+      const from = accounts[0];
+      const msgParams = [from, JSON.stringify(typedData)];
+      const customRequest = {
+        jsonrpc: '2.0',
+        method: 'eth_signTypedData_v3',
+        params: msgParams,
+      };
+
+      const result = await wcConnector.sendCustomRequest(customRequest);
+
+      wcSignTypedDataV3Result.innerHTML = result;
+      wcSignTypedDataV3Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      wcSignTypedDataV3Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * WC Sign Typed Data V3 Verification
+   */
+  wcSignTypedDataV3Verify.onclick = async () => {
+    const msgParams = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents', type: 'string' },
+        ],
+      },
+      primaryType: 'Mail',
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: wcChainId,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      },
+      message: {
+        from: {
+          name: 'Cow',
+          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+        },
+        to: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+        contents: 'Hello, Bob!',
+      },
+    };
+    try {
+      const from = accounts[0];
+      const sign = wcSignTypedDataV3Result.innerHTML;
+      const recoveredAddr = await recoverTypedSignature({
+        data: msgParams,
+        sig: sign,
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        wcSignTypedDataV3VerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      wcSignTypedDataV3VerifyResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * WC Sign Typed Data V4
+   */
+  wcSignTypedDataV4.onclick = async () => {
+    console.log('wcChainId', wcChainId);
+    const typedData = {
+      domain: {
+        chainId: wcChainId,
+        name: 'Ether Mail',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      message: {
+        contents: 'Hello, Bob!',
+        from: {
+          name: 'Cow',
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+          ],
+        },
+        to: [
+          {
+            name: 'Bob',
+            wallets: [
+              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+              '0xB0B0b0b0b0b0B000000000000000000000000000',
+            ],
+          },
+        ],
+      },
+      primaryType: 'Mail',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Group: [
+          { name: 'name', type: 'string' },
+          { name: 'members', type: 'Person[]' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person[]' },
+          { name: 'contents', type: 'string' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallets', type: 'address[]' },
+        ],
+      },
+    };
+    try {
+      const from = accounts[0];
+
+      const msgParams = [from, JSON.stringify(typedData)];
+      const customRequest = {
+        jsonrpc: '2.0',
+        method: 'eth_signTypedData_v4',
+        params: msgParams,
+      };
+
+      const result = await wcConnector.sendCustomRequest(customRequest);
+
+      wcSignTypedDataV4Result.innerHTML = result;
+      wcSignTypedDataV4Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      wcSignTypedDataV4Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * WC Sign Typed Data V4 Verification
+   */
+  wcSignTypedDataV4Verify.onclick = async () => {
+    const msgParams = {
+      domain: {
+        chainId: wcChainId,
+        name: 'Ether Mail',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      message: {
+        contents: 'Hello, Bob!',
+        from: {
+          name: 'Cow',
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+          ],
+        },
+        to: [
+          {
+            name: 'Bob',
+            wallets: [
+              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+              '0xB0B0b0b0b0b0B000000000000000000000000000',
+            ],
+          },
+        ],
+      },
+      primaryType: 'Mail',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Group: [
+          { name: 'name', type: 'string' },
+          { name: 'members', type: 'Person[]' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person[]' },
+          { name: 'contents', type: 'string' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallets', type: 'address[]' },
+        ],
+      },
+    };
+    try {
+      const from = accounts[0];
+      const sign = wcSignTypedDataV4Result.innerHTML;
+      const recoveredAddr = recoverTypedSignatureV4({
+        data: msgParams,
+        sig: sign,
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        wcSignTypedDataV4VerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      wcSignTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  wcDefaultSignTypedData.onclick = async () => {
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+          { name: 'salt', type: 'bytes32' },
+        ],
+        Mint: [
+          { name: 'keys', type: 'string[]' },
+          { name: 'values', type: 'string[]' },
+        ],
+      },
+      primaryType: 'Mint',
+      domain: {
+        chainId: 1,
+        name: 'Test',
+        salt: '0x0000000000',
+        verifyingContract: '0x00000',
+        version: '1',
+      },
+      message: {
+        keys: ['Make', 'Model', 'Year'],
+        values: ['Make', 'Model', 'Year'],
+      },
+    };
+    try {
+      const from = accounts[0];
+      console.log('ENTER HERREE');
+      const msgParams = [from, JSON.stringify(typedData)];
+
+      const result = await wcConnector.signTypedData(msgParams);
+
+      wcDefaultSignTypedDataResult.innerHTML = result;
+      wcDefaultSignTypedDataVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      wcDefaultSignTypedDataResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * WC default Sign Typed Data  Verification
+   */
+  wcDefaultSignTypedDataVerify.onclick = async () => {
+    const msgParams = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+          { name: 'salt', type: 'bytes32' },
+        ],
+        Mint: [
+          { name: 'keys', type: 'string[]' },
+          { name: 'values', type: 'string[]' },
+        ],
+      },
+      primaryType: 'Mint',
+      domain: {
+        chainId: 1,
+        name: 'Test',
+        salt: '0x0000000000',
+        verifyingContract: '0x00000',
+        version: '1',
+      },
+      message: {
+        keys: ['Make', 'Model', 'Year'],
+        values: ['Make', 'Model', 'Year'],
+      },
+    };
+    try {
+      const from = accounts[0];
+      const sign = wcDefaultSignTypedDataResult.innerHTML;
+      const recoveredAddr = recoverTypedSignatureV4({
+        data: msgParams,
+        sig: sign,
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        wcDefaultSignTypedDataVerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      wcDefaultSignTypedDataVerifyResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
 
   function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId;
