@@ -6,6 +6,7 @@ import {
   recoverTypedSignatureLegacy,
   recoverTypedSignature,
   recoverTypedSignature_v4 as recoverTypedSignatureV4,
+  decrypt,
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
@@ -103,6 +104,8 @@ const getEncryptionKeyButton = document.getElementById(
   'getEncryptionKeyButton',
 );
 const encryptMessageInput = document.getElementById('encryptMessageInput');
+const publicKeyInput = document.getElementById('publicKeyInput');
+const encryptedMessageInput = document.getElementById('encryptedMessageInput');
 const encryptButton = document.getElementById('encryptButton');
 const decryptButton = document.getElementById('decryptButton');
 const encryptionKeyDisplay = document.getElementById('encryptionKeyDisplay');
@@ -297,17 +300,21 @@ const initialize = async () => {
       createToken.disabled = false;
       personalSign.disabled = false;
       signTypedData.disabled = false;
-      getEncryptionKeyButton.disabled = false;
       ethSign.disabled = false;
       personalSign.disabled = false;
       signTypedData.disabled = false;
       signTypedDataV3.disabled = false;
       signTypedDataV4.disabled = false;
+      getEncryptionKeyButton.disabled = false;
+      encryptButton.disabled = false;
+      decryptButton.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
       addEthereumChain.disabled = false;
       switchEthereumChain.disabled = false;
+      encryptMessageInput.disabled = false;
+      encryptedMessageInput.disabled = false;
     } else {
       onboardButton.innerText = 'Click here to install MetaMask!';
       onboardButton.onclick = onClickInstall;
@@ -789,32 +796,17 @@ const initialize = async () => {
       }
     };
 
-    encryptMessageInput.onkeyup = () => {
-      if (
-        !getEncryptionKeyButton.disabled &&
-        encryptMessageInput.value.length > 0
-      ) {
-        if (encryptButton.disabled) {
-          encryptButton.disabled = false;
-        }
-      } else if (!encryptButton.disabled) {
-        encryptButton.disabled = true;
-      }
-    };
-
     encryptButton.onclick = () => {
       try {
         ciphertextDisplay.innerText = stringifiableToHex(
           encrypt(
-            encryptionKeyDisplay.innerText,
+            publicKeyInput.value,
             { data: encryptMessageInput.value },
             'x25519-xsalsa20-poly1305',
           ),
         );
-        decryptButton.disabled = false;
       } catch (error) {
         ciphertextDisplay.innerText = `Error: ${error.message}`;
-        decryptButton.disabled = true;
       }
     };
 
@@ -908,7 +900,6 @@ const initialize = async () => {
         params: [msg, from, 'Example password'],
       });
       personalSignResult.innerHTML = sign;
-      personalSignVerify.disabled = false;
     } catch (err) {
       console.error(err);
       personalSign.innerHTML = `Error: ${err.message}`;
