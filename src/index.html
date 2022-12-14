@@ -337,7 +337,7 @@
                     Approve
                   </button>
                 </div>
-                
+
                 <div class="form-group">
                   <button
                     class="btn btn-primary btn-lg btn-block mb-3"
@@ -685,8 +685,10 @@
         </div>
       </section>
       <section>
-        <div class="row d-flex justify-content-center">
-          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+        <div class="row">
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12"
+          >
             <div class="card">
               <div class="card-body">
                 <h4 class="card-title">
@@ -709,11 +711,9 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      <section>
-        <div class="row d-flex justify-content-center">
-          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12"
+          >
             <div class="card">
               <div class="card-body">
                 <h4 class="card-title">
@@ -788,6 +788,153 @@
                 >
                   Submit
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="row">
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12"
+          >
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Log filters
+                </h4>
+
+                <div class="form-group">
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="createLogFilterButton"
+                    disabled
+                  >
+                    Create log filter
+                  </button>
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="removeLogFilterButton"
+                    disabled
+                  >
+                    Remove log filter
+                  </button>
+                  <pre
+                    id="logFilterChangesBox"
+                    class="multiline-results"
+                  >
+(Changes for this filter will appear here as new blocks
+are created, or as you interact with the chain.)
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12"
+          >
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Block filters
+                </h4>
+
+                <div class="form-group">
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="createBlockFilterButton"
+                    disabled
+                  >
+                    Create block filter
+                  </button>
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="removeBlockFilterButton"
+                    disabled
+                  >
+                    Remove block filter
+                  </button>
+                  <pre
+                    id="blockFilterChangesBox"
+                    class="multiline-results"
+                  >
+(Changes for this filter will appear here as new blocks
+are created.)
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="row">
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12"
+          >
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Subscriptions (new heads)
+                </h4>
+
+                <div class="form-group">
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="startNewHeadsSubscriptionButton"
+                    disabled
+                  >
+                    Start subscription
+                  </button>
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="stopNewHeadsSubscriptionButton"
+                    disabled
+                  >
+                    Stop subscription
+                  </button>
+                  <pre
+                    id="newHeadsSubscriptionResultsBox"
+                    class="multiline-results"
+                  >
+(Information on new blocks will appear here as they are created.)
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12"
+          >
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Subscriptions (logs)
+                </h4>
+
+                <div class="form-group">
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="startLogsSubscriptionButton"
+                    disabled
+                  >
+                    Start subscription
+                  </button>
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="stopLogsSubscriptionButton"
+                    disabled
+                  >
+                    Stop subscription
+                  </button>
+                  <pre
+                    id="logsSubscriptionResultsBox"
+                    class="multiline-results"
+                  >
+(Information on new blocks will appear here
+as they are created.)
+                  </pre>
+                </div>
               </div>
             </div>
           </div>

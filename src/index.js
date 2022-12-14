@@ -20,6 +20,200 @@ import {
   failingContractBytecode,
 } from './constants.json';
 
+function findElementById(id) {
+  const element = document.getElementById(id);
+
+  if (element === null) {
+    throw new Error(`Couldn't find element by id '${id}'`);
+  } else {
+    return element;
+  }
+}
+
+function setupFilters(filterType, filterChangesBoxPlaceholder) {
+  if (!['log', 'block', 'pendingTransaction'].includes(filterType)) {
+    throw new Error(
+      "filterType must be either 'log', 'block', or 'pendingTransaction'",
+    );
+  }
+
+  const capitalizedFilterType =
+    filterType[0].toUpperCase() + filterType.slice(1);
+  let filterId;
+  let pollingTimer;
+  const createFilterButton = findElementById(
+    `create${capitalizedFilterType}FilterButton`,
+  );
+  const removeFilterButton = findElementById(
+    `remove${capitalizedFilterType}FilterButton`,
+  );
+  const filterChangesBox = findElementById(`${filterType}FilterChangesBox`);
+
+  return {
+    createFilterButton,
+    removeFilterButton,
+    activateFilterButtons,
+    reset,
+  };
+
+  function activateFilterButtons(options) {
+    createFilterButton.addEventListener('click', () => {
+      createFilter(options).catch(console.error);
+    });
+
+    removeFilterButton.addEventListener('click', () => {
+      removeFilter().catch(console.error);
+    });
+  }
+
+  async function createFilter(options) {
+    let request;
+
+    if (filterType === 'log') {
+      const accounts = options.getAccounts();
+      request = { method: 'eth_newFilter', params: { address: accounts[0] } };
+    } else if (filterType === 'block') {
+      request = { method: 'eth_newBlockFilter', params: [] };
+    } else if (filterType === 'pendingTransaction') {
+      request = { method: 'eth_newPendingTransactionFilter', params: [] };
+    }
+
+    filterId = await ethereum.request(request);
+
+    pollingTimer = setInterval(async () => {
+      const filterChanges = await ethereum.request({
+        method: 'eth_getFilterChanges',
+        params: [filterId],
+      });
+
+      console.log(`${filterType} filter changes`, filterChanges);
+
+      if (filterChanges.length > 0) {
+        const logMessage = `[${new Date().toISOString()}] ${JSON.stringify(
+          filterChanges,
+          null,
+          '  ',
+        )}`;
+        if (filterChangesBox.innerHTML === filterChangesBoxPlaceholder) {
+          filterChangesBox.innerHTML = logMessage;
+        } else {
+          filterChangesBox.innerHTML = `${logMessage}\n\n${filterChangesBox.innerHTML}`;
+        }
+      }
+    }, 2000);
+
+    createFilterButton.disabled = true;
+    createFilterButton.innerHTML = 'Filter created, waiting for blocks...';
+    removeFilterButton.disabled = false;
+  }
+
+  async function removeFilter() {
+    await ethereum.request({
+      method: 'eth_uninstallFilter',
+      params: [filterId],
+    });
+    clearInterval(pollingTimer);
+    reset({ includingFilterChangesBox: false });
+  }
+
+  function reset({ includingFilterChangesBox = true } = {}) {
+    removeFilterButton.disabled = true;
+    createFilterButton.disabled = false;
+    createFilterButton.innerHTML = `Create ${filterType} filter`;
+
+    if (includingFilterChangesBox) {
+      filterChangesBox.innerHTML = filterChangesBoxPlaceholder;
+    }
+  }
+}
+
+function setupSubscriptions(subscriptionType) {
+  const capitalizedSubscriptionType =
+    subscriptionType[0].toUpperCase() + subscriptionType.slice(1);
+  let newSubscriptionId;
+  const startSubscriptionButton = findElementById(
+    `start${capitalizedSubscriptionType}SubscriptionButton`,
+  );
+  const stopSubscriptionButton = findElementById(
+    `stop${capitalizedSubscriptionType}SubscriptionButton`,
+  );
+  const resultsBox = findElementById(
+    `${subscriptionType}SubscriptionResultsBox`,
+  );
+  const RESULTS_BOX_PLACEHOLDER =
+    '(Information on new blocks will appear here\nas they are created.)';
+
+  return {
+    startSubscriptionButton,
+    stopSubscriptionButton,
+    activateSubscriptionButtons,
+    reset,
+  };
+
+  function activateSubscriptionButtons() {
+    startSubscriptionButton.addEventListener('click', () => {
+      startSubscription().catch(console.error);
+    });
+
+    stopSubscriptionButton.addEventListener('click', () => {
+      stopSubscription().catch(console.error);
+    });
+  }
+
+  async function startSubscription() {
+    window.ethereum.addListener('message', onMessageReceived);
+
+    newSubscriptionId = await ethereum.request({
+      method: 'eth_subscribe',
+      params: [subscriptionType],
+    });
+
+    startSubscriptionButton.disabled = true;
+    startSubscriptionButton.innerHTML =
+      'Subscription started, waiting for blocks...';
+    stopSubscriptionButton.disabled = false;
+  }
+
+  async function stopSubscription() {
+    await ethereum.request({
+      method: 'eth_unsubscribe',
+      params: [newSubscriptionId],
+    });
+
+    window.ethereum.removeListener('message', onMessageReceived);
+
+    reset({ includingResultsBox: false });
+  }
+
+  function reset({ includingResultsBox = true } = {}) {
+    startSubscriptionButton.disabled = false;
+    startSubscriptionButton.innerHTML = 'Start subscription';
+    stopSubscriptionButton.disabled = true;
+
+    if (includingResultsBox) {
+      resultsBox.innerHTML = RESULTS_BOX_PLACEHOLDER;
+    }
+  }
+
+  function onMessageReceived(message) {
+    if (
+      message.type === 'eth_subscription' &&
+      message.data.subscription === newSubscriptionId
+    ) {
+      const logMessage = `[${new Date().toISOString()}] ${JSON.stringify(
+        message.data.result,
+        null,
+        '  ',
+      )}`;
+      if (resultsBox.innerHTML === RESULTS_BOX_PLACEHOLDER) {
+        resultsBox.innerHTML = logMessage;
+      } else {
+        resultsBox.innerHTML = `${logMessage}\n\n${resultsBox.innerHTML}`;
+      }
+    }
+  }
+}
+
 let ethersProvider;
 let hstFactory;
 let piggybankFactory;
@@ -164,6 +358,40 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+// Filters section
+const {
+  createFilterButton: createLogFilterButton,
+  removeFilterButton: removeLogFilterButton,
+  activateFilterButtons: activateLogFilterButtons,
+  reset: resetLogFilters,
+} = setupFilters(
+  'log',
+  '(Changes for this filter will appear here as new blocks\nare created, or as you interact with the chain.)',
+);
+const {
+  createFilterButton: createBlockFilterButton,
+  removeFilterButton: removeBlockFilterButton,
+  activateFilterButtons: activateBlockFilterButtons,
+  reset: resetBlockFilters,
+} = setupFilters(
+  'block',
+  '(Changes for this filter will appear here as new blocks\nare created.)',
+);
+
+// Subscriptions section
+const {
+  startSubscriptionButton: startNewHeadsSubscriptionButton,
+  stopSubscriptionButton: stopNewHeadsSubscriptionButton,
+  activateSubscriptionButtons: activateNewHeadsSubscriptionButtons,
+  reset: resetNewHeadsSubscriptions,
+} = setupSubscriptions('newHeads');
+const {
+  startSubscriptionButton: startLogsSubscriptionButton,
+  stopSubscriptionButton: stopLogsSubscriptionButton,
+  activateSubscriptionButtons: activateLogsSubscriptionButtons,
+  reset: resetLogsSubscriptions,
+} = setupSubscriptions('logs');
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -264,6 +492,14 @@ const initialize = async () => {
     siweBadDomain,
     siweBadAccount,
     siweMalformed,
+    createLogFilterButton,
+    removeLogFilterButton,
+    createBlockFilterButton,
+    removeBlockFilterButton,
+    startNewHeadsSubscriptionButton,
+    stopNewHeadsSubscriptionButton,
+    startLogsSubscriptionButton,
+    stopLogsSubscriptionButton,
   ];
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
@@ -319,6 +555,10 @@ const initialize = async () => {
       siweBadDomain.disabled = false;
       siweBadAccount.disabled = false;
       siweMalformed.disabled = false;
+      createLogFilterButton.disabled = false;
+      createBlockFilterButton.disabled = false;
+      startNewHeadsSubscriptionButton.disabled = false;
+      startLogsSubscriptionButton.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -1378,6 +1618,20 @@ const initialize = async () => {
     }
   };
 
+  /**
+   * Filters
+   */
+  activateLogFilterButtons({
+    getAccounts: () => accounts,
+  });
+  activateBlockFilterButtons();
+
+  /**
+   * Subscriptions
+   */
+  activateNewHeadsSubscriptionButtons();
+  activateLogsSubscriptionButtons();
+
   function handleNewAccounts(newAccounts) {
     accounts = newAccounts;
     accountsDiv.innerHTML = accounts;
@@ -1391,7 +1645,7 @@ const initialize = async () => {
     updateButtons();
   }
 
-  function handleNewChain(chainId) {
+  async function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId;
 
     if (chainId === '0x1') {
@@ -1399,6 +1653,11 @@ const initialize = async () => {
     } else {
       warningDiv.classList.add('warning-invisible');
     }
+
+    await resetLogFilters();
+    await resetBlockFilters();
+    await resetNewHeadsSubscriptions();
+    await resetLogsSubscriptions();
   }
 
   function handleEIP1559Support(supported) {
@@ -1422,7 +1681,7 @@ const initialize = async () => {
       const chainId = await ethereum.request({
         method: 'eth_chainId',
       });
-      handleNewChain(chainId);
+      await handleNewChain(chainId);
 
       const networkId = await ethereum.request({
         method: 'net_version',
@@ -1449,16 +1708,13 @@ const initialize = async () => {
     ethereum.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
-    ethereum.on('chainChanged', (chain) => {
-      handleNewChain(chain);
-      ethereum
-        .request({
-          method: 'eth_getBlockByNumber',
-          params: ['latest', false],
-        })
-        .then((block) => {
-          handleEIP1559Support(block.baseFeePerGas !== undefined);
-        });
+    ethereum.on('chainChanged', async (chain) => {
+      await handleNewChain(chain);
+      const block = await ethereum.request({
+        method: 'eth_getBlockByNumber',
+        params: ['latest', false],
+      });
+      handleEIP1559Support(block.baseFeePerGas !== undefined);
     });
     ethereum.on('chainChanged', handleNewNetwork);
     ethereum.on('accountsChanged', (newAccounts) => {
