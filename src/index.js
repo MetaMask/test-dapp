@@ -604,7 +604,7 @@ const initialize = async () => {
 
     mintButton.onclick = async () => {
       nftsStatus.innerHTML = 'Mint initiated';
-      let result = await nftsContract.mintNfts(
+      let result = await nftsContract.safeMint(
         mintAmountInput.value,
         {
           from: accounts[0],
