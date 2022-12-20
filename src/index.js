@@ -73,9 +73,7 @@ const multisigContractStatus = document.getElementById(
 );
 
 // Nfts Section
-const deployNftsButton = document.getElementById(
-  'deployNftsButton',
-);
+const deployNftsButton = document.getElementById('deployNftsButton');
 const mintButton = document.getElementById('mintButton');
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
@@ -604,12 +602,9 @@ const initialize = async () => {
 
     mintButton.onclick = async () => {
       nftsStatus.innerHTML = 'Mint initiated';
-      let result = await nftsContract.safeMint(
-        mintAmountInput.value,
-        {
-          from: accounts[0],
-        },
-      );
+      let result = await nftsContract.safeMint(mintAmountInput.value, {
+        from: accounts[0],
+      });
       result = await result.wait();
       console.log(result);
       nftsStatus.innerHTML = 'Mint completed';
