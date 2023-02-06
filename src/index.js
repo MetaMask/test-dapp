@@ -19,7 +19,7 @@ import {
   failingContractAbi,
   failingContractBytecode,
   multisigAbi,
-  multisigBytecode
+  multisigBytecode,
 } from './constants.json';
 
 let ethersProvider;
@@ -68,7 +68,9 @@ const sendFailingButton = document.getElementById('sendFailingButton');
 const failingContractStatus = document.getElementById('failingContractStatus');
 const deployMultisigButton = document.getElementById('deployMultisigButton');
 const sendMultisigButton = document.getElementById('sendMultisigButton');
-const multisigContractStatus = document.getElementById('multisigContractStatus');
+const multisigContractStatus = document.getElementById(
+  'multisigContractStatus',
+);
 
 // Collectibles Section
 const deployCollectiblesButton = document.getElementById(
@@ -226,7 +228,7 @@ const initialize = async () => {
       multisigAbi,
       multisigBytecode,
       ethersProvider.getSigner(),
-    )
+    );
   } catch (error) {
     console.error(error);
   }
@@ -565,8 +567,7 @@ const initialize = async () => {
             },
           ],
         });
-        multisigContractStatus.innerHTML =
-          'Transaction completed as expected.';
+        multisigContractStatus.innerHTML = 'Transaction completed as expected.';
         console.log('send multisig contract result', result);
       } catch (error) {
         console.log('error', error);
