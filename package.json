@@ -40,6 +40,8 @@
     "@metamask/eslint-config": "^6.0.0",
     "@metamask/eslint-config-nodejs": "^6.0.0",
     "@metamask/onboarding": "^1.0.0",
+    "@openzeppelin/contracts": "4.3.3",
+    "base64-sol": "1.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.0.2",
     "eslint": "^7.29.0",
