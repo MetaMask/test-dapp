@@ -18,6 +18,8 @@ import {
   collectiblesBytecode,
   failingContractAbi,
   failingContractBytecode,
+  multisigAbi,
+  multisigBytecode,
 } from './constants.json';
 
 let ethersProvider;
@@ -25,10 +27,12 @@ let hstFactory;
 let piggybankFactory;
 let collectiblesFactory;
 let failingContractFactory;
+let multisigFactory;
 let hstContract;
 let piggybankContract;
 let collectiblesContract;
 let failingContract;
+let multisigContract;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -62,6 +66,11 @@ const contractStatus = document.getElementById('contractStatus');
 const deployFailingButton = document.getElementById('deployFailingButton');
 const sendFailingButton = document.getElementById('sendFailingButton');
 const failingContractStatus = document.getElementById('failingContractStatus');
+const deployMultisigButton = document.getElementById('deployMultisigButton');
+const sendMultisigButton = document.getElementById('sendMultisigButton');
+const multisigContractStatus = document.getElementById(
+  'multisigContractStatus',
+);
 
 // Collectibles Section
 const deployCollectiblesButton = document.getElementById(
@@ -189,6 +198,11 @@ const initialize = async () => {
         failingContractAbi,
         ethersProvider.getSigner(),
       );
+      multisigContract = new ethers.Contract(
+        deployedContractAddress,
+        multisigAbi,
+        ethersProvider.getSigner(),
+      );
     }
     hstFactory = new ethers.ContractFactory(
       hstAbi,
@@ -208,6 +222,11 @@ const initialize = async () => {
     failingContractFactory = new ethers.ContractFactory(
       failingContractAbi,
       failingContractBytecode,
+      ethersProvider.getSigner(),
+    );
+    multisigFactory = new ethers.ContractFactory(
+      multisigAbi,
+      multisigBytecode,
       ethersProvider.getSigner(),
     );
   } catch (error) {
@@ -239,6 +258,8 @@ const initialize = async () => {
     transferFromButton,
     deployFailingButton,
     sendFailingButton,
+    deployMultisigButton,
+    sendMultisigButton,
     sendButton,
     createToken,
     watchAsset,
@@ -305,6 +326,7 @@ const initialize = async () => {
       deployCollectiblesButton.disabled = false;
       sendButton.disabled = false;
       deployFailingButton.disabled = false;
+      deployMultisigButton.disabled = false;
       createToken.disabled = false;
       personalSign.disabled = false;
       signTypedData.disabled = false;
@@ -350,6 +372,9 @@ const initialize = async () => {
       // Failing contract
       failingContractStatus.innerHTML = 'Deployed';
       sendFailingButton.disabled = false;
+      // Multisig contract
+      multisigContractStatus.innerHTML = 'Deployed';
+      sendMultisigButton.disabled = false;
       // ERC721 Token - Collectibles contract
       collectiblesStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
@@ -495,6 +520,55 @@ const initialize = async () => {
         failingContractStatus.innerHTML =
           'Failed transaction process completed as expected.';
         console.log('send failing contract result', result);
+      } catch (error) {
+        console.log('error', error);
+        throw error;
+      }
+    };
+
+    /**
+     * Multisig
+     */
+
+    deployMultisigButton.onclick = async () => {
+      multisigContractStatus.innerHTML = 'Deploying';
+
+      try {
+        multisigContract = await multisigFactory.deploy();
+        await multisigContract.deployTransaction.wait();
+      } catch (error) {
+        multisigContractStatus.innerHTML = 'Deployment Failed';
+        throw error;
+      }
+
+      if (multisigContract.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${multisigContract.address} transactionHash: ${multisigContract.deployTransaction.hash}`,
+      );
+      multisigContractStatus.innerHTML = 'Deployed';
+      sendMultisigButton.disabled = false;
+    };
+
+    sendMultisigButton.onclick = async () => {
+      try {
+        const result = await ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: accounts[0],
+              to: multisigContract.address,
+              value: '0x16345785D8A0', // 24414062500000
+              gasLimit: '0x5028',
+              maxFeePerGas: '0x2540be400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+            },
+          ],
+        });
+        multisigContractStatus.innerHTML = 'Transaction completed as expected.';
+        console.log('send multisig contract result', result);
       } catch (error) {
         console.log('error', error);
         throw error;
