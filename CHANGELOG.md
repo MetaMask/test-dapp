@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.4.0]
+### Added
+- Add a Multisig section to test Sending ETH to Multisig Wallets ([#209](https://github.com/MetaMask/test-dapp/pull/209))
+
 ## [5.3.0]
 ### Added
 - Add a Sign In With Ethereum (SIWE) section to test signing messages that conform to [EIP-4361 spec](https://eips.ethereum.org/EIPS/eip-4361) ([#164](https://github.com/MetaMask/test-dapp/pull/164))
