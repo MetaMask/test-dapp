@@ -373,7 +373,7 @@ const initialize = async () => {
       // Multisig contract
       multisigContractStatus.innerHTML = 'Deployed';
       sendMultisigButton.disabled = false;
-      // ERC721 Token - Collectibles contract
+      // ERC721 Token - NFTs contract
       nftsStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
       mintAmountInput.disabled = false;
