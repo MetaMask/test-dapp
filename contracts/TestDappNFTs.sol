@@ -33,9 +33,9 @@ contract TestDappNfts is ERC721 {
 
     string memory json = string(
       abi.encodePacked(
-        '{"name": "Test Dapp Collectibles #',
+        '{"name": "Test Dapp NFTs #',
         Strings.toString(tokenId), 
-        '", "description": "Test Dapp Collectibles for testing.", "image": "data:image/svg+xml;base64,',
+        '", "description": "Test Dapp NFTs for testing.", "image": "data:image/svg+xml;base64,',
         Base64.encode(bytes(svg)),
         '", "attributes": [{"trait_type": "Token Id", "value": "',
         Strings.toString(tokenId), 
