@@ -422,6 +422,10 @@ const initialize = async () => {
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
       // ERC 1155 Multi Token
+      erc1155Status.innerHTML = 'Deployed';
+      batchMintButton.disabled = false;
+      batchMintTokenIds.disabled = false;
+      batchMintIdAmounts.disabled = false;
       batchTransferTokenIds.disabled = false;
       batchTransferTokenAmounts.disabled = false;
       batchTransferFromButton.disabled = false;
