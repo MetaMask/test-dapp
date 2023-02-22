@@ -362,7 +362,7 @@
                     Approve
                   </button>
                 </div>
-                
+
                 <div class="form-group">
                   <button
                     class="btn btn-primary btn-lg btn-block mb-3"
@@ -408,6 +408,87 @@
                 </p>
               </div>
             </div>
+          </div>
+          <div
+          class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+        >
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                ERC 1155
+              </h4>
+
+              <button
+              class="btn btn-primary btn-lg btn-block mb-3"
+              id="deployERC1155Button"
+              disabled
+            >
+              Deploy
+            </button>
+
+            <div class="form-group">
+              <label>Batch Mint Token IDs</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 2, 3"
+                id="batchMintTokenIds"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Batch Mint Token ID Amounts</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 1, 1000000000000000"
+                id="batchMintIdAmounts"
+              />
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="batchMintButton"
+                disabled
+              >
+                Batch Mint
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label>Batch Transfer Token IDs</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 2, 3"
+                id="batchTransferTokenIds"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Batch Transfer Token Amounts</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 1, 1"
+                id="batchTransferTokenAmounts"
+              />
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="batchTransferFromButton"
+                disabled
+              >
+                Batch Transfer
+              </button>
+            </div>
+
+            <p class="info-text alert alert-secondary">
+              ERC 1155: <span id="erc1155Status"></span>
+            </p>
           </div>
         </div>
       </section>
