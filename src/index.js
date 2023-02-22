@@ -20,6 +20,8 @@ import {
   failingContractBytecode,
   multisigAbi,
   multisigBytecode,
+  erc1155Abi,
+  erc1155Bytecode,
 } from './constants.json';
 
 let ethersProvider;
@@ -28,11 +30,13 @@ let piggybankFactory;
 let collectiblesFactory;
 let failingContractFactory;
 let multisigFactory;
+let erc1155Factory;
 let hstContract;
 let piggybankContract;
 let collectiblesContract;
 let failingContract;
 let multisigContract;
+let erc1155Contract;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -87,6 +91,21 @@ const revokeButton = document.getElementById('revokeButton');
 const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const collectiblesStatus = document.getElementById('collectiblesStatus');
+
+// ERC 1155 Section
+
+const deployERC1155Button = document.getElementById('deployERC1155Button');
+const batchMintTokenIds = document.getElementById('batchMintTokenIds');
+const batchMintIdAmounts = document.getElementById('batchMintIdAmounts');
+const batchMintButton = document.getElementById('batchMintButton');
+const batchTransferTokenIds = document.getElementById('batchTransferTokenIds');
+const batchTransferTokenAmounts = document.getElementById(
+  'batchTransferTokenAmounts',
+);
+const batchTransferFromButton = document.getElementById(
+  'batchTransferFromButton',
+);
+const erc1155Status = document.getElementById('erc1155Status');
 
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
@@ -203,6 +222,11 @@ const initialize = async () => {
         multisigAbi,
         ethersProvider.getSigner(),
       );
+      erc1155Contract = new ethers.Contract(
+        deployedContractAddress,
+        erc1155Abi,
+        ethersProvider.getSigner(),
+      );
     }
     hstFactory = new ethers.ContractFactory(
       hstAbi,
@@ -227,6 +251,11 @@ const initialize = async () => {
     multisigFactory = new ethers.ContractFactory(
       multisigAbi,
       multisigBytecode,
+      ethersProvider.getSigner(),
+    );
+    erc1155Factory = new ethers.ContractFactory(
+      erc1155Abi,
+      erc1155Bytecode,
       ethersProvider.getSigner(),
     );
   } catch (error) {
@@ -256,6 +285,10 @@ const initialize = async () => {
     revokeButton,
     transferTokenInput,
     transferFromButton,
+    deployERC1155Button,
+    batchTransferTokenIds,
+    batchTransferTokenAmounts,
+    batchTransferFromButton,
     deployFailingButton,
     sendFailingButton,
     deployMultisigButton,
@@ -311,6 +344,8 @@ const initialize = async () => {
     encryptMessageInput.value = '';
     ciphertextDisplay.innerText = '';
     cleartextDisplay.innerText = '';
+    batchTransferTokenIds.value = '';
+    batchTransferTokenAmounts.value = '';
   };
 
   const updateButtons = () => {
@@ -324,6 +359,7 @@ const initialize = async () => {
     } else {
       deployButton.disabled = false;
       deployCollectiblesButton.disabled = false;
+      deployERC1155Button.disabled = false;
       sendButton.disabled = false;
       deployFailingButton.disabled = false;
       deployMultisigButton.disabled = false;
@@ -385,6 +421,14 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      // ERC 1155 Multi Token
+      erc1155Status.innerHTML = 'Deployed';
+      batchMintButton.disabled = false;
+      batchMintTokenIds.disabled = false;
+      batchMintIdAmounts.disabled = false;
+      batchTransferTokenIds.disabled = false;
+      batchTransferTokenAmounts.disabled = false;
+      batchTransferFromButton.disabled = false;
       // ERC20 Token - Send Tokens
       tokenAddress.innerHTML = hstContract.address;
       watchAsset.disabled = false;
@@ -676,6 +720,82 @@ const initialize = async () => {
       result = await result.wait();
       console.log(result);
       collectiblesStatus.innerHTML = 'Transfer From completed';
+    };
+
+    /**
+     * ERC1155 Token
+     */
+
+    deployERC1155Button.onclick = async () => {
+      erc1155Status.innerHTML = 'Deploying';
+
+      try {
+        erc1155Contract = await erc1155Factory.deploy();
+        await erc1155Contract.deployTransaction.wait();
+      } catch (error) {
+        erc1155Status.innerHTML = 'Deployment Failed!';
+        throw error;
+      }
+
+      if (erc1155Contract.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${erc1155Contract.address} transactionHash: ${erc1155Contract.deployTransaction.hash}`,
+      );
+
+      erc1155Status.innerHTML = 'Deployed';
+      batchTransferTokenIds.disabled = false;
+      batchTransferTokenAmounts.disabled = false;
+      batchMintButton.disabled = false;
+      batchTransferFromButton.disabled = false;
+    };
+
+    batchMintButton.onclick = async () => {
+      erc1155Status.innerHTML = 'Batch Mint initiated';
+
+      const params = [
+        accounts[0],
+        batchMintTokenIds.value.split(',').map(Number),
+        batchMintIdAmounts.value.split(',').map(Number),
+        '0x',
+      ];
+
+      let result;
+
+      try {
+        result = await erc1155Contract.mintBatch(...params);
+      } catch (error) {
+        erc1155Status.innerHTML = 'Mint Failed!';
+        throw error;
+      }
+
+      console.log(result);
+      erc1155Status.innerHTML = 'Batch Minting completed';
+    };
+
+    batchTransferFromButton.onclick = async () => {
+      erc1155Status.innerHTML = 'Batch Transfer From initiated';
+
+      const params = [
+        accounts[0],
+        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+        batchTransferTokenIds.value.split(',').map(Number),
+        batchTransferTokenAmounts.value.split(',').map(Number),
+        '0x',
+      ];
+
+      let result;
+
+      try {
+        result = await erc1155Contract.safeBatchTransferFrom(...params);
+      } catch (error) {
+        erc1155Status.innerHTML = 'Transaction Failed!';
+        throw error;
+      }
+      console.log(result);
+      erc1155Status.innerHTML = 'Batch Transfer From completed';
     };
 
     /**
