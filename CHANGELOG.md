@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.5.0]
+### Added
+- Add ERC1155 token section with Batch Minting and Batch Transfers ([#212](https://github.com/MetaMask/test-dapp/pull/212))
+
 ## [5.4.0]
 ### Added
 - Add a Multisig section to test Sending ETH to Multisig Wallets ([#209](https://github.com/MetaMask/test-dapp/pull/209))
