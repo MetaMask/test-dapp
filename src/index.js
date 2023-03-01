@@ -171,6 +171,15 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
 const signTypedDataV4VerifyResult = document.getElementById(
   'signTypedDataV4VerifyResult',
 );
+const signPermit = document.getElementById('signPermit');
+const signPermitResult = document.getElementById('signPermitResult');
+const signPermitResultR = document.getElementById('signPermitResultR');
+const signPermitResultS = document.getElementById('signPermitResultS');
+const signPermitResultV = document.getElementById('signPermitResultV');
+const signPermitVerify = document.getElementById('signPermitVerify');
+const signPermitVerifyResult = document.getElementById(
+  'signPermitVerifyResult',
+);
 const siwe = document.getElementById('siwe');
 const siweResources = document.getElementById('siweResources');
 const siweBadDomain = document.getElementById('siweBadDomain');
@@ -319,6 +328,8 @@ const initialize = async () => {
     signTypedDataV3Verify,
     signTypedDataV4,
     signTypedDataV4Verify,
+    signPermit,
+    signPermitVerify,
     siwe,
     siweResources,
     siweBadDomain,
@@ -378,6 +389,7 @@ const initialize = async () => {
       signTypedData.disabled = false;
       signTypedDataV3.disabled = false;
       signTypedDataV4.disabled = false;
+      signPermit.disabled = false;
       siwe.disabled = false;
       siweResources.disabled = false;
       siweBadDomain.disabled = false;
@@ -1607,6 +1619,159 @@ const initialize = async () => {
     } catch (err) {
       console.error(err);
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   *  Sign Permit
+   */
+  signPermit.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10);
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+    const from = accounts[0];
+
+    const domain = {
+      name: 'MyToken',
+      version: '1',
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      chainId,
+    };
+
+    const EIP712Domain = [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'verifyingContract', type: 'address' },
+      { name: 'chainId', type: 'uint256' },
+    ];
+
+    const permit = {
+      owner: from,
+      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
+      value: 3000,
+      nonce: 0,
+      deadline: 50000000000,
+    };
+
+    const Permit = [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ];
+
+    const splitSig = (sig) => {
+      const pureSig = sig.replace('0x', '');
+
+      const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
+      const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
+      const _v = Buffer.from(
+        parseInt(pureSig.substring(128, 130), 16).toString(),
+      );
+
+      return { _r, _s, _v };
+    };
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    const msgParams = {
+      types: {
+        EIP712Domain,
+        Permit,
+      },
+      primaryType: 'Permit',
+      domain,
+      message: permit,
+    };
+
+    try {
+      sign = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      signPermitResult.innerHTML = sign;
+      signPermitResultR.innerHTML = `r: ${r}`;
+      signPermitResultS.innerHTML = `s: ${s}`;
+      signPermitResultV.innerHTML = `v: ${v}`;
+      signPermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signPermitResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   *  Sign Permit Verification
+   */
+  signPermitVerify.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10);
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+    const from = accounts[0];
+
+    const domain = {
+      name: 'MyToken',
+      version: '1',
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      chainId,
+    };
+
+    const EIP712Domain = [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'verifyingContract', type: 'address' },
+      { name: 'chainId', type: 'uint256' },
+    ];
+
+    const permit = {
+      owner: from,
+      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
+      value: 3000,
+      nonce: 0,
+      deadline: 50000000000,
+    };
+
+    const Permit = [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ];
+
+    const msgParams = {
+      types: {
+        EIP712Domain,
+        Permit,
+      },
+      primaryType: 'Permit',
+      domain,
+      message: permit,
+    };
+    try {
+      const sign = signPermitResult.innerHTML;
+      const recoveredAddr = recoverTypedSignatureV4({
+        data: msgParams,
+        sig: sign,
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        signPermitVerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      signPermitVerifyResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
