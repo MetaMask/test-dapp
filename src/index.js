@@ -105,6 +105,10 @@ const batchTransferTokenAmounts = document.getElementById(
 const batchTransferFromButton = document.getElementById(
   'batchTransferFromButton',
 );
+const setApprovalForAllERC1155Button = document.getElementById(
+  'setApprovalForAllERC1155Button',
+);
+const revokeERC1155Button = document.getElementById('revokeERC1155Button');
 const erc1155Status = document.getElementById('erc1155Status');
 
 // Send Eth Section
@@ -298,6 +302,8 @@ const initialize = async () => {
     batchTransferTokenIds,
     batchTransferTokenAmounts,
     batchTransferFromButton,
+    setApprovalForAllERC1155Button,
+    revokeERC1155Button,
     deployFailingButton,
     sendFailingButton,
     deployMultisigButton,
@@ -441,6 +447,8 @@ const initialize = async () => {
       batchTransferTokenIds.disabled = false;
       batchTransferTokenAmounts.disabled = false;
       batchTransferFromButton.disabled = false;
+      setApprovalForAllERC1155Button.disabled = false;
+      revokeERC1155Button.disabled = false;
       // ERC20 Token - Send Tokens
       tokenAddress.innerHTML = hstContract.address;
       watchAsset.disabled = false;
@@ -762,6 +770,8 @@ const initialize = async () => {
       batchTransferTokenAmounts.disabled = false;
       batchMintButton.disabled = false;
       batchTransferFromButton.disabled = false;
+      setApprovalForAllERC1155Button.disabled = false;
+      revokeERC1155Button.disabled = false;
     };
 
     batchMintButton.onclick = async () => {
@@ -808,6 +818,34 @@ const initialize = async () => {
       }
       console.log(result);
       erc1155Status.innerHTML = 'Batch Transfer From completed';
+    };
+
+    setApprovalForAllERC1155Button.onclick = async () => {
+      erc1155Status.innerHTML = 'Set Approval For All initiated';
+      let result = await erc1155Contract.setApprovalForAll(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        true,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      erc1155Status.innerHTML = 'Set Approval For All completed';
+    };
+
+    revokeERC1155Button.onclick = async () => {
+      erc1155Status.innerHTML = 'Revoke initiated';
+      let result = await erc1155Contract.setApprovalForAll(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        false,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      erc1155Status.innerHTML = 'Revoke completed';
     };
 
     /**
