@@ -15,6 +15,7 @@
     "start": "webpack-dev-server",
     "build": "webpack --mode production",
     "test": "yarn lint",
+    "update-changelog": "auto-changelog update",
     "prepublishOnly": "yarn test && yarn build"
   },
   "publishConfig": {
