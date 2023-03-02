@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.6.0]
+### Added
+- Add Set approval for all and Revoke button to the ERC1155 token section ([#215](https://github.com/MetaMask/test-dapp/pull/215))
+- Permit Signature first part ([#217](https://github.com/MetaMask/test-dapp/pull/217))
+
 ## [5.5.0]
 ### Added
 - Add ERC1155 token section with Batch Minting and Batch Transfers ([#212](https://github.com/MetaMask/test-dapp/pull/212))
