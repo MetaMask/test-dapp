@@ -486,6 +486,26 @@
               </button>
             </div>
 
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="setApprovalForAllERC1155Button"
+                disabled
+              >
+                Set Approval For All
+              </button>
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="revokeERC1155Button"
+                disabled
+              >
+                Revoke
+              </button>
+            </div>
+
             <p class="info-text alert alert-secondary">
               ERC 1155: <span id="erc1155Status"></span>
             </p>
@@ -727,6 +747,46 @@
                 <p class="info-text alert alert-warning">
                   Recovery result:
                   <span id="signTypedDataV4VerifyResult"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Sign Permit
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signPermit"
+                  disabled
+                >
+                  Sign
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Result:
+                  <span id="signPermitResult"></span>
+                  <p class="info-text alert alert-warning" id="signPermitResultR">r: </p>
+                  <p class="info-text alert alert-warning" id="signPermitResultS">s: </p>
+                  <p class="info-text alert alert-warning" id="signPermitResultV">v: </p>
+                </p>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signPermitVerify"
+                  disabled
+                >
+                  Verify
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Recovery result:
+                  <span id="signPermitVerifyResult"></span>
                 </p>
               </div>
             </div>
