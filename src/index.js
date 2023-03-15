@@ -943,7 +943,9 @@ const initialize = async () => {
     transferTokens.onclick = async () => {
       const result = await hstContract.transfer(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        `${1.5 * 10 ** decimalUnitsInput.value}`,
+        decimalUnitsInput.value === 0
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
         {
           from: accounts[0],
           gasLimit: 60000,
@@ -969,7 +971,9 @@ const initialize = async () => {
     transferTokensWithoutGas.onclick = async () => {
       const result = await hstContract.transfer(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        `${1.5 * 10 ** decimalUnitsInput.value}`,
+        decimalUnitsInput.value === 0
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
         {
           gasPrice: '20000000000',
         },
