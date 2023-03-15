@@ -152,6 +152,8 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+const createTransactionWithAccessList = document.getElementById('createTransactionWithAccessList');
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -272,6 +274,7 @@ const initialize = async () => {
       signTypedDataV3.disabled = false;
       signTypedDataV4.disabled = false;
       signTypedDataV4Custom.disabled = false;
+      createTransactionWithAccessList.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -309,6 +312,38 @@ const initialize = async () => {
         },
       ],
     });
+  };
+
+  createTransactionWithAccessList.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10);
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+    try {
+      const txParams = {
+        from: accounts[0],
+        to: '0x0987654321098765432109876543210987654321',
+        data: '0x3d18b912',
+        accessList: [
+          {
+            address: '0x1234567890123456789012345678901234567890',
+            storageKeys: ['0x0000000000000000000000000000000000000000000000000000000000000001'],
+          },
+        ],
+        chainId: chainId,
+      };
+      
+      ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [txParams],
+      }).then((txHash) => {
+        console.log('Transaction hash:', txHash);
+      }).catch((error) => {
+        console.error('Transaction error:', error);
+      });
+
+    } catch (error) {
+      console.log('error', error);
+      throw error;
+    }
   };
 
   switchEthereumChain.onclick = async () => {
