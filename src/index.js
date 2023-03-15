@@ -152,7 +152,9 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
-const createTransactionWithAccessList = document.getElementById('createTransactionWithAccessList');
+const createTransactionWithAccessList = document.getElementById(
+  'createTransactionWithAccessList',
+);
 
 const initialize = async () => {
   try {
@@ -325,21 +327,25 @@ const initialize = async () => {
         accessList: [
           {
             address: '0x1234567890123456789012345678901234567890',
-            storageKeys: ['0x0000000000000000000000000000000000000000000000000000000000000001'],
+            storageKeys: [
+              '0x0000000000000000000000000000000000000000000000000000000000000001',
+            ],
           },
         ],
-        chainId: chainId,
+        chainId,
       };
-      
-      ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [txParams],
-      }).then((txHash) => {
-        console.log('Transaction hash:', txHash);
-      }).catch((error) => {
-        console.error('Transaction error:', error);
-      });
 
+      ethereum
+        .request({
+          method: 'eth_sendTransaction',
+          params: [txParams],
+        })
+        .then((txHash) => {
+          console.log('Transaction hash:', txHash);
+        })
+        .catch((error) => {
+          console.error('Transaction error:', error);
+        });
     } catch (error) {
       console.log('error', error);
       throw error;
