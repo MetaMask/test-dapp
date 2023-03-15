@@ -116,7 +116,7 @@ const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
-const decimalUnits = 4;
+const decimalUnitsInput = document.getElementById('tokenDecimals');
 const tokenSymbol = 'TST';
 const tokenAddress = document.getElementById('tokenAddress');
 const createToken = document.getElementById('createToken');
@@ -310,6 +310,7 @@ const initialize = async () => {
     sendMultisigButton,
     sendButton,
     createToken,
+    decimalUnitsInput,
     watchAsset,
     transferTokens,
     approveTokens,
@@ -381,6 +382,7 @@ const initialize = async () => {
       deployFailingButton.disabled = false;
       deployMultisigButton.disabled = false;
       createToken.disabled = false;
+      decimalUnitsInput.disabled = false;
       personalSign.disabled = false;
       signTypedData.disabled = false;
       getEncryptionKeyButton.disabled = false;
@@ -898,7 +900,7 @@ const initialize = async () => {
         hstContract = await hstFactory.deploy(
           _initialAmount,
           _tokenName,
-          decimalUnits,
+          decimalUnitsInput.value,
           tokenSymbol,
         );
         await hstContract.deployTransaction.wait();
@@ -930,7 +932,7 @@ const initialize = async () => {
           options: {
             address: hstContract.address,
             symbol: tokenSymbol,
-            decimals: decimalUnits,
+            decimals: decimalUnitsInput.value,
             image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
           },
         },
