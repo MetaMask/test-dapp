@@ -893,7 +893,7 @@ const initialize = async () => {
      */
 
     createToken.onclick = async () => {
-      const _initialAmount = 100;
+      const _initialAmount = 10;
       const _tokenName = 'TST';
 
       try {
@@ -943,7 +943,9 @@ const initialize = async () => {
     transferTokens.onclick = async () => {
       const result = await hstContract.transfer(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        '15000',
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
         {
           from: accounts[0],
           gasLimit: 60000,
@@ -956,7 +958,7 @@ const initialize = async () => {
     approveTokens.onclick = async () => {
       const result = await hstContract.approve(
         '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        '70000',
+        `${7 * 10 ** decimalUnitsInput.value}`,
         {
           from: accounts[0],
           gasLimit: 60000,
@@ -969,7 +971,9 @@ const initialize = async () => {
     transferTokensWithoutGas.onclick = async () => {
       const result = await hstContract.transfer(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        '15000',
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
         {
           gasPrice: '20000000000',
         },
@@ -980,7 +984,7 @@ const initialize = async () => {
     approveTokensWithoutGas.onclick = async () => {
       const result = await hstContract.approve(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        '70000',
+        `${7 * 10 ** decimalUnitsInput.value}`,
         {
           gasPrice: '20000000000',
         },
