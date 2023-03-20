@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.7.0]
+### Added
+- Add input field for setting custom decimals on ERC20 deploy ([#219](git+https://github.com/MetaMask/test-dapp/pull/219))
+
+### Updated
+- Update ERC20 Token contract with non-hardcoded decimals and Permit support ([#220](git+https://github.com/MetaMask/test-dapp/pull/220))
+
 ## [5.6.0]
 ### Added
 - Add Set approval for all and Revoke button to the ERC1155 token section ([#215](https://github.com/MetaMask/test-dapp/pull/215))
@@ -63,7 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](git+https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](git+https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.2.0...HEAD
+[Unreleased]: git+https://github.com/MetaMask/test-dapp/compare/v5.7.0...HEAD
+[5.7.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.6.0...v5.7.0
+[5.6.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.5.0...v5.6.0
+[5.5.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.4.0...v5.5.0
+[5.4.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.3.0...v5.4.0
+[5.3.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.2.1...v5.3.0
+[5.2.1]: git+https://github.com/MetaMask/test-dapp/compare/v5.2.0...v5.2.1
 [5.2.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.1...v5.2.0
 [5.1.1]: git+https://github.com/MetaMask/test-dapp/compare/v5.1.0...v5.1.1
 [5.1.0]: git+https://github.com/MetaMask/test-dapp/compare/v5.0.0...v5.1.0
