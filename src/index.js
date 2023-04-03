@@ -111,6 +111,13 @@ const setApprovalForAllERC1155Button = document.getElementById(
 const revokeERC1155Button = document.getElementById('revokeERC1155Button');
 const erc1155Status = document.getElementById('erc1155Status');
 
+// ERC 747 Section
+const eip747ContractAddress = document.getElementById('eip747ContractAddress');
+const eip747Symbol = document.getElementById('eip747Symbol');
+const eip747Decimals = document.getElementById('eip747Decimals');
+const eip747WatchButton = document.getElementById('eip747WatchButton');
+const eip747Status = document.getElementById('eip747Status');
+
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
@@ -336,6 +343,7 @@ const initialize = async () => {
     siweBadDomain,
     siweBadAccount,
     siweMalformed,
+    eip747WatchButton,
   ];
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
@@ -397,6 +405,7 @@ const initialize = async () => {
       siweBadDomain.disabled = false;
       siweBadAccount.disabled = false;
       siweMalformed.disabled = false;
+      eip747WatchButton.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -848,6 +857,35 @@ const initialize = async () => {
       result = await result.wait();
       console.log(result);
       erc1155Status.innerHTML = 'Revoke completed';
+    };
+
+    /**
+     *  EIP 747
+     */
+
+    eip747WatchButton.onclick = async () => {
+      eip747Status.innerHTML = 'Add token initiated';
+
+      try {
+        const result = await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: eip747ContractAddress.value,
+              symbol: eip747Symbol.value,
+              decimals: eip747Decimals.value,
+              image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+            },
+          },
+        });
+
+        console.log(result);
+        eip747Status.innerHTML = 'Add token successful';
+      } catch (error) {
+        console.error(error);
+        eip747Status.innerHTML = 'Add token unsuccessful';
+      }
     };
 
     /**
