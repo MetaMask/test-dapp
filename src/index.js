@@ -864,7 +864,7 @@ const initialize = async () => {
      */
 
     eip747WatchButton.onclick = async () => {
-      eip747Status.innerHTML = 'Add token initiated';
+      eip747Status.innerHTML = 'Adding token...';
 
       try {
         const result = await ethereum.request({
@@ -881,10 +881,11 @@ const initialize = async () => {
         });
 
         console.log(result);
-        eip747Status.innerHTML = 'Add token successful';
+        eip747Status.innerHTML = 'Token added successfully';
       } catch (error) {
         console.error(error);
-        eip747Status.innerHTML = 'Add token unsuccessful';
+        eip747Status.innerHTML =
+          'There was an error adding the token. See console for details.';
       }
     };
 
