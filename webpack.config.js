@@ -12,6 +12,7 @@ module.exports = {
     request: './src/request.js',
   },
   output: {
+    hashFunction: 'xxhash64', // fix for webpack v4 nodejs v18+ compatability; remove when upgraded to webpack 5. https://github.com/webpack/webpack/issues/14532
     path: DIST,
     publicPath: DIST,
   },
