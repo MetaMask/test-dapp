@@ -214,6 +214,31 @@
                 <p class="info-text alert alert-secondary">
                   Failing Contract Status: <span id="failingContractStatus">Not clicked</span>
                 </p>
+                <hr />
+                <h4 class="card-title">
+                  Multisig contract
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="deployMultisigButton"
+                  disabled
+
+                >
+                  Deploy Multisig Contract
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendMultisigButton"
+                  disabled
+                >
+                  Send ETH to Multisig Address
+                </button>
+
+                <p class="info-text alert alert-secondary">
+                  Multisig Contract Status: <span id="multisigContractStatus">Not clicked</span>
+                </p>
               </div>
             </div>
           </div>
@@ -230,6 +255,18 @@
                 <p class="info-text alert alert-success">
                   Token: <span id="tokenAddress"></span>
                 </p>
+
+                <div class="form-group">
+                  <label>Token Decimals</label>
+                  <input
+                    class="form-control"
+                    type="number"
+                    id="tokenDecimals"
+                    value="4"
+                    max="18"
+                    min="0"
+                  />
+                </div>
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
@@ -337,7 +374,7 @@
                     Approve
                   </button>
                 </div>
-                
+
                 <div class="form-group">
                   <button
                     class="btn btn-primary btn-lg btn-block mb-3"
@@ -383,6 +420,107 @@
                 </p>
               </div>
             </div>
+          </div>
+          <div
+          class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+        >
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                ERC 1155
+              </h4>
+
+              <button
+              class="btn btn-primary btn-lg btn-block mb-3"
+              id="deployERC1155Button"
+              disabled
+            >
+              Deploy
+            </button>
+
+            <div class="form-group">
+              <label>Batch Mint Token IDs</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 2, 3"
+                id="batchMintTokenIds"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Batch Mint Token ID Amounts</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 1, 1000000000000000"
+                id="batchMintIdAmounts"
+              />
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="batchMintButton"
+                disabled
+              >
+                Batch Mint
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label>Batch Transfer Token IDs</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 2, 3"
+                id="batchTransferTokenIds"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Batch Transfer Token Amounts</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="1, 1, 1"
+                id="batchTransferTokenAmounts"
+              />
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="batchTransferFromButton"
+                disabled
+              >
+                Batch Transfer
+              </button>
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="setApprovalForAllERC1155Button"
+                disabled
+              >
+                Set Approval For All
+              </button>
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="revokeERC1155Button"
+                disabled
+              >
+                Revoke
+              </button>
+            </div>
+
+            <p class="info-text alert alert-secondary">
+              ERC 1155: <span id="erc1155Status"></span>
+            </p>
           </div>
         </div>
       </section>
@@ -621,6 +759,46 @@
                 <p class="info-text alert alert-warning">
                   Recovery result:
                   <span id="signTypedDataV4VerifyResult"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Sign Permit
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signPermit"
+                  disabled
+                >
+                  Sign
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Result:
+                  <span id="signPermitResult"></span>
+                  <p class="info-text alert alert-warning" id="signPermitResultR">r: </p>
+                  <p class="info-text alert alert-warning" id="signPermitResultS">s: </p>
+                  <p class="info-text alert alert-warning" id="signPermitResultV">v: </p>
+                </p>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signPermitVerify"
+                  disabled
+                >
+                  Verify
+                </button>
+
+                <p class="info-text alert alert-warning">
+                  Recovery result:
+                  <span id="signPermitVerifyResult"></span>
                 </p>
               </div>
             </div>
