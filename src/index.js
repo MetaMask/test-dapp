@@ -874,7 +874,7 @@ const initialize = async () => {
             options: {
               address: eip747ContractAddress.value,
               symbol: eip747Symbol.value,
-              decimals: eip747Decimals.value,
+              decimals: parseInt(eip747Decimals.value, 10),
               image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
             },
           },
