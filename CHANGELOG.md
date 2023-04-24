@@ -4,12 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [5.8.0]
+## [6.0.0]
 ### Added
 - Add section to trigger wallet_watchAsset ([#222](git+https://github.com/MetaMask/test-dapp/pull/222))
 
 ### Changed
-- Update minimum Node.js version to v16 ([#225](git+https://github.com/MetaMask/test-dapp/pull/225))
+- **BREAKING:** Update minimum Node.js version to v16 ([#225](git+https://github.com/MetaMask/test-dapp/pull/225))
 
 ## [5.7.0]
 ### Added
