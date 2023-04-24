@@ -523,6 +523,62 @@
             </p>
           </div>
         </div>
+      </div>
+      <div
+        class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+      >
+        <div class="card full-width">
+          <div class="card-body">
+            <h4 class="card-title">
+              EIP 747
+            </h4>
+
+            <div class="form-group">
+              <label>ERC20 Token Address</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="0x..."
+                id="eip747ContractAddress"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Symbol</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="XYZ"
+                id="eip747Symbol"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Decimals</label>
+              <input
+                class="form-control"
+                type="number"
+                placeholder="18"
+                id="eip747Decimals"
+              />
+            </div>
+
+            <div class="form-group">
+              <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="eip747WatchButton"
+                disabled
+              >
+                Add Token
+              </button>
+            </div>
+
+            <p class="info-text alert alert-secondary">
+              EIP 747: <span id="eip747Status"></span>
+            </p>
+          </div>
+        </div>
+      </div>
       </section>
 
       <section>
