@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.1.0]
+### Added
+- Add page for making a request with query parameters ([#227](https://github.com/MetaMask/test-dapp/pull/227))
+
 ## [6.0.0]
 ### Added
 - Add section to trigger wallet_watchAsset ([#222](https://github.com/MetaMask/test-dapp/pull/222))
@@ -77,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v6.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v6.1.0...HEAD
+[6.1.0]: https://github.com/MetaMask/test-dapp/compare/v6.0.0...v6.1.0
 [6.0.0]: https://github.com/MetaMask/test-dapp/compare/v5.7.0...v6.0.0
 [5.7.0]: https://github.com/MetaMask/test-dapp/compare/v5.6.0...v5.7.0
 [5.6.0]: https://github.com/MetaMask/test-dapp/compare/v5.5.0...v5.6.0
