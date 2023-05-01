@@ -12,6 +12,12 @@ If you wish to use this dapp in your e2e tests, install this package and set up 
 static-server node_modules/@metamask/test-dapp/dist --port 9011
 ```
 
+The main page of the test dapp includes a simple UI featuring buttons for common dapp interactions.
+
+There is a second page (`request.html`) that allows making requests directly to the provider using query parameters. This provides a simple way of testing RPC methods using an in-page provider.
+
+It can be used by navigating to `/request.html?method=${METHOD}&params=${PARAMS}` (e.g. `/request.html?method=eth_getLogs&params=[{ "address": "0x0000000000000000000000000000000000000000" }]`). The page will make a request with the given RPC method and parameters using `ethereum.request`, and report the result as plain text.
+
 ## Contributing
 
 ### Setup
