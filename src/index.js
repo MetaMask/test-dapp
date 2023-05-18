@@ -82,6 +82,7 @@ const deployCollectiblesButton = document.getElementById(
   'deployCollectiblesButton',
 );
 const mintButton = document.getElementById('mintButton');
+const watchNFTButton = document.getElementById('watchNFTButton');
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
 const approveButton = document.getElementById('approveButton');
@@ -307,6 +308,7 @@ const initialize = async () => {
     revokeButton,
     transferTokenInput,
     transferFromButton,
+    watchNFTButton,
     deployERC1155Button,
     batchTransferTokenIds,
     batchTransferTokenAmounts,
@@ -452,6 +454,8 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      watchNFTButton.disabled = false;
+
       // ERC 1155 Multi Token
       erc1155Status.innerHTML = 'Deployed';
       batchMintButton.disabled = false;
@@ -696,6 +700,26 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      watchNFTButton.disabled = false;
+    };
+
+    watchNFTButton.onclick = async () => {
+      try {
+        const result = await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC721',
+            options: {
+              address: collectiblesContract.address,
+              tokenId: 1,
+            },
+          },
+        });
+
+        console.log(result);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     approveButton.onclick = async () => {
@@ -881,13 +905,12 @@ const initialize = async () => {
             },
           },
         });
-
+        eip747Status.innerHTML = 'NFT added successfully';
         console.log(result);
-        eip747Status.innerHTML = 'Token added successfully';
       } catch (error) {
-        console.error(error);
         eip747Status.innerHTML =
           'There was an error adding the token. See console for details.';
+        console.error(error);
       }
     };
 
