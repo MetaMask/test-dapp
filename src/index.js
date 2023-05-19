@@ -37,6 +37,7 @@ let collectiblesContract;
 let failingContract;
 let multisigContract;
 let erc1155Contract;
+let mintAmount;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -82,7 +83,9 @@ const deployCollectiblesButton = document.getElementById(
   'deployCollectiblesButton',
 );
 const mintButton = document.getElementById('mintButton');
-const watchNFTButton = document.getElementById('watchNFTButton');
+// const watchNFTButton = document.getElementById('watchNFTButton');
+const watchNFTButtons = document.getElementById('watchNFTButtons');
+
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
 const approveButton = document.getElementById('approveButton');
@@ -308,7 +311,7 @@ const initialize = async () => {
     revokeButton,
     transferTokenInput,
     transferFromButton,
-    watchNFTButton,
+    watchNFTButtons,
     deployERC1155Button,
     batchTransferTokenIds,
     batchTransferTokenAmounts,
@@ -454,7 +457,7 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
-      watchNFTButton.disabled = false;
+      watchNFTButtons.innerHTML = '';
 
       // ERC 1155 Multi Token
       erc1155Status.innerHTML = 'Deployed';
@@ -691,6 +694,7 @@ const initialize = async () => {
           from: accounts[0],
         },
       );
+      mintAmount = mintAmountInput.value;
       result = await result.wait();
       console.log(result);
       collectiblesStatus.innerHTML = 'Mint completed';
@@ -700,27 +704,32 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
-      watchNFTButton.disabled = false;
-    };
-
-    watchNFTButton.onclick = async () => {
-      try {
-        const result = await ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC721',
-            options: {
-              address: collectiblesContract.address,
-              tokenId: 1,
+      for (let i = 0; i < mintAmount; i++) {
+      const button = document.createElement('button');
+      button.innerHTML = `Watch NFT ${i + 1}`;
+      button.className = 'btn btn-primary btn-lg btn-block mb-3';
+      button.onclick = async () => {
+        let result;
+        try {
+          result = await ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC721',
+              options: {
+                address: collectiblesContract.address,
+                tokenId: i + 1,
+              },
             },
-          },
-        });
-
+          });
+        } catch (error) {
+          console.error(error);
+        }
         console.log(result);
-      } catch (error) {
-        console.error(error);
+      };
+      watchNFTButtons.appendChild(button);
       }
     };
+
 
     approveButton.onclick = async () => {
       collectiblesStatus.innerHTML = 'Approve initiated';
