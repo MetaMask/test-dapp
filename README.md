@@ -12,14 +12,20 @@ If you wish to use this dapp in your e2e tests, install this package and set up 
 static-server node_modules/@metamask/test-dapp/dist --port 9011
 ```
 
+The main page of the test dapp includes a simple UI featuring buttons for common dapp interactions.
+
+There is a second page (`request.html`) that allows making requests directly to the provider using query parameters. This provides a simple way of testing RPC methods using an in-page provider.
+
+It can be used by navigating to `/request.html?method=${METHOD}&params=${PARAMS}` (e.g. `/request.html?method=eth_getLogs&params=[{ "address": "0x0000000000000000000000000000000000000000" }]`). The page will make a request with the given RPC method and parameters using `ethereum.request`, and report the result as plain text.
+
 ## Contributing
 
 ### Setup
 
-- Install [Node.js](https://nodejs.org) version 12
+- Install [Node.js](https://nodejs.org) version 16
   - If you are using [nvm](https://github.com/creationix/nvm#installation) (recommended) running `nvm use` will automatically choose the right node version for you.
 - Install [Yarn v1](https://yarnpkg.com/en/docs/install)
-- Run `yarn setup` to install dependencies and run any requried post-install scripts
+- Run `yarn setup` to install dependencies and run any required post-install scripts
   - **Warning:** Do not use the `yarn` / `yarn install` command directly. Use `yarn setup` instead. The normal install command will skip required post-install scripts, leaving your development environment in an invalid state.
 
 ### Testing and Linting

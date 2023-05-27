@@ -18,6 +18,10 @@ import {
   collectiblesBytecode,
   failingContractAbi,
   failingContractBytecode,
+  multisigAbi,
+  multisigBytecode,
+  erc1155Abi,
+  erc1155Bytecode,
 } from './constants.json';
 
 let ethersProvider;
@@ -25,10 +29,14 @@ let hstFactory;
 let piggybankFactory;
 let collectiblesFactory;
 let failingContractFactory;
+let multisigFactory;
+let erc1155Factory;
 let hstContract;
 let piggybankContract;
 let collectiblesContract;
 let failingContract;
+let multisigContract;
+let erc1155Contract;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -62,6 +70,11 @@ const contractStatus = document.getElementById('contractStatus');
 const deployFailingButton = document.getElementById('deployFailingButton');
 const sendFailingButton = document.getElementById('sendFailingButton');
 const failingContractStatus = document.getElementById('failingContractStatus');
+const deployMultisigButton = document.getElementById('deployMultisigButton');
+const sendMultisigButton = document.getElementById('sendMultisigButton');
+const multisigContractStatus = document.getElementById(
+  'multisigContractStatus',
+);
 
 // Collectibles Section
 const deployCollectiblesButton = document.getElementById(
@@ -79,12 +92,38 @@ const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const collectiblesStatus = document.getElementById('collectiblesStatus');
 
+// ERC 1155 Section
+
+const deployERC1155Button = document.getElementById('deployERC1155Button');
+const batchMintTokenIds = document.getElementById('batchMintTokenIds');
+const batchMintIdAmounts = document.getElementById('batchMintIdAmounts');
+const batchMintButton = document.getElementById('batchMintButton');
+const batchTransferTokenIds = document.getElementById('batchTransferTokenIds');
+const batchTransferTokenAmounts = document.getElementById(
+  'batchTransferTokenAmounts',
+);
+const batchTransferFromButton = document.getElementById(
+  'batchTransferFromButton',
+);
+const setApprovalForAllERC1155Button = document.getElementById(
+  'setApprovalForAllERC1155Button',
+);
+const revokeERC1155Button = document.getElementById('revokeERC1155Button');
+const erc1155Status = document.getElementById('erc1155Status');
+
+// ERC 747 Section
+const eip747ContractAddress = document.getElementById('eip747ContractAddress');
+const eip747Symbol = document.getElementById('eip747Symbol');
+const eip747Decimals = document.getElementById('eip747Decimals');
+const eip747WatchButton = document.getElementById('eip747WatchButton');
+const eip747Status = document.getElementById('eip747Status');
+
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
-const decimalUnits = 4;
+const decimalUnitsInput = document.getElementById('tokenDecimals');
 const tokenSymbol = 'TST';
 const tokenAddress = document.getElementById('tokenAddress');
 const createToken = document.getElementById('createToken');
@@ -139,6 +178,21 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
 const signTypedDataV4VerifyResult = document.getElementById(
   'signTypedDataV4VerifyResult',
 );
+const signPermit = document.getElementById('signPermit');
+const signPermitResult = document.getElementById('signPermitResult');
+const signPermitResultR = document.getElementById('signPermitResultR');
+const signPermitResultS = document.getElementById('signPermitResultS');
+const signPermitResultV = document.getElementById('signPermitResultV');
+const signPermitVerify = document.getElementById('signPermitVerify');
+const signPermitVerifyResult = document.getElementById(
+  'signPermitVerifyResult',
+);
+const siwe = document.getElementById('siwe');
+const siweResources = document.getElementById('siweResources');
+const siweBadDomain = document.getElementById('siweBadDomain');
+const siweBadAccount = document.getElementById('siweBadAccount');
+const siweMalformed = document.getElementById('siweMalformed');
+const siweResult = document.getElementById('siweResult');
 
 // Send form section
 const fromDiv = document.getElementById('fromInput');
@@ -183,6 +237,16 @@ const initialize = async () => {
         failingContractAbi,
         ethersProvider.getSigner(),
       );
+      multisigContract = new ethers.Contract(
+        deployedContractAddress,
+        multisigAbi,
+        ethersProvider.getSigner(),
+      );
+      erc1155Contract = new ethers.Contract(
+        deployedContractAddress,
+        erc1155Abi,
+        ethersProvider.getSigner(),
+      );
     }
     hstFactory = new ethers.ContractFactory(
       hstAbi,
@@ -202,6 +266,16 @@ const initialize = async () => {
     failingContractFactory = new ethers.ContractFactory(
       failingContractAbi,
       failingContractBytecode,
+      ethersProvider.getSigner(),
+    );
+    multisigFactory = new ethers.ContractFactory(
+      multisigAbi,
+      multisigBytecode,
+      ethersProvider.getSigner(),
+    );
+    erc1155Factory = new ethers.ContractFactory(
+      erc1155Abi,
+      erc1155Bytecode,
       ethersProvider.getSigner(),
     );
   } catch (error) {
@@ -231,10 +305,19 @@ const initialize = async () => {
     revokeButton,
     transferTokenInput,
     transferFromButton,
+    deployERC1155Button,
+    batchTransferTokenIds,
+    batchTransferTokenAmounts,
+    batchTransferFromButton,
+    setApprovalForAllERC1155Button,
+    revokeERC1155Button,
     deployFailingButton,
     sendFailingButton,
+    deployMultisigButton,
+    sendMultisigButton,
     sendButton,
     createToken,
+    decimalUnitsInput,
     watchAsset,
     transferTokens,
     approveTokens,
@@ -253,6 +336,14 @@ const initialize = async () => {
     signTypedDataV3Verify,
     signTypedDataV4,
     signTypedDataV4Verify,
+    signPermit,
+    signPermitVerify,
+    siwe,
+    siweResources,
+    siweBadDomain,
+    siweBadAccount,
+    siweMalformed,
+    eip747WatchButton,
   ];
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
@@ -279,6 +370,8 @@ const initialize = async () => {
     encryptMessageInput.value = '';
     ciphertextDisplay.innerText = '';
     cleartextDisplay.innerText = '';
+    batchTransferTokenIds.value = '';
+    batchTransferTokenAmounts.value = '';
   };
 
   const updateButtons = () => {
@@ -292,9 +385,12 @@ const initialize = async () => {
     } else {
       deployButton.disabled = false;
       deployCollectiblesButton.disabled = false;
+      deployERC1155Button.disabled = false;
       sendButton.disabled = false;
       deployFailingButton.disabled = false;
+      deployMultisigButton.disabled = false;
       createToken.disabled = false;
+      decimalUnitsInput.disabled = false;
       personalSign.disabled = false;
       signTypedData.disabled = false;
       getEncryptionKeyButton.disabled = false;
@@ -303,6 +399,13 @@ const initialize = async () => {
       signTypedData.disabled = false;
       signTypedDataV3.disabled = false;
       signTypedDataV4.disabled = false;
+      signPermit.disabled = false;
+      siwe.disabled = false;
+      siweResources.disabled = false;
+      siweBadDomain.disabled = false;
+      siweBadAccount.disabled = false;
+      siweMalformed.disabled = false;
+      eip747WatchButton.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -334,6 +437,9 @@ const initialize = async () => {
       // Failing contract
       failingContractStatus.innerHTML = 'Deployed';
       sendFailingButton.disabled = false;
+      // Multisig contract
+      multisigContractStatus.innerHTML = 'Deployed';
+      sendMultisigButton.disabled = false;
       // ERC721 Token - Collectibles contract
       collectiblesStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
@@ -344,6 +450,16 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      // ERC 1155 Multi Token
+      erc1155Status.innerHTML = 'Deployed';
+      batchMintButton.disabled = false;
+      batchMintTokenIds.disabled = false;
+      batchMintIdAmounts.disabled = false;
+      batchTransferTokenIds.disabled = false;
+      batchTransferTokenAmounts.disabled = false;
+      batchTransferFromButton.disabled = false;
+      setApprovalForAllERC1155Button.disabled = false;
+      revokeERC1155Button.disabled = false;
       // ERC20 Token - Send Tokens
       tokenAddress.innerHTML = hstContract.address;
       watchAsset.disabled = false;
@@ -486,6 +602,55 @@ const initialize = async () => {
     };
 
     /**
+     * Multisig
+     */
+
+    deployMultisigButton.onclick = async () => {
+      multisigContractStatus.innerHTML = 'Deploying';
+
+      try {
+        multisigContract = await multisigFactory.deploy();
+        await multisigContract.deployTransaction.wait();
+      } catch (error) {
+        multisigContractStatus.innerHTML = 'Deployment Failed';
+        throw error;
+      }
+
+      if (multisigContract.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${multisigContract.address} transactionHash: ${multisigContract.deployTransaction.hash}`,
+      );
+      multisigContractStatus.innerHTML = 'Deployed';
+      sendMultisigButton.disabled = false;
+    };
+
+    sendMultisigButton.onclick = async () => {
+      try {
+        const result = await ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: accounts[0],
+              to: multisigContract.address,
+              value: '0x16345785D8A0', // 24414062500000
+              gasLimit: '0x5028',
+              maxFeePerGas: '0x2540be400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+            },
+          ],
+        });
+        multisigContractStatus.innerHTML = 'Transaction completed as expected.';
+        console.log('send multisig contract result', result);
+      } catch (error) {
+        console.log('error', error);
+        throw error;
+      }
+    };
+
+    /**
      * ERC721 Token
      */
 
@@ -589,6 +754,142 @@ const initialize = async () => {
     };
 
     /**
+     * ERC1155 Token
+     */
+
+    deployERC1155Button.onclick = async () => {
+      erc1155Status.innerHTML = 'Deploying';
+
+      try {
+        erc1155Contract = await erc1155Factory.deploy();
+        await erc1155Contract.deployTransaction.wait();
+      } catch (error) {
+        erc1155Status.innerHTML = 'Deployment Failed!';
+        throw error;
+      }
+
+      if (erc1155Contract.address === undefined) {
+        return;
+      }
+
+      console.log(
+        `Contract mined! address: ${erc1155Contract.address} transactionHash: ${erc1155Contract.deployTransaction.hash}`,
+      );
+
+      erc1155Status.innerHTML = 'Deployed';
+      batchTransferTokenIds.disabled = false;
+      batchTransferTokenAmounts.disabled = false;
+      batchMintButton.disabled = false;
+      batchTransferFromButton.disabled = false;
+      setApprovalForAllERC1155Button.disabled = false;
+      revokeERC1155Button.disabled = false;
+    };
+
+    batchMintButton.onclick = async () => {
+      erc1155Status.innerHTML = 'Batch Mint initiated';
+
+      const params = [
+        accounts[0],
+        batchMintTokenIds.value.split(',').map(Number),
+        batchMintIdAmounts.value.split(',').map(Number),
+        '0x',
+      ];
+
+      let result;
+
+      try {
+        result = await erc1155Contract.mintBatch(...params);
+      } catch (error) {
+        erc1155Status.innerHTML = 'Mint Failed!';
+        throw error;
+      }
+
+      console.log(result);
+      erc1155Status.innerHTML = 'Batch Minting completed';
+    };
+
+    batchTransferFromButton.onclick = async () => {
+      erc1155Status.innerHTML = 'Batch Transfer From initiated';
+
+      const params = [
+        accounts[0],
+        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+        batchTransferTokenIds.value.split(',').map(Number),
+        batchTransferTokenAmounts.value.split(',').map(Number),
+        '0x',
+      ];
+
+      let result;
+
+      try {
+        result = await erc1155Contract.safeBatchTransferFrom(...params);
+      } catch (error) {
+        erc1155Status.innerHTML = 'Transaction Failed!';
+        throw error;
+      }
+      console.log(result);
+      erc1155Status.innerHTML = 'Batch Transfer From completed';
+    };
+
+    setApprovalForAllERC1155Button.onclick = async () => {
+      erc1155Status.innerHTML = 'Set Approval For All initiated';
+      let result = await erc1155Contract.setApprovalForAll(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        true,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      erc1155Status.innerHTML = 'Set Approval For All completed';
+    };
+
+    revokeERC1155Button.onclick = async () => {
+      erc1155Status.innerHTML = 'Revoke initiated';
+      let result = await erc1155Contract.setApprovalForAll(
+        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+        false,
+        {
+          from: accounts[0],
+        },
+      );
+      result = await result.wait();
+      console.log(result);
+      erc1155Status.innerHTML = 'Revoke completed';
+    };
+
+    /**
+     *  EIP 747
+     */
+
+    eip747WatchButton.onclick = async () => {
+      eip747Status.innerHTML = 'Adding token...';
+
+      try {
+        const result = await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: eip747ContractAddress.value,
+              symbol: eip747Symbol.value,
+              decimals: parseInt(eip747Decimals.value, 10),
+              image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+            },
+          },
+        });
+
+        console.log(result);
+        eip747Status.innerHTML = 'Token added successfully';
+      } catch (error) {
+        console.error(error);
+        eip747Status.innerHTML =
+          'There was an error adding the token. See console for details.';
+      }
+    };
+
+    /**
      * Sending ETH
      */
 
@@ -631,14 +932,14 @@ const initialize = async () => {
      */
 
     createToken.onclick = async () => {
-      const _initialAmount = 100;
+      const _initialAmount = 10;
       const _tokenName = 'TST';
 
       try {
         hstContract = await hstFactory.deploy(
           _initialAmount,
           _tokenName,
-          decimalUnits,
+          decimalUnitsInput.value,
           tokenSymbol,
         );
         await hstContract.deployTransaction.wait();
@@ -670,7 +971,7 @@ const initialize = async () => {
           options: {
             address: hstContract.address,
             symbol: tokenSymbol,
-            decimals: decimalUnits,
+            decimals: decimalUnitsInput.value,
             image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
           },
         },
@@ -681,7 +982,9 @@ const initialize = async () => {
     transferTokens.onclick = async () => {
       const result = await hstContract.transfer(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        '15000',
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
         {
           from: accounts[0],
           gasLimit: 60000,
@@ -694,7 +997,7 @@ const initialize = async () => {
     approveTokens.onclick = async () => {
       const result = await hstContract.approve(
         '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        '70000',
+        `${7 * 10 ** decimalUnitsInput.value}`,
         {
           from: accounts[0],
           gasLimit: 60000,
@@ -707,7 +1010,9 @@ const initialize = async () => {
     transferTokensWithoutGas.onclick = async () => {
       const result = await hstContract.transfer(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        '15000',
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
         {
           gasPrice: '20000000000',
         },
@@ -718,7 +1023,7 @@ const initialize = async () => {
     approveTokensWithoutGas.onclick = async () => {
       const result = await hstContract.approve(
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        '70000',
+        `${7 * 10 ** decimalUnitsInput.value}`,
         {
           gasPrice: '20000000000',
         },
@@ -913,6 +1218,75 @@ const initialize = async () => {
       console.error(err);
       personalSign.innerHTML = `Error: ${err.message}`;
     }
+  };
+
+  /**
+   * Sign In With Ethereum helper
+   */
+
+  const siweSign = async (siweMessage) => {
+    try {
+      const from = accounts[0];
+      const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
+      const sign = await ethereum.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      });
+      siweResult.innerHTML = sign;
+    } catch (err) {
+      console.error(err);
+      siweResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Sign In With Ethereum
+   */
+  siwe.onclick = async () => {
+    const domain = window.location.host;
+    const from = accounts[0];
+    const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
+    siweSign(siweMessage);
+  };
+
+  /**
+   * Sign In With Ethereum (with Resources)
+   */
+  siweResources.onclick = async () => {
+    const domain = window.location.host;
+    const from = accounts[0];
+    const siweMessageResources = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nNot Before: 2022-03-17T12:45:13.610Z\nRequest ID: some_id\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
+    siweSign(siweMessageResources);
+  };
+
+  /**
+   * Sign In With Ethereum (Bad Domain)
+   */
+  siweBadDomain.onclick = async () => {
+    const domain = 'metamask.badactor.io';
+    const from = accounts[0];
+    const siweMessageBadDomain = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
+    siweSign(siweMessageBadDomain);
+  };
+
+  /**
+   * Sign In With Ethereum (Bad Account)
+   */
+  siweBadAccount.onclick = async () => {
+    const domain = window.location.host;
+    const from = '0x0000000000000000000000000000000000000000';
+    const siweMessageBadDomain = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
+    siweSign(siweMessageBadDomain);
+  };
+
+  /**
+   * Sign In With Ethereum (Malformed)
+   */
+  siweMalformed.onclick = async () => {
+    const domain = window.location.host;
+    const from = accounts[0];
+    const siweMessageMissing = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z`;
+    siweSign(siweMessageMissing);
   };
 
   /**
@@ -1290,6 +1664,159 @@ const initialize = async () => {
     } catch (err) {
       console.error(err);
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   *  Sign Permit
+   */
+  signPermit.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10);
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+    const from = accounts[0];
+
+    const domain = {
+      name: 'MyToken',
+      version: '1',
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      chainId,
+    };
+
+    const EIP712Domain = [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'verifyingContract', type: 'address' },
+      { name: 'chainId', type: 'uint256' },
+    ];
+
+    const permit = {
+      owner: from,
+      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
+      value: 3000,
+      nonce: 0,
+      deadline: 50000000000,
+    };
+
+    const Permit = [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ];
+
+    const splitSig = (sig) => {
+      const pureSig = sig.replace('0x', '');
+
+      const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
+      const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
+      const _v = Buffer.from(
+        parseInt(pureSig.substring(128, 130), 16).toString(),
+      );
+
+      return { _r, _s, _v };
+    };
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    const msgParams = {
+      types: {
+        EIP712Domain,
+        Permit,
+      },
+      primaryType: 'Permit',
+      domain,
+      message: permit,
+    };
+
+    try {
+      sign = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      signPermitResult.innerHTML = sign;
+      signPermitResultR.innerHTML = `r: ${r}`;
+      signPermitResultS.innerHTML = `s: ${s}`;
+      signPermitResultV.innerHTML = `v: ${v}`;
+      signPermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signPermitResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   *  Sign Permit Verification
+   */
+  signPermitVerify.onclick = async () => {
+    const networkId = parseInt(networkDiv.innerHTML, 10);
+    const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+    const from = accounts[0];
+
+    const domain = {
+      name: 'MyToken',
+      version: '1',
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      chainId,
+    };
+
+    const EIP712Domain = [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'verifyingContract', type: 'address' },
+      { name: 'chainId', type: 'uint256' },
+    ];
+
+    const permit = {
+      owner: from,
+      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
+      value: 3000,
+      nonce: 0,
+      deadline: 50000000000,
+    };
+
+    const Permit = [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ];
+
+    const msgParams = {
+      types: {
+        EIP712Domain,
+        Permit,
+      },
+      primaryType: 'Permit',
+      domain,
+      message: permit,
+    };
+    try {
+      const sign = signPermitResult.innerHTML;
+      const recoveredAddr = recoverTypedSignatureV4({
+        data: msgParams,
+        sig: sign,
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        signPermitVerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      signPermitVerifyResult.innerHTML = `Error: ${err.message}`;
     }
   };
 

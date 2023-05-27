@@ -18,6 +18,12 @@ module.exports = {
         sourceType: 'module',
       },
     },
+    {
+      files: ['src/request.js'],
+      parserOptions: {
+        sourceType: 'script',
+      },
+    },
   ],
 
   ignorePatterns: ['!.eslintrc.js', 'dist'],
