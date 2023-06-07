@@ -1067,8 +1067,7 @@ const initialize = async () => {
         const _accounts = await ethereum.request({
           method: 'eth_accounts',
         });
-        getAccountsResults.innerHTML =
-          _accounts[0] || 'Not able to get accounts';
+        getAccountsResults.innerHTML = _accounts || 'Not able to get accounts';
       } catch (err) {
         console.error(err);
         getAccountsResults.innerHTML = `Error: ${err.message}`;
