@@ -1843,7 +1843,7 @@ const initialize = async () => {
       warningDiv.classList.add('warning-invisible');
     }
 
-    // Wait until warning rendered or not to improve accuracy 
+    // Wait until warning rendered or not to improve accuracy
     if (!scrollToHandled) {
       scrollToHandled = true;
       setTimeout(handleScrollTo, 1000);
@@ -1867,7 +1867,9 @@ const initialize = async () => {
   }
 
   function handleScrollTo() {
-    if (!scrollTo) return;
+    if (!scrollTo) {
+      return;
+    }
 
     scrollToHandled = true;
 
