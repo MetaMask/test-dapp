@@ -1845,8 +1845,7 @@ const initialize = async () => {
 
     // Wait until warning rendered or not to improve accuracy
     if (!scrollToHandled) {
-      scrollToHandled = true;
-      setTimeout(handleScrollTo, 1000);
+      handleScrollTo({ delay: true });
     }
   }
 
@@ -1866,7 +1865,7 @@ const initialize = async () => {
     networkDiv.innerHTML = networkId;
   }
 
-  function handleScrollTo() {
+  async function handleScrollTo({ delay = false } = {}) {
     if (!scrollTo) {
       return;
     }
@@ -1878,8 +1877,12 @@ const initialize = async () => {
     const scrollToElement = document.getElementById(scrollTo);
 
     if (!scrollToElement) {
-      console.log('Cannot find element with ID:', scrollTo);
+      console.warn('Cannot find element with ID:', scrollTo);
       return;
+    }
+
+    if (delay) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     scrollToElement.scrollIntoView();
