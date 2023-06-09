@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.2.0]
+### Added
+- Add optional URL parameter to scroll to an element on load ([#235](https://github.com/MetaMask/test-dapp/pull/235))
+
+### Changed
+- Return all accounts in eth_accounts result ([#233](https://github.com/MetaMask/test-dapp/pull/233))
+
 ## [6.1.0]
 ### Added
 - Add page for making a request with query parameters ([#227](https://github.com/MetaMask/test-dapp/pull/227))
@@ -81,7 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v6.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v6.2.0...HEAD
+[6.2.0]: https://github.com/MetaMask/test-dapp/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/MetaMask/test-dapp/compare/v6.0.0...v6.1.0
 [6.0.0]: https://github.com/MetaMask/test-dapp/compare/v5.7.0...v6.0.0
 [5.7.0]: https://github.com/MetaMask/test-dapp/compare/v5.6.0...v5.7.0
