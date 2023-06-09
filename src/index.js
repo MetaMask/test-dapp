@@ -43,6 +43,7 @@ const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
 const urlSearchParams = new URLSearchParams(window.location.search);
 const deployedContractAddress = urlSearchParams.get('contract');
+const scrollTo = urlSearchParams.get('scrollTo');
 
 const { isMetaMaskInstalled } = MetaMaskOnboarding;
 
@@ -291,6 +292,7 @@ const initialize = async () => {
 
   let accounts;
   let accountButtonsInitialized = false;
+  let scrollToHandled = false;
 
   const accountButtons = [
     deployButton,
@@ -1840,6 +1842,12 @@ const initialize = async () => {
     } else {
       warningDiv.classList.add('warning-invisible');
     }
+
+    // Wait until warning rendered or not to improve accuracy 
+    if (!scrollToHandled) {
+      scrollToHandled = true;
+      setTimeout(handleScrollTo, 1000);
+    }
   }
 
   function handleEIP1559Support(supported) {
@@ -1856,6 +1864,23 @@ const initialize = async () => {
 
   function handleNewNetwork(networkId) {
     networkDiv.innerHTML = networkId;
+  }
+
+  function handleScrollTo() {
+    if (!scrollTo) return;
+
+    scrollToHandled = true;
+
+    console.log('Attempting to scroll to element with ID:', scrollTo);
+
+    const scrollToElement = document.getElementById(scrollTo);
+
+    if (!scrollToElement) {
+      console.log('Cannot find element with ID:', scrollTo);
+      return;
+    }
+
+    scrollToElement.scrollIntoView();
   }
 
   async function getNetworkAndChainId() {
@@ -1922,6 +1947,8 @@ const initialize = async () => {
     } catch (err) {
       console.error('Error on init when getting accounts', err);
     }
+  } else {
+    handleScrollTo();
   }
 };
 
