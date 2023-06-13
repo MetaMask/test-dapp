@@ -82,6 +82,9 @@ const deployCollectiblesButton = document.getElementById(
   'deployCollectiblesButton',
 );
 const mintButton = document.getElementById('mintButton');
+const watchNFTsButton = document.getElementById('watchNFTsButton');
+const watchNFTButtons = document.getElementById('watchNFTButtons');
+
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
 const approveButton = document.getElementById('approveButton');
@@ -307,6 +310,7 @@ const initialize = async () => {
     revokeButton,
     transferTokenInput,
     transferFromButton,
+    watchNFTsButton,
     deployERC1155Button,
     batchTransferTokenIds,
     batchTransferTokenAmounts,
@@ -347,6 +351,8 @@ const initialize = async () => {
     siweMalformed,
     eip747WatchButton,
   ];
+
+  mintButton.disabled = false;
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
 
@@ -452,6 +458,9 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      watchNFTsButton.disabled = false;
+      watchNFTButtons.innerHTML = '';
+
       // ERC 1155 Multi Token
       erc1155Status.innerHTML = 'Deployed';
       batchMintButton.disabled = false;
@@ -696,6 +705,58 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      watchNFTsButton.disabled = false;
+      const collectiblesContractAddress = collectiblesContract.address;
+      const currentTokenId = await collectiblesContract.currentTokenId();
+      watchNFTsButton.onclick = async () => {
+        let watchNftsResult;
+        try {
+          watchNftsResult = await ethereum.sendAsync(
+            Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
+              (tokenId) => {
+                return {
+                  method: 'wallet_watchAsset',
+                  params: {
+                    type: 'ERC721',
+                    options: {
+                      address: collectiblesContractAddress,
+                      tokenId,
+                    },
+                  },
+                };
+              },
+            ),
+          );
+        } catch (error) {
+          console.error(error);
+        }
+        console.log(watchNftsResult);
+      };
+      watchNFTButtons.innerHTML = '';
+      for (let i = 0; i < currentTokenId; i++) {
+        const button = document.createElement('button');
+        button.innerHTML = `Watch NFT ${i + 1}`;
+        button.className = 'btn btn-primary btn-lg btn-block mb-3';
+        button.onclick = async () => {
+          let watchNftsResult;
+          try {
+            watchNftsResult = await ethereum.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC721',
+                options: {
+                  address: collectiblesContractAddress,
+                  tokenId: i + 1,
+                },
+              },
+            });
+          } catch (error) {
+            console.error(error);
+          }
+          console.log(watchNftsResult);
+        };
+        watchNFTButtons.appendChild(button);
+      }
     };
 
     approveButton.onclick = async () => {
@@ -881,13 +942,12 @@ const initialize = async () => {
             },
           },
         });
-
+        eip747Status.innerHTML = 'NFT added successfully';
         console.log(result);
-        eip747Status.innerHTML = 'Token added successfully';
       } catch (error) {
-        console.error(error);
         eip747Status.innerHTML =
           'There was an error adding the token. See console for details.';
+        console.error(error);
       }
     };
 

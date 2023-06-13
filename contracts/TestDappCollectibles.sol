@@ -21,6 +21,10 @@ contract TestDappCollectibles is ERC721 {
     }
   }
 
+  function currentTokenId() public view returns (uint) {
+    return _tokenIds.current();
+  }
+
   function tokenURI(uint tokenId) public pure override returns (string memory) {
     string memory svg = 
     '<svg height="350" width="350" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
