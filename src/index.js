@@ -458,6 +458,7 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
+      watchNFTsButton.disabled = false;
       watchNFTButtons.innerHTML = '';
 
       // ERC 1155 Multi Token
@@ -704,8 +705,8 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
-      const collectiblesContractAddress = collectiblesContract.address;
       watchNFTsButton.disabled = false;
+      const collectiblesContractAddress = collectiblesContract.address;
       const currentTokenId = await collectiblesContract.currentTokenId();
       watchNFTsButton.onclick = async () => {
         let watchNftsResult;
@@ -731,6 +732,7 @@ const initialize = async () => {
         }
         console.log(watchNftsResult);
       };
+      watchNFTButtons.innerHTML = '';
       for (let i = 0; i < currentTokenId; i++) {
         const button = document.createElement('button');
         button.innerHTML = `Watch NFT ${i + 1}`;
