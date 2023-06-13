@@ -37,7 +37,6 @@ let collectiblesContract;
 let failingContract;
 let multisigContract;
 let erc1155Contract;
-let mintAmount;
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -696,7 +695,6 @@ const initialize = async () => {
           from: accounts[0],
         },
       );
-      mintAmount = mintAmountInput.value;
       result = await result.wait();
       console.log(result);
       collectiblesStatus.innerHTML = 'Mint completed';
@@ -708,11 +706,12 @@ const initialize = async () => {
       transferFromButton.disabled = false;
       const collectiblesContractAddress = collectiblesContract.address;
       watchNFTsButton.disabled = false;
+      const currentTokenId = await collectiblesContract.currentTokenId();
       watchNFTsButton.onclick = async () => {
         let watchNftsResult;
         try {
           watchNftsResult = await ethereum.sendAsync(
-            Array.from({ length: mintAmount }, (_, i) => i + 1).map(
+            Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
               (tokenId) => {
                 return {
                   method: 'wallet_watchAsset',
@@ -732,7 +731,7 @@ const initialize = async () => {
         }
         console.log(watchNftsResult);
       };
-      for (let i = 0; i < mintAmount; i++) {
+      for (let i = 0; i < currentTokenId; i++) {
         const button = document.createElement('button');
         button.innerHTML = `Watch NFT ${i + 1}`;
         button.className = 'btn btn-primary btn-lg btn-block mb-3';
