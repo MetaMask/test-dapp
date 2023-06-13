@@ -83,7 +83,7 @@ const deployCollectiblesButton = document.getElementById(
   'deployCollectiblesButton',
 );
 const mintButton = document.getElementById('mintButton');
-// const watchNFTButton = document.getElementById('watchNFTButton');
+const watchNFTsButton = document.getElementById('watchNFTsButton');
 const watchNFTButtons = document.getElementById('watchNFTButtons');
 
 const mintAmountInput = document.getElementById('mintAmountInput');
@@ -311,7 +311,7 @@ const initialize = async () => {
     revokeButton,
     transferTokenInput,
     transferFromButton,
-    watchNFTButtons,
+    watchNFTsButton,
     deployERC1155Button,
     batchTransferTokenIds,
     batchTransferTokenAmounts,
@@ -352,6 +352,8 @@ const initialize = async () => {
     siweMalformed,
     eip747WatchButton,
   ];
+
+  mintButton.disabled = false;
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0;
 
@@ -704,32 +706,57 @@ const initialize = async () => {
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
-      for (let i = 0; i < mintAmount; i++) {
-      const button = document.createElement('button');
-      button.innerHTML = `Watch NFT ${i + 1}`;
-      button.className = 'btn btn-primary btn-lg btn-block mb-3';
-      button.onclick = async () => {
-        let result;
+      const collectiblesContractAddress = collectiblesContract.address;
+      watchNFTsButton.disabled = false;
+      watchNFTsButton.onclick = async () => {
+        let watchNftsResult;
         try {
-          result = await ethereum.request({
-            method: 'wallet_watchAsset',
-            params: {
-              type: 'ERC721',
-              options: {
-                address: collectiblesContract.address,
-                tokenId: i + 1,
+          watchNftsResult = await ethereum.sendAsync(
+            Array.from({ length: mintAmount }, (_, i) => i + 1).map(
+              (tokenId) => {
+                return {
+                  method: 'wallet_watchAsset',
+                  params: {
+                    type: 'ERC721',
+                    options: {
+                      address: collectiblesContractAddress,
+                      tokenId,
+                    },
+                  },
+                };
               },
-            },
-          });
+            ),
+          );
         } catch (error) {
           console.error(error);
         }
-        console.log(result);
+        console.log(watchNftsResult);
       };
-      watchNFTButtons.appendChild(button);
+      for (let i = 0; i < mintAmount; i++) {
+        const button = document.createElement('button');
+        button.innerHTML = `Watch NFT ${i + 1}`;
+        button.className = 'btn btn-primary btn-lg btn-block mb-3';
+        button.onclick = async () => {
+          let watchNftsResult;
+          try {
+            watchNftsResult = await ethereum.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC721',
+                options: {
+                  address: collectiblesContractAddress,
+                  tokenId: i + 1,
+                },
+              },
+            });
+          } catch (error) {
+            console.error(error);
+          }
+          console.log(watchNftsResult);
+        };
+        watchNFTButtons.appendChild(button);
       }
     };
-
 
     approveButton.onclick = async () => {
       collectiblesStatus.innerHTML = 'Approve initiated';
