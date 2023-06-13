@@ -14,8 +14,8 @@ import {
   hstAbi,
   piggybankBytecode,
   piggybankAbi,
-  collectiblesAbi,
-  collectiblesBytecode,
+  nftsAbi,
+  nftsBytecode,
   failingContractAbi,
   failingContractBytecode,
   multisigAbi,
@@ -27,13 +27,13 @@ import {
 let ethersProvider;
 let hstFactory;
 let piggybankFactory;
-let collectiblesFactory;
+let nftsFactory;
 let failingContractFactory;
 let multisigFactory;
 let erc1155Factory;
 let hstContract;
 let piggybankContract;
-let collectiblesContract;
+let nftsContract;
 let failingContract;
 let multisigContract;
 let erc1155Contract;
@@ -77,10 +77,8 @@ const multisigContractStatus = document.getElementById(
   'multisigContractStatus',
 );
 
-// Collectibles Section
-const deployCollectiblesButton = document.getElementById(
-  'deployCollectiblesButton',
-);
+// NFTs Section
+const deployNFTsButton = document.getElementById('deployNFTsButton');
 const mintButton = document.getElementById('mintButton');
 const watchNFTsButton = document.getElementById('watchNFTsButton');
 const watchNFTButtons = document.getElementById('watchNFTButtons');
@@ -94,7 +92,7 @@ const setApprovalForAllButton = document.getElementById(
 const revokeButton = document.getElementById('revokeButton');
 const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
-const collectiblesStatus = document.getElementById('collectiblesStatus');
+const nftsStatus = document.getElementById('nftsStatus');
 
 // ERC 1155 Section
 
@@ -231,9 +229,9 @@ const initialize = async () => {
         piggybankAbi,
         ethersProvider.getSigner(),
       );
-      collectiblesContract = new ethers.Contract(
+      nftsContract = new ethers.Contract(
         deployedContractAddress,
-        collectiblesAbi,
+        nftsAbi,
         ethersProvider.getSigner(),
       );
       failingContract = new ethers.Contract(
@@ -262,9 +260,9 @@ const initialize = async () => {
       piggybankBytecode,
       ethersProvider.getSigner(),
     );
-    collectiblesFactory = new ethers.ContractFactory(
-      collectiblesAbi,
-      collectiblesBytecode,
+    nftsFactory = new ethers.ContractFactory(
+      nftsAbi,
+      nftsBytecode,
       ethersProvider.getSigner(),
     );
     failingContractFactory = new ethers.ContractFactory(
@@ -301,7 +299,7 @@ const initialize = async () => {
     deployButton,
     depositButton,
     withdrawButton,
-    deployCollectiblesButton,
+    deployNFTsButton,
     mintButton,
     mintAmountInput,
     approveTokenInput,
@@ -392,7 +390,7 @@ const initialize = async () => {
       clearTextDisplays();
     } else {
       deployButton.disabled = false;
-      deployCollectiblesButton.disabled = false;
+      deployNFTsButton.disabled = false;
       deployERC1155Button.disabled = false;
       sendButton.disabled = false;
       deployFailingButton.disabled = false;
@@ -448,8 +446,8 @@ const initialize = async () => {
       // Multisig contract
       multisigContractStatus.innerHTML = 'Deployed';
       sendMultisigButton.disabled = false;
-      // ERC721 Token - Collectibles contract
-      collectiblesStatus.innerHTML = 'Deployed';
+      // ERC721 Token - NFTs contract
+      nftsStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
       mintAmountInput.disabled = false;
       approveTokenInput.disabled = false;
@@ -665,40 +663,64 @@ const initialize = async () => {
      * ERC721 Token
      */
 
-    deployCollectiblesButton.onclick = async () => {
-      collectiblesStatus.innerHTML = 'Deploying';
+    deployNFTsButton.onclick = async () => {
+      nftsStatus.innerHTML = 'Deploying';
 
       try {
-        collectiblesContract = await collectiblesFactory.deploy();
-        await collectiblesContract.deployTransaction.wait();
+        nftsContract = await nftsFactory.deploy();
+        await nftsContract.deployTransaction.wait();
       } catch (error) {
-        collectiblesStatus.innerHTML = 'Deployment Failed';
+        nftsStatus.innerHTML = 'Deployment Failed';
         throw error;
       }
 
-      if (collectiblesContract.address === undefined) {
+      if (nftsContract.address === undefined) {
         return;
       }
 
       console.log(
-        `Contract mined! address: ${collectiblesContract.address} transactionHash: ${collectiblesContract.deployTransaction.hash}`,
+        `Contract mined! address: ${nftsContract.address} transactionHash: ${nftsContract.deployTransaction.hash}`,
       );
-      collectiblesStatus.innerHTML = 'Deployed';
+      nftsStatus.innerHTML = 'Deployed';
       mintButton.disabled = false;
       mintAmountInput.disabled = false;
     };
 
+    watchNFTsButton.onclick = async () => {
+      const currentTokenId = await nftsContract.currentTokenId();
+      const nftsContractAddress = nftsContract.address;
+      let watchNftsResult;
+      try {
+        watchNftsResult = await ethereum.sendAsync(
+          Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
+            (tokenId) => {
+              return {
+                method: 'wallet_watchAsset',
+                params: {
+                  type: 'ERC721',
+                  options: {
+                    address: nftsContractAddress,
+                    tokenId,
+                  },
+                },
+              };
+            },
+          ),
+        );
+      } catch (error) {
+        console.error(error);
+      }
+      console.log(watchNftsResult);
+    };
+
     mintButton.onclick = async () => {
-      collectiblesStatus.innerHTML = 'Mint initiated';
-      let result = await collectiblesContract.mintCollectibles(
-        mintAmountInput.value,
-        {
-          from: accounts[0],
-        },
-      );
+      nftsStatus.innerHTML = 'Mint initiated';
+      let result = await nftsContract.mintNFTs(mintAmountInput.value, {
+        from: accounts[0],
+      });
       result = await result.wait();
       console.log(result);
-      collectiblesStatus.innerHTML = 'Mint completed';
+      nftsStatus.innerHTML = 'Mint completed';
       approveTokenInput.disabled = false;
       approveButton.disabled = false;
       setApprovalForAllButton.disabled = false;
@@ -706,33 +728,9 @@ const initialize = async () => {
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
       watchNFTsButton.disabled = false;
-      const collectiblesContractAddress = collectiblesContract.address;
-      const currentTokenId = await collectiblesContract.currentTokenId();
-      watchNFTsButton.onclick = async () => {
-        let watchNftsResult;
-        try {
-          watchNftsResult = await ethereum.sendAsync(
-            Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
-              (tokenId) => {
-                return {
-                  method: 'wallet_watchAsset',
-                  params: {
-                    type: 'ERC721',
-                    options: {
-                      address: collectiblesContractAddress,
-                      tokenId,
-                    },
-                  },
-                };
-              },
-            ),
-          );
-        } catch (error) {
-          console.error(error);
-        }
-        console.log(watchNftsResult);
-      };
       watchNFTButtons.innerHTML = '';
+      const nftsContractAddress = nftsContract.address;
+      const currentTokenId = await nftsContract.currentTokenId();
       for (let i = 0; i < currentTokenId; i++) {
         const button = document.createElement('button');
         button.innerHTML = `Watch NFT ${i + 1}`;
@@ -745,7 +743,7 @@ const initialize = async () => {
               params: {
                 type: 'ERC721',
                 options: {
-                  address: collectiblesContractAddress,
+                  address: nftsContractAddress,
                   tokenId: i + 1,
                 },
               },
@@ -760,8 +758,8 @@ const initialize = async () => {
     };
 
     approveButton.onclick = async () => {
-      collectiblesStatus.innerHTML = 'Approve initiated';
-      let result = await collectiblesContract.approve(
+      nftsStatus.innerHTML = 'Approve initiated';
+      let result = await nftsContract.approve(
         '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
         approveTokenInput.value,
         {
@@ -770,12 +768,12 @@ const initialize = async () => {
       );
       result = await result.wait();
       console.log(result);
-      collectiblesStatus.innerHTML = 'Approve completed';
+      nftsStatus.innerHTML = 'Approve completed';
     };
 
     setApprovalForAllButton.onclick = async () => {
-      collectiblesStatus.innerHTML = 'Set Approval For All initiated';
-      let result = await collectiblesContract.setApprovalForAll(
+      nftsStatus.innerHTML = 'Set Approval For All initiated';
+      let result = await nftsContract.setApprovalForAll(
         '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
         true,
         {
@@ -784,12 +782,12 @@ const initialize = async () => {
       );
       result = await result.wait();
       console.log(result);
-      collectiblesStatus.innerHTML = 'Set Approval For All completed';
+      nftsStatus.innerHTML = 'Set Approval For All completed';
     };
 
     revokeButton.onclick = async () => {
-      collectiblesStatus.innerHTML = 'Revoke initiated';
-      let result = await collectiblesContract.setApprovalForAll(
+      nftsStatus.innerHTML = 'Revoke initiated';
+      let result = await nftsContract.setApprovalForAll(
         '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
         false,
         {
@@ -798,12 +796,12 @@ const initialize = async () => {
       );
       result = await result.wait();
       console.log(result);
-      collectiblesStatus.innerHTML = 'Revoke completed';
+      nftsStatus.innerHTML = 'Revoke completed';
     };
 
     transferFromButton.onclick = async () => {
-      collectiblesStatus.innerHTML = 'Transfer From initiated';
-      let result = await collectiblesContract.transferFrom(
+      nftsStatus.innerHTML = 'Transfer From initiated';
+      let result = await nftsContract.transferFrom(
         accounts[0],
         '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
         transferTokenInput.value,
@@ -813,7 +811,7 @@ const initialize = async () => {
       );
       result = await result.wait();
       console.log(result);
-      collectiblesStatus.innerHTML = 'Transfer From completed';
+      nftsStatus.innerHTML = 'Transfer From completed';
     };
 
     /**
