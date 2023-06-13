@@ -6,14 +6,14 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
 
-contract TestDappCollectibles is ERC721 {
+contract TestDappNFTs is ERC721 {
   
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  constructor() ERC721('TestDappCollectibles', 'TDC') {}
+  constructor() ERC721('TestDappNFTs', 'TDN') {}
 
-  function mintCollectibles(uint numberOfTokens) public {
+  function mintNFTs(uint numberOfTokens) public {
     for(uint i = 1; i <= numberOfTokens; i++) {
       _tokenIds.increment();
       uint tokenId = _tokenIds.current();
@@ -41,9 +41,9 @@ contract TestDappCollectibles is ERC721 {
 
     string memory json = string(
       abi.encodePacked(
-        '{"name": "Test Dapp Collectibles #',
+        '{"name": "Test Dapp NFTs #',
         Strings.toString(tokenId), 
-        '", "description": "Test Dapp Collectibles for testing.", "image": "data:image/svg+xml;base64,',
+        '", "description": "Test Dapp NFTs for testing.", "image": "data:image/svg+xml;base64,',
         Base64.encode(bytes(svg)),
         '", "attributes": [{"trait_type": "Token Id", "value": "',
         Strings.toString(tokenId), 
