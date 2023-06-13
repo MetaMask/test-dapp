@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0]
+### Added
+- Add watch NFT buttons that call `wallet_watchAsset` to add NFTs to wallet for NFT contracts deployed through the dapp ([#232](https://github.com/MetaMask/test-dapp/pull/232)) 
+
+### Changed
+- **BREAKING:** Change all instances of the term `collectible` to `NFT` ([#237](https://github.com/MetaMask/test-dapp/pull/237))
+
 ## [6.2.0]
 ### Added
 - Add optional URL parameter to scroll to an element on load ([#235](https://github.com/MetaMask/test-dapp/pull/235))
@@ -88,7 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v6.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.0.0...HEAD
+[7.0.0]: https://github.com/MetaMask/test-dapp/compare/v6.2.0...v7.0.0
 [6.2.0]: https://github.com/MetaMask/test-dapp/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/MetaMask/test-dapp/compare/v6.0.0...v6.1.0
 [6.0.0]: https://github.com/MetaMask/test-dapp/compare/v5.7.0...v6.0.0
