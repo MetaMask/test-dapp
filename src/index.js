@@ -700,7 +700,7 @@ const initialize = async () => {
                   type: 'ERC721',
                   options: {
                     address: nftsContractAddress,
-                    tokenId,
+                    tokenId: tokenId.toString(),
                   },
                 },
               };
@@ -744,7 +744,7 @@ const initialize = async () => {
                 type: 'ERC721',
                 options: {
                   address: nftsContractAddress,
-                  tokenId: i + 1,
+                  tokenId: `${i + 1}`,
                 },
               },
             });
