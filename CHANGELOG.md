@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.1]
+### Fixed
+- Fix issue where add watch NFT buttons introduced in `v7.0.0` called `wallet_watchAsset` with parameter tokenId typed as a number, rather than as a string ([#241](https://github.com/MetaMask/test-dapp/pull/241))
+
 ## [7.0.0]
 ### Added
 - Add watch NFT buttons that call `wallet_watchAsset` to add NFTs to wallet for NFT contracts deployed through the dapp ([#232](https://github.com/MetaMask/test-dapp/pull/232)) 
@@ -95,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.0.1...HEAD
+[7.0.1]: https://github.com/MetaMask/test-dapp/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/MetaMask/test-dapp/compare/v6.2.0...v7.0.0
 [6.2.0]: https://github.com/MetaMask/test-dapp/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/MetaMask/test-dapp/compare/v6.0.0...v6.1.0
