@@ -31,6 +31,63 @@
       </header>
       <section>
         <h3 class="card-title">
+          Provider
+        </h3>
+        <div class="row">
+          <div class="col-xl-8 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  EIP 6963
+                </h4>
+                  <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="listenProviderButton"
+                >
+                  Listen Announce Provider Event
+                </button>
+                  <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="requestProviderButton"
+                  disabled
+                >
+                  Send Request Provider Event
+                </button>
+                  <div id="providers">
+                    <pre
+                    class="alert alert-secondary"
+                    >No Announce Provider Events Received</pre>
+                  </div>
+                  <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="useWindowProviderButton"
+                >
+                  Use window.ethereum
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Active Provider
+                </h4>
+                <p class="info-text alert alert-secondary">
+                  UUID: <span id="activeProviderUUID"></span>
+                </p>
+                <p class="info-text alert alert-secondary">
+                  Name: <span id="activeProviderName"></span>
+                </p>
+                <p class="info-text alert alert-secondary">
+                  Icon: <span id="activeProviderIcon"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+      </section>
+      <section>
+        <h3 class="card-title">
           Status
         </h3>
         <div id="warning" class="row justify-content-center error-div">
