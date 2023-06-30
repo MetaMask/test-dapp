@@ -47,6 +47,17 @@ const scrollTo = urlSearchParams.get('scrollTo');
 
 const { isMetaMaskInstalled } = MetaMaskOnboarding;
 
+// Provider Section
+const activeProviderUUIDResult = document.getElementById('activeProviderUUID');
+const activeProviderNameResult = document.getElementById('activeProviderName');
+const activeProviderIconResult = document.getElementById('activeProviderIcon');
+const providersDiv = document.getElementById('providers');
+const listenProviderButton = document.getElementById('listenProviderButton');
+const requestProviderButton = document.getElementById('requestProviderButton');
+const useWindowProviderButton = document.getElementById(
+  'useWindowProviderButton',
+);
+
 // Dapp Status Section
 const networkDiv = document.getElementById('network');
 const chainIdDiv = document.getElementById('chainId');
@@ -214,10 +225,17 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+// Provider State
+const providerDetails = [];
+let activeProvider;
+const provider = () => activeProvider;
+
 const initialize = async () => {
   try {
+    setActiveProviderDetailWindowEthereum();
+
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    ethersProvider = new ethers.providers.Web3Provider(provider(), 'any');
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
@@ -362,7 +380,7 @@ const initialize = async () => {
 
   const onClickConnect = async () => {
     try {
-      const newAccounts = await ethereum.request({
+      const newAccounts = await provider().request({
         method: 'eth_requestAccounts',
       });
       handleNewAccounts(newAccounts);
@@ -480,7 +498,7 @@ const initialize = async () => {
   };
 
   addEthereumChain.onclick = async () => {
-    await ethereum.request({
+    await provider().request({
       method: 'wallet_addEthereumChain',
       params: [
         {
@@ -495,7 +513,7 @@ const initialize = async () => {
   };
 
   switchEthereumChain.onclick = async () => {
-    await ethereum.request({
+    await provider().request({
       method: 'wallet_switchEthereumChain',
       params: [
         {
@@ -588,7 +606,7 @@ const initialize = async () => {
 
     sendFailingButton.onclick = async () => {
       try {
-        const result = await ethereum.request({
+        const result = await provider().request({
           method: 'eth_sendTransaction',
           params: [
             {
@@ -638,7 +656,7 @@ const initialize = async () => {
 
     sendMultisigButton.onclick = async () => {
       try {
-        const result = await ethereum.request({
+        const result = await provider().request({
           method: 'eth_sendTransaction',
           params: [
             {
@@ -691,7 +709,7 @@ const initialize = async () => {
       const nftsContractAddress = nftsContract.address;
       let watchNftsResult;
       try {
-        watchNftsResult = await ethereum.sendAsync(
+        watchNftsResult = await provider().sendAsync(
           Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
             (tokenId) => {
               return {
@@ -738,7 +756,7 @@ const initialize = async () => {
         button.onclick = async () => {
           let watchNftsResult;
           try {
-            watchNftsResult = await ethereum.request({
+            watchNftsResult = await provider().request({
               method: 'wallet_watchAsset',
               params: {
                 type: 'ERC721',
@@ -928,7 +946,7 @@ const initialize = async () => {
       eip747Status.innerHTML = 'Adding token...';
 
       try {
-        const result = await ethereum.request({
+        const result = await provider().request({
           method: 'wallet_watchAsset',
           params: {
             type: 'ERC20',
@@ -954,7 +972,7 @@ const initialize = async () => {
      */
 
     sendButton.onclick = async () => {
-      const result = await ethereum.request({
+      const result = await provider().request({
         method: 'eth_sendTransaction',
         params: [
           {
@@ -971,7 +989,7 @@ const initialize = async () => {
     };
 
     sendEIP1559Button.onclick = async () => {
-      const result = await ethereum.request({
+      const result = await provider().request({
         method: 'eth_sendTransaction',
         params: [
           {
@@ -1024,7 +1042,7 @@ const initialize = async () => {
     };
 
     watchAsset.onclick = async () => {
-      const result = await ethereum.request({
+      const result = await provider().request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20',
@@ -1097,7 +1115,7 @@ const initialize = async () => {
 
     requestPermissionsButton.onclick = async () => {
       try {
-        const permissionsArray = await ethereum.request({
+        const permissionsArray = await provider().request({
           method: 'wallet_requestPermissions',
           params: [{ eth_accounts: {} }],
         });
@@ -1111,7 +1129,7 @@ const initialize = async () => {
 
     getPermissionsButton.onclick = async () => {
       try {
-        const permissionsArray = await ethereum.request({
+        const permissionsArray = await provider().request({
           method: 'wallet_getPermissions',
         });
         permissionsResult.innerHTML =
@@ -1124,7 +1142,7 @@ const initialize = async () => {
 
     getAccountsButton.onclick = async () => {
       try {
-        const _accounts = await ethereum.request({
+        const _accounts = await provider().request({
           method: 'eth_accounts',
         });
         getAccountsResults.innerHTML = _accounts || 'Not able to get accounts';
@@ -1140,7 +1158,7 @@ const initialize = async () => {
 
     getEncryptionKeyButton.onclick = async () => {
       try {
-        encryptionKeyDisplay.innerText = await ethereum.request({
+        encryptionKeyDisplay.innerText = await provider().request({
           method: 'eth_getEncryptionPublicKey',
           params: [accounts[0]],
         });
@@ -1184,9 +1202,9 @@ const initialize = async () => {
 
     decryptButton.onclick = async () => {
       try {
-        cleartextDisplay.innerText = await ethereum.request({
+        cleartextDisplay.innerText = await provider().request({
           method: 'eth_decrypt',
-          params: [ciphertextDisplay.innerText, ethereum.selectedAddress],
+          params: [ciphertextDisplay.innerText, provider().selectedAddress],
         });
       } catch (error) {
         cleartextDisplay.innerText = `Error: ${error.message}`;
@@ -1232,7 +1250,7 @@ const initialize = async () => {
         },
       ];
     }
-    const result = await ethereum.request({
+    const result = await provider().request({
       method: 'eth_sendTransaction',
       params,
     });
@@ -1248,7 +1266,7 @@ const initialize = async () => {
       // const msgHash = keccak256(msg)
       const msg =
         '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
-      const ethResult = await ethereum.request({
+      const ethResult = await provider().request({
         method: 'eth_sign',
         params: [accounts[0], msg],
       });
@@ -1267,7 +1285,7 @@ const initialize = async () => {
     try {
       const from = accounts[0];
       const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
-      const sign = await ethereum.request({
+      const sign = await provider().request({
         method: 'personal_sign',
         params: [msg, from, 'Example password'],
       });
@@ -1287,7 +1305,7 @@ const initialize = async () => {
     try {
       const from = accounts[0];
       const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
-      const sign = await ethereum.request({
+      const sign = await provider().request({
         method: 'personal_sign',
         params: [msg, from, 'Example password'],
       });
@@ -1370,7 +1388,7 @@ const initialize = async () => {
         );
         console.log(`Failed comparing ${recoveredAddr} to ${from}`);
       }
-      const ecRecoverAddr = await ethereum.request({
+      const ecRecoverAddr = await provider().request({
         method: 'personal_ecRecover',
         params: [msg, sign],
       });
@@ -1407,7 +1425,7 @@ const initialize = async () => {
     ];
     try {
       const from = accounts[0];
-      const sign = await ethereum.request({
+      const sign = await provider().request({
         method: 'eth_signTypedData',
         params: [msgParams, from],
       });
@@ -1502,7 +1520,7 @@ const initialize = async () => {
     };
     try {
       const from = accounts[0];
-      const sign = await ethereum.request({
+      const sign = await provider().request({
         method: 'eth_signTypedData_v3',
         params: [from, JSON.stringify(msgParams)],
       });
@@ -1637,7 +1655,7 @@ const initialize = async () => {
     };
     try {
       const from = accounts[0];
-      const sign = await ethereum.request({
+      const sign = await provider().request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
       });
@@ -1792,7 +1810,7 @@ const initialize = async () => {
     };
 
     try {
-      sign = await ethereum.request({
+      sign = await provider().request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
       });
@@ -1879,6 +1897,30 @@ const initialize = async () => {
     }
   };
 
+  /**
+   * Providers
+   */
+
+  listenProviderButton.onclick = () => {
+    listenProviderButton.disabled = true;
+    requestProviderButton.disabled = false;
+
+    window.addEventListener('eip6963:announceProvider', (event) => {
+      console.log('Received eip6963:announceProvider', event);
+      handleNewProviderDetail(event.detail);
+    });
+  };
+
+  requestProviderButton.onclick = () => {
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+  };
+
+  useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
+
+  /**
+   * Handlers
+   */
+
   function handleNewAccounts(newAccounts) {
     accounts = newAccounts;
     accountsDiv.innerHTML = accounts;
@@ -1905,6 +1947,57 @@ const initialize = async () => {
     if (!scrollToHandled) {
       handleScrollTo({ delay: true });
     }
+  }
+
+  function handleNewProviderDetail(newProviderDetail) {
+    providerDetails.push(newProviderDetail);
+
+    providersDiv.innerHTML = '';
+    providerDetails.forEach((providerDetail, i) => {
+      const { info, provider: provider_ } = providerDetail;
+
+      const content = JSON.stringify(
+        {
+          info,
+          provider: provider_ ? '...' : provider_,
+        },
+        null,
+        2,
+      );
+      const pre = document.createElement('pre');
+      pre.className = 'alert alert-secondary';
+      pre.innerText = content;
+      providersDiv.appendChild(pre);
+
+      const button = document.createElement('button');
+      button.className = 'btn btn-primary btn-lg btn-block mb-3';
+      button.innerHTML = `Use ${info.name}`;
+      button.onclick = () => { setActiveProviderDetail(providerDetail) }
+      providersDiv.appendChild(button);
+    })
+  }
+
+  function setActiveProviderDetailWindowEthereum() {
+    const providerDetail = {
+      info: {
+        uuid: '',
+        name: 'window.ethereum',
+        icon: '',
+      },
+      provider: window.ethereum,
+    };
+    setActiveProviderDetail(providerDetail);
+  }
+
+  function setActiveProviderDetail(providerDetail) {
+    activeProvider = providerDetail.provider;
+
+    const { uuid, name, icon } = providerDetail.info;
+    activeProviderUUIDResult.innerText = uuid;
+    activeProviderNameResult.innerText = name;
+    activeProviderIconResult.innerHTML = icon
+      ? `<img src="${icon}" height="90" width="90" />`
+      : '';
   }
 
   function handleEIP1559Support(supported) {
@@ -1948,17 +2041,17 @@ const initialize = async () => {
 
   async function getNetworkAndChainId() {
     try {
-      const chainId = await ethereum.request({
+      const chainId = await provider().request({
         method: 'eth_chainId',
       });
       handleNewChain(chainId);
 
-      const networkId = await ethereum.request({
+      const networkId = await provider().request({
         method: 'net_version',
       });
       handleNewNetwork(networkId);
 
-      const block = await ethereum.request({
+      const block = await provider().request({
         method: 'eth_getBlockByNumber',
         params: ['latest', false],
       });
@@ -1972,13 +2065,13 @@ const initialize = async () => {
   updateButtons();
 
   if (isMetaMaskInstalled()) {
-    ethereum.autoRefreshOnNetworkChange = false;
+    provider().autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
-    ethereum.autoRefreshOnNetworkChange = false;
+    provider().autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
-    ethereum.on('chainChanged', (chain) => {
+    provider().on('chainChanged', (chain) => {
       handleNewChain(chain);
       ethereum
         .request({
@@ -1989,8 +2082,8 @@ const initialize = async () => {
           handleEIP1559Support(block.baseFeePerGas !== undefined);
         });
     });
-    ethereum.on('chainChanged', handleNewNetwork);
-    ethereum.on('accountsChanged', (newAccounts) => {
+    provider().on('chainChanged', handleNewNetwork);
+    provider().on('accountsChanged', (newAccounts) => {
       ethereum
         .request({
           method: 'eth_getBlockByNumber',
@@ -2003,7 +2096,7 @@ const initialize = async () => {
     });
 
     try {
-      const newAccounts = await ethereum.request({
+      const newAccounts = await provider().request({
         method: 'eth_accounts',
       });
       handleNewAccounts(newAccounts);
