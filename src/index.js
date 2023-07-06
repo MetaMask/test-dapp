@@ -9,10 +9,7 @@ import {
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
-import {
-  getPermissionsDisplayString,
-  stringifiableToHex,
-} from "./utils"
+import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 import {
   hstBytecode,
   hstAbi,
@@ -28,9 +25,9 @@ import {
   erc1155Bytecode,
 } from './constants.json';
 
-//
-// Page
-//
+/**
+ * Page
+ */
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -39,9 +36,9 @@ const urlSearchParams = new URLSearchParams(window.location.search);
 const deployedContractAddress = urlSearchParams.get('contract');
 const scrollTo = urlSearchParams.get('scrollTo');
 
-//
-// DOM
-//
+/**
+ * DOM
+ */
 
 // Provider Section
 const activeProviderUUIDResult = document.getElementById('activeProviderUUID');
@@ -63,7 +60,7 @@ const warningDiv = document.getElementById('warning');
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
 const getAccountsButton = document.getElementById('getAccounts');
-const getAccountsResults = document.getElementById('getAccountsResult');
+const getAccountsResult = document.getElementById('getAccountsResult');
 
 // Permissions Actions Section
 const requestPermissionsButton = document.getElementById('requestPermissions');
@@ -221,8 +218,8 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
-// Buttons that rely on active account
-const accountButtons = [
+// Buttons that require connecting an account
+const allConnectedButtons = [
   deployButton,
   depositButton,
   withdrawButton,
@@ -277,9 +274,36 @@ const accountButtons = [
   eip747WatchButton,
 ];
 
-//
-// Provider
-//
+// Buttons that are available after initially connecting an account
+const initialConnectedButtons = [
+  deployButton,
+  deployNFTsButton,
+  deployERC1155Button,
+  sendButton,
+  deployFailingButton,
+  deployMultisigButton,
+  createToken,
+  decimalUnitsInput,
+  personalSign,
+  signTypedData,
+  getEncryptionKeyButton,
+  ethSign,
+  personalSign,
+  signTypedData,
+  signTypedDataV3,
+  signTypedDataV4,
+  signPermit,
+  siwe,
+  siweResources,
+  siweBadDomain,
+  siweBadAccount,
+  siweMalformed,
+  eip747WatchButton,
+];
+
+/**
+ * Provider
+ */
 
 const providerDetails = [];
 let provider;
@@ -288,27 +312,65 @@ let scrollToHandled = false;
 
 const isMetaMaskConnected = () => accounts && accounts.length > 0;
 
-// May want to update this in @metamask/onboarding
-const isMetaMaskInstalled = () => provider && provider.isMetaMask
+// TODO: Need to align with @metamask/onboarding
+const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 
-const handleNewProviderDetail = (newProviderDetail) => {
-  const existingProvider = providerDetails.find(providerDetails =>
-    providerDetails.info &&
-    newProviderDetail.info &&
-    providerDetails.info.uuid === newProviderDetail.info.uuid
-  )
+const setActiveProviderDetail = (providerDetail) => {
+  closeProvider();
+  provider = providerDetail.provider;
+  initializeProvider();
+
+  const { uuid, name, icon } = providerDetail.info;
+  activeProviderUUIDResult.innerText = uuid;
+  activeProviderNameResult.innerText = name;
+  activeProviderIconResult.innerHTML = icon
+    ? `<img src="${icon}" height="90" width="90" />`
+    : '';
+};
+
+const setActiveProviderDetailWindowEthereum = () => {
+  const providerDetail = {
+    info: {
+      uuid: '',
+      name: 'window.ethereum',
+      icon: '',
+    },
+    provider: window.ethereum,
+  };
+  setActiveProviderDetail(providerDetail);
+};
+
+const existsProviderDetail = (newProviderDetail) => {
+  const existingProvider = providerDetails.find(
+    (providerDetail) =>
+      providerDetail.info &&
+      newProviderDetail.info &&
+      providerDetail.info.uuid === newProviderDetail.info.uuid,
+  );
+
   if (existingProvider) {
     if (existingProvider.info.name !== newProviderDetail.info.name) {
-      console.error(`Received new ProviderDetail with name "${newProviderDetail.info.name}" and uuid "${existingProvider.info.uuid}" matching uuid of previously received ProviderDetail with name "${existingProvider.info.name}"`)
+      console.error(
+        `Received new ProviderDetail with name "${newProviderDetail.info.name}" and uuid "${existingProvider.info.uuid}" matching uuid of previously received ProviderDetail with name "${existingProvider.info.name}"`,
+      );
     }
-    console.log(`Ignoring ProviderDetail with name "${newProviderDetail.info.name}" and uuid "${existingProvider.info.uuid}" that was already received before`)
-    return
+    console.log(
+      `Ignoring ProviderDetail with name "${newProviderDetail.info.name}" and uuid "${existingProvider.info.uuid}" that was already received before`,
+    );
+    return true;
+  }
+  return false;
+};
+
+const handleNewProviderDetail = (newProviderDetail) => {
+  if (existsProviderDetail(newProviderDetail)) {
+    return;
   }
 
   providerDetails.push(newProviderDetail);
 
   providersDiv.innerHTML = '';
-  providerDetails.forEach((providerDetail, i) => {
+  providerDetails.forEach((providerDetail) => {
     const { info, provider: provider_ } = providerDetail;
 
     const content = JSON.stringify(
@@ -327,51 +389,23 @@ const handleNewProviderDetail = (newProviderDetail) => {
     const button = document.createElement('button');
     button.className = 'btn btn-primary btn-lg btn-block mb-3';
     button.innerHTML = `Use ${info.name}`;
-    button.onclick = () => { setActiveProviderDetail(providerDetail) }
+    button.onclick = () => {
+      setActiveProviderDetail(providerDetail);
+    };
     providersDiv.appendChild(button);
-  })
-}
-
-const setActiveProviderDetailWindowEthereum = () => {
-  const providerDetail = {
-    info: {
-      uuid: '',
-      name: 'window.ethereum',
-      icon: '',
-    },
-    provider: window.ethereum,
-  };
-  setActiveProviderDetail(providerDetail);
-}
-
-const setActiveProviderDetail = (providerDetail) => {
-  console.log("REMOVE THIS: setActiveProviderDetail", providerDetail)
-  closeProvider()
-  provider = providerDetail.provider;
-  console.log("REMOVE THIS: setActiveProviderDetail", provider, isMetaMaskInstalled())
-  initializeProvider()
-
-  const { uuid, name, icon } = providerDetail.info;
-  activeProviderUUIDResult.innerText = uuid;
-  activeProviderNameResult.innerText = name;
-  activeProviderIconResult.innerHTML = icon
-    ? `<img src="${icon}" height="90" width="90" />`
-    : '';
-
-}
+  });
+};
 
 const handleNewAccounts = (newAccounts) => {
   accounts = newAccounts;
+  updateFormElements();
+
   accountsDiv.innerHTML = accounts;
-  fromDiv.value = accounts[0] || "";
+  fromDiv.value = accounts[0] || '';
   gasPriceDiv.style.display = 'block';
   maxFeeDiv.style.display = 'none';
   maxPriorityDiv.style.display = 'none';
-  if (isMetaMaskConnected()) {
-    initializeAccountButtons();
-  }
-  updateButtons();
-}
+};
 
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
@@ -386,12 +420,11 @@ const handleNewChain = (chainId) => {
   if (!scrollToHandled) {
     handleScrollTo({ delay: true });
   }
-}
-
+};
 
 const handleNewNetwork = (networkId) => {
   networkDiv.innerHTML = networkId;
-}
+};
 
 const getNetworkAndChainId = async () => {
   try {
@@ -409,16 +442,15 @@ const getNetworkAndChainId = async () => {
   } catch (err) {
     console.error(err);
   }
-}
+};
 
 const handleEIP1559Support = async () => {
-  const block = await provider
-  .request({
+  const block = await provider.request({
     method: 'eth_getBlockByNumber',
     params: ['latest', false],
-  })
+  });
 
-  const supported = block.baseFeePerGas !== undefined
+  const supported = block.baseFeePerGas !== undefined;
 
   if (supported && Array.isArray(accounts) && accounts.length >= 1) {
     sendEIP1559Button.disabled = false;
@@ -429,36 +461,36 @@ const handleEIP1559Support = async () => {
     sendEIP1559Button.hidden = true;
     sendButton.innerText = 'Send';
   }
-}
+};
 
-// should be called before provider changes
+// Must be called before the active provider changes
+// Resets provider state and removes any listeners from active provider
 const closeProvider = () => {
   // move these
-  handleNewAccounts([])
-  handleNewChain("")
-  handleNewNetwork("")
+  handleNewAccounts([]);
+  handleNewChain('');
+  handleNewNetwork('');
   if (isMetaMaskInstalled()) {
-    provider.removeListener('chainChanged', handleNewChain)
-    provider.removeListener('chainChanged', handleEIP1559Support)
+    provider.removeListener('chainChanged', handleNewChain);
+    provider.removeListener('chainChanged', handleEIP1559Support);
     provider.removeListener('chainChanged', handleNewNetwork);
     provider.removeListener('accountsChanged', handleNewAccounts);
     provider.removeListener('accountsChanged', handleEIP1559Support);
   }
-}
+};
 
-// should be called after provider changes
+// Must be called after the active provider changes
+// Initializes active provider and adds any listeners
 const initializeProvider = async () => {
-  console.log("REMOVE THIS: initprovider", provider, provider.isM)
-  initializeContracts()
-  initializeButtons()
-  updateButtons();
+  initializeContracts();
+  updateFormElements();
 
   if (isMetaMaskInstalled()) {
     provider.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
-    provider.on('chainChanged', handleNewChain)
-    provider.on('chainChanged', handleEIP1559Support)
+    provider.on('chainChanged', handleNewChain);
+    provider.on('chainChanged', handleEIP1559Support);
     provider.on('chainChanged', handleNewNetwork);
     provider.on('accountsChanged', handleNewAccounts);
     provider.on('accountsChanged', handleEIP1559Support);
@@ -474,11 +506,11 @@ const initializeProvider = async () => {
   } else {
     handleScrollTo();
   }
-}
+};
 
-//
-// Misc
-//
+/**
+ * Misc
+ */
 
 const handleScrollTo = async ({ delay = false } = {}) => {
   if (!scrollTo) {
@@ -501,11 +533,11 @@ const handleScrollTo = async ({ delay = false } = {}) => {
   }
 
   scrollToElement.scrollIntoView();
-}
+};
 
-//
-// Contracts
-//
+/**
+ * Contracts
+ */
 
 let ethersProvider;
 let hstFactory;
@@ -521,6 +553,7 @@ let failingContract;
 let multisigContract;
 let erc1155Contract;
 
+// Must be called after the active provider changes
 const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -590,13 +623,35 @@ const initializeContracts = () => {
   } catch (error) {
     console.error(error);
   }
-}
+};
 
-//
-// Forms
-//
+/**
+ * Form / Elements
+ */
 
-const clearTextDisplays = () => {
+// Must be called after the provider or connect acccounts change
+// Updates form elements content and disabled status
+const updateFormElements = () => {
+  const accountButtonsDisabled =
+    !isMetaMaskInstalled() || !isMetaMaskConnected();
+  if (accountButtonsDisabled) {
+    for (const button of allConnectedButtons) {
+      button.disabled = true;
+    }
+    clearDisplayElements();
+  } else {
+    for (const button of initialConnectedButtons) {
+      button.disabled = false;
+    }
+  }
+
+  updateOnboardElements();
+  updateContractElements();
+};
+
+const clearDisplayElements = () => {
+  getAccountsResult.innerText = '';
+  permissionsResult.innerText = '';
   encryptionKeyDisplay.innerText = '';
   encryptMessageInput.value = '';
   ciphertextDisplay.innerText = '';
@@ -605,48 +660,13 @@ const clearTextDisplays = () => {
   batchTransferTokenAmounts.value = '';
 };
 
-const updateButtons = () => {
-  const accountButtonsDisabled =
-    !isMetaMaskInstalled() || !isMetaMaskConnected();
-  if (accountButtonsDisabled) {
-    for (const button of accountButtons) {
-      button.disabled = true;
-    }
-    clearTextDisplays();
-  } else {
-    deployButton.disabled = false;
-    deployNFTsButton.disabled = false;
-    deployERC1155Button.disabled = false;
-    sendButton.disabled = false;
-    deployFailingButton.disabled = false;
-    deployMultisigButton.disabled = false;
-    createToken.disabled = false;
-    decimalUnitsInput.disabled = false;
-    personalSign.disabled = false;
-    signTypedData.disabled = false;
-    getEncryptionKeyButton.disabled = false;
-    ethSign.disabled = false;
-    personalSign.disabled = false;
-    signTypedData.disabled = false;
-    signTypedDataV3.disabled = false;
-    signTypedDataV4.disabled = false;
-    signPermit.disabled = false;
-    siwe.disabled = false;
-    siweResources.disabled = false;
-    siweBadDomain.disabled = false;
-    siweBadAccount.disabled = false;
-    siweMalformed.disabled = false;
-    eip747WatchButton.disabled = false;
-  }
-
+const updateOnboardElements = () => {
   let onboarding;
   try {
     onboarding = new MetaMaskOnboarding({ forwarderOrigin });
   } catch (error) {
     console.error(error);
   }
-
-  console.log("REMOVE THIS: updateButtons", isMetaMaskInstalled(), isMetaMaskConnected())
 
   if (isMetaMaskInstalled()) {
     addEthereumChain.disabled = false;
@@ -657,7 +677,7 @@ const updateButtons = () => {
       onboardButton.innerText = 'Onboarding in progress';
       onboardButton.disabled = true;
       onboarding.startOnboarding();
-    };;
+    };
     onboardButton.disabled = false;
   }
 
@@ -678,10 +698,12 @@ const updateButtons = () => {
       } catch (error) {
         console.error(error);
       }
-    };;
+    };
     onboardButton.disabled = false;
   }
+};
 
+const updateContractElements = () => {
   if (deployedContractAddress) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
@@ -726,8 +748,8 @@ const updateButtons = () => {
   }
 };
 
-
-const initializeAccountButtons = () => {
+// Initializes form button onclicks
+const initializeFormElements = () => {
   /**
    * Piggy bank
    */
@@ -948,6 +970,7 @@ const initializeAccountButtons = () => {
     watchNFTButtons.innerHTML = '';
     const nftsContractAddress = nftsContract.address;
     const currentTokenId = await nftsContract.currentTokenId();
+    const provider_ = provider;
     for (let i = 0; i < currentTokenId; i++) {
       const button = document.createElement('button');
       button.innerHTML = `Watch NFT ${i + 1}`;
@@ -955,7 +978,7 @@ const initializeAccountButtons = () => {
       button.onclick = async () => {
         let watchNftsResult;
         try {
-          watchNftsResult = await provider.request({
+          watchNftsResult = await provider_.request({
             method: 'wallet_watchAsset',
             params: {
               type: 'ERC721',
@@ -1344,10 +1367,10 @@ const initializeAccountButtons = () => {
       const _accounts = await provider.request({
         method: 'eth_accounts',
       });
-      getAccountsResults.innerHTML = _accounts || 'Not able to get accounts';
+      getAccountsResult.innerHTML = _accounts || 'Not able to get accounts';
     } catch (err) {
       console.error(err);
-      getAccountsResults.innerHTML = `Error: ${err.message}`;
+      getAccountsResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
@@ -1409,9 +1432,7 @@ const initializeAccountButtons = () => {
       cleartextDisplay.innerText = `Error: ${error.message}`;
     }
   };
-};
 
-const initializeButtons = () => {
   addEthereumChain.onclick = async () => {
     await provider.request({
       method: 'wallet_addEthereumChain',
@@ -2132,7 +2153,7 @@ const initializeButtons = () => {
     requestProviderButton.disabled = false;
 
     window.addEventListener('eip6963:announceProvider', (event) => {
-      console.log("Received 'eip6963:announceProvider' event", event)
+      console.log('Received eip6963:announceProvider event', event);
       handleNewProviderDetail(event.detail);
     });
   };
@@ -2144,7 +2165,12 @@ const initializeButtons = () => {
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
 };
 
+/**
+ * Entrypoint
+ */
+
 const initialize = async () => {
+  initializeFormElements();
   setActiveProviderDetailWindowEthereum();
 };
 

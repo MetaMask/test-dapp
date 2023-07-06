@@ -11,6 +11,10 @@ module.exports = {
 
   extends: ['@metamask/eslint-config', '@metamask/eslint-config-nodejs'],
 
+  rules: {
+    'no-use-before-define': 'off',
+  },
+
   overrides: [
     {
       files: ['src/*.js'],
