@@ -86,8 +86,8 @@ const watchNFTButtons = document.getElementById('watchNFTButtons');
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
 const approveButton = document.getElementById('approveButton');
-const watchNFTInput = document.getElementById('watchNFTInput');;
-const watchNFTButton = document.getElementById('watchNFTButton');;
+const watchNFTInput = document.getElementById('watchNFTInput');
+const watchNFTButton = document.getElementById('watchNFTButton');
 const setApprovalForAllButton = document.getElementById(
   'setApprovalForAllButton',
 );
@@ -457,7 +457,7 @@ const initialize = async () => {
       approveTokenInput.disabled = false;
       approveButton.disabled = false;
       watchNFTInput.disabled = false;
-      watchNFTButton.disabled = false
+      watchNFTButton.disabled = false;
       setApprovalForAllButton.disabled = false;
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
