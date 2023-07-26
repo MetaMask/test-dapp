@@ -218,7 +218,10 @@ const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-    if (deployedContractAddress) {
+    if (
+      deployedContractAddress &&
+      ethers.utils.isAddress(deployedContractAddress)
+    ) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
         hstAbi,
@@ -435,7 +438,10 @@ const initialize = async () => {
       onboardButton.disabled = false;
     }
 
-    if (deployedContractAddress) {
+    if (
+      deployedContractAddress &&
+      ethers.utils.isAddress(deployedContractAddress)
+    ) {
       // Piggy bank contract
       contractStatus.innerHTML = 'Deployed';
       depositButton.disabled = false;
