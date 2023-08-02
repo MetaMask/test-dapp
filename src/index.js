@@ -1,4 +1,6 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
+import { MetaMaskSDK } from '@metamask/sdk';
+
 // eslint-disable-next-line camelcase
 import {
   encrypt,
@@ -215,9 +217,37 @@ const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
 const initialize = async () => {
+  // MetaMask SDK initialization
+  const sdk = new MetaMaskSDK({
+    useDeeplink: false, // use deeplinks or universal links to redirect to MetaMask mobile
+    enableDebug: true,
+    autoConnect: {
+      enable: true,
+    },
+    dappMetadata: {
+      name: 'MetaMask test-dapp',
+      url: window.location.host,
+    },
+    logging: {
+      sdk: false,
+      developerMode: false,
+      eciesLayer: false,
+      remoteLayer: false,
+      keyExchangeLayer: false,
+      serviceLayer: false,
+      plaintext: true,
+    },
+    storage: {
+      enabled: true, // session persistence
+    },
+  });
+
   try {
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    ethersProvider = new ethers.providers.Web3Provider(
+      sdk.getProvider(),
+      'any',
+    );
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
