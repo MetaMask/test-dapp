@@ -57,6 +57,7 @@ const warningDiv = document.getElementById('warning');
 
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
+const terminateButton = document.getElementById('terminateButton');
 const getAccountsButton = document.getElementById('getAccounts');
 const getAccountsResults = document.getElementById('getAccountsResult');
 
@@ -221,21 +222,12 @@ const initialize = async () => {
   const sdk = new MetaMaskSDK({
     useDeeplink: false, // use deeplinks or universal links to redirect to MetaMask mobile
     enableDebug: true,
-    autoConnect: {
-      enable: true,
-    },
     dappMetadata: {
       name: 'MetaMask test-dapp',
       url: window.location.host,
     },
     logging: {
       sdk: false,
-      developerMode: false,
-      eciesLayer: false,
-      remoteLayer: false,
-      keyExchangeLayer: false,
-      serviceLayer: false,
-      plaintext: true,
     },
     storage: {
       enabled: true, // session persistence
@@ -244,10 +236,13 @@ const initialize = async () => {
 
   try {
     // We must specify the network as 'any' for ethers to allow network changes
+    await sdk.init();
+
     ethersProvider = new ethers.providers.Web3Provider(
       sdk.getProvider(),
       'any',
     );
+
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
@@ -396,8 +391,19 @@ const initialize = async () => {
         method: 'eth_requestAccounts',
       });
       handleNewAccounts(newAccounts);
+      handleNewChain(ethereum.chainId);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const onClickTerminate = async () => {
+    try {
+      sdk.terminate();
+      onboardButton.innerText = 'Connect';
+      onboardButton.disabled = false;
+    } catch (error) {
+      console.log('No SDK to terminate');
     }
   };
 
@@ -507,6 +513,7 @@ const initialize = async () => {
       transferTokensWithoutGas.disabled = false;
       approveTokensWithoutGas.disabled = false;
     }
+    terminateButton.onclick = onClickTerminate;
   };
 
   addEthereumChain.onclick = async () => {
@@ -2001,48 +2008,34 @@ const initialize = async () => {
 
   updateButtons();
 
-  if (isMetaMaskInstalled()) {
-    ethereum.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+  ethereum.on('_initialized', async () => {
+    console.log('SDK INITIALIZED');
+    await getNetworkAndChainId();
+  });
 
-    ethereum.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
-
-    ethereum.on('chainChanged', (chain) => {
-      handleNewChain(chain);
-      ethereum
-        .request({
-          method: 'eth_getBlockByNumber',
-          params: ['latest', false],
-        })
-        .then((block) => {
-          handleEIP1559Support(block.baseFeePerGas !== undefined);
-        });
-    });
-    ethereum.on('chainChanged', handleNewNetwork);
-    ethereum.on('accountsChanged', (newAccounts) => {
-      ethereum
-        .request({
-          method: 'eth_getBlockByNumber',
-          params: ['latest', false],
-        })
-        .then((block) => {
-          handleEIP1559Support(block.baseFeePerGas !== undefined);
-        });
-      handleNewAccounts(newAccounts);
-    });
-
-    try {
-      const newAccounts = await ethereum.request({
-        method: 'eth_accounts',
+  ethereum.on('chainChanged', (chain) => {
+    handleNewChain(chain);
+    ethereum
+      .request({
+        method: 'eth_getBlockByNumber',
+        params: ['latest', false],
+      })
+      .then((block) => {
+        handleEIP1559Support(block.baseFeePerGas !== undefined);
       });
-      handleNewAccounts(newAccounts);
-    } catch (err) {
-      console.error('Error on init when getting accounts', err);
-    }
-  } else {
-    handleScrollTo();
-  }
+  });
+  ethereum.on('chainChanged', handleNewNetwork);
+  ethereum.on('accountsChanged', (newAccounts) => {
+    ethereum
+      .request({
+        method: 'eth_getBlockByNumber',
+        params: ['latest', false],
+      })
+      .then((block) => {
+        handleEIP1559Support(block.baseFeePerGas !== undefined);
+      });
+    handleNewAccounts(newAccounts);
+  });
 };
 
 window.addEventListener('load', initialize);
