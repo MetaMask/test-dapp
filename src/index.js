@@ -485,7 +485,7 @@ const initialize = async () => {
 
   async function getLocalNodeChainId() {
     try {
-      const response = await fetch('http://127.0.0.1:8545', {
+      const response = await fetch('http://127.0.0.1:8546', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -520,8 +520,8 @@ const initialize = async () => {
         params: [
           {
             chainId,
-            rpcUrls: ['http://127.0.0.1:8545'],
-            chainName: 'Localhost 8545',
+            rpcUrls: ['http://127.0.0.1:8546'],
+            chainName: 'Localhost 8546',
             nativeCurrency: { name: 'Ether', decimals: 18, symbol: 'ETH' },
             blockExplorerUrls: null,
           },
