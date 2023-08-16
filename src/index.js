@@ -483,30 +483,69 @@ const initialize = async () => {
     }
   };
 
+  async function getLocalNodeChainId() {
+    try {
+      const response = await fetch('http://127.0.0.1:8545', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_chainId',
+          params: [],
+          id: 1,
+        }),
+      });
+
+      const chainId = (await response.json()).result;
+      const chainIdDecimal = parseInt(chainId, 16);
+      console.log(
+        `Fetched chain ID from local node: ${chainId} (${chainIdDecimal})`,
+      );
+
+      return chainId;
+    } catch (err) {
+      if (err.message === 'Failed to fetch') {
+        throw new Error('Local node RPC is unavailable. Cannot fetch chain ID');
+      }
+
+      throw err;
+    }
+  }
+
   addEthereumChain.onclick = async () => {
-    await ethereum.request({
-      method: 'wallet_addEthereumChain',
-      params: [
-        {
-          chainId: '0x539',
-          rpcUrls: ['http://127.0.0.1:8545'],
-          chainName: 'Localhost 8545',
-          nativeCurrency: { name: 'Ether', decimals: 18, symbol: 'ETH' },
-          blockExplorerUrls: null,
-        },
-      ],
-    });
+    try {
+      const chainId = await getLocalNodeChainId();
+      await ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [
+          {
+            chainId,
+            rpcUrls: ['http://127.0.0.1:8545'],
+            chainName: 'Localhost 8545',
+            nativeCurrency: { name: 'Ether', decimals: 18, symbol: 'ETH' },
+            blockExplorerUrls: null,
+          },
+        ],
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   switchEthereumChain.onclick = async () => {
-    await ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [
-        {
-          chainId: '0x539',
-        },
-      ],
-    });
+    try {
+      const chainId = await getLocalNodeChainId();
+      await ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [
+          {
+            chainId,
+          },
+        ],
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const initializeAccountButtons = () => {
