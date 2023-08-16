@@ -488,10 +488,10 @@ const initialize = async () => {
       method: 'wallet_addEthereumChain',
       params: [
         {
-          chainId: '0x53a',
-          rpcUrls: ['http://127.0.0.1:8546'],
-          chainName: 'Localhost 8546',
-          nativeCurrency: { name: 'TEST', decimals: 18, symbol: 'TEST' },
+          chainId: '0x539',
+          rpcUrls: ['http://127.0.0.1:8545'],
+          chainName: 'Localhost 8545',
+          nativeCurrency: { name: 'Ether', decimals: 18, symbol: 'ETH' },
           blockExplorerUrls: null,
         },
       ],
@@ -503,7 +503,7 @@ const initialize = async () => {
       method: 'wallet_switchEthereumChain',
       params: [
         {
-          chainId: '0x53a',
+          chainId: '0x539',
         },
       ],
     });
