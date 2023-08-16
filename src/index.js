@@ -42,7 +42,11 @@ const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
 const urlSearchParams = new URLSearchParams(window.location.search);
-const deployedContractAddress = urlSearchParams.get('contract');
+let deployedContractAddress = urlSearchParams.get('contract');
+if (!ethers.utils.isAddress(deployedContractAddress)) {
+  deployedContractAddress = '';
+}
+
 const scrollTo = urlSearchParams.get('scrollTo');
 
 const { isMetaMaskInstalled } = MetaMaskOnboarding;

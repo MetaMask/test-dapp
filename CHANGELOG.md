@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.2]
+### Fixed
+- Fix XSS vulnerability on the `contract` query string parameter ([#248](https://github.com/MetaMask/test-dapp/pull/248))
+
 ## [7.0.1]
 ### Fixed
 - Fix issue where add watch NFT buttons introduced in `v7.0.0` called `wallet_watchAsset` with parameter tokenId typed as a number, rather than as a string ([#241](https://github.com/MetaMask/test-dapp/pull/241))
@@ -99,7 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.0.2...HEAD
+[7.0.2]: https://github.com/MetaMask/test-dapp/compare/v7.0.1...v7.0.2
 [7.0.1]: https://github.com/MetaMask/test-dapp/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/MetaMask/test-dapp/compare/v6.2.0...v7.0.0
 [6.2.0]: https://github.com/MetaMask/test-dapp/compare/v6.1.0...v6.2.0
