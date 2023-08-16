@@ -522,7 +522,7 @@ const initialize = async () => {
             chainId,
             rpcUrls: ['http://127.0.0.1:8546'],
             chainName: 'Localhost 8546',
-            nativeCurrency: { name: 'Ether', decimals: 18, symbol: 'ETH' },
+            nativeCurrency: { name: 'TEST', decimals: 18, symbol: 'TEST' },
             blockExplorerUrls: null,
           },
         ],
