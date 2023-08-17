@@ -90,6 +90,8 @@ const watchNFTButtons = document.getElementById('watchNFTButtons');
 const mintAmountInput = document.getElementById('mintAmountInput');
 const approveTokenInput = document.getElementById('approveTokenInput');
 const approveButton = document.getElementById('approveButton');
+const watchNFTInput = document.getElementById('watchNFTInput');
+const watchNFTButton = document.getElementById('watchNFTButton');
 const setApprovalForAllButton = document.getElementById(
   'setApprovalForAllButton',
 );
@@ -308,6 +310,8 @@ const initialize = async () => {
     mintAmountInput,
     approveTokenInput,
     approveButton,
+    watchNFTInput,
+    watchNFTButton,
     setApprovalForAllButton,
     revokeButton,
     transferTokenInput,
@@ -456,6 +460,8 @@ const initialize = async () => {
       mintAmountInput.disabled = false;
       approveTokenInput.disabled = false;
       approveButton.disabled = false;
+      watchNFTInput.disabled = false;
+      watchNFTButton.disabled = false;
       setApprovalForAllButton.disabled = false;
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
@@ -727,38 +733,33 @@ const initialize = async () => {
       nftsStatus.innerHTML = 'Mint completed';
       approveTokenInput.disabled = false;
       approveButton.disabled = false;
+      watchNFTInput.disabled = false;
+      watchNFTButton.disabled = false;
       setApprovalForAllButton.disabled = false;
       revokeButton.disabled = false;
       transferTokenInput.disabled = false;
       transferFromButton.disabled = false;
       watchNFTsButton.disabled = false;
       watchNFTButtons.innerHTML = '';
-      const nftsContractAddress = nftsContract.address;
-      const currentTokenId = await nftsContract.currentTokenId();
-      for (let i = 0; i < currentTokenId; i++) {
-        const button = document.createElement('button');
-        button.innerHTML = `Watch NFT ${i + 1}`;
-        button.className = 'btn btn-primary btn-lg btn-block mb-3';
-        button.onclick = async () => {
-          let watchNftsResult;
-          try {
-            watchNftsResult = await ethereum.request({
-              method: 'wallet_watchAsset',
-              params: {
-                type: 'ERC721',
-                options: {
-                  address: nftsContractAddress,
-                  tokenId: `${i + 1}`,
-                },
-              },
-            });
-          } catch (error) {
-            console.error(error);
-          }
-          console.log(watchNftsResult);
-        };
-        watchNFTButtons.appendChild(button);
+    };
+
+    watchNFTButton.onclick = async () => {
+      let watchNftsResult;
+      try {
+        watchNftsResult = await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC721',
+            options: {
+              address: nftsContract.address,
+              tokenId: watchNFTInput.value,
+            },
+          },
+        });
+      } catch (error) {
+        console.error(error);
       }
+      console.log(watchNftsResult);
     };
 
     approveButton.onclick = async () => {
