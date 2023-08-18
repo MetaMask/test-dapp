@@ -218,6 +218,15 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+// Blockaid
+const maliciousApprovalButton = document.getElementById('maliciousApprovalButton');
+const maliciousTransferButton = document.getElementById('maliciousTransferButton');
+const maliciousRawEthButton = document.getElementById('maliciousRawEthButton');
+const maliciousPermit = document.getElementById('maliciousPermit');
+const maliciousTradeOrder = document.getElementById('maliciousTradeOrder');
+const maliciousSeaport = document.getElementById('maliciousSeaport');
+const beningPermit = document.getElementById('beningPermit');
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -352,6 +361,13 @@ const initialize = async () => {
     siweBadAccount,
     siweMalformed,
     eip747WatchButton,
+    maliciousApprovalButton,
+    maliciousTransferButton,
+    maliciousRawEthButton,
+    maliciousPermit,
+    maliciousTradeOrder,
+    maliciousSeaport,
+    beningPermit,
   ];
 
   mintButton.disabled = false;
@@ -416,6 +432,13 @@ const initialize = async () => {
       siweBadAccount.disabled = false;
       siweMalformed.disabled = false;
       eip747WatchButton.disabled = false;
+      maliciousApprovalButton.disabled = false;
+      maliciousTransferButton.disabled = false;
+      maliciousRawEthButton.disabled = false;
+      maliciousPermit.disabled = false;
+      maliciousTradeOrder.disabled = false;
+      maliciousSeaport.disabled = false;
+      beningPermit.disabled = false;
     }
 
     if (isMetaMaskInstalled()) {
@@ -951,6 +974,107 @@ const initialize = async () => {
           'There was an error adding the token. See console for details.';
         console.error(error);
       }
+    };
+
+    /**
+     *  Blockaid
+     */
+
+    // Malicious Approval
+    maliciousApprovalButton.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+          from: accounts[0],
+          to: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
+          gas: '0x30d40',
+          data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+          gasPrice: '0x76c3b0342',
+        },
+      ],
+      });
+      console.log(result);
+    };
+
+    // Malicious transfer
+    maliciousTransferButton.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+          from: accounts[0],
+          to: '0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb',
+          gas: '0x30d40',
+          data: '0x8b72a2ec0000000000000000000000009959e2974a3478101defdab9bb2f3ca05725ba3d0000000000000000000000000000000000000000000000000000000000002614',
+          gasPrice: '0x76c3b0342',
+        },
+      ],
+      });
+      console.log(result);
+    };
+
+    // Malicious raw ETH transfer
+    maliciousRawEthButton.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+          from: accounts[0],
+          to: '0x91A7ac9Db30D5BA74b35208D7EEb6883a6e988D2',
+          value: '0x304f2e214685cc98',
+        },
+      ],
+      });
+      console.log(result);
+    };
+
+    // Malicious permit
+    maliciousPermit.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [
+          accounts[0],
+          '{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Permit\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"},{\"name\":\"nonce\",\"type\":\"uint256\"},{\"name\":\"deadline\",\"type\":\"uint256\"}]},\"primaryType\":\"Permit\",\"domain\":{\"name\":\"USD Coin\",\"verifyingContract\":\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\"chainId\":1,\"version\":\"2\"},\"message\":{\"owner\":\"0x1C53dc20D1E36ed8359250dE626ACAe36BD28a29\",\"spender\":\"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3\",\"value\":\"1033366316628\",\"nonce\":1,\"deadline\":1678709555}}',
+        ],
+      });
+      console.log(result);
+    };
+
+    // Malicious trade order
+    maliciousTradeOrder.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [
+          accounts[0],
+          '{\"types\":{\"ERC721Order\":[{\"type\":\"uint8\",\"name\":\"direction\"},{\"type\":\"address\",\"name\":\"maker\"},{\"type\":\"address\",\"name\":\"taker\"},{\"type\":\"uint256\",\"name\":\"expiry\"},{\"type\":\"uint256\",\"name\":\"nonce\"},{\"type\":\"address\",\"name\":\"erc20Token\"},{\"type\":\"uint256\",\"name\":\"erc20TokenAmount\"},{\"type\":\"Fee[]\",\"name\":\"fees\"},{\"type\":\"address\",\"name\":\"erc721Token\"},{\"type\":\"uint256\",\"name\":\"erc721TokenId\"},{\"type\":\"Property[]\",\"name\":\"erc721TokenProperties\"}],\"Fee\":[{\"type\":\"address\",\"name\":\"recipient\"},{\"type\":\"uint256\",\"name\":\"amount\"},{\"type\":\"bytes\",\"name\":\"feeData\"}],\"Property\":[{\"type\":\"address\",\"name\":\"propertyValidator\"},{\"type\":\"bytes\",\"name\":\"propertyData\"}],\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}]},\"domain\":{\"name\":\"ZeroEx\",\"version\":\"1.0.0\",\"chainId\":\"1\",\"verifyingContract\":\"0xdef1c0ded9bec7f1a1670819833240f027b25eff\"},\"primaryType\":\"ERC721Order\",\"message\":{\"direction\":\"1\",\"maker\":\"0x1C53dc20D1E36ed8359250dE626ACAe36BD28a29\",\"taker\":\"0x0000000000000000000000000000000000000000\",\"expiry\":\"2524604400\",\"nonce\":\"100131415900000000000000000000000000000083840314483690155566137712510085002484\",\"erc20Token\":\"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\",\"erc20TokenAmount\":\"42000000000000\",\"fees\":[],\"erc721Token\":\"0x39ee2c7b3cb80254225884ca001f57118c8f21b6\",\"erc721TokenId\":\"0\",\"erc721TokenProperties\":[]}}',
+        ],
+      });
+      console.log(result);
+    };
+
+    // Malicious Seaport
+    maliciousSeaport.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [
+          accounts[0],
+        '{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"OrderComponents\":[{\"name\":\"offerer\",\"type\":\"address\"},{\"name\":\"zone\",\"type\":\"address\"},{\"name\":\"offer\",\"type\":\"OfferItem[]\"},{\"name\":\"consideration\",\"type\":\"ConsiderationItem[]\"},{\"name\":\"orderType\",\"type\":\"uint8\"},{\"name\":\"startTime\",\"type\":\"uint256\"},{\"name\":\"endTime\",\"type\":\"uint256\"},{\"name\":\"zoneHash\",\"type\":\"bytes32\"},{\"name\":\"salt\",\"type\":\"uint256\"},{\"name\":\"conduitKey\",\"type\":\"bytes32\"},{\"name\":\"counter\",\"type\":\"uint256\"}],\"OfferItem\":[{\"name\":\"itemType\",\"type\":\"uint8\"},{\"name\":\"token\",\"type\":\"address\"},{\"name\":\"identifierOrCriteria\",\"type\":\"uint256\"},{\"name\":\"startAmount\",\"type\":\"uint256\"},{\"name\":\"endAmount\",\"type\":\"uint256\"}],\"ConsiderationItem\":[{\"name\":\"itemType\",\"type\":\"uint8\"},{\"name\":\"token\",\"type\":\"address\"},{\"name\":\"identifierOrCriteria\",\"type\":\"uint256\"},{\"name\":\"startAmount\",\"type\":\"uint256\"},{\"name\":\"endAmount\",\"type\":\"uint256\"},{\"name\":\"recipient\",\"type\":\"address\"}]},\"primaryType\":\"OrderComponents\",\"domain\":{\"name\":\"Seaport\",\"version\":\"1.4\",\"chainId\":\"1\",\"verifyingContract\":\"0x00000000000001ad428e4906aE43D8F9852d0dD6\"},\"message\":{\"offerer\":\"0xCaFca5eDFb361E8A39a735233f23DAf86CBeD5FC\",\"offer\":[{\"itemType\":\"1\",\"token\":\"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2\",\"identifierOrCriteria\":\"0\",\"startAmount\":\"2500000000000000\",\"endAmount\":\"2500000000000000\"}],\"consideration\":[{\"itemType\":\"2\",\"token\":\"0xaA7200ee500dE2dcde75E996De83CBD73BCa9705\",\"identifierOrCriteria\":\"11909\",\"startAmount\":\"1\",\"endAmount\":\"1\",\"recipient\":\"0xCaFca5eDFb361E8A39a735233f23DAf86CBeD5FC\"},{\"itemType\":\"1\",\"token\":\"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2\",\"identifierOrCriteria\":\"0\",\"startAmount\":\"62500000000000\",\"endAmount\":\"62500000000000\",\"recipient\":\"0x0000a26b00c1F0DF003000390027140000fAa719\"},{\"itemType\":\"1\",\"token\":\"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2\",\"identifierOrCriteria\":\"0\",\"startAmount\":\"12500000000000\",\"endAmount\":\"12500000000000\",\"recipient\":\"0x8324BdEF2F30E08E368f2Fa2F14143cDCA77423D\"}],\"startTime\":\"1681835413\",\"endTime\":\"1682094598\",\"orderType\":\"0\",\"zone\":\"0x004C00500000aD104D7DBd00e3ae0A5C00560C00\",\"zoneHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"salt\":\"24446860302761739304752683030156737591518664810215442929812618382526293324216\",\"conduitKey\":\"0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000\",\"totalOriginalConsiderationItems\":\"3\",\"counter\":\"0\"}}',
+        ],
+      });
+      console.log(result);
+    };
+
+    // Bening Permit
+    beningPermit.onclick = async () => {
+      const result = await ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [
+          accounts[0],
+          '{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Permit\":[{\"name\":\"holder\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"nonce\",\"type\":\"uint256\"},{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"allowed\",\"type\":\"bool\"}]},\"primaryType\":\"Permit\",\"domain\":{\"name\":\"Dai Stablecoin\",\"verifyingContract\":\"0x6b175474e89094c44da98b954eedeac495271d0f\",\"chainId\":1,\"version\":\"1\"},\"message\":{\"expiry\":1683011683,\"nonce\":3,\"spender\":\"0x1111111254eeb25477b68fb85ed929f73a960582\",\"holder\":\"0x3bbec29ab82db1f0be3f67261cc902c4e35ab70d\",\"allowed\":true}}'
+        ],
+      });
+      console.log(result);
     };
 
     /**
