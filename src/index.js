@@ -1036,7 +1036,7 @@ const initialize = async () => {
         method: 'eth_signTypedData_v4',
         params: [
           accounts[0],
-          '{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Permit\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"},{\"name\":\"nonce\",\"type\":\"uint256\"},{\"name\":\"deadline\",\"type\":\"uint256\"}]},\"primaryType\":\"Permit\",\"domain\":{\"name\":\"USD Coin\",\"verifyingContract\":\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\"chainId\":1,\"version\":\"2\"},\"message\":{\"owner\":\"0x1C53dc20D1E36ed8359250dE626ACAe36BD28a29\",\"spender\":\"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3\",\"value\":\"1033366316628\",\"nonce\":1,\"deadline\":1678709555}}',
+          `{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Permit\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"},{\"name\":\"nonce\",\"type\":\"uint256\"},{\"name\":\"deadline\",\"type\":\"uint256\"}]},\"primaryType\":\"Permit\",\"domain\":{\"name\":\"USD Coin\",\"verifyingContract\":\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\"chainId\":1,\"version\":\"2\"},\"message\":{\"owner\":\"${accounts[0]}\",\"spender\":\"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3\",\"value\":\"1033366316628\",\"nonce\":1,\"deadline\":1678709555}}`,
         ],
       });
       console.log(result);
