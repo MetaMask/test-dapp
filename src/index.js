@@ -218,7 +218,7 @@ const submitFormButton = document.getElementById('submitForm');
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
-// Blockaid
+// PPOM
 const maliciousApprovalButton = document.getElementById('maliciousApprovalButton');
 const maliciousTransferButton = document.getElementById('maliciousTransferButton');
 const maliciousRawEthButton = document.getElementById('maliciousRawEthButton');
@@ -977,7 +977,7 @@ const initialize = async () => {
     };
 
     /**
-     *  Blockaid
+     *  PPOM
      */
 
     // Malicious Approval
