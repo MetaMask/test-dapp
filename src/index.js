@@ -224,8 +224,8 @@ const switchEthereumChain = document.getElementById('switchEthereumChain');
 const maliciousApprovalButton = document.getElementById(
   'maliciousApprovalButton',
 );
-const maliciousTransferButton = document.getElementById(
-  'maliciousTransferButton',
+const maliciousERC20TransferButton = document.getElementById(
+  'maliciousERC20TransferButton',
 );
 const maliciousRawEthButton = document.getElementById('maliciousRawEthButton');
 const maliciousPermit = document.getElementById('maliciousPermit');
@@ -369,7 +369,7 @@ const initialize = async () => {
     siweMalformed,
     eip747WatchButton,
     maliciousApprovalButton,
-    maliciousTransferButton,
+    maliciousERC20TransferButton,
     maliciousRawEthButton,
     maliciousPermit,
     maliciousTradeOrder,
@@ -439,7 +439,7 @@ const initialize = async () => {
       siweMalformed.disabled = false;
       eip747WatchButton.disabled = false;
       maliciousApprovalButton.disabled = false;
-      maliciousTransferButton.disabled = false;
+      maliciousERC20TransferButton.disabled = false;
       maliciousRawEthButton.disabled = false;
       maliciousPermit.disabled = false;
       maliciousTradeOrder.disabled = false;
@@ -1000,7 +1000,7 @@ const initialize = async () => {
     };
 
     // Malicious ERC20 transfer
-    maliciousTransferButton.onclick = async () => {
+    maliciousERC20TransferButton.onclick = async () => {
       const result = await ethereum.request({
         method: 'eth_sendTransaction',
         params: [
