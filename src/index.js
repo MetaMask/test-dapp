@@ -747,6 +747,33 @@ const initialize = async () => {
       console.log(watchNftsResult);
     };
 
+    watchNFTsButton.onclick = async () => {
+      const currentTokenId = await nftsContract.currentTokenId();
+      const nftsContractAddress = nftsContract.address;
+      let watchNftsResult;
+      try {
+        watchNftsResult = await ethereum.sendAsync(
+          Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
+            (tokenId) => {
+              return {
+                method: 'wallet_watchAsset',
+                params: {
+                  type: 'ERC721',
+                  options: {
+                    address: nftsContractAddress,
+                    tokenId: tokenId.toString(),
+                  },
+                },
+              };
+            },
+          ),
+        );
+      } catch (error) {
+        console.error(error);
+      }
+      console.log(watchNftsResult);
+    };
+
     mintButton.onclick = async () => {
       nftsStatus.innerHTML = 'Mint initiated';
       let result = await nftsContract.mintNFTs(mintAmountInput.value, {
