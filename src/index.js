@@ -2093,21 +2093,9 @@ const initialize = async () => {
     ethereum.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
-    ethereum.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
-
-    ethereum.on('chainChanged', (chain) => {
-      handleNewChain(chain);
-      ethereum
-        .request({
-          method: 'eth_getBlockByNumber',
-          params: ['latest', false],
-        })
-        .then((block) => {
-          handleEIP1559Support(block.baseFeePerGas !== undefined);
-        });
-    });
-    ethereum.on('chainChanged', handleNewNetwork);
+    ethereum.on('chainChanged', () => getNetworkAndChainId());
+    // networkChanged is deprecated, but there is no other way to ensure we catch every network ID change
+    ethereum.on('networkChanged', () => getNetworkAndChainId());
     ethereum.on('accountsChanged', (newAccounts) => {
       ethereum
         .request({
