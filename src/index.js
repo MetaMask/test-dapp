@@ -1079,7 +1079,7 @@ const initialize = async () => {
             from: accounts[0],
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
-            gasLimit: '0x5028',
+            gasLimit: '0x5208',
             gasPrice: '0x2540be400',
             type: '0x0',
           },
