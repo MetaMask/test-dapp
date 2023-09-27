@@ -1090,7 +1090,7 @@ const initialize = async () => {
       console.log(result);
     };
 
-    // Malicious SetApprovalForAll
+    // Malicious Set Approval For All
     maliciousSetApprovalForAll.onclick = async () => {
       const result = await ethereum.request({
         method: 'eth_sendTransaction',
