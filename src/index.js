@@ -227,9 +227,6 @@ const maliciousApprovalButton = document.getElementById(
 const maliciousERC20TransferButton = document.getElementById(
   'maliciousERC20TransferButton',
 );
-const maliciousERC721Transfer = document.getElementById(
-  'maliciousERC721Transfer',
-);
 const maliciousRawEthButton = document.getElementById('maliciousRawEthButton');
 const maliciousPermit = document.getElementById('maliciousPermit');
 const maliciousTradeOrder = document.getElementById('maliciousTradeOrder');
@@ -377,7 +374,6 @@ const initialize = async () => {
     maliciousApprovalButton,
     maliciousSetApprovalForAll,
     maliciousERC20TransferButton,
-    maliciousERC721Transfer,
     maliciousRawEthButton,
     maliciousPermit,
     maliciousTradeOrder,
@@ -448,7 +444,6 @@ const initialize = async () => {
       eip747WatchButton.disabled = false;
       maliciousApprovalButton.disabled = false;
       maliciousERC20TransferButton.disabled = false;
-      maliciousERC721Transfer.disabled = false;
       maliciousRawEthButton.disabled = false;
       maliciousPermit.disabled = false;
       maliciousTradeOrder.disabled = false;
@@ -1020,23 +1015,6 @@ const initialize = async () => {
             gas: '0x30d40',
             data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
             gasPrice: '0x76c3b0342',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious ERC721 Transfer
-    maliciousERC721Transfer.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb',
-            gas: '0x30d40',
-            gasPrice: '0x76c3b0342',
-            data: '0x8b72a2ec000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
           },
         ],
       });
