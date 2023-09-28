@@ -226,13 +226,17 @@ const maliciousApprovalButton = document.getElementById(
 );
 const maliciousERC20TransferButton = document.getElementById(
   'maliciousERC20TransferButton',
-  );
-const maliciousERC721Transfer = document.getElementById('maliciousERC721Transfer');
+);
+const maliciousERC721Transfer = document.getElementById(
+  'maliciousERC721Transfer',
+);
 const maliciousRawEthButton = document.getElementById('maliciousRawEthButton');
 const maliciousPermit = document.getElementById('maliciousPermit');
 const maliciousTradeOrder = document.getElementById('maliciousTradeOrder');
 const maliciousSeaport = document.getElementById('maliciousSeaport');
-const maliciousSetApprovalForAll = document.getElementById('maliciousSetApprovalForAll');
+const maliciousSetApprovalForAll = document.getElementById(
+  'maliciousSetApprovalForAll',
+);
 
 const initialize = async () => {
   try {
@@ -1032,8 +1036,8 @@ const initialize = async () => {
             to: '0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb',
             gas: '0x30d40',
             gasPrice: '0x76c3b0342',
-            data: '0x8b72a2ec000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001'
-          }
+            data: '0x8b72a2ec000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
+          },
         ],
       });
       console.log(result);
@@ -1098,8 +1102,8 @@ const initialize = async () => {
           {
             from: accounts[0],
             to: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
-            data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001'
-          }
+            data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
+          },
         ],
       });
       console.log(result);
