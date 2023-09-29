@@ -1021,7 +1021,7 @@ const initialize = async () => {
       console.log(result);
     };
 
-    // // Malicious raw ETH transfer
+    // Malicious raw ETH transfer
     maliciousRawEthButton.onclick = async () => {
       const result = await ethereum.request({
         method: 'eth_sendTransaction',
