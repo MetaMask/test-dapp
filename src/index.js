@@ -509,7 +509,7 @@ const initialize = async () => {
       setApprovalForAllERC1155Button.disabled = false;
       revokeERC1155Button.disabled = false;
       // ERC20 Token - Send Tokens
-      tokenAddresses.innerHTML += hstContract.address;
+      tokenAddresses.innerHTML = hstContract.address;
       watchAssets.disabled = false;
       transferTokens.disabled = false;
       approveTokens.disabled = false;
