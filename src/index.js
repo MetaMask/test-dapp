@@ -1153,7 +1153,11 @@ const initialize = async () => {
       console.log(
         `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
       );
-      tokenAddresses.innerHTML += `${hstContract.address} `;
+      tokenAddresses.innerHTML = tokenAddresses.innerHTML
+        .concat(', ', hstContract.address)
+        .split(', ')
+        .filter(Boolean)
+        .join(', ');
       watchAssets.disabled = false;
       transferTokens.disabled = false;
       approveTokens.disabled = false;
@@ -1162,7 +1166,7 @@ const initialize = async () => {
     };
 
     watchAssets.onclick = async () => {
-      const contractAddresses = tokenAddresses.innerHTML.trim().split(' ');
+      const contractAddresses = tokenAddresses.innerHTML.split(', ');
 
       const promises = contractAddresses.map((erc20Address) => {
         return ethereum.request({
