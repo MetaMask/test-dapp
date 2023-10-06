@@ -133,9 +133,9 @@ const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 // Send Tokens Section
 const decimalUnitsInput = document.getElementById('tokenDecimals');
 const tokenSymbol = 'TST';
-const tokenAddress = document.getElementById('tokenAddress');
+const tokenAddresses = document.getElementById('tokenAddresses');
 const createToken = document.getElementById('createToken');
-const watchAsset = document.getElementById('watchAsset');
+const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
 const approveTokens = document.getElementById('approveTokens');
 const transferTokensWithoutGas = document.getElementById(
@@ -345,7 +345,7 @@ const initialize = async () => {
     sendButton,
     createToken,
     decimalUnitsInput,
-    watchAsset,
+    watchAssets,
     transferTokens,
     approveTokens,
     transferTokensWithoutGas,
@@ -509,8 +509,8 @@ const initialize = async () => {
       setApprovalForAllERC1155Button.disabled = false;
       revokeERC1155Button.disabled = false;
       // ERC20 Token - Send Tokens
-      tokenAddress.innerHTML = hstContract.address;
-      watchAsset.disabled = false;
+      tokenAddresses.innerHTML = hstContract.address;
+      watchAssets.disabled = false;
       transferTokens.disabled = false;
       approveTokens.disabled = false;
       transferTokensWithoutGas.disabled = false;
@@ -1142,7 +1142,7 @@ const initialize = async () => {
         );
         await hstContract.deployTransaction.wait();
       } catch (error) {
-        tokenAddress.innerHTML = 'Creation Failed';
+        tokenAddresses.innerHTML = 'Creation Failed';
         throw error;
       }
 
@@ -1153,28 +1153,39 @@ const initialize = async () => {
       console.log(
         `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
       );
-      tokenAddress.innerHTML = hstContract.address;
-      watchAsset.disabled = false;
+      tokenAddresses.innerHTML = tokenAddresses.innerHTML
+        .concat(', ', hstContract.address)
+        .split(', ')
+        .filter(Boolean)
+        .join(', ');
+      watchAssets.disabled = false;
       transferTokens.disabled = false;
       approveTokens.disabled = false;
       transferTokensWithoutGas.disabled = false;
       approveTokensWithoutGas.disabled = false;
     };
 
-    watchAsset.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: hstContract.address,
-            symbol: tokenSymbol,
-            decimals: decimalUnitsInput.value,
-            image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+    watchAssets.onclick = async () => {
+      const contractAddresses = tokenAddresses.innerHTML.split(', ');
+
+      const promises = contractAddresses.map((erc20Address) => {
+        return ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: erc20Address,
+              symbol: tokenSymbol,
+              decimals: decimalUnitsInput.value,
+              image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+            },
           },
-        },
+        });
       });
-      console.log('result', result);
+
+      Promise.all(promises).then((result) => {
+        console.log('result', result);
+      });
     };
 
     transferTokens.onclick = async () => {
