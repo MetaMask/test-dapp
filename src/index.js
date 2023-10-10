@@ -137,6 +137,9 @@ const tokenAddresses = document.getElementById('tokenAddresses');
 const createToken = document.getElementById('createToken');
 const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
+const transferTokensDeeplink = document.getElementById(
+  'transferTokensDeeplink',
+);
 const approveTokens = document.getElementById('approveTokens');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
@@ -473,6 +476,10 @@ const initialize = async () => {
     }
 
     if (deployedContractAddress) {
+      // Deeplink
+      const erc20Decimals = '4';
+      const deeplink = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=3e${erc20Decimals}`;
+      transferTokensDeeplink.setAttribute('href', deeplink);
       // Piggy bank contract
       contractStatus.innerHTML = 'Deployed';
       depositButton.disabled = false;
