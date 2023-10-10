@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [7.2.0]
+### Added
+- Add ability to create multiple tokens and watch all of them ([#259](https://github.com/MetaMask/test-dapp/pull/259))
+- Add PPOM setApprovalForAll button. Add token symbols for PPOM buttons ([#258](https://github.com/MetaMask/test-dapp/pull/258))
+
+### Fixed
+- Fix legacy send gas to 21000 ([#169](https://github.com/MetaMask/test-dapp/pull/169))
+- Fix Network ID incorrectly using chainId value ([#256](https://github.com/MetaMask/test-dapp/pull/256))
+
 ## [7.1.0]
 ### Added
 - Add PPOM testing section ([#253](https://github.com/MetaMask/test-dapp/pull/253))
@@ -109,7 +118,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.2.0...HEAD
+[7.2.0]: https://github.com/MetaMask/test-dapp/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/MetaMask/test-dapp/compare/v7.0.2...v7.1.0
 [7.0.2]: https://github.com/MetaMask/test-dapp/compare/v7.0.1...v7.0.2
 [7.0.1]: https://github.com/MetaMask/test-dapp/compare/v7.0.0...v7.0.1
