@@ -253,7 +253,7 @@
                 </h4>
 
                 <p class="info-text alert alert-success">
-                  Token: <span id="tokenAddress"></span>
+                  Token(s): <span id="tokenAddresses"></span>
                 </p>
 
                 <div class="form-group">
@@ -278,10 +278,10 @@
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="watchAsset"
+                  id="watchAssets"
                   disabled
                 >
-                  Add Token to Wallet
+                  Add Token(s) to Wallet
                 </button>
 
                 <button
@@ -636,14 +636,21 @@
                   id="maliciousERC20TransferButton"
                   disabled
                 >
-                  Malicious ERC20 Transfer
+                  Malicious ERC20 Transfer (USDC)
                 </button>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="maliciousApprovalButton"
                   disabled
                 >
-                  Malicious ERC20 Approval
+                  Malicious ERC20 Approval (BUSD)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousSetApprovalForAll"
+                  disabled
+                >
+                  Malicious Set Approval For All
                 </button>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
