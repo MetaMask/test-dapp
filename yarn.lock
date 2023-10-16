@@ -63,6 +63,13 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
+"@babel/runtime@^7.19.4", "@babel/runtime@^7.20.6", "@babel/runtime@^7.22.5":
+  version "7.23.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.2.tgz#062b0ac103261d68a966c4c7baf2ae3e62ec3885"
+  integrity sha512-mM8eg4yl5D6i3lu2QKPuPH4FArvJ8KhTofbE7jwMUv9KX5mBvwPAqnV3MlyBNqdp9RyRKP6Yck8TrfYrPvX3bg==
+  dependencies:
+    regenerator-runtime "^0.14.0"
+
 "@babel/types@^7.22.5":
   version "7.22.5"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.22.5.tgz#cd93eeaab025880a3a47ec881f4b096a5b786fbe"
@@ -660,10 +667,10 @@
   resolved "https://registry.yarnpkg.com/@metamask/safe-event-emitter/-/safe-event-emitter-3.0.0.tgz#8c2b9073fe0722d48693143b0dc8448840daa3bd"
   integrity sha512-j6Z47VOmVyGMlnKXZmL0fyvWfEYtKWCA9yGZkU3FCsGZUT5lHGmvaV9JA5F2Y+010y7+ROtR3WMXIkvl/nVzqQ==
 
-"@metamask/sdk-communication-layer@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@metamask/sdk-communication-layer/-/sdk-communication-layer-0.7.0.tgz#b97a341d620bc3a75862b5932c9b62e98d093946"
-  integrity sha512-jIv/9ujLdqZPfRyAc4Qi865TWk0EhORCDeaa36+r5ED4R84BiUIh1qgyZAW5+Kp4IMlWRjrclGfvrx1exiN3Gw==
+"@metamask/sdk-communication-layer@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@metamask/sdk-communication-layer/-/sdk-communication-layer-0.9.0.tgz#09741fb6aaf3ff7e3d6cc27e13ef13c7b8738b1c"
+  integrity sha512-rZwiSPivrzdCTGstT341aSJNVyHps0hTStHrXOFo/rKiXlxZlH3ZYfW8rAutVXPhuNdG88GWWZYO2QPzf288eA==
   dependencies:
     cross-fetch "^3.1.5"
     date-fns "^2.29.3"
@@ -672,27 +679,29 @@
     socket.io-client "^4.5.1"
     uuid "^8.3.2"
 
-"@metamask/sdk-install-modal-web@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@metamask/sdk-install-modal-web/-/sdk-install-modal-web-0.7.0.tgz#f99853ca4d6440fa9e298cac1f68fc6e1c4fd3de"
-  integrity sha512-R4iMn3KEGZ1rM52PBX3ZTLK8UKxkYIus0aqtKWy5At/OUe6/VhEtyJY7Eqv9rw9f/0uVPAxSjns3dJVT/ehg9Q==
+"@metamask/sdk-install-modal-web@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@metamask/sdk-install-modal-web/-/sdk-install-modal-web-0.9.0.tgz#8f801ba807484aac6796c3f7540a589d0344f381"
+  integrity sha512-ZEDqs2VXz7zQJpzmP/Qy9z9sLpg+Y/5wZx0555YjxcEp4KnP8aAB7WNQa2Wm07PgMT2Xm8hXrXRqV88t33Warw==
   dependencies:
     "@emotion/react" "^11.10.6"
     "@emotion/styled" "^11.10.6"
+    i18next "22.5.1"
     qr-code-styling "^1.6.0-rc.1"
     react "^18.2.0"
     react-dom "^18.2.0"
+    react-i18next "^13.2.2"
 
-"@metamask/sdk@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@metamask/sdk/-/sdk-0.7.0.tgz#4d08b269be62dfe32bfde48ff17d9ac16cf19c7c"
-  integrity sha512-aC23EJZsRaj5Wxd60UrE58bYwSWoTPOhyGDdLNDbbcQxET5b4MJHfmeWEx+HQqT4EqzGHE7J2ZrcnbITljrDPw==
+"@metamask/sdk@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@metamask/sdk/-/sdk-0.9.0.tgz#2e9717b80230a1873df226f362a7ff4492af4022"
+  integrity sha512-tu5q0LIXgBOxzFinytiI01G9m9UMcQsYIVQsRh+da+w1F0iC5XYyCQJNoM/kadqAQaG7cr5M7FMCX7AdUAH6sA==
   dependencies:
     "@metamask/onboarding" "^1.0.1"
     "@metamask/post-message-stream" "^6.1.0"
     "@metamask/providers" "^10.2.1"
-    "@metamask/sdk-communication-layer" "0.7.0"
-    "@metamask/sdk-install-modal-web" "0.7.0"
+    "@metamask/sdk-communication-layer" "0.9.0"
+    "@metamask/sdk-install-modal-web" "0.9.0"
     "@react-native-async-storage/async-storage" "^1.17.11"
     "@types/dom-screen-wake-lock" "^1.0.0"
     bowser "^2.9.0"
@@ -701,9 +710,12 @@
     eth-rpc-errors "^4.0.3"
     eventemitter2 "^6.4.7"
     extension-port-stream "^2.0.1"
+    i18next "22.5.1"
+    i18next-browser-languagedetector "^7.1.0"
     obj-multiplex "^1.0.0"
     pump "^3.0.0"
     qrcode-terminal "^0.12.0"
+    react-i18next "^13.2.2"
     react-native-webview "^11.26.0"
     readable-stream "^2.3.7"
     socket.io-client "^4.5.1"
@@ -3821,6 +3833,13 @@ html-entities@^1.3.1:
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-1.3.1.tgz#fb9a1a4b5b14c5daba82d3e34c6ae4fe701a0e44"
   integrity sha512-rhE/4Z3hIhzHAUKbW8jVcCyuT5oJCXXqhN/6mXXVCpzTmvJnoH2HL/bt3EZ6p55jbFJBeAe1ZNpL5BugLujxNA==
 
+html-parse-stringify@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/html-parse-stringify/-/html-parse-stringify-3.0.1.tgz#dfc1017347ce9f77c8141a507f233040c59c55d2"
+  integrity sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==
+  dependencies:
+    void-elements "3.1.0"
+
 http-deceiver@^1.2.7:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/http-deceiver/-/http-deceiver-1.2.7.tgz#fa7168944ab9a519d337cb0bec7284dc3e723d87"
@@ -3897,6 +3916,20 @@ humanize-url@^1.0.0:
   dependencies:
     normalize-url "^1.0.0"
     strip-url-auth "^1.0.0"
+
+i18next-browser-languagedetector@^7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-7.1.0.tgz#01876fac51f86b78975e79b48ccb62e2313a2d7d"
+  integrity sha512-cr2k7u1XJJ4HTOjM9GyOMtbOA47RtUoWRAtt52z43r3AoMs2StYKyjS3URPhzHaf+mn10hY9dZWamga5WPQjhA==
+  dependencies:
+    "@babel/runtime" "^7.19.4"
+
+i18next@22.5.1:
+  version "22.5.1"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-22.5.1.tgz#99df0b318741a506000c243429a7352e5f44d424"
+  integrity sha512-8TGPgM3pAD+VRsMtUMNknRz3kzqwp/gPALrWMsDnmC1mKqJwpWyooQRLMcbTwq8z8YwSmuj+ZYvc+xCuEpkssA==
+  dependencies:
+    "@babel/runtime" "^7.20.6"
 
 iconv-lite@0.4.24:
   version "0.4.24"
@@ -5806,6 +5839,14 @@ react-dom@^18.2.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
 
+react-i18next@^13.2.2:
+  version "13.3.0"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-13.3.0.tgz#8e39c0101f654db7eb971f159bb55067a78925c3"
+  integrity sha512-FlR9xjYHSPIJfQspEmkN0yOlxgRyNuiJKJ8gCaZH08UJ7SZHG+VrptEPcpEMEchjNoCOZdKcvJ3PnmHEZhkeXg==
+  dependencies:
+    "@babel/runtime" "^7.22.5"
+    html-parse-stringify "^3.0.1"
+
 react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -5919,6 +5960,11 @@ regenerator-runtime@^0.13.11:
   version "0.13.11"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
   integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
+
+regenerator-runtime@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.14.0.tgz#5e19d68eb12d486f797e15a3c6a918f7cec5eb45"
+  integrity sha512-srw17NI0TUWHuGa5CFGGmhfNIeja30WMBfbslPNhf6JrqQlLN5gcrvig1oqPxiVaXb0oW0XRKtH6Nngs5lKCIA==
 
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
@@ -7251,6 +7297,11 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
+
+void-elements@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-3.1.0.tgz#614f7fbf8d801f0bb5f0661f5b2f5785750e4f09"
+  integrity sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==
 
 watchpack-chokidar2@^2.0.0:
   version "2.0.0"
