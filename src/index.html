@@ -33,37 +33,26 @@
         <h3 class="card-title">
           Provider
         </h3>
-        <div class="row">
+        <div id="eip6963Warning" class="row justify-content-center">
+          <div class="warning-message justify-content-center col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+            <img
+              src="warning.svg"
+              alt=""
+              class="warning-message-icon
+              "
+            />
+            <div class="warning-message-text">No EIP-6963 Provider Detected</div>
+          </div>
+        </div>
+        <div class="row" id="eip6963" hidden>
           <div class="col-xl-8 col-lg-6 col-md-12 col-sm-12 col-12">
-            <div class="card">
+            <div class="card eip6963-providers">
               <div class="card-body">
                 <h4 class="card-title">
                   EIP 6963
                 </h4>
-                  <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="listenProviderButton"
-                >
-                  Listen Announce Provider Event
-                </button>
-                  <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="requestProviderButton"
-                  disabled
-                >
-                  Send Request Provider Event
-                </button>
-                  <div id="providers">
-                    <pre
-                    class="alert alert-secondary"
-                    >No Announce Provider Events Received</pre>
-                  </div>
-                  <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="useWindowProviderButton"
-                >
-                  Use window.ethereum
-                </button>
+                  <div class='row' id="providers">
+                </div>
               </div>
             </div>
           </div>
@@ -84,6 +73,11 @@
                 </p>
               </div>
             </div>
+              <button
+              class="btn btn-primary btn-lg btn-block mb-3"
+              id="useWindowProviderButton"
+            >
+              Use window.ethereum
           </div>
       </section>
       <section>

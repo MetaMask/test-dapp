@@ -45,12 +45,12 @@ const scrollTo = urlSearchParams.get('scrollTo');
  */
 
 // Provider Section
+const eip6963Section = document.getElementById('eip6963');
+const eip6963Warning = document.getElementById('eip6963Warning');
 const activeProviderUUIDResult = document.getElementById('activeProviderUUID');
 const activeProviderNameResult = document.getElementById('activeProviderName');
 const activeProviderIconResult = document.getElementById('activeProviderIcon');
 const providersDiv = document.getElementById('providers');
-const listenProviderButton = document.getElementById('listenProviderButton');
-const requestProviderButton = document.getElementById('requestProviderButton');
 const useWindowProviderButton = document.getElementById(
   'useWindowProviderButton',
 );
@@ -343,6 +343,19 @@ const isMetaMaskConnected = () => accounts && accounts.length > 0;
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 
+const detecEip6963 = () => {
+  window.addEventListener('eip6963:announceProvider', (event) => {
+    if (event.detail.info.uuid) {
+      eip6963Warning.hidden = true;
+      eip6963Section.hidden = false;
+
+      handleNewProviderDetail(event.detail);
+    }
+  });
+
+  window.dispatchEvent(new Event('eip6963:requestProvider'));
+};
+
 const setActiveProviderDetail = (providerDetail) => {
   closeProvider();
   provider = providerDetail.provider;
@@ -409,10 +422,15 @@ const handleNewProviderDetail = (newProviderDetail) => {
       null,
       2,
     );
+    const eip6963Provider = document.createElement('div');
+    eip6963Provider.id = 'provider';
+    eip6963Provider.className = 'col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12';
+    providersDiv.append(eip6963Provider);
+
     const pre = document.createElement('pre');
     pre.className = 'alert alert-secondary';
     pre.innerText = content;
-    providersDiv.appendChild(pre);
+    eip6963Provider.appendChild(pre);
 
     const button = document.createElement('button');
     button.className = 'btn btn-primary btn-lg btn-block mb-3';
@@ -420,7 +438,7 @@ const handleNewProviderDetail = (newProviderDetail) => {
     button.onclick = () => {
       setActiveProviderDetail(providerDetail);
     };
-    providersDiv.appendChild(button);
+    eip6963Provider.appendChild(button);
   });
 };
 
@@ -2291,20 +2309,6 @@ const initializeFormElements = () => {
    * Providers
    */
 
-  listenProviderButton.onclick = () => {
-    listenProviderButton.disabled = true;
-    requestProviderButton.disabled = false;
-
-    window.addEventListener('eip6963:announceProvider', (event) => {
-      console.log('Received eip6963:announceProvider event', event);
-      handleNewProviderDetail(event.detail);
-    });
-  };
-
-  requestProviderButton.onclick = () => {
-    window.dispatchEvent(new Event('eip6963:requestProvider'));
-  };
-
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
 };
 
@@ -2315,6 +2319,7 @@ const initializeFormElements = () => {
 const initialize = async () => {
   initializeFormElements();
   setActiveProviderDetailWindowEthereum();
+  detecEip6963();
 };
 
 window.addEventListener('load', initialize);
