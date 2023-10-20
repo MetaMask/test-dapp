@@ -345,7 +345,7 @@ const isMetaMaskConnected = () => accounts && accounts.length > 0;
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 
-const detecEip6963 = () => {
+const detectEip6963 = () => {
   window.addEventListener('eip6963:announceProvider', (event) => {
     if (event.detail.info.uuid) {
       eip6963Warning.hidden = true;
@@ -2317,7 +2317,7 @@ const initializeFormElements = () => {
 const initialize = async () => {
   initializeFormElements();
   setActiveProviderDetailWindowEthereum();
-  detecEip6963();
+  detectEip6963();
 };
 
 window.addEventListener('load', initialize);
