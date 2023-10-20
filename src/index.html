@@ -260,7 +260,7 @@
                 </h4>
 
                 <p class="info-text alert alert-success">
-                  Token: <span id="tokenAddress"></span>
+                  Token(s): <span id="tokenAddresses"></span>
                 </p>
 
                 <div class="form-group">
@@ -285,10 +285,10 @@
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="watchAsset"
+                  id="watchAssets"
                   disabled
                 >
-                  Add Token to Wallet
+                  Add Token(s) to Wallet
                 </button>
 
                 <button
@@ -359,6 +359,26 @@
                     disabled
                   >
                     Mint
+                  </button>
+                </div>
+
+                <div class="form-group">
+                  <label>Watch NFT</label>
+                  <input
+                    class="form-control"
+                    type="number"
+                    id="watchNFTInput"
+                    value="1"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="watchNFTButton"
+                    disabled
+                  >
+                    Watch NFT
                   </button>
                 </div>
 
@@ -599,6 +619,71 @@
           </div>
         </div>
       </div>
+      </section>
+
+      <section>
+        <div class="row">
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4 class="card-title">
+                  PPOM
+                </h4>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousRawEthButton"
+                  disabled
+                >
+                  Malicious Eth Transfer
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousERC20TransferButton"
+                  disabled
+                >
+                  Malicious ERC20 Transfer (USDC)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousApprovalButton"
+                  disabled
+                >
+                  Malicious ERC20 Approval (BUSD)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousSetApprovalForAll"
+                  disabled
+                >
+                  Malicious Set Approval For All
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousPermit"
+                  disabled
+                >
+                  Malicious Permit
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousTradeOrder"
+                  disabled
+                >
+                  Malicious Trade Order
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousSeaport"
+                  disabled
+                >
+                  Malicious Seaport
+                </button>
+              </div>
+            </div>
+          </div>
+          </div>
       </section>
 
       <section>
