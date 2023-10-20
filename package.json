@@ -35,7 +35,7 @@
   },
   "homepage": "https://metamask.github.io/test-dapp",
   "dependencies": {
-    "@metamask/sdk": "^0.9.0"
+    "@metamask/sdk": "^0.10.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^1.0.6",
