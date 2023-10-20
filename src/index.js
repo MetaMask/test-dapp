@@ -249,6 +249,8 @@ const allConnectedButtons = [
   mintAmountInput,
   approveTokenInput,
   approveButton,
+  watchNFTInput,
+  watchNFTButton,
   setApprovalForAllButton,
   revokeButton,
   transferTokenInput,
@@ -767,6 +769,8 @@ const updateContractElements = () => {
     mintAmountInput.disabled = false;
     approveTokenInput.disabled = false;
     approveButton.disabled = false;
+    watchNFTInput.disabled = false;
+    watchNFTButton.disabled = false;
     setApprovalForAllButton.disabled = false;
     revokeButton.disabled = false;
     transferTokenInput.disabled = false;
@@ -1008,39 +1012,33 @@ const initializeFormElements = () => {
     nftsStatus.innerHTML = 'Mint completed';
     approveTokenInput.disabled = false;
     approveButton.disabled = false;
+    watchNFTInput.disabled = false;
+    watchNFTButton.disabled = false;
     setApprovalForAllButton.disabled = false;
     revokeButton.disabled = false;
     transferTokenInput.disabled = false;
     transferFromButton.disabled = false;
     watchNFTsButton.disabled = false;
     watchNFTButtons.innerHTML = '';
-    const nftsContractAddress = nftsContract.address;
-    const currentTokenId = await nftsContract.currentTokenId();
-    const provider_ = provider;
-    for (let i = 0; i < currentTokenId; i++) {
-      const button = document.createElement('button');
-      button.innerHTML = `Watch NFT ${i + 1}`;
-      button.className = 'btn btn-primary btn-lg btn-block mb-3';
-      button.onclick = async () => {
-        let watchNftsResult;
-        try {
-          watchNftsResult = await provider_.request({
-            method: 'wallet_watchAsset',
-            params: {
-              type: 'ERC721',
-              options: {
-                address: nftsContractAddress,
-                tokenId: `${i + 1}`,
-              },
-            },
-          });
-        } catch (error) {
-          console.error(error);
-        }
-        console.log(watchNftsResult);
-      };
-      watchNFTButtons.appendChild(button);
+  };
+
+  watchNFTButton.onclick = async () => {
+    let watchNftsResult;
+    try {
+      watchNftsResult = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC721',
+          options: {
+            address: nftsContract.address,
+            tokenId: watchNFTInput.value,
+          },
+        },
+      });
+    } catch (error) {
+      console.error(error);
     }
+    console.log(watchNftsResult);
   };
 
   approveButton.onclick = async () => {
