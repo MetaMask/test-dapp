@@ -392,13 +392,17 @@ const existsProviderDetail = (newProviderDetail) => {
   );
 
   if (existingProvider) {
-    if (existingProvider.info.name !== newProviderDetail.info.name) {
+    if (
+      existingProvider.info.name !== newProviderDetail.info.name ||
+      existingProvider.info.rdns !== newProviderDetail.info.rdns ||
+      existingProvider.info.image !== newProviderDetail.info.image
+    ) {
       console.error(
-        `Received new ProviderDetail with name "${newProviderDetail.info.name}" and uuid "${existingProvider.info.uuid}" matching uuid of previously received ProviderDetail with name "${existingProvider.info.name}"`,
+        `Received new ProviderDetail with name "${newProviderDetail.info.name}", rdns "${newProviderDetail.info.rdns}, image "${newProviderDetail.info.image}, and uuid "${existingProvider.info.uuid}" matching uuid of previously received ProviderDetail with name "${existingProvider.info.name}", rdns "${existingProvider.info.rdns}", and image "${existingProvider.info.image}"`,
       );
     }
     console.log(
-      `Ignoring ProviderDetail with name "${newProviderDetail.info.name}" and uuid "${existingProvider.info.uuid}" that was already received before`,
+      `Ignoring ProviderDetail with name "${newProviderDetail.info.name}", rdns "${newProviderDetail.info.rdns}", and uuid "${existingProvider.info.uuid}" that was already received before`,
     );
     return true;
   }
