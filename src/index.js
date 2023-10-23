@@ -380,6 +380,7 @@ const setActiveProviderDetailWindowEthereum = () => {
     },
     provider: window.ethereum,
   };
+  console.log(window.ethereum);
   setActiveProviderDetail(providerDetail);
 };
 
@@ -793,7 +794,7 @@ const updateContractElements = () => {
     setApprovalForAllERC1155Button.disabled = false;
     revokeERC1155Button.disabled = false;
     // ERC20 Token - Send Tokens
-    tokenAddresses.innerHTML = hstContract.address;
+    tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
     approveTokens.disabled = false;
@@ -2319,9 +2320,9 @@ const initializeFormElements = () => {
  */
 
 const initialize = async () => {
-  initializeFormElements();
   setActiveProviderDetailWindowEthereum();
   detectEip6963();
+  initializeFormElements();
 };
 
 window.addEventListener('load', initialize);
