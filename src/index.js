@@ -380,7 +380,7 @@ const setActiveProviderDetailWindowEthereum = () => {
     },
     provider: window.ethereum,
   };
-  console.log(window.ethereum);
+
   setActiveProviderDetail(providerDetail);
 };
 
