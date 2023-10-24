@@ -1,5 +1,6 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { ProvidePlugin } = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 
 const DIST = path.resolve(__dirname, 'dist');
@@ -31,6 +32,9 @@ module.exports = {
     },
   },
   plugins: [
+    new ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
 
     // for build scripts
