@@ -18,7 +18,6 @@ module.exports = {
     request: './src/request.js',
   },
   output: {
-    // hashFunction: 'xxhash64', // fix for webpack v4 nodejs v18+ compatability; remove when upgraded to webpack 5. https://github.com/webpack/webpack/issues/14532
     path: DIST,
     publicPath: DIST,
   },
@@ -28,9 +27,7 @@ module.exports = {
     },
     port: 9011,
     static: {
-      staticOptions: {
-        contentBase: DIST,
-      },
+      directory: DIST,
     },
   },
   plugins: [
@@ -40,11 +37,11 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          // flatten: true,
           from: './src/*',
           globOptions: {
             ignore: ['**/*.js'],
           },
+          to: '[name][ext]',
         },
       ],
     }),
