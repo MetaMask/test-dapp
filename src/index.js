@@ -9,6 +9,7 @@ import {
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
+import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 import {
   hstBytecode,
   hstAbi,
@@ -24,19 +25,9 @@ import {
   erc1155Bytecode,
 } from './constants.json';
 
-let ethersProvider;
-let hstFactory;
-let piggybankFactory;
-let nftsFactory;
-let failingContractFactory;
-let multisigFactory;
-let erc1155Factory;
-let hstContract;
-let piggybankContract;
-let nftsContract;
-let failingContract;
-let multisigContract;
-let erc1155Contract;
+/**
+ * Page
+ */
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -49,7 +40,20 @@ if (!ethers.utils.isAddress(deployedContractAddress)) {
 
 const scrollTo = urlSearchParams.get('scrollTo');
 
-const { isMetaMaskInstalled } = MetaMaskOnboarding;
+/**
+ * DOM
+ */
+
+// Provider Section
+const eip6963Section = document.getElementById('eip6963');
+const eip6963Warning = document.getElementById('eip6963Warning');
+const activeProviderUUIDResult = document.getElementById('activeProviderUUID');
+const activeProviderNameResult = document.getElementById('activeProviderName');
+const activeProviderIconResult = document.getElementById('activeProviderIcon');
+const providersDiv = document.getElementById('providers');
+const useWindowProviderButton = document.getElementById(
+  'useWindowProviderButton',
+);
 
 // Dapp Status Section
 const networkDiv = document.getElementById('network');
@@ -60,7 +64,7 @@ const warningDiv = document.getElementById('warning');
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
 const getAccountsButton = document.getElementById('getAccounts');
-const getAccountsResults = document.getElementById('getAccountsResult');
+const getAccountsResult = document.getElementById('getAccountsResult');
 
 // Permissions Actions Section
 const requestPermissionsButton = document.getElementById('requestPermissions');
@@ -235,10 +239,378 @@ const maliciousSetApprovalForAll = document.getElementById(
   'maliciousSetApprovalForAll',
 );
 
-const initialize = async () => {
+// Buttons that require connecting an account
+const allConnectedButtons = [
+  deployButton,
+  depositButton,
+  withdrawButton,
+  deployNFTsButton,
+  mintButton,
+  mintAmountInput,
+  approveTokenInput,
+  approveButton,
+  watchNFTInput,
+  watchNFTButton,
+  setApprovalForAllButton,
+  revokeButton,
+  transferTokenInput,
+  transferFromButton,
+  watchNFTsButton,
+  deployERC1155Button,
+  batchTransferTokenIds,
+  batchTransferTokenAmounts,
+  batchTransferFromButton,
+  setApprovalForAllERC1155Button,
+  revokeERC1155Button,
+  deployFailingButton,
+  sendFailingButton,
+  deployMultisigButton,
+  sendMultisigButton,
+  sendButton,
+  createToken,
+  decimalUnitsInput,
+  watchAssets,
+  transferTokens,
+  approveTokens,
+  transferTokensWithoutGas,
+  approveTokensWithoutGas,
+  getEncryptionKeyButton,
+  encryptMessageInput,
+  encryptButton,
+  decryptButton,
+  ethSign,
+  personalSign,
+  personalSignVerify,
+  signTypedData,
+  signTypedDataVerify,
+  signTypedDataV3,
+  signTypedDataV3Verify,
+  signTypedDataV4,
+  signTypedDataV4Verify,
+  signPermit,
+  signPermitVerify,
+  siwe,
+  siweResources,
+  siweBadDomain,
+  siweBadAccount,
+  siweMalformed,
+  eip747WatchButton,
+  maliciousApprovalButton,
+  maliciousSetApprovalForAll,
+  maliciousERC20TransferButton,
+  maliciousRawEthButton,
+  maliciousPermit,
+  maliciousTradeOrder,
+  maliciousSeaport,
+];
+
+// Buttons that are available after initially connecting an account
+const initialConnectedButtons = [
+  deployButton,
+  deployNFTsButton,
+  deployERC1155Button,
+  sendButton,
+  deployFailingButton,
+  deployMultisigButton,
+  createToken,
+  decimalUnitsInput,
+  personalSign,
+  signTypedData,
+  getEncryptionKeyButton,
+  ethSign,
+  personalSign,
+  signTypedData,
+  signTypedDataV3,
+  signTypedDataV4,
+  signPermit,
+  siwe,
+  siweResources,
+  siweBadDomain,
+  siweBadAccount,
+  siweMalformed,
+  eip747WatchButton,
+];
+
+/**
+ * Provider
+ */
+
+const providerDetails = [];
+let provider;
+let accounts = [];
+let scrollToHandled = false;
+
+const isMetaMaskConnected = () => accounts && accounts.length > 0;
+
+// TODO: Need to align with @metamask/onboarding
+const isMetaMaskInstalled = () => provider && provider.isMetaMask;
+
+const detectEip6963 = () => {
+  window.addEventListener('eip6963:announceProvider', (event) => {
+    if (event.detail.info.uuid) {
+      eip6963Warning.hidden = true;
+      eip6963Section.hidden = false;
+
+      handleNewProviderDetail(event.detail);
+    }
+  });
+
+  window.dispatchEvent(new Event('eip6963:requestProvider'));
+};
+
+const setActiveProviderDetail = (providerDetail) => {
+  closeProvider();
+  provider = providerDetail.provider;
+  initializeProvider();
+
+  const { uuid, name, icon } = providerDetail.info;
+  activeProviderUUIDResult.innerText = uuid;
+  activeProviderNameResult.innerText = name;
+  activeProviderIconResult.innerHTML = icon
+    ? `<img src="${icon}" height="90" width="90" />`
+    : '';
+};
+
+const setActiveProviderDetailWindowEthereum = () => {
+  const providerDetail = {
+    info: {
+      uuid: '',
+      name: 'window.ethereum',
+      icon: '',
+    },
+    provider: window.ethereum,
+  };
+
+  setActiveProviderDetail(providerDetail);
+};
+
+const existsProviderDetail = (newProviderDetail) => {
+  const existingProvider = providerDetails.find(
+    (providerDetail) =>
+      providerDetail.info &&
+      newProviderDetail.info &&
+      providerDetail.info.uuid === newProviderDetail.info.uuid,
+  );
+
+  if (existingProvider) {
+    if (
+      existingProvider.info.name !== newProviderDetail.info.name ||
+      existingProvider.info.rdns !== newProviderDetail.info.rdns ||
+      existingProvider.info.image !== newProviderDetail.info.image
+    ) {
+      console.error(
+        `Received new ProviderDetail with name "${newProviderDetail.info.name}", rdns "${newProviderDetail.info.rdns}, image "${newProviderDetail.info.image}, and uuid "${existingProvider.info.uuid}" matching uuid of previously received ProviderDetail with name "${existingProvider.info.name}", rdns "${existingProvider.info.rdns}", and image "${existingProvider.info.image}"`,
+      );
+    }
+    console.log(
+      `Ignoring ProviderDetail with name "${newProviderDetail.info.name}", rdns "${newProviderDetail.info.rdns}", and uuid "${existingProvider.info.uuid}" that was already received before`,
+    );
+    return true;
+  }
+  return false;
+};
+
+const handleNewProviderDetail = (newProviderDetail) => {
+  if (existsProviderDetail(newProviderDetail)) {
+    return;
+  }
+
+  providerDetails.push(newProviderDetail);
+
+  providersDiv.innerHTML = '';
+  providerDetails.forEach((providerDetail) => {
+    const { info, provider: provider_ } = providerDetail;
+
+    const content = JSON.stringify(
+      {
+        info,
+        provider: provider_ ? '...' : provider_,
+      },
+      null,
+      2,
+    );
+    const eip6963Provider = document.createElement('div');
+    eip6963Provider.id = 'provider';
+    eip6963Provider.className = 'col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12';
+    providersDiv.append(eip6963Provider);
+
+    const pre = document.createElement('pre');
+    pre.className = 'alert alert-secondary';
+    pre.innerText = content;
+    eip6963Provider.appendChild(pre);
+
+    const button = document.createElement('button');
+    button.className = 'btn btn-primary btn-lg btn-block mb-3';
+    button.innerHTML = `Use ${info.name}`;
+    button.onclick = () => {
+      setActiveProviderDetail(providerDetail);
+    };
+    eip6963Provider.appendChild(button);
+  });
+};
+
+const handleNewAccounts = (newAccounts) => {
+  accounts = newAccounts;
+  updateFormElements();
+
+  accountsDiv.innerHTML = accounts;
+  fromDiv.value = accounts[0] || '';
+  gasPriceDiv.style.display = 'block';
+  maxFeeDiv.style.display = 'none';
+  maxPriorityDiv.style.display = 'none';
+};
+
+const handleNewChain = (chainId) => {
+  chainIdDiv.innerHTML = chainId;
+
+  if (chainId === '0x1') {
+    warningDiv.classList.remove('warning-invisible');
+  } else {
+    warningDiv.classList.add('warning-invisible');
+  }
+
+  // Wait until warning rendered or not to improve accuracy
+  if (!scrollToHandled) {
+    handleScrollTo({ delay: true });
+  }
+};
+
+const handleNewNetwork = (networkId) => {
+  networkDiv.innerHTML = networkId;
+};
+
+const getNetworkAndChainId = async () => {
+  try {
+    const chainId = await provider.request({
+      method: 'eth_chainId',
+    });
+    handleNewChain(chainId);
+
+    const networkId = await provider.request({
+      method: 'net_version',
+    });
+    handleNewNetwork(networkId);
+
+    handleEIP1559Support();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleEIP1559Support = async () => {
+  const block = await provider.request({
+    method: 'eth_getBlockByNumber',
+    params: ['latest', false],
+  });
+
+  const supported = block.baseFeePerGas !== undefined;
+
+  if (supported && Array.isArray(accounts) && accounts.length >= 1) {
+    sendEIP1559Button.disabled = false;
+    sendEIP1559Button.hidden = false;
+    sendButton.innerText = 'Send Legacy Transaction';
+  } else {
+    sendEIP1559Button.disabled = true;
+    sendEIP1559Button.hidden = true;
+    sendButton.innerText = 'Send';
+  }
+};
+
+// Must be called before the active provider changes
+// Resets provider state and removes any listeners from active provider
+const closeProvider = () => {
+  // move these
+  handleNewAccounts([]);
+  handleNewChain('');
+  handleNewNetwork('');
+  if (isMetaMaskInstalled()) {
+    provider.removeListener('chainChanged', handleNewChain);
+    provider.removeListener('chainChanged', handleEIP1559Support);
+    provider.removeListener('chainChanged', handleNewNetwork);
+    provider.removeListener('accountsChanged', handleNewAccounts);
+    provider.removeListener('accountsChanged', handleEIP1559Support);
+  }
+};
+
+// Must be called after the active provider changes
+// Initializes active provider and adds any listeners
+const initializeProvider = async () => {
+  initializeContracts();
+  updateFormElements();
+
+  if (isMetaMaskInstalled()) {
+    provider.autoRefreshOnNetworkChange = false;
+    getNetworkAndChainId();
+
+    provider.on('chainChanged', handleNewChain);
+    provider.on('chainChanged', handleEIP1559Support);
+    provider.on('chainChanged', handleNewNetwork);
+    provider.on('accountsChanged', handleNewAccounts);
+    provider.on('accountsChanged', handleEIP1559Support);
+
+    try {
+      const newAccounts = await provider.request({
+        method: 'eth_accounts',
+      });
+      handleNewAccounts(newAccounts);
+    } catch (err) {
+      console.error('Error on init when getting accounts', err);
+    }
+  } else {
+    handleScrollTo();
+  }
+};
+
+/**
+ * Misc
+ */
+
+const handleScrollTo = async ({ delay = false } = {}) => {
+  if (!scrollTo) {
+    return;
+  }
+
+  scrollToHandled = true;
+
+  console.log('Attempting to scroll to element with ID:', scrollTo);
+
+  const scrollToElement = document.getElementById(scrollTo);
+
+  if (!scrollToElement) {
+    console.warn('Cannot find element with ID:', scrollTo);
+    return;
+  }
+
+  if (delay) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  scrollToElement.scrollIntoView();
+};
+
+/**
+ * Contracts
+ */
+
+let ethersProvider;
+let hstFactory;
+let piggybankFactory;
+let nftsFactory;
+let failingContractFactory;
+let multisigFactory;
+let erc1155Factory;
+let hstContract;
+let piggybankContract;
+let nftsContract;
+let failingContract;
+let multisigContract;
+let erc1155Contract;
+
+// Must be called after the active provider changes
+const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
@@ -304,7 +676,44 @@ const initialize = async () => {
   } catch (error) {
     console.error(error);
   }
+};
 
+/**
+ * Form / Elements
+ */
+
+// Must be called after the provider or connect acccounts change
+// Updates form elements content and disabled status
+const updateFormElements = () => {
+  const accountButtonsDisabled =
+    !isMetaMaskInstalled() || !isMetaMaskConnected();
+  if (accountButtonsDisabled) {
+    for (const button of allConnectedButtons) {
+      button.disabled = true;
+    }
+    clearDisplayElements();
+  } else {
+    for (const button of initialConnectedButtons) {
+      button.disabled = false;
+    }
+  }
+
+  updateOnboardElements();
+  updateContractElements();
+};
+
+const clearDisplayElements = () => {
+  getAccountsResult.innerText = '';
+  permissionsResult.innerText = '';
+  encryptionKeyDisplay.innerText = '';
+  encryptMessageInput.value = '';
+  ciphertextDisplay.innerText = '';
+  cleartextDisplay.innerText = '';
+  batchTransferTokenIds.value = '';
+  batchTransferTokenAmounts.value = '';
+};
+
+const updateOnboardElements = () => {
   let onboarding;
   try {
     onboarding = new MetaMaskOnboarding({ forwarderOrigin });
@@ -312,214 +721,884 @@ const initialize = async () => {
     console.error(error);
   }
 
-  let accounts;
-  let accountButtonsInitialized = false;
-  let scrollToHandled = false;
+  if (isMetaMaskInstalled()) {
+    addEthereumChain.disabled = false;
+    switchEthereumChain.disabled = false;
+  } else {
+    onboardButton.innerText = 'Click here to install MetaMask!';
+    onboardButton.onclick = () => {
+      onboardButton.innerText = 'Onboarding in progress';
+      onboardButton.disabled = true;
+      onboarding.startOnboarding();
+    };
+    onboardButton.disabled = false;
+  }
 
-  const accountButtons = [
-    deployButton,
-    depositButton,
-    withdrawButton,
-    deployNFTsButton,
-    mintButton,
-    mintAmountInput,
-    approveTokenInput,
-    approveButton,
-    watchNFTInput,
-    watchNFTButton,
-    setApprovalForAllButton,
-    revokeButton,
-    transferTokenInput,
-    transferFromButton,
-    watchNFTsButton,
-    deployERC1155Button,
-    batchTransferTokenIds,
-    batchTransferTokenAmounts,
-    batchTransferFromButton,
-    setApprovalForAllERC1155Button,
-    revokeERC1155Button,
-    deployFailingButton,
-    sendFailingButton,
-    deployMultisigButton,
-    sendMultisigButton,
-    sendButton,
-    createToken,
-    decimalUnitsInput,
-    watchAssets,
-    transferTokens,
-    approveTokens,
-    transferTokensWithoutGas,
-    approveTokensWithoutGas,
-    getEncryptionKeyButton,
-    encryptMessageInput,
-    encryptButton,
-    decryptButton,
-    ethSign,
-    personalSign,
-    personalSignVerify,
-    signTypedData,
-    signTypedDataVerify,
-    signTypedDataV3,
-    signTypedDataV3Verify,
-    signTypedDataV4,
-    signTypedDataV4Verify,
-    signPermit,
-    signPermitVerify,
-    siwe,
-    siweResources,
-    siweBadDomain,
-    siweBadAccount,
-    siweMalformed,
-    eip747WatchButton,
-    maliciousApprovalButton,
-    maliciousSetApprovalForAll,
-    maliciousERC20TransferButton,
-    maliciousRawEthButton,
-    maliciousPermit,
-    maliciousTradeOrder,
-    maliciousSeaport,
-  ];
-
-  mintButton.disabled = false;
-
-  const isMetaMaskConnected = () => accounts && accounts.length > 0;
-
-  const onClickInstall = () => {
-    onboardButton.innerText = 'Onboarding in progress';
+  if (isMetaMaskConnected()) {
+    onboardButton.innerText = 'Connected';
     onboardButton.disabled = true;
-    onboarding.startOnboarding();
+    if (onboarding) {
+      onboarding.stopOnboarding();
+    }
+  } else {
+    onboardButton.innerText = 'Connect';
+    onboardButton.onclick = async () => {
+      try {
+        const newAccounts = await provider.request({
+          method: 'eth_requestAccounts',
+        });
+        handleNewAccounts(newAccounts);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    onboardButton.disabled = false;
+  }
+};
+
+const updateContractElements = () => {
+  if (deployedContractAddress) {
+    // Piggy bank contract
+    contractStatus.innerHTML = 'Deployed';
+    depositButton.disabled = false;
+    withdrawButton.disabled = false;
+    // Failing contract
+    failingContractStatus.innerHTML = 'Deployed';
+    sendFailingButton.disabled = false;
+    // Multisig contract
+    multisigContractStatus.innerHTML = 'Deployed';
+    sendMultisigButton.disabled = false;
+    // ERC721 Token - NFTs contract
+    nftsStatus.innerHTML = 'Deployed';
+    mintButton.disabled = false;
+    mintAmountInput.disabled = false;
+    approveTokenInput.disabled = false;
+    approveButton.disabled = false;
+    watchNFTInput.disabled = false;
+    watchNFTButton.disabled = false;
+    setApprovalForAllButton.disabled = false;
+    revokeButton.disabled = false;
+    transferTokenInput.disabled = false;
+    transferFromButton.disabled = false;
+    watchNFTsButton.disabled = false;
+    watchNFTButtons.innerHTML = '';
+
+    // ERC 1155 Multi Token
+    erc1155Status.innerHTML = 'Deployed';
+    batchMintButton.disabled = false;
+    batchMintTokenIds.disabled = false;
+    batchMintIdAmounts.disabled = false;
+    batchTransferTokenIds.disabled = false;
+    batchTransferTokenAmounts.disabled = false;
+    batchTransferFromButton.disabled = false;
+    setApprovalForAllERC1155Button.disabled = false;
+    revokeERC1155Button.disabled = false;
+    // ERC20 Token - Send Tokens
+    tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
+    watchAssets.disabled = false;
+    transferTokens.disabled = false;
+    approveTokens.disabled = false;
+    transferTokensWithoutGas.disabled = false;
+    approveTokensWithoutGas.disabled = false;
+  }
+};
+
+// Initializes form button onclicks
+const initializeFormElements = () => {
+  /**
+   * Piggy bank
+   */
+
+  deployButton.onclick = async () => {
+    contractStatus.innerHTML = 'Deploying';
+
+    try {
+      piggybankContract = await piggybankFactory.deploy();
+      await piggybankContract.deployTransaction.wait();
+    } catch (error) {
+      contractStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+
+    if (piggybankContract.address === undefined) {
+      return;
+    }
+
+    console.log(
+      `Contract mined! address: ${piggybankContract.address} transactionHash: ${piggybankContract.deployTransaction.hash}`,
+    );
+    contractStatus.innerHTML = 'Deployed';
+    depositButton.disabled = false;
+    withdrawButton.disabled = false;
   };
 
-  const onClickConnect = async () => {
+  depositButton.onclick = async () => {
+    contractStatus.innerHTML = 'Deposit initiated';
+    const result = await piggybankContract.deposit({
+      from: accounts[0],
+      value: '0x3782dace9d900000',
+    });
+    console.log(result);
+    const receipt = await result.wait();
+    console.log(receipt);
+    contractStatus.innerHTML = 'Deposit completed';
+  };
+
+  withdrawButton.onclick = async () => {
+    const result = await piggybankContract.withdraw('0xde0b6b3a7640000', {
+      from: accounts[0],
+    });
+    console.log(result);
+    const receipt = await result.wait();
+    console.log(receipt);
+    contractStatus.innerHTML = 'Withdrawn';
+  };
+
+  /**
+   * Failing
+   */
+
+  deployFailingButton.onclick = async () => {
+    failingContractStatus.innerHTML = 'Deploying';
+
     try {
-      const newAccounts = await ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-      handleNewAccounts(newAccounts);
+      failingContract = await failingContractFactory.deploy();
+      await failingContract.deployTransaction.wait();
     } catch (error) {
+      failingContractStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+
+    if (failingContract.address === undefined) {
+      return;
+    }
+
+    console.log(
+      `Contract mined! address: ${failingContract.address} transactionHash: ${failingContract.deployTransaction.hash}`,
+    );
+    failingContractStatus.innerHTML = 'Deployed';
+    sendFailingButton.disabled = false;
+  };
+
+  sendFailingButton.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: accounts[0],
+            to: failingContract.address,
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      failingContractStatus.innerHTML =
+        'Failed transaction process completed as expected.';
+      console.log('send failing contract result', result);
+    } catch (error) {
+      console.log('error', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Multisig
+   */
+
+  deployMultisigButton.onclick = async () => {
+    multisigContractStatus.innerHTML = 'Deploying';
+
+    try {
+      multisigContract = await multisigFactory.deploy();
+      await multisigContract.deployTransaction.wait();
+    } catch (error) {
+      multisigContractStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+
+    if (multisigContract.address === undefined) {
+      return;
+    }
+
+    console.log(
+      `Contract mined! address: ${multisigContract.address} transactionHash: ${multisigContract.deployTransaction.hash}`,
+    );
+    multisigContractStatus.innerHTML = 'Deployed';
+    sendMultisigButton.disabled = false;
+  };
+
+  sendMultisigButton.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: accounts[0],
+            to: multisigContract.address,
+            value: '0x16345785D8A0', // 24414062500000
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      multisigContractStatus.innerHTML = 'Transaction completed as expected.';
+      console.log('send multisig contract result', result);
+    } catch (error) {
+      console.log('error', error);
+      throw error;
+    }
+  };
+
+  /**
+   * ERC721 Token
+   */
+
+  deployNFTsButton.onclick = async () => {
+    nftsStatus.innerHTML = 'Deploying';
+
+    try {
+      nftsContract = await nftsFactory.deploy();
+      await nftsContract.deployTransaction.wait();
+    } catch (error) {
+      nftsStatus.innerHTML = 'Deployment Failed';
+      throw error;
+    }
+
+    if (nftsContract.address === undefined) {
+      return;
+    }
+
+    console.log(
+      `Contract mined! address: ${nftsContract.address} transactionHash: ${nftsContract.deployTransaction.hash}`,
+    );
+    nftsStatus.innerHTML = 'Deployed';
+    mintButton.disabled = false;
+    mintAmountInput.disabled = false;
+  };
+
+  watchNFTsButton.onclick = async () => {
+    const currentTokenId = await nftsContract.currentTokenId();
+    const nftsContractAddress = nftsContract.address;
+    let watchNftsResult;
+    try {
+      watchNftsResult = await ethereum.sendAsync(
+        Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
+          (tokenId) => {
+            return {
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC721',
+                options: {
+                  address: nftsContractAddress,
+                  tokenId: tokenId.toString(),
+                },
+              },
+            };
+          },
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(watchNftsResult);
+  };
+
+  mintButton.onclick = async () => {
+    nftsStatus.innerHTML = 'Mint initiated';
+    let result = await nftsContract.mintNFTs(mintAmountInput.value, {
+      from: accounts[0],
+    });
+    result = await result.wait();
+    console.log(result);
+    nftsStatus.innerHTML = 'Mint completed';
+    approveTokenInput.disabled = false;
+    approveButton.disabled = false;
+    watchNFTInput.disabled = false;
+    watchNFTButton.disabled = false;
+    setApprovalForAllButton.disabled = false;
+    revokeButton.disabled = false;
+    transferTokenInput.disabled = false;
+    transferFromButton.disabled = false;
+    watchNFTsButton.disabled = false;
+    watchNFTButtons.innerHTML = '';
+  };
+
+  watchNFTButton.onclick = async () => {
+    let watchNftsResult;
+    try {
+      watchNftsResult = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC721',
+          options: {
+            address: nftsContract.address,
+            tokenId: watchNFTInput.value,
+          },
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(watchNftsResult);
+  };
+
+  approveButton.onclick = async () => {
+    nftsStatus.innerHTML = 'Approve initiated';
+    let result = await nftsContract.approve(
+      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      approveTokenInput.value,
+      {
+        from: accounts[0],
+      },
+    );
+    result = await result.wait();
+    console.log(result);
+    nftsStatus.innerHTML = 'Approve completed';
+  };
+
+  setApprovalForAllButton.onclick = async () => {
+    nftsStatus.innerHTML = 'Set Approval For All initiated';
+    let result = await nftsContract.setApprovalForAll(
+      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      true,
+      {
+        from: accounts[0],
+      },
+    );
+    result = await result.wait();
+    console.log(result);
+    nftsStatus.innerHTML = 'Set Approval For All completed';
+  };
+
+  revokeButton.onclick = async () => {
+    nftsStatus.innerHTML = 'Revoke initiated';
+    let result = await nftsContract.setApprovalForAll(
+      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      false,
+      {
+        from: accounts[0],
+      },
+    );
+    result = await result.wait();
+    console.log(result);
+    nftsStatus.innerHTML = 'Revoke completed';
+  };
+
+  transferFromButton.onclick = async () => {
+    nftsStatus.innerHTML = 'Transfer From initiated';
+    let result = await nftsContract.transferFrom(
+      accounts[0],
+      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+      transferTokenInput.value,
+      {
+        from: accounts[0],
+      },
+    );
+    result = await result.wait();
+    console.log(result);
+    nftsStatus.innerHTML = 'Transfer From completed';
+  };
+
+  /**
+   * ERC1155 Token
+   */
+
+  deployERC1155Button.onclick = async () => {
+    erc1155Status.innerHTML = 'Deploying';
+
+    try {
+      erc1155Contract = await erc1155Factory.deploy();
+      await erc1155Contract.deployTransaction.wait();
+    } catch (error) {
+      erc1155Status.innerHTML = 'Deployment Failed!';
+      throw error;
+    }
+
+    if (erc1155Contract.address === undefined) {
+      return;
+    }
+
+    console.log(
+      `Contract mined! address: ${erc1155Contract.address} transactionHash: ${erc1155Contract.deployTransaction.hash}`,
+    );
+
+    erc1155Status.innerHTML = 'Deployed';
+    batchTransferTokenIds.disabled = false;
+    batchTransferTokenAmounts.disabled = false;
+    batchMintButton.disabled = false;
+    batchTransferFromButton.disabled = false;
+    setApprovalForAllERC1155Button.disabled = false;
+    revokeERC1155Button.disabled = false;
+  };
+
+  batchMintButton.onclick = async () => {
+    erc1155Status.innerHTML = 'Batch Mint initiated';
+
+    const params = [
+      accounts[0],
+      batchMintTokenIds.value.split(',').map(Number),
+      batchMintIdAmounts.value.split(',').map(Number),
+      '0x',
+    ];
+
+    let result;
+
+    try {
+      result = await erc1155Contract.mintBatch(...params);
+    } catch (error) {
+      erc1155Status.innerHTML = 'Mint Failed!';
+      throw error;
+    }
+
+    console.log(result);
+    erc1155Status.innerHTML = 'Batch Minting completed';
+  };
+
+  batchTransferFromButton.onclick = async () => {
+    erc1155Status.innerHTML = 'Batch Transfer From initiated';
+
+    const params = [
+      accounts[0],
+      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+      batchTransferTokenIds.value.split(',').map(Number),
+      batchTransferTokenAmounts.value.split(',').map(Number),
+      '0x',
+    ];
+
+    let result;
+
+    try {
+      result = await erc1155Contract.safeBatchTransferFrom(...params);
+    } catch (error) {
+      erc1155Status.innerHTML = 'Transaction Failed!';
+      throw error;
+    }
+    console.log(result);
+    erc1155Status.innerHTML = 'Batch Transfer From completed';
+  };
+
+  setApprovalForAllERC1155Button.onclick = async () => {
+    erc1155Status.innerHTML = 'Set Approval For All initiated';
+    let result = await erc1155Contract.setApprovalForAll(
+      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      true,
+      {
+        from: accounts[0],
+      },
+    );
+    result = await result.wait();
+    console.log(result);
+    erc1155Status.innerHTML = 'Set Approval For All completed';
+  };
+
+  revokeERC1155Button.onclick = async () => {
+    erc1155Status.innerHTML = 'Revoke initiated';
+    let result = await erc1155Contract.setApprovalForAll(
+      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      false,
+      {
+        from: accounts[0],
+      },
+    );
+    result = await result.wait();
+    console.log(result);
+    erc1155Status.innerHTML = 'Revoke completed';
+  };
+
+  /**
+   *  EIP 747
+   */
+
+  eip747WatchButton.onclick = async () => {
+    eip747Status.innerHTML = 'Adding token...';
+
+    try {
+      const result = await provider.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: eip747ContractAddress.value,
+            symbol: eip747Symbol.value,
+            decimals: parseInt(eip747Decimals.value, 10),
+            image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+          },
+        },
+      });
+      eip747Status.innerHTML = 'NFT added successfully';
+      console.log(result);
+    } catch (error) {
+      eip747Status.innerHTML =
+        'There was an error adding the token. See console for details.';
       console.error(error);
     }
   };
 
-  const clearTextDisplays = () => {
-    encryptionKeyDisplay.innerText = '';
-    encryptMessageInput.value = '';
-    ciphertextDisplay.innerText = '';
-    cleartextDisplay.innerText = '';
-    batchTransferTokenIds.value = '';
-    batchTransferTokenAmounts.value = '';
+  /**
+   *  PPOM
+   */
+
+  // Malicious ERC20 Approval
+  maliciousApprovalButton.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
+          gas: '0x30d40',
+          data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+          gasPrice: '0x76c3b0342',
+        },
+      ],
+    });
+    console.log(result);
   };
 
-  const updateButtons = () => {
-    const accountButtonsDisabled =
-      !isMetaMaskInstalled() || !isMetaMaskConnected();
-    if (accountButtonsDisabled) {
-      for (const button of accountButtons) {
-        button.disabled = true;
+  // Malicious ERC20 transfer
+  maliciousERC20TransferButton.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+          gas: '0x30d40',
+          data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
+          gasPrice: '0x76c3b0342',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious raw ETH transfer
+  maliciousRawEthButton.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+          value: '0x9184e72a000',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious permit
+  maliciousPermit.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_signTypedData_v4',
+      params: [
+        accounts[0],
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":1,"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious trade order
+  maliciousTradeOrder.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_signTypedData_v4',
+      params: [
+        accounts[0],
+        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":"1","verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"0x0000000000000000000000000000000000000000","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious Seaport
+  maliciousSeaport.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_signTypedData_v4',
+      params: [
+        accounts[0],
+        '{"types":{"OrderComponents":[{"name":"offerer","type":"address"},{"name":"zone","type":"address"},{"name":"offer","type":"OfferItem[]"},{"name":"consideration","type":"ConsiderationItem[]"},{"name":"orderType","type":"uint8"},{"name":"startTime","type":"uint256"},{"name":"endTime","type":"uint256"},{"name":"zoneHash","type":"bytes32"},{"name":"salt","type":"uint256"},{"name":"conduitKey","type":"bytes32"},{"name":"counter","type":"uint256"}],"OfferItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"}],"ConsiderationItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"},{"name":"recipient","type":"address"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"Seaport","version":"1.1","chainId":"1","verifyingContract":"0x00000000006c3852cbef3e08e8df289169ede581"},"primaryType":"OrderComponents","message":{"offerer":"0x5a6f5477bdeb7801ba137a9f0dc39c0599bac994","zone":"0x004c00500000ad104d7dbd00e3ae0a5c00560c00","offer":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1"}],"consideration":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"}],"orderType":"2","startTime":"1681810415","endTime":"1681983215","zoneHash":"0x0000000000000000000000000000000000000000000000000000000000000000","salt":"1550213294656772168494388599483486699884316127427085531712538817979596","conduitKey":"0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000","counter":"0"}}',
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious Set Approval For All
+  maliciousSetApprovalForAll.onclick = async () => {
+    const result = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+          data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  /**
+   * Sending ETH
+   */
+
+  sendButton.onclick = async () => {
+    const result = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+          value: '0x0',
+          gasLimit: '0x5208',
+          gasPrice: '0x2540be400',
+          type: '0x0',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  sendEIP1559Button.onclick = async () => {
+    const result = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+          value: '0x0',
+          gasLimit: '0x5028',
+          maxFeePerGas: '0x2540be400',
+          maxPriorityFeePerGas: '0x3b9aca00',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  /**
+   * ERC20 Token
+   */
+
+  createToken.onclick = async () => {
+    const _initialAmount = 10;
+    const _tokenName = 'TST';
+
+    try {
+      hstContract = await hstFactory.deploy(
+        _initialAmount,
+        _tokenName,
+        decimalUnitsInput.value,
+        tokenSymbol,
+      );
+      await hstContract.deployTransaction.wait();
+    } catch (error) {
+      tokenAddresses.innerHTML = 'Creation Failed';
+      throw error;
+    }
+
+    if (hstContract.address === undefined) {
+      return;
+    }
+
+    console.log(
+      `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
+    );
+    tokenAddresses.innerHTML = tokenAddresses.innerHTML
+      .concat(', ', hstContract.address)
+      .split(', ')
+      .filter(Boolean)
+      .join(', ');
+    watchAssets.disabled = false;
+    transferTokens.disabled = false;
+    approveTokens.disabled = false;
+    transferTokensWithoutGas.disabled = false;
+    approveTokensWithoutGas.disabled = false;
+  };
+
+  watchAssets.onclick = async () => {
+    const contractAddresses = tokenAddresses.innerHTML.split(', ');
+
+    const promises = contractAddresses.map((erc20Address) => {
+      return ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: erc20Address,
+            symbol: tokenSymbol,
+            decimals: decimalUnitsInput.value,
+            image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
+          },
+        },
+      });
+    });
+
+    Promise.all(promises).then((result) => {
+      console.log('result', result);
+    });
+  };
+
+  transferTokens.onclick = async () => {
+    const result = await hstContract.transfer(
+      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+      decimalUnitsInput.value === '0'
+        ? 1
+        : `${1.5 * 10 ** decimalUnitsInput.value}`,
+      {
+        from: accounts[0],
+        gasLimit: 60000,
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  approveTokens.onclick = async () => {
+    const result = await hstContract.approve(
+      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      `${7 * 10 ** decimalUnitsInput.value}`,
+      {
+        from: accounts[0],
+        gasLimit: 60000,
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  transferTokensWithoutGas.onclick = async () => {
+    const result = await hstContract.transfer(
+      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+      decimalUnitsInput.value === '0'
+        ? 1
+        : `${1.5 * 10 ** decimalUnitsInput.value}`,
+      {
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  approveTokensWithoutGas.onclick = async () => {
+    const result = await hstContract.approve(
+      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+      `${7 * 10 ** decimalUnitsInput.value}`,
+      {
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  /**
+   * Permissions
+   */
+
+  requestPermissionsButton.onclick = async () => {
+    try {
+      const permissionsArray = await provider.request({
+        method: 'wallet_requestPermissions',
+        params: [{ eth_accounts: {} }],
+      });
+      permissionsResult.innerHTML =
+        getPermissionsDisplayString(permissionsArray);
+    } catch (err) {
+      console.error(err);
+      permissionsResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  getPermissionsButton.onclick = async () => {
+    try {
+      const permissionsArray = await provider.request({
+        method: 'wallet_getPermissions',
+      });
+      permissionsResult.innerHTML =
+        getPermissionsDisplayString(permissionsArray);
+    } catch (err) {
+      console.error(err);
+      permissionsResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  getAccountsButton.onclick = async () => {
+    try {
+      const _accounts = await provider.request({
+        method: 'eth_accounts',
+      });
+      getAccountsResult.innerHTML = _accounts || 'Not able to get accounts';
+    } catch (err) {
+      console.error(err);
+      getAccountsResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Encrypt / Decrypt
+   */
+
+  getEncryptionKeyButton.onclick = async () => {
+    try {
+      encryptionKeyDisplay.innerText = await provider.request({
+        method: 'eth_getEncryptionPublicKey',
+        params: [accounts[0]],
+      });
+      encryptMessageInput.disabled = false;
+    } catch (error) {
+      encryptionKeyDisplay.innerText = `Error: ${error.message}`;
+      encryptMessageInput.disabled = true;
+      encryptButton.disabled = true;
+      decryptButton.disabled = true;
+    }
+  };
+
+  encryptMessageInput.onkeyup = () => {
+    if (
+      !getEncryptionKeyButton.disabled &&
+      encryptMessageInput.value.length > 0
+    ) {
+      if (encryptButton.disabled) {
+        encryptButton.disabled = false;
       }
-      clearTextDisplays();
-    } else {
-      deployButton.disabled = false;
-      deployNFTsButton.disabled = false;
-      deployERC1155Button.disabled = false;
-      sendButton.disabled = false;
-      deployFailingButton.disabled = false;
-      deployMultisigButton.disabled = false;
-      createToken.disabled = false;
-      decimalUnitsInput.disabled = false;
-      personalSign.disabled = false;
-      signTypedData.disabled = false;
-      getEncryptionKeyButton.disabled = false;
-      ethSign.disabled = false;
-      personalSign.disabled = false;
-      signTypedData.disabled = false;
-      signTypedDataV3.disabled = false;
-      signTypedDataV4.disabled = false;
-      signPermit.disabled = false;
-      siwe.disabled = false;
-      siweResources.disabled = false;
-      siweBadDomain.disabled = false;
-      siweBadAccount.disabled = false;
-      siweMalformed.disabled = false;
-      eip747WatchButton.disabled = false;
-      maliciousApprovalButton.disabled = false;
-      maliciousERC20TransferButton.disabled = false;
-      maliciousRawEthButton.disabled = false;
-      maliciousPermit.disabled = false;
-      maliciousTradeOrder.disabled = false;
-      maliciousSeaport.disabled = false;
-      maliciousSetApprovalForAll.disabled = false;
+    } else if (!encryptButton.disabled) {
+      encryptButton.disabled = true;
     }
+  };
 
-    if (isMetaMaskInstalled()) {
-      addEthereumChain.disabled = false;
-      switchEthereumChain.disabled = false;
-    } else {
-      onboardButton.innerText = 'Click here to install MetaMask!';
-      onboardButton.onclick = onClickInstall;
-      onboardButton.disabled = false;
+  encryptButton.onclick = () => {
+    try {
+      ciphertextDisplay.innerText = stringifiableToHex(
+        encrypt(
+          encryptionKeyDisplay.innerText,
+          { data: encryptMessageInput.value },
+          'x25519-xsalsa20-poly1305',
+        ),
+      );
+      decryptButton.disabled = false;
+    } catch (error) {
+      ciphertextDisplay.innerText = `Error: ${error.message}`;
+      decryptButton.disabled = true;
     }
+  };
 
-    if (isMetaMaskConnected()) {
-      onboardButton.innerText = 'Connected';
-      onboardButton.disabled = true;
-      if (onboarding) {
-        onboarding.stopOnboarding();
-      }
-    } else {
-      onboardButton.innerText = 'Connect';
-      onboardButton.onclick = onClickConnect;
-      onboardButton.disabled = false;
-    }
-
-    if (deployedContractAddress) {
-      // Piggy bank contract
-      contractStatus.innerHTML = 'Deployed';
-      depositButton.disabled = false;
-      withdrawButton.disabled = false;
-      // Failing contract
-      failingContractStatus.innerHTML = 'Deployed';
-      sendFailingButton.disabled = false;
-      // Multisig contract
-      multisigContractStatus.innerHTML = 'Deployed';
-      sendMultisigButton.disabled = false;
-      // ERC721 Token - NFTs contract
-      nftsStatus.innerHTML = 'Deployed';
-      mintButton.disabled = false;
-      mintAmountInput.disabled = false;
-      approveTokenInput.disabled = false;
-      approveButton.disabled = false;
-      watchNFTInput.disabled = false;
-      watchNFTButton.disabled = false;
-      setApprovalForAllButton.disabled = false;
-      revokeButton.disabled = false;
-      transferTokenInput.disabled = false;
-      transferFromButton.disabled = false;
-      watchNFTsButton.disabled = false;
-      watchNFTButtons.innerHTML = '';
-
-      // ERC 1155 Multi Token
-      erc1155Status.innerHTML = 'Deployed';
-      batchMintButton.disabled = false;
-      batchMintTokenIds.disabled = false;
-      batchMintIdAmounts.disabled = false;
-      batchTransferTokenIds.disabled = false;
-      batchTransferTokenAmounts.disabled = false;
-      batchTransferFromButton.disabled = false;
-      setApprovalForAllERC1155Button.disabled = false;
-      revokeERC1155Button.disabled = false;
-      // ERC20 Token - Send Tokens
-      tokenAddresses.innerHTML = hstContract.address;
-      watchAssets.disabled = false;
-      transferTokens.disabled = false;
-      approveTokens.disabled = false;
-      transferTokensWithoutGas.disabled = false;
-      approveTokensWithoutGas.disabled = false;
+  decryptButton.onclick = async () => {
+    try {
+      cleartextDisplay.innerText = await provider.request({
+        method: 'eth_decrypt',
+        params: [ciphertextDisplay.innerText, provider.selectedAddress],
+      });
+    } catch (error) {
+      cleartextDisplay.innerText = `Error: ${error.message}`;
     }
   };
 
   addEthereumChain.onclick = async () => {
-    await ethereum.request({
+    await provider.request({
       method: 'wallet_addEthereumChain',
       params: [
         {
@@ -534,7 +1613,7 @@ const initialize = async () => {
   };
 
   switchEthereumChain.onclick = async () => {
-    await ethereum.request({
+    await provider.request({
       method: 'wallet_switchEthereumChain',
       params: [
         {
@@ -542,805 +1621,6 @@ const initialize = async () => {
         },
       ],
     });
-  };
-
-  const initializeAccountButtons = () => {
-    if (accountButtonsInitialized) {
-      return;
-    }
-    accountButtonsInitialized = true;
-
-    /**
-     * Piggy bank
-     */
-
-    deployButton.onclick = async () => {
-      contractStatus.innerHTML = 'Deploying';
-
-      try {
-        piggybankContract = await piggybankFactory.deploy();
-        await piggybankContract.deployTransaction.wait();
-      } catch (error) {
-        contractStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
-
-      if (piggybankContract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${piggybankContract.address} transactionHash: ${piggybankContract.deployTransaction.hash}`,
-      );
-      contractStatus.innerHTML = 'Deployed';
-      depositButton.disabled = false;
-      withdrawButton.disabled = false;
-    };
-
-    depositButton.onclick = async () => {
-      contractStatus.innerHTML = 'Deposit initiated';
-      const result = await piggybankContract.deposit({
-        from: accounts[0],
-        value: '0x3782dace9d900000',
-      });
-      console.log(result);
-      const receipt = await result.wait();
-      console.log(receipt);
-      contractStatus.innerHTML = 'Deposit completed';
-    };
-
-    withdrawButton.onclick = async () => {
-      const result = await piggybankContract.withdraw('0xde0b6b3a7640000', {
-        from: accounts[0],
-      });
-      console.log(result);
-      const receipt = await result.wait();
-      console.log(receipt);
-      contractStatus.innerHTML = 'Withdrawn';
-    };
-
-    /**
-     * Failing
-     */
-
-    deployFailingButton.onclick = async () => {
-      failingContractStatus.innerHTML = 'Deploying';
-
-      try {
-        failingContract = await failingContractFactory.deploy();
-        await failingContract.deployTransaction.wait();
-      } catch (error) {
-        failingContractStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
-
-      if (failingContract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${failingContract.address} transactionHash: ${failingContract.deployTransaction.hash}`,
-      );
-      failingContractStatus.innerHTML = 'Deployed';
-      sendFailingButton.disabled = false;
-    };
-
-    sendFailingButton.onclick = async () => {
-      try {
-        const result = await ethereum.request({
-          method: 'eth_sendTransaction',
-          params: [
-            {
-              from: accounts[0],
-              to: failingContract.address,
-              value: '0x0',
-              gasLimit: '0x5028',
-              maxFeePerGas: '0x2540be400',
-              maxPriorityFeePerGas: '0x3b9aca00',
-            },
-          ],
-        });
-        failingContractStatus.innerHTML =
-          'Failed transaction process completed as expected.';
-        console.log('send failing contract result', result);
-      } catch (error) {
-        console.log('error', error);
-        throw error;
-      }
-    };
-
-    /**
-     * Multisig
-     */
-
-    deployMultisigButton.onclick = async () => {
-      multisigContractStatus.innerHTML = 'Deploying';
-
-      try {
-        multisigContract = await multisigFactory.deploy();
-        await multisigContract.deployTransaction.wait();
-      } catch (error) {
-        multisigContractStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
-
-      if (multisigContract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${multisigContract.address} transactionHash: ${multisigContract.deployTransaction.hash}`,
-      );
-      multisigContractStatus.innerHTML = 'Deployed';
-      sendMultisigButton.disabled = false;
-    };
-
-    sendMultisigButton.onclick = async () => {
-      try {
-        const result = await ethereum.request({
-          method: 'eth_sendTransaction',
-          params: [
-            {
-              from: accounts[0],
-              to: multisigContract.address,
-              value: '0x16345785D8A0', // 24414062500000
-              gasLimit: '0x5028',
-              maxFeePerGas: '0x2540be400',
-              maxPriorityFeePerGas: '0x3b9aca00',
-            },
-          ],
-        });
-        multisigContractStatus.innerHTML = 'Transaction completed as expected.';
-        console.log('send multisig contract result', result);
-      } catch (error) {
-        console.log('error', error);
-        throw error;
-      }
-    };
-
-    /**
-     * ERC721 Token
-     */
-
-    deployNFTsButton.onclick = async () => {
-      nftsStatus.innerHTML = 'Deploying';
-
-      try {
-        nftsContract = await nftsFactory.deploy();
-        await nftsContract.deployTransaction.wait();
-      } catch (error) {
-        nftsStatus.innerHTML = 'Deployment Failed';
-        throw error;
-      }
-
-      if (nftsContract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${nftsContract.address} transactionHash: ${nftsContract.deployTransaction.hash}`,
-      );
-      nftsStatus.innerHTML = 'Deployed';
-      mintButton.disabled = false;
-      mintAmountInput.disabled = false;
-    };
-
-    watchNFTsButton.onclick = async () => {
-      const currentTokenId = await nftsContract.currentTokenId();
-      const nftsContractAddress = nftsContract.address;
-      let watchNftsResult;
-      try {
-        watchNftsResult = await ethereum.sendAsync(
-          Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
-            (tokenId) => {
-              return {
-                method: 'wallet_watchAsset',
-                params: {
-                  type: 'ERC721',
-                  options: {
-                    address: nftsContractAddress,
-                    tokenId: tokenId.toString(),
-                  },
-                },
-              };
-            },
-          ),
-        );
-      } catch (error) {
-        console.error(error);
-      }
-      console.log(watchNftsResult);
-    };
-
-    mintButton.onclick = async () => {
-      nftsStatus.innerHTML = 'Mint initiated';
-      let result = await nftsContract.mintNFTs(mintAmountInput.value, {
-        from: accounts[0],
-      });
-      result = await result.wait();
-      console.log(result);
-      nftsStatus.innerHTML = 'Mint completed';
-      approveTokenInput.disabled = false;
-      approveButton.disabled = false;
-      watchNFTInput.disabled = false;
-      watchNFTButton.disabled = false;
-      setApprovalForAllButton.disabled = false;
-      revokeButton.disabled = false;
-      transferTokenInput.disabled = false;
-      transferFromButton.disabled = false;
-      watchNFTsButton.disabled = false;
-      watchNFTButtons.innerHTML = '';
-    };
-
-    watchNFTButton.onclick = async () => {
-      let watchNftsResult;
-      try {
-        watchNftsResult = await ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC721',
-            options: {
-              address: nftsContract.address,
-              tokenId: watchNFTInput.value,
-            },
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-      console.log(watchNftsResult);
-    };
-
-    approveButton.onclick = async () => {
-      nftsStatus.innerHTML = 'Approve initiated';
-      let result = await nftsContract.approve(
-        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        approveTokenInput.value,
-        {
-          from: accounts[0],
-        },
-      );
-      result = await result.wait();
-      console.log(result);
-      nftsStatus.innerHTML = 'Approve completed';
-    };
-
-    setApprovalForAllButton.onclick = async () => {
-      nftsStatus.innerHTML = 'Set Approval For All initiated';
-      let result = await nftsContract.setApprovalForAll(
-        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        true,
-        {
-          from: accounts[0],
-        },
-      );
-      result = await result.wait();
-      console.log(result);
-      nftsStatus.innerHTML = 'Set Approval For All completed';
-    };
-
-    revokeButton.onclick = async () => {
-      nftsStatus.innerHTML = 'Revoke initiated';
-      let result = await nftsContract.setApprovalForAll(
-        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        false,
-        {
-          from: accounts[0],
-        },
-      );
-      result = await result.wait();
-      console.log(result);
-      nftsStatus.innerHTML = 'Revoke completed';
-    };
-
-    transferFromButton.onclick = async () => {
-      nftsStatus.innerHTML = 'Transfer From initiated';
-      let result = await nftsContract.transferFrom(
-        accounts[0],
-        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        transferTokenInput.value,
-        {
-          from: accounts[0],
-        },
-      );
-      result = await result.wait();
-      console.log(result);
-      nftsStatus.innerHTML = 'Transfer From completed';
-    };
-
-    /**
-     * ERC1155 Token
-     */
-
-    deployERC1155Button.onclick = async () => {
-      erc1155Status.innerHTML = 'Deploying';
-
-      try {
-        erc1155Contract = await erc1155Factory.deploy();
-        await erc1155Contract.deployTransaction.wait();
-      } catch (error) {
-        erc1155Status.innerHTML = 'Deployment Failed!';
-        throw error;
-      }
-
-      if (erc1155Contract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${erc1155Contract.address} transactionHash: ${erc1155Contract.deployTransaction.hash}`,
-      );
-
-      erc1155Status.innerHTML = 'Deployed';
-      batchTransferTokenIds.disabled = false;
-      batchTransferTokenAmounts.disabled = false;
-      batchMintButton.disabled = false;
-      batchTransferFromButton.disabled = false;
-      setApprovalForAllERC1155Button.disabled = false;
-      revokeERC1155Button.disabled = false;
-    };
-
-    batchMintButton.onclick = async () => {
-      erc1155Status.innerHTML = 'Batch Mint initiated';
-
-      const params = [
-        accounts[0],
-        batchMintTokenIds.value.split(',').map(Number),
-        batchMintIdAmounts.value.split(',').map(Number),
-        '0x',
-      ];
-
-      let result;
-
-      try {
-        result = await erc1155Contract.mintBatch(...params);
-      } catch (error) {
-        erc1155Status.innerHTML = 'Mint Failed!';
-        throw error;
-      }
-
-      console.log(result);
-      erc1155Status.innerHTML = 'Batch Minting completed';
-    };
-
-    batchTransferFromButton.onclick = async () => {
-      erc1155Status.innerHTML = 'Batch Transfer From initiated';
-
-      const params = [
-        accounts[0],
-        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        batchTransferTokenIds.value.split(',').map(Number),
-        batchTransferTokenAmounts.value.split(',').map(Number),
-        '0x',
-      ];
-
-      let result;
-
-      try {
-        result = await erc1155Contract.safeBatchTransferFrom(...params);
-      } catch (error) {
-        erc1155Status.innerHTML = 'Transaction Failed!';
-        throw error;
-      }
-      console.log(result);
-      erc1155Status.innerHTML = 'Batch Transfer From completed';
-    };
-
-    setApprovalForAllERC1155Button.onclick = async () => {
-      erc1155Status.innerHTML = 'Set Approval For All initiated';
-      let result = await erc1155Contract.setApprovalForAll(
-        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        true,
-        {
-          from: accounts[0],
-        },
-      );
-      result = await result.wait();
-      console.log(result);
-      erc1155Status.innerHTML = 'Set Approval For All completed';
-    };
-
-    revokeERC1155Button.onclick = async () => {
-      erc1155Status.innerHTML = 'Revoke initiated';
-      let result = await erc1155Contract.setApprovalForAll(
-        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        false,
-        {
-          from: accounts[0],
-        },
-      );
-      result = await result.wait();
-      console.log(result);
-      erc1155Status.innerHTML = 'Revoke completed';
-    };
-
-    /**
-     *  EIP 747
-     */
-
-    eip747WatchButton.onclick = async () => {
-      eip747Status.innerHTML = 'Adding token...';
-
-      try {
-        const result = await ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: eip747ContractAddress.value,
-              symbol: eip747Symbol.value,
-              decimals: parseInt(eip747Decimals.value, 10),
-              image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
-            },
-          },
-        });
-        eip747Status.innerHTML = 'NFT added successfully';
-        console.log(result);
-      } catch (error) {
-        eip747Status.innerHTML =
-          'There was an error adding the token. See console for details.';
-        console.error(error);
-      }
-    };
-
-    /**
-     *  PPOM
-     */
-
-    // Malicious ERC20 Approval
-    maliciousApprovalButton.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
-            gas: '0x30d40',
-            data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
-            gasPrice: '0x76c3b0342',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious ERC20 transfer
-    maliciousERC20TransferButton.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            gas: '0x30d40',
-            data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
-            gasPrice: '0x76c3b0342',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious raw ETH transfer
-    maliciousRawEthButton.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-            value: '0x9184e72a000',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious permit
-    maliciousPermit.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_signTypedData_v4',
-        params: [
-          accounts[0],
-          `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":1,"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious trade order
-    maliciousTradeOrder.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_signTypedData_v4',
-        params: [
-          accounts[0],
-          `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":"1","verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"0x0000000000000000000000000000000000000000","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious Seaport
-    maliciousSeaport.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_signTypedData_v4',
-        params: [
-          accounts[0],
-          '{"types":{"OrderComponents":[{"name":"offerer","type":"address"},{"name":"zone","type":"address"},{"name":"offer","type":"OfferItem[]"},{"name":"consideration","type":"ConsiderationItem[]"},{"name":"orderType","type":"uint8"},{"name":"startTime","type":"uint256"},{"name":"endTime","type":"uint256"},{"name":"zoneHash","type":"bytes32"},{"name":"salt","type":"uint256"},{"name":"conduitKey","type":"bytes32"},{"name":"counter","type":"uint256"}],"OfferItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"}],"ConsiderationItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"},{"name":"recipient","type":"address"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"Seaport","version":"1.1","chainId":"1","verifyingContract":"0x00000000006c3852cbef3e08e8df289169ede581"},"primaryType":"OrderComponents","message":{"offerer":"0x5a6f5477bdeb7801ba137a9f0dc39c0599bac994","zone":"0x004c00500000ad104d7dbd00e3ae0a5c00560c00","offer":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1"}],"consideration":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"}],"orderType":"2","startTime":"1681810415","endTime":"1681983215","zoneHash":"0x0000000000000000000000000000000000000000000000000000000000000000","salt":"1550213294656772168494388599483486699884316127427085531712538817979596","conduitKey":"0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000","counter":"0"}}',
-        ],
-      });
-      console.log(result);
-    };
-
-    // Malicious Set Approval For All
-    maliciousSetApprovalForAll.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
-            data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    /**
-     * Sending ETH
-     */
-
-    sendButton.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
-            gasLimit: '0x5208',
-            gasPrice: '0x2540be400',
-            type: '0x0',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    sendEIP1559Button.onclick = async () => {
-      const result = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
-      console.log(result);
-    };
-
-    /**
-     * ERC20 Token
-     */
-
-    createToken.onclick = async () => {
-      const _initialAmount = 10;
-      const _tokenName = 'TST';
-
-      try {
-        hstContract = await hstFactory.deploy(
-          _initialAmount,
-          _tokenName,
-          decimalUnitsInput.value,
-          tokenSymbol,
-        );
-        await hstContract.deployTransaction.wait();
-      } catch (error) {
-        tokenAddresses.innerHTML = 'Creation Failed';
-        throw error;
-      }
-
-      if (hstContract.address === undefined) {
-        return;
-      }
-
-      console.log(
-        `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
-      );
-      tokenAddresses.innerHTML = tokenAddresses.innerHTML
-        .concat(', ', hstContract.address)
-        .split(', ')
-        .filter(Boolean)
-        .join(', ');
-      watchAssets.disabled = false;
-      transferTokens.disabled = false;
-      approveTokens.disabled = false;
-      transferTokensWithoutGas.disabled = false;
-      approveTokensWithoutGas.disabled = false;
-    };
-
-    watchAssets.onclick = async () => {
-      const contractAddresses = tokenAddresses.innerHTML.split(', ');
-
-      const promises = contractAddresses.map((erc20Address) => {
-        return ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: erc20Address,
-              symbol: tokenSymbol,
-              decimals: decimalUnitsInput.value,
-              image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
-            },
-          },
-        });
-      });
-
-      Promise.all(promises).then((result) => {
-        console.log('result', result);
-      });
-    };
-
-    transferTokens.onclick = async () => {
-      const result = await hstContract.transfer(
-        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        decimalUnitsInput.value === '0'
-          ? 1
-          : `${1.5 * 10 ** decimalUnitsInput.value}`,
-        {
-          from: accounts[0],
-          gasLimit: 60000,
-          gasPrice: '20000000000',
-        },
-      );
-      console.log('result', result);
-    };
-
-    approveTokens.onclick = async () => {
-      const result = await hstContract.approve(
-        '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-        `${7 * 10 ** decimalUnitsInput.value}`,
-        {
-          from: accounts[0],
-          gasLimit: 60000,
-          gasPrice: '20000000000',
-        },
-      );
-      console.log('result', result);
-    };
-
-    transferTokensWithoutGas.onclick = async () => {
-      const result = await hstContract.transfer(
-        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        decimalUnitsInput.value === '0'
-          ? 1
-          : `${1.5 * 10 ** decimalUnitsInput.value}`,
-        {
-          gasPrice: '20000000000',
-        },
-      );
-      console.log('result', result);
-    };
-
-    approveTokensWithoutGas.onclick = async () => {
-      const result = await hstContract.approve(
-        '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        `${7 * 10 ** decimalUnitsInput.value}`,
-        {
-          gasPrice: '20000000000',
-        },
-      );
-      console.log('result', result);
-    };
-
-    /**
-     * Permissions
-     */
-
-    requestPermissionsButton.onclick = async () => {
-      try {
-        const permissionsArray = await ethereum.request({
-          method: 'wallet_requestPermissions',
-          params: [{ eth_accounts: {} }],
-        });
-        permissionsResult.innerHTML =
-          getPermissionsDisplayString(permissionsArray);
-      } catch (err) {
-        console.error(err);
-        permissionsResult.innerHTML = `Error: ${err.message}`;
-      }
-    };
-
-    getPermissionsButton.onclick = async () => {
-      try {
-        const permissionsArray = await ethereum.request({
-          method: 'wallet_getPermissions',
-        });
-        permissionsResult.innerHTML =
-          getPermissionsDisplayString(permissionsArray);
-      } catch (err) {
-        console.error(err);
-        permissionsResult.innerHTML = `Error: ${err.message}`;
-      }
-    };
-
-    getAccountsButton.onclick = async () => {
-      try {
-        const _accounts = await ethereum.request({
-          method: 'eth_accounts',
-        });
-        getAccountsResults.innerHTML = _accounts || 'Not able to get accounts';
-      } catch (err) {
-        console.error(err);
-        getAccountsResults.innerHTML = `Error: ${err.message}`;
-      }
-    };
-
-    /**
-     * Encrypt / Decrypt
-     */
-
-    getEncryptionKeyButton.onclick = async () => {
-      try {
-        encryptionKeyDisplay.innerText = await ethereum.request({
-          method: 'eth_getEncryptionPublicKey',
-          params: [accounts[0]],
-        });
-        encryptMessageInput.disabled = false;
-      } catch (error) {
-        encryptionKeyDisplay.innerText = `Error: ${error.message}`;
-        encryptMessageInput.disabled = true;
-        encryptButton.disabled = true;
-        decryptButton.disabled = true;
-      }
-    };
-
-    encryptMessageInput.onkeyup = () => {
-      if (
-        !getEncryptionKeyButton.disabled &&
-        encryptMessageInput.value.length > 0
-      ) {
-        if (encryptButton.disabled) {
-          encryptButton.disabled = false;
-        }
-      } else if (!encryptButton.disabled) {
-        encryptButton.disabled = true;
-      }
-    };
-
-    encryptButton.onclick = () => {
-      try {
-        ciphertextDisplay.innerText = stringifiableToHex(
-          encrypt(
-            encryptionKeyDisplay.innerText,
-            { data: encryptMessageInput.value },
-            'x25519-xsalsa20-poly1305',
-          ),
-        );
-        decryptButton.disabled = false;
-      } catch (error) {
-        ciphertextDisplay.innerText = `Error: ${error.message}`;
-        decryptButton.disabled = true;
-      }
-    };
-
-    decryptButton.onclick = async () => {
-      try {
-        cleartextDisplay.innerText = await ethereum.request({
-          method: 'eth_decrypt',
-          params: [ciphertextDisplay.innerText, ethereum.selectedAddress],
-        });
-      } catch (error) {
-        cleartextDisplay.innerText = `Error: ${error.message}`;
-      }
-    };
   };
 
   type.onchange = async () => {
@@ -1381,7 +1661,7 @@ const initialize = async () => {
         },
       ];
     }
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params,
     });
@@ -1397,7 +1677,7 @@ const initialize = async () => {
       // const msgHash = keccak256(msg)
       const msg =
         '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
-      const ethResult = await ethereum.request({
+      const ethResult = await provider.request({
         method: 'eth_sign',
         params: [accounts[0], msg],
       });
@@ -1416,7 +1696,7 @@ const initialize = async () => {
     try {
       const from = accounts[0];
       const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
-      const sign = await ethereum.request({
+      const sign = await provider.request({
         method: 'personal_sign',
         params: [msg, from, 'Example password'],
       });
@@ -1436,7 +1716,7 @@ const initialize = async () => {
     try {
       const from = accounts[0];
       const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
-      const sign = await ethereum.request({
+      const sign = await provider.request({
         method: 'personal_sign',
         params: [msg, from, 'Example password'],
       });
@@ -1519,7 +1799,7 @@ const initialize = async () => {
         );
         console.log(`Failed comparing ${recoveredAddr} to ${from}`);
       }
-      const ecRecoverAddr = await ethereum.request({
+      const ecRecoverAddr = await provider.request({
         method: 'personal_ecRecover',
         params: [msg, sign],
       });
@@ -1556,7 +1836,7 @@ const initialize = async () => {
     ];
     try {
       const from = accounts[0];
-      const sign = await ethereum.request({
+      const sign = await provider.request({
         method: 'eth_signTypedData',
         params: [msgParams, from],
       });
@@ -1651,7 +1931,7 @@ const initialize = async () => {
     };
     try {
       const from = accounts[0];
-      const sign = await ethereum.request({
+      const sign = await provider.request({
         method: 'eth_signTypedData_v3',
         params: [from, JSON.stringify(msgParams)],
       });
@@ -1786,7 +2066,7 @@ const initialize = async () => {
     };
     try {
       const from = accounts[0];
-      const sign = await ethereum.request({
+      const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
       });
@@ -1941,7 +2221,7 @@ const initialize = async () => {
     };
 
     try {
-      sign = await ethereum.request({
+      sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
       });
@@ -2028,144 +2308,21 @@ const initialize = async () => {
     }
   };
 
-  function handleNewAccounts(newAccounts) {
-    accounts = newAccounts;
-    accountsDiv.innerHTML = accounts;
-    fromDiv.value = accounts;
-    gasPriceDiv.style.display = 'block';
-    maxFeeDiv.style.display = 'none';
-    maxPriorityDiv.style.display = 'none';
-    if (isMetaMaskConnected()) {
-      initializeAccountButtons();
-    }
-    updateButtons();
-  }
+  /**
+   * Providers
+   */
 
-  function handleNewChain(chainId) {
-    chainIdDiv.innerHTML = chainId;
+  useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
+};
 
-    if (chainId === '0x1') {
-      warningDiv.classList.remove('warning-invisible');
-    } else {
-      warningDiv.classList.add('warning-invisible');
-    }
+/**
+ * Entrypoint
+ */
 
-    // Wait until warning rendered or not to improve accuracy
-    if (!scrollToHandled) {
-      handleScrollTo({ delay: true });
-    }
-  }
-
-  function handleEIP1559Support(supported) {
-    if (supported && Array.isArray(accounts) && accounts.length >= 1) {
-      sendEIP1559Button.disabled = false;
-      sendEIP1559Button.hidden = false;
-      sendButton.innerText = 'Send Legacy Transaction';
-    } else {
-      sendEIP1559Button.disabled = true;
-      sendEIP1559Button.hidden = true;
-      sendButton.innerText = 'Send';
-    }
-  }
-
-  function handleNewNetwork(networkId) {
-    networkDiv.innerHTML = networkId;
-  }
-
-  async function handleScrollTo({ delay = false } = {}) {
-    if (!scrollTo) {
-      return;
-    }
-
-    scrollToHandled = true;
-
-    console.log('Attempting to scroll to element with ID:', scrollTo);
-
-    const scrollToElement = document.getElementById(scrollTo);
-
-    if (!scrollToElement) {
-      console.warn('Cannot find element with ID:', scrollTo);
-      return;
-    }
-
-    if (delay) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-
-    scrollToElement.scrollIntoView();
-  }
-
-  async function getNetworkAndChainId() {
-    try {
-      const chainId = await ethereum.request({
-        method: 'eth_chainId',
-      });
-      handleNewChain(chainId);
-
-      const networkId = await ethereum.request({
-        method: 'net_version',
-      });
-      handleNewNetwork(networkId);
-
-      const block = await ethereum.request({
-        method: 'eth_getBlockByNumber',
-        params: ['latest', false],
-      });
-
-      handleEIP1559Support(block.baseFeePerGas !== undefined);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  updateButtons();
-
-  if (isMetaMaskInstalled()) {
-    ethereum.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
-
-    ethereum.on('chainChanged', () => getNetworkAndChainId());
-    // networkChanged is deprecated, but there is no other way to ensure we catch every network ID change
-    ethereum.on('networkChanged', () => getNetworkAndChainId());
-    ethereum.on('accountsChanged', (newAccounts) => {
-      ethereum
-        .request({
-          method: 'eth_getBlockByNumber',
-          params: ['latest', false],
-        })
-        .then((block) => {
-          handleEIP1559Support(block.baseFeePerGas !== undefined);
-        });
-      handleNewAccounts(newAccounts);
-    });
-
-    try {
-      const newAccounts = await ethereum.request({
-        method: 'eth_accounts',
-      });
-      handleNewAccounts(newAccounts);
-    } catch (err) {
-      console.error('Error on init when getting accounts', err);
-    }
-  } else {
-    handleScrollTo();
-  }
+const initialize = async () => {
+  setActiveProviderDetailWindowEthereum();
+  detectEip6963();
+  initializeFormElements();
 };
 
 window.addEventListener('load', initialize);
-
-// utils
-
-function getPermissionsDisplayString(permissionsArray) {
-  if (permissionsArray.length === 0) {
-    return 'No permissions found.';
-  }
-  const permissionNames = permissionsArray.map((perm) => perm.parentCapability);
-  return permissionNames
-    .reduce((acc, name) => `${acc}${name}, `, '')
-    .replace(/, $/u, '');
-}
-
-function stringifiableToHex(value) {
-  return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)));
-}
