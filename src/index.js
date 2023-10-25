@@ -1,4 +1,6 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
+import { MetaMaskSDK } from '@metamask/sdk';
+
 // eslint-disable-next-line camelcase
 import {
   encrypt,
@@ -59,6 +61,7 @@ const warningDiv = document.getElementById('warning');
 
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
+const terminateButton = document.getElementById('terminateButton');
 const getAccountsButton = document.getElementById('getAccounts');
 const getAccountsResults = document.getElementById('getAccountsResult');
 
@@ -236,9 +239,30 @@ const maliciousSetApprovalForAll = document.getElementById(
 );
 
 const initialize = async () => {
+  // MetaMask SDK initialization
+  const sdk = new MetaMaskSDK({
+    useDeeplink: false, // use deeplinks or universal links to redirect to MetaMask mobile
+    enableDebug: true,
+    dappMetadata: {
+      name: 'MetaMask test-dapp',
+      url: window.location.host,
+    },
+    logging: {
+      sdk: false,
+    },
+    storage: {
+      enabled: true, // session persistence
+    },
+  });
+
   try {
+    await sdk.init();
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    ethersProvider = new ethers.providers.Web3Provider(
+      sdk.getProvider(),
+      'any',
+    );
+
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
@@ -401,6 +425,16 @@ const initialize = async () => {
     }
   };
 
+  const onClickTerminate = async () => {
+    try {
+      sdk.terminate();
+      onboardButton.innerText = 'Connect';
+      onboardButton.disabled = false;
+    } catch (error) {
+      console.log('No SDK to terminate');
+    }
+  };
+
   const clearTextDisplays = () => {
     encryptionKeyDisplay.innerText = '';
     encryptMessageInput.value = '';
@@ -516,6 +550,7 @@ const initialize = async () => {
       transferTokensWithoutGas.disabled = false;
       approveTokensWithoutGas.disabled = false;
     }
+    terminateButton.onclick = onClickTerminate;
   };
 
   addEthereumChain.onclick = async () => {
@@ -2123,6 +2158,11 @@ const initialize = async () => {
   if (isMetaMaskInstalled()) {
     ethereum.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
+
+    ethereum.on('_initialized', async () => {
+      console.log('SDK INITIALIZED');
+      await getNetworkAndChainId();
+    });
 
     ethereum.on('chainChanged', () => getNetworkAndChainId());
     // networkChanged is deprecated, but there is no other way to ensure we catch every network ID change
