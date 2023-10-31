@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [7.3.0]
+### Added
+- Implement EIP6963(Multi) provider detection ([#263](https://github.com/MetaMask/test-dapp/pull/263))
+
 ## [7.2.0]
 ### Added
 - Add ability to create multiple tokens and watch all of them ([#259](https://github.com/MetaMask/test-dapp/pull/259))
@@ -118,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.3.0...HEAD
+[7.3.0]: https://github.com/MetaMask/test-dapp/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/MetaMask/test-dapp/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/MetaMask/test-dapp/compare/v7.0.2...v7.1.0
 [7.0.2]: https://github.com/MetaMask/test-dapp/compare/v7.0.1...v7.0.2
