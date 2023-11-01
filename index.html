@@ -31,6 +31,57 @@
       </header>
       <section>
         <h3 class="card-title">
+          Provider
+        </h3>
+        <div id="eip6963Warning" class="row justify-content-center">
+          <div class="warning-message justify-content-center col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+            <img
+              src="warning.svg"
+              alt=""
+              class="warning-message-icon
+              "
+            />
+            <div class="warning-message-text">No EIP-6963 Provider Detected</div>
+          </div>
+        </div>
+        <div class="row" id="eip6963" hidden>
+          <div class="col-xl-8 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card eip6963-providers">
+              <div class="card-body">
+                <h4 class="card-title">
+                  EIP 6963
+                </h4>
+                  <div class='row' id="providers">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Active Provider
+                </h4>
+                <p class="info-text alert alert-secondary">
+                  UUID: <span id="activeProviderUUID"></span>
+                </p>
+                <p class="info-text alert alert-secondary">
+                  Name: <span id="activeProviderName"></span>
+                </p>
+                <p class="info-text alert alert-secondary">
+                  Icon: <span id="activeProviderIcon"></span>
+                </p>
+              </div>
+            </div>
+              <button
+              class="btn btn-primary btn-lg btn-block mb-3"
+              id="useWindowProviderButton"
+            >
+              Use window.ethereum
+          </div>
+      </section>
+      <section>
+        <h3 class="card-title">
           Status
         </h3>
         <div id="warning" class="row justify-content-center error-div">
