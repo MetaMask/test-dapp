@@ -23,6 +23,11 @@ module.exports = {
     publicPath: DIST,
   },
   devServer: {
+    client: {
+      // This disables the error / warning overlay, which is distracting during
+      // local development of the test dapp.
+      overlay: false,
+    },
     devMiddleware: {
       writeToDisk: true,
     },
