@@ -329,6 +329,13 @@ const initialConnectedButtons = [
   siweBadAccount,
   siweMalformed,
   eip747WatchButton,
+  maliciousApprovalButton,
+  maliciousSetApprovalForAll,
+  maliciousERC20TransferButton,
+  maliciousRawEthButton,
+  maliciousPermit,
+  maliciousTradeOrder,
+  maliciousSeaport,
 ];
 
 /**
