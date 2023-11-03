@@ -3,7 +3,7 @@
   "version": "7.2.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "engines": {
-    "node": ">= 16.0.0"
+    "node": ">= 18.0.0"
   },
   "scripts": {
     "setup": "yarn install && yarn allow-scripts",
@@ -66,5 +66,6 @@
       "ethereumjs-util>keccak": true,
       "ethereumjs-util>secp256k1": true
     }
-  }
+  },
+  "packageManager": "yarn@1.22.19"
 }
