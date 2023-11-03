@@ -17,6 +17,10 @@ module.exports = {
     publicPath: DIST,
   },
   devServer: {
+    client: {
+      // This hides the error / warning overlay.
+      overlay: false,
+    },
     devMiddleware: {
       writeToDisk: true,
     },
