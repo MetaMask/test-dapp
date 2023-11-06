@@ -10,7 +10,9 @@ import {
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
-import {
+import Constants from './constants.json';
+
+const {
   hstBytecode,
   hstAbi,
   piggybankBytecode,
@@ -23,7 +25,7 @@ import {
   multisigBytecode,
   erc1155Abi,
   erc1155Bytecode,
-} from './constants.json';
+} = Constants;
 
 /**
  * Page
