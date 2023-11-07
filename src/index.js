@@ -1,4 +1,5 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 // eslint-disable-next-line camelcase
 import {
   encrypt,
@@ -242,69 +243,7 @@ const maliciousSetApprovalForAll = document.getElementById(
 );
 
 // Buttons that require connecting an account
-const allConnectedButtons = [
-  deployButton,
-  depositButton,
-  withdrawButton,
-  deployNFTsButton,
-  mintButton,
-  mintAmountInput,
-  approveTokenInput,
-  approveButton,
-  watchNFTInput,
-  watchNFTButton,
-  setApprovalForAllButton,
-  revokeButton,
-  transferTokenInput,
-  transferFromButton,
-  watchNFTsButton,
-  deployERC1155Button,
-  batchTransferTokenIds,
-  batchTransferTokenAmounts,
-  batchTransferFromButton,
-  setApprovalForAllERC1155Button,
-  revokeERC1155Button,
-  deployFailingButton,
-  sendFailingButton,
-  deployMultisigButton,
-  sendMultisigButton,
-  sendButton,
-  createToken,
-  decimalUnitsInput,
-  watchAssets,
-  transferTokens,
-  approveTokens,
-  transferTokensWithoutGas,
-  approveTokensWithoutGas,
-  getEncryptionKeyButton,
-  encryptMessageInput,
-  encryptButton,
-  decryptButton,
-  ethSign,
-  personalSign,
-  personalSignVerify,
-  signTypedData,
-  signTypedDataVerify,
-  signTypedDataV3,
-  signTypedDataV3Verify,
-  signTypedDataV4,
-  signTypedDataV4Verify,
-  signPermit,
-  signPermitVerify,
-  siwe,
-  siweResources,
-  siweBadDomain,
-  siweBadAccount,
-  siweMalformed,
-  eip747WatchButton,
-  maliciousApprovalButton,
-  maliciousSetApprovalForAll,
-  maliciousERC20TransferButton,
-  maliciousRawEthButton,
-  maliciousPermit,
-  maliciousTradeOrder,
-  maliciousSeaport,
-];
+const allConnectedButtons = [];
 
 // Buttons that are available after initially connecting an account
 const initialConnectedButtons = [
@@ -353,6 +292,47 @@ const isMetaMaskConnected = () => accounts && accounts.length > 0;
 
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () => provider && provider.isMetaMask;
+
+// test id
+const projectId = 'e6360eaee594162688065f1c70c863b7';
+
+const mainnet = {
+  chainId: 1,
+  name: 'Ethereum',
+  currency: 'ETH',
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://cloudflare-eth.com',
+};
+
+const metadata = {
+  name: 'E2e Test Dapp',
+  description: 'This is the E2e Test Dapp',
+  url: 'https://metamask.github.io/test-dapp/',
+  icons: ['https://avatars.mywebsite.com/'],
+};
+
+const modal = createWeb3Modal({
+  ethersConfig: defaultConfig({ metadata }),
+  chains: [mainnet],
+  projectId,
+});
+
+const openConnectModalBtn = document.getElementById('open-connect-modal');
+
+openConnectModalBtn.onclick = async () => {
+  modal.open();
+  provider = modal.getWalletProvider().provider;
+  try {
+    const newAccounts = await provider.request({
+      method: 'eth_accounts',
+    });
+    handleNewAccounts(newAccounts);
+  } catch (err) {
+    console.error('Error on init when getting accounts', err);
+  }
+  handleNewProviderDetail(provider);
+  setActiveProviderDetail(provider);
+};
 
 const detectEip6963 = () => {
   window.addEventListener('eip6963:announceProvider', (event) => {
@@ -1039,7 +1019,7 @@ const initializeFormElements = () => {
   watchNFTButton.onclick = async () => {
     let watchNftsResult;
     try {
-      watchNftsResult = await ethereum.request({
+      watchNftsResult = await provider.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC721',
@@ -1253,7 +1233,7 @@ const initializeFormElements = () => {
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1270,7 +1250,7 @@ const initializeFormElements = () => {
 
   // Malicious ERC20 transfer
   maliciousERC20TransferButton.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1287,7 +1267,7 @@ const initializeFormElements = () => {
 
   // Malicious raw ETH transfer
   maliciousRawEthButton.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1302,7 +1282,7 @@ const initializeFormElements = () => {
 
   // Malicious permit
   maliciousPermit.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
@@ -1314,7 +1294,7 @@ const initializeFormElements = () => {
 
   // Malicious trade order
   maliciousTradeOrder.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
@@ -1326,7 +1306,7 @@ const initializeFormElements = () => {
 
   // Malicious Seaport
   maliciousSeaport.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
@@ -1338,7 +1318,7 @@ const initializeFormElements = () => {
 
   // Malicious Set Approval For All
   maliciousSetApprovalForAll.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1433,7 +1413,7 @@ const initializeFormElements = () => {
     const contractAddresses = tokenAddresses.innerHTML.split(', ');
 
     const promises = contractAddresses.map((erc20Address) => {
-      return ethereum.request({
+      return provider.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20',
