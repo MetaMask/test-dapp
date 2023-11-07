@@ -138,9 +138,13 @@ const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
 const decimalUnitsInput = document.getElementById('tokenDecimals');
-const approveToInput = document.getElementById('approveTo');
-const senderInput = document.getElementById('senderInput');
-const recipientInput = document.getElementById('recipientInput');
+const approveTokensToInput = document.getElementById('approveTo');
+const transferFromSenderInput = document.getElementById(
+  'transferFromSenderInput',
+);
+const transferFromRecipientInput = document.getElementById(
+  'transferFromRecipientInput',
+);
 const tokenSymbol = 'TST';
 const tokenAddresses = document.getElementById('tokenAddresses');
 const createToken = document.getElementById('createToken');
@@ -275,11 +279,13 @@ const allConnectedButtons = [
   sendButton,
   createToken,
   decimalUnitsInput,
-  approveToInput,
+  approveTokensToInput,
   watchAssets,
   transferTokens,
   transferFromTokens,
   approveTokens,
+  transferFromRecipientInput,
+  transferFromSenderInput,
   transferTokensWithoutGas,
   approveTokensWithoutGas,
   getEncryptionKeyButton,
@@ -322,7 +328,6 @@ const initialConnectedButtons = [
   deployMultisigButton,
   createToken,
   decimalUnitsInput,
-  approveToInput,
   personalSign,
   signTypedData,
   getEncryptionKeyButton,
@@ -817,6 +822,9 @@ const updateContractElements = () => {
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
+    transferFromSenderInput.disabled = false;
+    approveTokensToInput.disabled = false;
+    transferFromRecipientInput.disabled = false;
   }
 };
 
@@ -1436,6 +1444,9 @@ const initializeFormElements = () => {
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
+    approveTokensToInput.disabled = false;
+    transferFromSenderInput.disabled = false;
+    transferFromRecipientInput.disabled = false;
   };
 
   watchAssets.onclick = async () => {
@@ -1478,7 +1489,7 @@ const initializeFormElements = () => {
 
   approveTokens.onclick = async () => {
     const result = await hstContract.approve(
-      approveToInput.value,
+      approveTokensToInput.value,
       `${7 * 10 ** decimalUnitsInput.value}`,
       {
         from: accounts[0],
@@ -1491,8 +1502,8 @@ const initializeFormElements = () => {
 
   transferFromTokens.onclick = async () => {
     const result = await hstContract.transferFrom(
-      senderInput.value,
-      recipientInput.value,
+      transferFromSenderInput.value,
+      transferFromRecipientInput.value,
       decimalUnitsInput.value === '0'
         ? 1
         : `${1.5 * 10 ** decimalUnitsInput.value}`,
