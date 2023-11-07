@@ -343,6 +343,15 @@
                   Transfer Tokens
                 </button>
 
+                <div class="form-group">
+                  <label>Approve to Address</label>
+                  <input
+                    class="form-control"
+                    id="approveTo"
+                    value="0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4"
+                  />
+                </div>
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="approveTokens"
@@ -351,6 +360,28 @@
                   Approve Tokens
                 </button>
 
+                <div class="form-group">
+                  <label>Transfer From</label>
+                  <input
+                    class="form-control"
+                    id="transferFromSenderInput"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Transfer To</label>
+                  <input
+                    class="form-control"
+                    id="transferFromRecipientInput"
+                  />
+                </div>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="transferFromTokens"
+                  disabled
+                >
+                  Transfer From Tokens
+                </button>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="transferTokensWithoutGas"

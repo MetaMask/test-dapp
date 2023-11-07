@@ -138,11 +138,19 @@ const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
 const decimalUnitsInput = document.getElementById('tokenDecimals');
+const approveTokensToInput = document.getElementById('approveTo');
+const transferFromSenderInput = document.getElementById(
+  'transferFromSenderInput',
+);
+const transferFromRecipientInput = document.getElementById(
+  'transferFromRecipientInput',
+);
 const tokenSymbol = 'TST';
 const tokenAddresses = document.getElementById('tokenAddresses');
 const createToken = document.getElementById('createToken');
 const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
+const transferFromTokens = document.getElementById('transferFromTokens');
 const approveTokens = document.getElementById('approveTokens');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
@@ -271,9 +279,13 @@ const allConnectedButtons = [
   sendButton,
   createToken,
   decimalUnitsInput,
+  approveTokensToInput,
   watchAssets,
   transferTokens,
+  transferFromTokens,
   approveTokens,
+  transferFromRecipientInput,
+  transferFromSenderInput,
   transferTokensWithoutGas,
   approveTokensWithoutGas,
   getEncryptionKeyButton,
@@ -806,9 +818,13 @@ const updateContractElements = () => {
     tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
+    transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
+    transferFromSenderInput.disabled = false;
+    approveTokensToInput.disabled = false;
+    transferFromRecipientInput.disabled = false;
   }
 };
 
@@ -1424,9 +1440,13 @@ const initializeFormElements = () => {
       .join(', ');
     watchAssets.disabled = false;
     transferTokens.disabled = false;
+    transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
+    approveTokensToInput.disabled = false;
+    transferFromSenderInput.disabled = false;
+    transferFromRecipientInput.disabled = false;
   };
 
   watchAssets.onclick = async () => {
@@ -1469,11 +1489,27 @@ const initializeFormElements = () => {
 
   approveTokens.onclick = async () => {
     const result = await hstContract.approve(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      approveTokensToInput.value,
       `${7 * 10 ** decimalUnitsInput.value}`,
       {
         from: accounts[0],
         gasLimit: 60000,
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  transferFromTokens.onclick = async () => {
+    const result = await hstContract.transferFrom(
+      transferFromSenderInput.value,
+      transferFromRecipientInput.value,
+      decimalUnitsInput.value === '0'
+        ? 1
+        : `${1.5 * 10 ** decimalUnitsInput.value}`,
+      {
+        from: accounts[0],
+        gasLimit: '95000',
         gasPrice: '20000000000',
       },
     );
