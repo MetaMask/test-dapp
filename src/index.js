@@ -138,11 +138,15 @@ const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
 // Send Tokens Section
 const decimalUnitsInput = document.getElementById('tokenDecimals');
+const approveToInput = document.getElementById('approveTo');
+const senderInput = document.getElementById('senderInput');
+const recipientInput = document.getElementById('recipientInput');
 const tokenSymbol = 'TST';
 const tokenAddresses = document.getElementById('tokenAddresses');
 const createToken = document.getElementById('createToken');
 const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
+const transferFromTokens = document.getElementById('transferFromTokens');
 const approveTokens = document.getElementById('approveTokens');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
@@ -271,8 +275,10 @@ const allConnectedButtons = [
   sendButton,
   createToken,
   decimalUnitsInput,
+  approveToInput,
   watchAssets,
   transferTokens,
+  transferFromTokens,
   approveTokens,
   transferTokensWithoutGas,
   approveTokensWithoutGas,
@@ -316,6 +322,7 @@ const initialConnectedButtons = [
   deployMultisigButton,
   createToken,
   decimalUnitsInput,
+  approveToInput,
   personalSign,
   signTypedData,
   getEncryptionKeyButton,
@@ -806,6 +813,7 @@ const updateContractElements = () => {
     tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
+    transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
@@ -1424,6 +1432,7 @@ const initializeFormElements = () => {
       .join(', ');
     watchAssets.disabled = false;
     transferTokens.disabled = false;
+    transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
@@ -1469,11 +1478,27 @@ const initializeFormElements = () => {
 
   approveTokens.onclick = async () => {
     const result = await hstContract.approve(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+      approveToInput.value,
       `${7 * 10 ** decimalUnitsInput.value}`,
       {
         from: accounts[0],
         gasLimit: 60000,
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  transferFromTokens.onclick = async () => {
+    const result = await hstContract.transferFrom(
+      senderInput.value,
+      recipientInput.value,
+      decimalUnitsInput.value === '0'
+        ? 1
+        : `${1.5 * 10 ** decimalUnitsInput.value}`,
+      {
+        from: accounts[0],
+        gasLimit: '95000',
         gasPrice: '20000000000',
       },
     );
