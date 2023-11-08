@@ -123,6 +123,8 @@ const setApprovalForAllERC1155Button = document.getElementById(
   'setApprovalForAllERC1155Button',
 );
 const revokeERC1155Button = document.getElementById('revokeERC1155Button');
+const watchAssetInput = document.getElementById('watchAssetInput');
+const watchAssetButton = document.getElementById('watchAssetButton');
 const erc1155Status = document.getElementById('erc1155Status');
 
 // ERC 747 Section
@@ -272,6 +274,8 @@ const allConnectedButtons = [
   batchTransferFromButton,
   setApprovalForAllERC1155Button,
   revokeERC1155Button,
+  watchAssetInput,
+  watchAssetButton,
   deployFailingButton,
   sendFailingButton,
   deployMultisigButton,
@@ -814,6 +818,8 @@ const updateContractElements = () => {
     batchTransferFromButton.disabled = false;
     setApprovalForAllERC1155Button.disabled = false;
     revokeERC1155Button.disabled = false;
+    watchAssetInput.disabled = false;
+    watchAssetButton.disabled = false;
     // ERC20 Token - Send Tokens
     tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
@@ -1158,6 +1164,8 @@ const initializeFormElements = () => {
     batchTransferFromButton.disabled = false;
     setApprovalForAllERC1155Button.disabled = false;
     revokeERC1155Button.disabled = false;
+    watchAssetInput.disabled = false;
+    watchAssetButton.disabled = false;
   };
 
   batchMintButton.onclick = async () => {
@@ -1232,6 +1240,24 @@ const initializeFormElements = () => {
     result = await result.wait();
     console.log(result);
     erc1155Status.innerHTML = 'Revoke completed';
+  };
+
+  watchAssetButton.onclick = async () => {
+    try {
+      const watchAssetResult = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC1155',
+          options: {
+            address: erc1155Contract.address,
+            tokenId: watchAssetInput.value,
+          },
+        },
+      });
+      console.log(watchAssetResult);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   /**
