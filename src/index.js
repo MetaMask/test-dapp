@@ -68,6 +68,7 @@ const warningDiv = document.getElementById('warning');
 const onboardButton = document.getElementById('connectButton');
 const getAccountsButton = document.getElementById('getAccounts');
 const getAccountsResult = document.getElementById('getAccountsResult');
+const openConnectModalBtn = document.getElementById('open-connect-modal');
 
 // Permissions Actions Section
 const requestPermissionsButton = document.getElementById('requestPermissions');
@@ -243,7 +244,69 @@ const maliciousSetApprovalForAll = document.getElementById(
 );
 
 // Buttons that require connecting an account
-const allConnectedButtons = [];
+const allConnectedButtons = [
+  deployButton,
+  depositButton,
+  withdrawButton,
+  deployNFTsButton,
+  mintButton,
+  mintAmountInput,
+  approveTokenInput,
+  approveButton,
+  watchNFTInput,
+  watchNFTButton,
+  setApprovalForAllButton,
+  revokeButton,
+  transferTokenInput,
+  transferFromButton,
+  watchNFTsButton,
+  deployERC1155Button,
+  batchTransferTokenIds,
+  batchTransferTokenAmounts,
+  batchTransferFromButton,
+  setApprovalForAllERC1155Button,
+  revokeERC1155Button,
+  deployFailingButton,
+  sendFailingButton,
+  deployMultisigButton,
+  sendMultisigButton,
+  sendButton,
+  createToken,
+  decimalUnitsInput,
+  watchAssets,
+  transferTokens,
+  approveTokens,
+  transferTokensWithoutGas,
+  approveTokensWithoutGas,
+  getEncryptionKeyButton,
+  encryptMessageInput,
+  encryptButton,
+  decryptButton,
+  ethSign,
+  personalSign,
+  personalSignVerify,
+  signTypedData,
+  signTypedDataVerify,
+  signTypedDataV3,
+  signTypedDataV3Verify,
+  signTypedDataV4,
+  signTypedDataV4Verify,
+  signPermit,
+  signPermitVerify,
+  siwe,
+  siweResources,
+  siweBadDomain,
+  siweBadAccount,
+  siweMalformed,
+  eip747WatchButton,
+  maliciousApprovalButton,
+  maliciousSetApprovalForAll,
+  maliciousERC20TransferButton,
+  maliciousRawEthButton,
+  maliciousPermit,
+  maliciousTradeOrder,
+  maliciousSeaport,
+];
 
 // Buttons that are available after initially connecting an account
 const initialConnectedButtons = [
@@ -279,6 +342,32 @@ const initialConnectedButtons = [
   maliciousSeaport,
 ];
 
+// Buttons that are available after connecting via Wallet Connect
+const walletConnectButtons = [
+  sendButton,
+  personalSign,
+  signTypedData,
+  ethSign,
+  personalSign,
+  signTypedData,
+  signTypedDataV3,
+  signTypedDataV4,
+  signPermit,
+  siwe,
+  siweResources,
+  siweBadDomain,
+  siweBadAccount,
+  siweMalformed,
+  eip747WatchButton,
+  maliciousApprovalButton,
+  maliciousSetApprovalForAll,
+  maliciousERC20TransferButton,
+  maliciousRawEthButton,
+  maliciousPermit,
+  maliciousTradeOrder,
+  maliciousSeaport,
+];
+
 /**
  * Provider
  */
@@ -289,6 +378,7 @@ let accounts = [];
 let scrollToHandled = false;
 
 const isMetaMaskConnected = () => accounts && accounts.length > 0;
+let isWalletConnectConnected = false;
 
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () => provider && provider.isMetaMask;
@@ -317,21 +407,29 @@ const modal = createWeb3Modal({
   projectId,
 });
 
-const openConnectModalBtn = document.getElementById('open-connect-modal');
-
-openConnectModalBtn.onclick = async () => {
-  modal.open();
-  provider = modal.getWalletProvider().provider;
-  try {
-    const newAccounts = await provider.request({
-      method: 'eth_accounts',
-    });
-    handleNewAccounts(newAccounts);
-  } catch (err) {
-    console.error('Error on init when getting accounts', err);
+async function handleWalletConnectChange({ isConnected }) {
+  if (isConnected) {
+    provider = modal.getWalletProvider().provider;
+    isWalletConnectConnected = true;
+    try {
+      const newAccounts = await provider.request({
+        method: 'eth_accounts',
+      });
+      handleNewAccounts(newAccounts);
+    } catch (err) {
+      console.error('Error on init when getting accounts', err);
+    }
+  } else {
+    isWalletConnectConnected = false;
+    openConnectModalBtn.innerText = 'Wallet Connect - Disconnected';
+    handleNewAccounts([]);
+    updateFormElements();
   }
-  handleNewProviderDetail(provider);
-  setActiveProviderDetail(provider);
+}
+
+openConnectModalBtn.onclick = () => {
+  modal.open();
+  modal.subscribeProvider(handleWalletConnectChange);
 };
 
 const detectEip6963 = () => {
@@ -681,6 +779,16 @@ const updateFormElements = () => {
       button.disabled = true;
     }
     clearDisplayElements();
+  }
+  if (isWalletConnectConnected) {
+    for (const button of walletConnectButtons) {
+      button.disabled = false;
+    }
+  }
+  if (isWalletConnectConnected === false) {
+    for (const button of walletConnectButtons) {
+      button.disabled = true;
+    }
   } else {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
@@ -729,6 +837,21 @@ const updateOnboardElements = () => {
     if (onboarding) {
       onboarding.stopOnboarding();
     }
+  }
+  if (isWalletConnectConnected) {
+    openConnectModalBtn.innerText = 'Wallet Connect - Connected';
+
+    if (onboarding) {
+      onboarding.stopOnboarding();
+    }
+    provider.autoRefreshOnNetworkChange = false;
+    getNetworkAndChainId();
+
+    provider.on('chainChanged', handleNewChain);
+    provider.on('chainChanged', handleEIP1559Support);
+    provider.on('chainChanged', handleNewNetwork);
+    provider.on('accountsChanged', handleNewAccounts);
+    provider.on('accountsChanged', handleEIP1559Support);
   } else {
     onboardButton.innerText = 'Connect';
     onboardButton.onclick = async () => {
