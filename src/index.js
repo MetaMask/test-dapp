@@ -418,9 +418,7 @@ const initialize = async () => {
 
   const onClickConnect = async () => {
     try {
-      const newAccounts = await ethereum.request({
-        method: 'eth_requestAccounts',
-      });
+      const newAccounts = await sdk.connect();
       handleNewAccounts(newAccounts);
     } catch (error) {
       console.error(error);
