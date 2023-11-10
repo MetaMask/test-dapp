@@ -253,6 +253,8 @@ const initialize = async () => {
     storage: {
       enabled: true, // session persistence
     },
+    preferDesktop: false,
+    checkInstallationImmediately: false,
   });
 
   try {
