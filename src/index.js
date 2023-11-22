@@ -2111,6 +2111,7 @@ const initializeFormElements = () => {
             ],
           },
         ],
+        attachment: '0x',
       },
       primaryType: 'Mail',
       types: {
@@ -2128,6 +2129,7 @@ const initializeFormElements = () => {
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person[]' },
           { name: 'contents', type: 'string' },
+          { name: 'attachment', type: 'bytes' },
         ],
         Person: [
           { name: 'name', type: 'string' },
@@ -2181,6 +2183,7 @@ const initializeFormElements = () => {
             ],
           },
         ],
+        attachment: '0x',
       },
       primaryType: 'Mail',
       types: {
@@ -2198,6 +2201,7 @@ const initializeFormElements = () => {
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person[]' },
           { name: 'contents', type: 'string' },
+          { name: 'attachment', type: 'bytes' },
         ],
         Person: [
           { name: 'name', type: 'string' },
