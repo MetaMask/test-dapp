@@ -72,6 +72,9 @@ const getAccountsResult = document.getElementById('getAccountsResult');
 const requestPermissionsButton = document.getElementById('requestPermissions');
 const getPermissionsButton = document.getElementById('getPermissions');
 const permissionsResult = document.getElementById('permissionsResult');
+const revokeAccountPermissionButton = document.getElementById(
+  'revokeAccountsPermissions',
+);
 
 // Contract Section
 const deployButton = document.getElementById('deployButton');
@@ -1606,6 +1609,21 @@ const initializeFormElements = () => {
     } catch (err) {
       console.error(err);
       getAccountsResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  revokeAccountPermissionButton.onclick = async () => {
+    try {
+      await provider.request({
+        method: 'wallet_revokePermissions',
+        params: [
+          {
+            eth_accounts: {},
+          },
+        ],
+      });
+    } catch (err) {
+      permissionsResult.innerHTML = `${err.message}`;
     }
   };
 
