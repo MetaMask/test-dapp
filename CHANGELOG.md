@@ -16,9 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `eth_signTypedData_v4` example ([#274](https://github.com/MetaMask/test-dapp/pull/274))
 - Add `transferFrom` and `approve` to input address for ERC20 contract ([#271](https://github.com/MetaMask/test-dapp/pull/271))
 
-### Fixed
-- Fix signing ([#276](https://github.com/MetaMask/test-dapp/pull/276))
-
 ## [7.3.1]
 ### Fixed
 - Fix clickable PPOM section after connecting ([#267](https://github.com/MetaMask/test-dapp/pull/267))
