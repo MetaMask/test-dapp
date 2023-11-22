@@ -449,6 +449,11 @@
     npm-normalize-package-bin "^3.0.0"
     yargs "^16.2.0"
 
+"@lavamoat/preinstall-always-fail@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@lavamoat/preinstall-always-fail/-/preinstall-always-fail-2.0.0.tgz#06813fc43d6f08e14045254278c1978b04b34631"
+  integrity sha512-7sgV9DtAD7z7nhxLb2vSjEqgjd3xVk2CbZKwBDVFXkZk1L6xrOIaJTNv5rgNy801/Rjc54KyJ48fHR3djwU35A==
+
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"

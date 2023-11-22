@@ -37,6 +37,7 @@
   "dependencies": {},
   "devDependencies": {
     "@lavamoat/allow-scripts": "^2.5.1",
+    "@lavamoat/preinstall-always-fail": "^2.0.0",
     "@metamask/auto-changelog": "^2.5.0",
     "@metamask/eslint-config": "^6.0.0",
     "@metamask/eslint-config-nodejs": "^6.0.0",
@@ -65,9 +66,9 @@
   "lavamoat": {
     "allowScripts": {
       "@lavamoat/preinstall-always-fail": false,
-      "eth-sig-util>ethereumjs-abi>ethereumjs-util>keccakjs>sha3": true,
-      "ethereumjs-util>keccak": true,
-      "ethereumjs-util>secp256k1": true
+      "eth-sig-util>ethereumjs-abi>ethereumjs-util>keccakjs>sha3": false,
+      "ethereumjs-util>keccak": false,
+      "ethereumjs-util>secp256k1": false
     }
   },
   "packageManager": "yarn@1.22.19"
