@@ -8,8 +8,9 @@ const DIST = path.resolve(__dirname, 'dist');
 module.exports = {
   resolve: {
     fallback: {
-      assert: false,
-      stream: false,
+      assert: require.resolve('assert/'),
+      process: require.resolve('process/browser'),
+      stream: require.resolve('stream-browserify'),
     },
   },
   devtool: 'eval-source-map',
@@ -39,6 +40,7 @@ module.exports = {
   plugins: [
     new ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
+      process: ['process/browser'],
     }),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
 
