@@ -72,8 +72,8 @@ const getAccountsResult = document.getElementById('getAccountsResult');
 const requestPermissionsButton = document.getElementById('requestPermissions');
 const getPermissionsButton = document.getElementById('getPermissions');
 const permissionsResult = document.getElementById('permissionsResult');
-const revokeAccountPermissionButton = document.getElementById(
-  'revokeAccountsPermissions',
+const revokeAccountsPermissionButton = document.getElementById(
+  'revokeAccountsPermission',
 );
 
 // Contract Section
@@ -1612,7 +1612,7 @@ const initializeFormElements = () => {
     }
   };
 
-  revokeAccountPermissionButton.onclick = async () => {
+  revokeAccountsPermissionButton.onclick = async () => {
     try {
       await provider.request({
         method: 'wallet_revokePermissions',
