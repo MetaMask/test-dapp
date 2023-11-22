@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.0.0]
+### Added
+- Add `wallet_watchAsset` for ERC1155 ([#272](https://github.com/MetaMask/test-dapp/pull/272))
+
+### Changed
+- **BREAKING**: Minimum Node.js version is now 18 ([#264](https://github.com/MetaMask/test-dapp/pull/264))
+- Update to webpack 5 ([#264](https://github.com/MetaMask/test-dapp/pull/264))
+- Update `eth_signTypedData_v4` example ([#274](https://github.com/MetaMask/test-dapp/pull/274))
+- Add `transferFrom` and `approve` to input address for ERC20 contract ([#271](https://github.com/MetaMask/test-dapp/pull/271))
+
 ## [7.3.1]
 ### Fixed
 - Fix clickable PPOM section after connecting ([#267](https://github.com/MetaMask/test-dapp/pull/267))
@@ -39,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.0]
 ### Added
-- Add watch NFT buttons that call `wallet_watchAsset` to add NFTs to wallet for NFT contracts deployed through the dapp ([#232](https://github.com/MetaMask/test-dapp/pull/232)) 
+- Add watch NFT buttons that call `wallet_watchAsset` to add NFTs to wallet for NFT contracts deployed through the dapp ([#232](https://github.com/MetaMask/test-dapp/pull/232))
 
 ### Changed
 - **BREAKING:** Change all instances of the term `collectible` to `NFT` ([#237](https://github.com/MetaMask/test-dapp/pull/237))
@@ -126,7 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v7.3.1...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.0.0...HEAD
+[8.0.0]: https://github.com/MetaMask/test-dapp/compare/v7.3.1...v8.0.0
 [7.3.1]: https://github.com/MetaMask/test-dapp/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/MetaMask/test-dapp/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/MetaMask/test-dapp/compare/v7.1.0...v7.2.0
