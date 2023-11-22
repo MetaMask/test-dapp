@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [8.0.0]
-### Uncategorized
+### Added
+- Add `wallet_watchAsset` for ERC1155 ([#272](https://github.com/MetaMask/test-dapp/pull/272))
+
+### Changed
+- **BREAKING**: Minimum Node.js version is now 18 ([#264](https://github.com/MetaMask/test-dapp/pull/264))
+- Update to webpack 5 ([#264](https://github.com/MetaMask/test-dapp/pull/264))
 - Update `eth_signTypedData_v4` example ([#274](https://github.com/MetaMask/test-dapp/pull/274))
-- Fix allow-scripts integration ([#275](https://github.com/MetaMask/test-dapp/pull/275))
+- Add `transferFrom` and `approve` to input address for ERC20 contract ([#271](https://github.com/MetaMask/test-dapp/pull/271))
+
+### Fixed
 - Fix signing ([#276](https://github.com/MetaMask/test-dapp/pull/276))
-- wallet_watchAsset for ERC1155 ([#272](https://github.com/MetaMask/test-dapp/pull/272))
-- feat: add `transferFrom` and `approve` to input address for ERC20 contract ([#271](https://github.com/MetaMask/test-dapp/pull/271))
-- BREAKING: Bump to webpack 5; support Node.js >= 18 ([#264](https://github.com/MetaMask/test-dapp/pull/264))
 
 ## [7.3.1]
 ### Fixed
@@ -49,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.0]
 ### Added
-- Add watch NFT buttons that call `wallet_watchAsset` to add NFTs to wallet for NFT contracts deployed through the dapp ([#232](https://github.com/MetaMask/test-dapp/pull/232)) 
+- Add watch NFT buttons that call `wallet_watchAsset` to add NFTs to wallet for NFT contracts deployed through the dapp ([#232](https://github.com/MetaMask/test-dapp/pull/232))
 
 ### Changed
 - **BREAKING:** Change all instances of the term `collectible` to `NFT` ([#237](https://github.com/MetaMask/test-dapp/pull/237))
