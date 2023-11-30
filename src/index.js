@@ -1309,12 +1309,19 @@ const initializeFormElements = () => {
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
+    }
     const result = await ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: `${ERC20_SAMPLE_CONTRACTS[networkName]}`,
+          to: erc20Contract,
           gas: '0x30d40',
           data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
           gasPrice: '0x76c3b0342',
@@ -1326,15 +1333,21 @@ const initializeFormElements = () => {
 
   // Malicious ERC20 transfer
   maliciousERC20TransferButton.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+    }
+
     const result = await ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: `${ERC20_SAMPLE_CONTRACTS[networkName]}`,
-          gas: '0x30d40',
+          to: erc20Contract,
           data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
-          gasPrice: '0x76c3b0342',
         },
       ],
     });
@@ -1394,12 +1407,20 @@ const initializeFormElements = () => {
 
   // Malicious Set Approval For All
   maliciousSetApprovalForAll.onclick = async () => {
+    let erc721Contract;
+
+    if (networkName) {
+      erc721Contract = ERC721_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc721Contract = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
+    }
+
     const result = await ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: `${ERC721_SAMPLE_CONTRACTS[networkName]}`,
+          to: erc721Contract,
           data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
         },
       ],
