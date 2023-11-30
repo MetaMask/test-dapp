@@ -1304,9 +1304,7 @@ const initializeFormElements = () => {
         {
           from: accounts[0],
           to: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
-          gas: '0x30d40',
           data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
-          gasPrice: '0x76c3b0342',
         },
       ],
     });
@@ -1321,9 +1319,7 @@ const initializeFormElements = () => {
         {
           from: accounts[0],
           to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-          gas: '0x30d40',
           data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
-          gasPrice: '0x76c3b0342',
         },
       ],
     });
