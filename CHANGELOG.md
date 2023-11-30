@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.1.0]
+### Added
+- Add wallet_revokePermissions for eth_accounts ([#278](https://github.com/MetaMask/test-dapp/pull/278))
+### Changed
+- make malicious signatures chain agnostic ([#279](https://github.com/MetaMask/test-dapp/pull/279))
+
 ## [8.0.0]
 ### Added
 - Add `wallet_watchAsset` for ERC1155 ([#272](https://github.com/MetaMask/test-dapp/pull/272))
@@ -137,7 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.1.0...HEAD
+[8.1.0]: https://github.com/MetaMask/test-dapp/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/MetaMask/test-dapp/compare/v7.3.1...v8.0.0
 [7.3.1]: https://github.com/MetaMask/test-dapp/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/MetaMask/test-dapp/compare/v7.2.0...v7.3.0
