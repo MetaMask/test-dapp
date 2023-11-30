@@ -11,6 +11,11 @@ import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 import Constants from './constants.json';
+import {
+  NETWORKS_BY_CHAIN_ID,
+  ERC20_SAMPLE_CONTRACTS,
+  ERC721_SAMPLE_CONTRACTS,
+} from './onchain-sample-contracts';
 
 const {
   hstBytecode,
@@ -489,11 +494,13 @@ const handleNewAccounts = (newAccounts) => {
 };
 
 let chainIdInt;
+let networkName;
 
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
   const networkId = parseInt(networkDiv.innerHTML, 10);
   chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+  networkName = NETWORKS_BY_CHAIN_ID[chainIdInt];
 
   if (chainId === '0x1') {
     warningDiv.classList.remove('warning-invisible');
@@ -1302,15 +1309,20 @@ const initializeFormElements = () => {
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
+    }
     const result = await ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
-          gas: '0x30d40',
+          to: erc20Contract,
           data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
-          gasPrice: '0x76c3b0342',
         },
       ],
     });
@@ -1319,15 +1331,21 @@ const initializeFormElements = () => {
 
   // Malicious ERC20 transfer
   maliciousERC20TransferButton.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+    }
+
     const result = await ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-          gas: '0x30d40',
+          to: erc20Contract,
           data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
-          gasPrice: '0x76c3b0342',
         },
       ],
     });
@@ -1367,7 +1385,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
-        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"0x0000000000000000000000000000000000000000","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
+        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"0x5FbDB2315678afecb367f032d93F642f64180aa3","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
       ],
     });
     console.log(result);
@@ -1387,12 +1405,20 @@ const initializeFormElements = () => {
 
   // Malicious Set Approval For All
   maliciousSetApprovalForAll.onclick = async () => {
+    let erc721Contract;
+
+    if (networkName) {
+      erc721Contract = ERC721_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc721Contract = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
+    }
+
     const result = await ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+          to: erc721Contract,
           data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
         },
       ],
