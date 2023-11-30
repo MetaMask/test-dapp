@@ -1322,9 +1322,7 @@ const initializeFormElements = () => {
         {
           from: accounts[0],
           to: erc20Contract,
-          gas: '0x30d40',
           data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
-          gasPrice: '0x76c3b0342',
         },
       ],
     });
