@@ -434,6 +434,17 @@ const modal = createWeb3Modal({
 async function handleWalletConnectChange({ isConnected }) {
   if (isConnected) {
     provider = modal.getWalletProvider().provider;
+    const providerDetail = {
+      info: {
+        uuid: provider.signer.uri,
+        name: 'wallet-connect',
+        icon: './wallet-connect.svg',
+      },
+      provider,
+    };
+    setActiveProviderDetail(providerDetail);
+    handleNewProviderDetail(providerDetail);
+
     isWalletConnectConnected = true;
     try {
       const newAccounts = await provider.request({
@@ -445,7 +456,7 @@ async function handleWalletConnectChange({ isConnected }) {
     }
   } else {
     isWalletConnectConnected = false;
-    openConnectModalBtn.innerText = 'Wallet Connect - Disconnected';
+    openConnectModalBtn.innerText = 'Wallet Connect';
     handleNewAccounts([]);
     updateFormElements();
   }
@@ -469,10 +480,19 @@ const detectEip6963 = () => {
   window.dispatchEvent(new Event('eip6963:requestProvider'));
 };
 
-const setActiveProviderDetail = (providerDetail) => {
+const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
   provider = providerDetail.provider;
   initializeProvider();
+
+  try {
+    const newAccounts = await provider.request({
+      method: 'eth_accounts',
+    });
+    handleNewAccounts(newAccounts);
+  } catch (err) {
+    console.error('Error on init when getting accounts', err);
+  }
 
   const { uuid, name, icon } = providerDetail.info;
   activeProviderUUIDResult.innerText = uuid;
@@ -819,7 +839,8 @@ const updateFormElements = () => {
     for (const button of walletConnectButtons) {
       button.disabled = true;
     }
-  } else {
+  }
+  if (!accountButtonsDisabled) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
