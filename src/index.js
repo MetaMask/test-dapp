@@ -1517,7 +1517,6 @@ const initializeFormElements = () => {
     }
 
     const result = await provider.request({
-
       method: 'eth_sendTransaction',
       params: [
         {
