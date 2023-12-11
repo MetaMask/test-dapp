@@ -888,7 +888,21 @@ const updateOnboardElements = () => {
     if (onboarding) {
       onboarding.stopOnboarding();
     }
+  } else {
+    onboardButton.innerText = 'Connect';
+    onboardButton.onclick = async () => {
+      try {
+        const newAccounts = await provider.request({
+          method: 'eth_requestAccounts',
+        });
+        handleNewAccounts(newAccounts);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    onboardButton.disabled = false;
   }
+
   if (isWalletConnectConnected) {
     openConnectModalBtn.innerText = 'Wallet Connect - Connected';
 
@@ -903,19 +917,6 @@ const updateOnboardElements = () => {
     provider.on('chainChanged', handleNewNetwork);
     provider.on('accountsChanged', handleNewAccounts);
     provider.on('accountsChanged', handleEIP1559Support);
-  } else {
-    onboardButton.innerText = 'Connect';
-    onboardButton.onclick = async () => {
-      try {
-        const newAccounts = await provider.request({
-          method: 'eth_requestAccounts',
-        });
-        handleNewAccounts(newAccounts);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    onboardButton.disabled = false;
   }
 };
 
