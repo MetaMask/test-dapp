@@ -70,7 +70,11 @@
       "@lavamoat/preinstall-always-fail": false,
       "eth-sig-util>ethereumjs-abi>ethereumjs-util>keccakjs>sha3": false,
       "ethereumjs-util>keccak": false,
-      "ethereumjs-util>secp256k1": false
+      "ethereumjs-util>secp256k1": false,
+      "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>bigint-buffer": false,
+      "@web3modal/ethers5>@coinbase/wallet-sdk>keccak": false,
+      "webpack-dev-server>ws>bufferutil": false,
+      "webpack-dev-server>ws>utf-8-validate": false
     }
   },
   "packageManager": "yarn@1.22.19"
