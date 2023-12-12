@@ -410,14 +410,6 @@ const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 // test id
 const projectId = 'e6360eaee594162688065f1c70c863b7';
 
-const mainnet = {
-  chainId: 1,
-  name: 'Ethereum',
-  currency: 'ETH',
-  explorerUrl: 'https://etherscan.io',
-  rpcUrl: 'https://cloudflare-eth.com',
-};
-
 const metadata = {
   name: 'E2e Test Dapp',
   description: 'This is the E2e Test Dapp',
@@ -427,7 +419,6 @@ const metadata = {
 
 const modal = createWeb3Modal({
   ethersConfig: defaultConfig({ metadata }),
-  chains: [mainnet],
   projectId,
 });
 
@@ -439,6 +430,7 @@ async function handleWalletConnectChange({ isConnected }) {
         uuid: provider.signer.uri,
         name: 'wallet-connect',
         icon: './wallet-connect.svg',
+        rdns: 'io.metamask',
       },
       provider,
     };
@@ -829,21 +821,16 @@ const updateFormElements = () => {
       button.disabled = true;
     }
     clearDisplayElements();
-  }
-  if (isWalletConnectConnected) {
-    for (const button of walletConnectButtons) {
-      button.disabled = false;
-    }
-  }
-  if (isWalletConnectConnected === false) {
-    for (const button of walletConnectButtons) {
-      button.disabled = true;
-    }
-  }
-  if (!accountButtonsDisabled) {
+  } else {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
+  }
+
+  for (const button of walletConnectButtons) {
+    isWalletConnectConnected
+      ? (button.disabled = false)
+      : (button.disabled = true);
   }
 
   updateOnboardElements();
