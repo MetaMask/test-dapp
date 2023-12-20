@@ -559,6 +559,7 @@ const initialize = async () => {
           token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
           chainId: '0x89',
         },
+        user_address: '0x', // we need to pass the wallet address that the user is having the intetion
       },
     ];
 
