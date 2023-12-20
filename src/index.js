@@ -234,6 +234,7 @@ const maliciousSeaport = document.getElementById('maliciousSeaport');
 const maliciousSetApprovalForAll = document.getElementById(
   'maliciousSetApprovalForAll',
 );
+const walletSwap = document.getElementById('wallet_swap');
 
 const initialize = async () => {
   try {
@@ -454,6 +455,7 @@ const initialize = async () => {
     if (isMetaMaskInstalled()) {
       addEthereumChain.disabled = false;
       switchEthereumChain.disabled = false;
+      walletSwap.disabled = false;
     } else {
       onboardButton.innerText = 'Click here to install MetaMask!';
       onboardButton.onclick = onClickInstall;
@@ -541,6 +543,28 @@ const initialize = async () => {
           chainId: '0x53a',
         },
       ],
+    });
+  };
+  walletSwap.onclick = async () => {
+    const params = [
+      {
+        from: {
+          // 0x6b175474e89094c44da98b954eedeac495271d0f
+          token_address: '0x0000000000000000000000000000000000000000',
+          chainId: '0x89',
+          amount: '0xDE0B6B3A7640000',
+        },
+        to: {
+          //0x0000000000000000000000000000000000000000
+          token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+          chainId: '0x89',
+        },
+      },
+    ];
+
+    await ethereum.request({
+      method: 'wallet_swap',
+      params,
     });
   };
 
@@ -1164,7 +1188,7 @@ const initialize = async () => {
       transferTokensWithoutGas.disabled = false;
       approveTokensWithoutGas.disabled = false;
     };
-
+    watchAssets.disabled = false;
     watchAssets.onclick = async () => {
       const contractAddresses = tokenAddresses.innerHTML.split(', ');
 
@@ -1174,9 +1198,9 @@ const initialize = async () => {
           params: {
             type: 'ERC20',
             options: {
-              address: erc20Address,
-              symbol: tokenSymbol,
-              decimals: decimalUnitsInput.value,
+              address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+              symbol: 'FAKEWBTC',
+              decimals: '6',
               image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
             },
           },
