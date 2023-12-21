@@ -568,7 +568,7 @@ const initialize = async () => {
     ];
 
     await ethereum.request({
-      method: 'wallet_swap',
+      method: 'wallet_swapAsset',
       params,
     });
   };
