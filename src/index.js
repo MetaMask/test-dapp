@@ -548,18 +548,22 @@ const initialize = async () => {
   walletSwap.onclick = async () => {
     const params = [
       {
-        from: {
-          // 0x6b175474e89094c44da98b954eedeac495271d0f
-          token_address: '0x0000000000000000000000000000000000000000',
-          chainId: '0x89',
-          amount: '0xDE0B6B3A7640000',
-        },
+        from: [
+          {
+            // 0x6b175474e89094c44da98b954eedeac495271d0f
+            token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+            // token_address: '0x0000000000000000000000000000000000000000',
+            chainId: '0x89',
+            amount: '0xDE0B6B3A7640000',
+          },
+        ],
         to: {
           //0x0000000000000000000000000000000000000000
-          token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+          // token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+          token_address: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6',
           chainId: '0x89',
         },
-        user_address: '0x', // we need to pass the wallet address that the user is having the intetion
+        user_address: accounts[0], // we need to pass the wallet address that the user is having the intetion
       },
     ];
 
