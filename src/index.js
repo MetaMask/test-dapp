@@ -3,10 +3,8 @@ import MetaMaskOnboarding from '@metamask/onboarding';
 import {
   encrypt,
   recoverPersonalSignature,
-  recoverTypedSignatureLegacy,
   recoverTypedSignature,
-  recoverTypedSignature_v4 as recoverTypedSignatureV4,
-} from 'eth-sig-util';
+} from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
@@ -1692,11 +1690,11 @@ const initializeFormElements = () => {
   encryptButton.onclick = () => {
     try {
       ciphertextDisplay.innerText = stringifiableToHex(
-        encrypt(
-          encryptionKeyDisplay.innerText,
-          { data: encryptMessageInput.value },
-          'x25519-xsalsa20-poly1305',
-        ),
+        encrypt({
+          publicKey: encryptionKeyDisplay.innerText,
+          data: encryptMessageInput.value,
+          version: 'x25519-xsalsa20-poly1305',
+        }),
       );
       decryptButton.disabled = false;
     } catch (error) {
@@ -1907,7 +1905,7 @@ const initializeFormElements = () => {
       const sign = personalSignResult.innerHTML;
       const recoveredAddr = recoverPersonalSignature({
         data: msg,
-        sig: sign,
+        signature: sign,
       });
       if (recoveredAddr === from) {
         console.log(`SigUtil Successfully verified signer as ${recoveredAddr}`);
@@ -1986,9 +1984,10 @@ const initializeFormElements = () => {
     try {
       const from = accounts[0];
       const sign = signTypedDataResult.innerHTML;
-      const recoveredAddr = await recoverTypedSignatureLegacy({
+      const recoveredAddr = await recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V1',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -2105,7 +2104,8 @@ const initializeFormElements = () => {
       const sign = signTypedDataV3Result.innerHTML;
       const recoveredAddr = await recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V3',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -2250,9 +2250,10 @@ const initializeFormElements = () => {
     try {
       const from = accounts[0];
       const sign = signTypedDataV4Result.innerHTML;
-      const recoveredAddr = recoverTypedSignatureV4({
+      const recoveredAddr = recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V4',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -2399,9 +2400,10 @@ const initializeFormElements = () => {
     };
     try {
       const sign = signPermitResult.innerHTML;
-      const recoveredAddr = recoverTypedSignatureV4({
+      const recoveredAddr = recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V4',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
