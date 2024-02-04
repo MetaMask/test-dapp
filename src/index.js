@@ -438,6 +438,7 @@ async function handleWalletConnectChange({ isConnected }) {
     handleNewProviderDetail(providerDetail);
 
     isWalletConnectConnected = true;
+    updateFormElements();
     try {
       const newAccounts = await provider.request({
         method: 'eth_accounts',
@@ -492,6 +493,7 @@ const setActiveProviderDetail = async (providerDetail) => {
   activeProviderIconResult.innerHTML = icon
     ? `<img src="${icon}" height="90" width="90" />`
     : '';
+  updateFormElements();
 };
 
 const setActiveProviderDetailWindowEthereum = () => {
@@ -821,16 +823,18 @@ const updateFormElements = () => {
       button.disabled = true;
     }
     clearDisplayElements();
-  } else {
+  }
+  if (
+    isWalletConnectConnected &&
+    activeProviderNameResult.innerText === 'wallet-connect'
+  ) {
+    for (const button of walletConnectButtons) {
+      button.disabled = false;
+    }
+  } else if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
-  }
-
-  for (const button of walletConnectButtons) {
-    isWalletConnectConnected
-      ? (button.disabled = false)
-      : (button.disabled = true);
   }
 
   updateOnboardElements();
