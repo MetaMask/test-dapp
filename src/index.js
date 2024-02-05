@@ -1,4 +1,5 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 // eslint-disable-next-line camelcase
 import {
   encrypt,
@@ -72,6 +73,7 @@ const warningDiv = document.getElementById('warning');
 const onboardButton = document.getElementById('connectButton');
 const getAccountsButton = document.getElementById('getAccounts');
 const getAccountsResult = document.getElementById('getAccountsResult');
+const openConnectModalBtn = document.getElementById('open-connect-modal');
 
 // Permissions Actions Section
 const requestPermissionsButton = document.getElementById('requestPermissions');
@@ -364,6 +366,32 @@ const initialConnectedButtons = [
   maliciousSeaport,
 ];
 
+// Buttons that are available after connecting via Wallet Connect
+const walletConnectButtons = [
+  sendButton,
+  personalSign,
+  signTypedData,
+  ethSign,
+  personalSign,
+  signTypedData,
+  signTypedDataV3,
+  signTypedDataV4,
+  signPermit,
+  siwe,
+  siweResources,
+  siweBadDomain,
+  siweBadAccount,
+  siweMalformed,
+  eip747WatchButton,
+  maliciousApprovalButton,
+  maliciousSetApprovalForAll,
+  maliciousERC20TransferButton,
+  maliciousRawEthButton,
+  maliciousPermit,
+  maliciousTradeOrder,
+  maliciousSeaport,
+];
+
 /**
  * Provider
  */
@@ -374,9 +402,63 @@ let accounts = [];
 let scrollToHandled = false;
 
 const isMetaMaskConnected = () => accounts && accounts.length > 0;
+let isWalletConnectConnected = false;
 
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () => provider && provider.isMetaMask;
+
+// test id
+const projectId = 'e6360eaee594162688065f1c70c863b7';
+
+const metadata = {
+  name: 'E2e Test Dapp',
+  description: 'This is the E2e Test Dapp',
+  url: 'https://metamask.github.io/test-dapp/',
+  icons: ['https://avatars.mywebsite.com/'],
+};
+
+const modal = createWeb3Modal({
+  ethersConfig: defaultConfig({ metadata }),
+  projectId,
+});
+
+async function handleWalletConnectChange({ isConnected }) {
+  if (isConnected) {
+    provider = modal.getWalletProvider().provider;
+    const providerDetail = {
+      info: {
+        uuid: provider.signer.uri,
+        name: 'wallet-connect',
+        icon: './wallet-connect.svg',
+        rdns: 'io.metamask',
+      },
+      provider,
+    };
+    setActiveProviderDetail(providerDetail);
+    handleNewProviderDetail(providerDetail);
+
+    isWalletConnectConnected = true;
+    updateFormElements();
+    try {
+      const newAccounts = await provider.request({
+        method: 'eth_accounts',
+      });
+      handleNewAccounts(newAccounts);
+    } catch (err) {
+      console.error('Error on init when getting accounts', err);
+    }
+  } else {
+    isWalletConnectConnected = false;
+    openConnectModalBtn.innerText = 'Wallet Connect';
+    handleNewAccounts([]);
+    updateFormElements();
+  }
+}
+
+openConnectModalBtn.onclick = () => {
+  modal.open();
+  modal.subscribeProvider(handleWalletConnectChange);
+};
 
 const detectEip6963 = () => {
   window.addEventListener('eip6963:announceProvider', (event) => {
@@ -391,10 +473,19 @@ const detectEip6963 = () => {
   window.dispatchEvent(new Event('eip6963:requestProvider'));
 };
 
-const setActiveProviderDetail = (providerDetail) => {
+const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
   provider = providerDetail.provider;
   initializeProvider();
+
+  try {
+    const newAccounts = await provider.request({
+      method: 'eth_accounts',
+    });
+    handleNewAccounts(newAccounts);
+  } catch (err) {
+    console.error('Error on init when getting accounts', err);
+  }
 
   const { uuid, name, icon } = providerDetail.info;
   activeProviderUUIDResult.innerText = uuid;
@@ -402,6 +493,7 @@ const setActiveProviderDetail = (providerDetail) => {
   activeProviderIconResult.innerHTML = icon
     ? `<img src="${icon}" height="90" width="90" />`
     : '';
+  updateFormElements();
 };
 
 const setActiveProviderDetailWindowEthereum = () => {
@@ -731,7 +823,15 @@ const updateFormElements = () => {
       button.disabled = true;
     }
     clearDisplayElements();
-  } else {
+  }
+  if (
+    isWalletConnectConnected &&
+    activeProviderNameResult.innerText === 'wallet-connect'
+  ) {
+    for (const button of walletConnectButtons) {
+      button.disabled = false;
+    }
+  } else if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
@@ -792,6 +892,22 @@ const updateOnboardElements = () => {
       }
     };
     onboardButton.disabled = false;
+  }
+
+  if (isWalletConnectConnected) {
+    openConnectModalBtn.innerText = 'Wallet Connect - Connected';
+
+    if (onboarding) {
+      onboarding.stopOnboarding();
+    }
+    provider.autoRefreshOnNetworkChange = false;
+    getNetworkAndChainId();
+
+    provider.on('chainChanged', handleNewChain);
+    provider.on('chainChanged', handleEIP1559Support);
+    provider.on('chainChanged', handleNewNetwork);
+    provider.on('accountsChanged', handleNewAccounts);
+    provider.on('accountsChanged', handleEIP1559Support);
   }
 };
 
@@ -1075,7 +1191,7 @@ const initializeFormElements = () => {
   watchNFTButton.onclick = async () => {
     let watchNftsResult;
     try {
-      watchNftsResult = await ethereum.request({
+      watchNftsResult = await provider.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC721',
@@ -1316,7 +1432,7 @@ const initializeFormElements = () => {
     } else {
       erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
     }
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1339,7 +1455,7 @@ const initializeFormElements = () => {
       erc20Contract = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
     }
 
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1354,7 +1470,7 @@ const initializeFormElements = () => {
 
   // Malicious raw ETH transfer
   maliciousRawEthButton.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1369,7 +1485,7 @@ const initializeFormElements = () => {
 
   // Malicious permit
   maliciousPermit.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
@@ -1381,7 +1497,7 @@ const initializeFormElements = () => {
 
   // Malicious trade order
   maliciousTradeOrder.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
@@ -1393,7 +1509,7 @@ const initializeFormElements = () => {
 
   // Malicious Seaport
   maliciousSeaport.onclick = async () => {
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
@@ -1413,7 +1529,7 @@ const initializeFormElements = () => {
       erc721Contract = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
     }
 
-    const result = await ethereum.request({
+    const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -1512,7 +1628,7 @@ const initializeFormElements = () => {
     const contractAddresses = tokenAddresses.innerHTML.split(', ');
 
     const promises = contractAddresses.map((erc20Address) => {
-      return ethereum.request({
+      return provider.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20',
