@@ -2725,7 +2725,6 @@ const initializeFormElements = () => {
       },
       message: {
         wallet: 'Hello, Bob!',
-        extraData: 'This data is not typed!',
       },
       primaryType: 'Non-Existent',
       types: {
