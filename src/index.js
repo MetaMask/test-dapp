@@ -238,6 +238,9 @@ const signInvalidPrimaryType = document.getElementById(
 const signNoPrimaryTypeDefined = document.getElementById(
   'signNoPrimaryTypeDefined',
 );
+const signInvalidVerifyingContractType = document.getElementById(
+  'signInvalidVerifyingContractType',
+);
 const signMalformedResult = document.getElementById('signMalformedResult');
 
 // Send form section
@@ -339,6 +342,7 @@ const allConnectedButtons = [
   signExtraDataNotTyped,
   signInvalidPrimaryType,
   signNoPrimaryTypeDefined,
+  signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
   maliciousSetApprovalForAll,
@@ -378,6 +382,7 @@ const initialConnectedButtons = [
   signExtraDataNotTyped,
   signInvalidPrimaryType,
   signNoPrimaryTypeDefined,
+  signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
   maliciousSetApprovalForAll,
@@ -409,6 +414,7 @@ const walletConnectButtons = [
   signExtraDataNotTyped,
   signInvalidPrimaryType,
   signNoPrimaryTypeDefined,
+  signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
   maliciousSetApprovalForAll,
@@ -2724,7 +2730,7 @@ const initializeFormElements = () => {
         verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
       },
       message: {
-        wallet: 'Hello, Bob!',
+        name: 'Hello, Bob!',
       },
       primaryType: 'Non-Existent',
       types: {
@@ -2801,6 +2807,43 @@ const initializeFormElements = () => {
           { name: 'name', type: 'string' },
           { name: 'wallets', type: 'address[]' },
         ],
+      },
+    };
+    try {
+      const from = accounts[0];
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      signMalformedResult.innerHTML = sign;
+    } catch (err) {
+      console.error(err);
+      signMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+  /**
+   * Sign Invalid verifyingContract type
+   */
+  signInvalidVerifyingContractType.onclick = async () => {
+    const msgParams = {
+      domain: {
+        chainId: chainIdInt,
+        name: 'Seaport',
+        version: '1.5',
+        verifyingContract: 1,
+      },
+      message: {
+        name: 'Hello, Bob!',
+      },
+      primaryType: 'Wallet',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Wallet: [{ name: 'name', type: 'string' }],
       },
     };
     try {
