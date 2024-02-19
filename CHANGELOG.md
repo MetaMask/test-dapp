@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.2.0]
 ### Added
 - Add Wallet Connect support ([#284](https://github.com/MetaMask/test-dapp/pull/284))
+- Add Malformed Signatures ([#290](https://github.com/MetaMask/test-dapp/pull/290))
 
 ## [8.1.0]
 ### Added
