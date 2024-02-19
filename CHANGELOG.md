@@ -5,13 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [8.3.0]
-### Added
-- Add Malformed Signatures ([#290](https://github.com/MetaMask/test-dapp/pull/290))
-
 ## [8.2.0]
 ### Added
 - Add Wallet Connect support ([#284](https://github.com/MetaMask/test-dapp/pull/284))
+- Add Malformed Signatures ([#290](https://github.com/MetaMask/test-dapp/pull/290))
 
 ## [8.1.0]
 ### Added
@@ -150,8 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.3.0...HEAD
-[8.3.0]: https://github.com/MetaMask/test-dapp/compare/v8.2.0...v8.3.0
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.2.0...HEAD
 [8.2.0]: https://github.com/MetaMask/test-dapp/compare/v8.1.0...v8.2.0
 [8.1.0]: https://github.com/MetaMask/test-dapp/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/MetaMask/test-dapp/compare/v7.3.1...v8.0.0
