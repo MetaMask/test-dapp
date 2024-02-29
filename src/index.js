@@ -243,6 +243,14 @@ const signInvalidVerifyingContractType = document.getElementById(
 );
 const signMalformedResult = document.getElementById('signMalformedResult');
 
+// Batch
+const signTypedDataV4Batch = document.getElementById('signTypedDataV4Batch');
+const sendEIP1559Batch = document.getElementById('sendEIP1559Batch');
+
+// Queue
+const signTypedDataV4Queue = document.getElementById('signTypedDataV4Queue');
+const sendEIP1559Queue = document.getElementById('sendEIP1559Queue');
+
 // Send form section
 const fromDiv = document.getElementById('fromInput');
 const toDiv = document.getElementById('toInput');
@@ -330,6 +338,8 @@ const allConnectedButtons = [
   signTypedDataV3Verify,
   signTypedDataV4,
   signTypedDataV4Verify,
+  signTypedDataV4Batch,
+  signTypedDataV4Queue,
   signPermit,
   signPermitVerify,
   siwe,
@@ -371,6 +381,8 @@ const initialConnectedButtons = [
   signTypedData,
   signTypedDataV3,
   signTypedDataV4,
+  signTypedDataV4Batch,
+  signTypedDataV4Queue,
   signPermit,
   siwe,
   siweResources,
@@ -403,6 +415,8 @@ const walletConnectButtons = [
   signTypedData,
   signTypedDataV3,
   signTypedDataV4,
+  signTypedDataV4Batch,
+  signTypedDataV4Queue,
   signPermit,
   siwe,
   siweResources,
@@ -672,10 +686,18 @@ const handleEIP1559Support = async () => {
   if (supported && Array.isArray(accounts) && accounts.length >= 1) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
+    sendEIP1559Batch.disabled = false;
+    sendEIP1559Batch.hidden = false;
+    sendEIP1559Queue.disabled = false;
+    sendEIP1559Queue.hidden = false;
     sendButton.innerText = 'Send Legacy Transaction';
   } else {
     sendEIP1559Button.disabled = true;
     sendEIP1559Button.hidden = true;
+    sendEIP1559Batch.disabled = true;
+    sendEIP1559Batch.hidden = true;
+    sendEIP1559Queue.disabled = true;
+    sendEIP1559Queue.hidden = true;
     sendButton.innerText = 'Send';
   }
 };
@@ -2856,6 +2878,88 @@ const initializeFormElements = () => {
     } catch (err) {
       console.error(err);
       signMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Queue of 10 Malicious Signatures
+   */
+  signTypedDataV4Queue.onclick = async () => {
+    for (let i = 0; i < 10; i++) {
+      try {
+        const from = accounts[0];
+        await provider.request({
+          method: 'eth_signTypedData_v4',
+          params: [
+            from,
+            `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+          ],
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  /**
+   * Batch of 10 Malicious Signatures
+   */
+  signTypedDataV4Batch.onclick = async () => {
+    for (let i = 0; i < 10; i++) {
+      try {
+        const from = accounts[0];
+        provider.request({
+          method: 'eth_signTypedData_v4',
+          params: [
+            from,
+            `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+          ],
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  /**
+   *  Batch of 10 Malicious Transactions
+   */
+  sendEIP1559Batch.onclick = async () => {
+    for (let i = 0; i < 10; i++) {
+      provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: accounts[0],
+            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+    }
+  };
+
+  /**
+   *  Queue of 10 Malicious Transactions
+   */
+  sendEIP1559Queue.onclick = async () => {
+    for (let i = 0; i < 10; i++) {
+      await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: accounts[0],
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
     }
   };
 
