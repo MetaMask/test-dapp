@@ -243,6 +243,21 @@ const signInvalidVerifyingContractType = document.getElementById(
 );
 const signMalformedResult = document.getElementById('signMalformedResult');
 
+// Malformed Transactions
+const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
+const sendWithInvalidTxType = document.getElementById('sendWithInvalidTxType');
+const sendWithOddHexData = document.getElementById('sendWithOddHexData');
+const sendWithInvalidRecipient = document.getElementById(
+  'sendWithInvalidRecipient',
+);
+const sendWithInvalidGasLimit = document.getElementById(
+  'sendWithInvalidGasLimit',
+);
+const sendWithInvalidMaxFeePerGas = document.getElementById(
+  'sendWithInvalidMaxFeePerGas',
+);
+const sendMalformedResult = document.getElementById('sendMalformedResult');
+
 // Send form section
 const fromDiv = document.getElementById('fromInput');
 const toDiv = document.getElementById('toInput');
@@ -672,10 +687,34 @@ const handleEIP1559Support = async () => {
   if (supported && Array.isArray(accounts) && accounts.length >= 1) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
+    sendWithInvalidValue.disabled = false;
+    sendWithInvalidValue.hidden = false;
+    sendWithInvalidTxType.disabled = false;
+    sendWithInvalidTxType.hidden = false;
+    sendWithOddHexData.disabled = false;
+    sendWithOddHexData.hidden = false;
+    sendWithInvalidRecipient.disabled = false;
+    sendWithInvalidRecipient.hidden = false;
+    sendWithInvalidGasLimit.disabled = false;
+    sendWithInvalidGasLimit.hidden = false;
+    sendWithInvalidMaxFeePerGas.disabled = false;
+    sendWithInvalidMaxFeePerGas.hidden = false;
     sendButton.innerText = 'Send Legacy Transaction';
   } else {
     sendEIP1559Button.disabled = true;
     sendEIP1559Button.hidden = true;
+    sendWithInvalidValue.disabled = true;
+    sendWithInvalidValue.hidden = true;
+    sendWithInvalidTxType.disabled = true;
+    sendWithInvalidTxType.hidden = true;
+    sendWithOddHexData.disabled = true;
+    sendWithOddHexData.hidden = true;
+    sendWithInvalidRecipient.disabled = true;
+    sendWithInvalidRecipient.hidden = true;
+    sendWithInvalidGasLimit.disabled = true;
+    sendWithInvalidGasLimit.hidden = true;
+    sendWithInvalidMaxFeePerGas.disabled = true;
+    sendWithInvalidMaxFeePerGas.hidden = true;
     sendButton.innerText = 'Send';
   }
 };
@@ -2859,6 +2898,168 @@ const initializeFormElements = () => {
     }
   };
 
+  /**
+   * Send With Invalid Value
+   */
+
+  sendWithInvalidValue.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: 'string',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid Transaction Type
+   */
+
+  sendWithInvalidTxType.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: '0x5208',
+            gasPrice: '0x2540be400',
+            type: '0x5',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Odd Hex Data
+   */
+
+  sendWithOddHexData.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+            data: '0x1',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid Recipient
+   */
+
+  sendWithInvalidRecipient.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: 'invalid',
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid gasLimit
+   */
+
+  sendWithInvalidGasLimit.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: 'string',
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid maxFeePerGas
+   */
+
+  sendWithInvalidMaxFeePerGas.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: 'string',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
   /**
    * Providers
    */
