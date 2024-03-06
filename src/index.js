@@ -380,6 +380,11 @@ const allConnectedButtons = [
   maliciousTradeOrder,
   maliciousSeaport,
   mintERC20,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithOddHexData,
+  approveERC20WithOddHexData,
+  sendWithInvalidRecipient,
 ];
 
 // Buttons that are available after initially connecting an account
@@ -423,6 +428,11 @@ const initialConnectedButtons = [
   maliciousTradeOrder,
   maliciousSeaport,
   mintERC20,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithOddHexData,
+  approveERC20WithOddHexData,
+  sendWithInvalidRecipient,
 ];
 
 // Buttons that are available after connecting via Wallet Connect
@@ -458,6 +468,11 @@ const walletConnectButtons = [
   maliciousTradeOrder,
   maliciousSeaport,
   mintERC20,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithOddHexData,
+  approveERC20WithOddHexData,
+  sendWithInvalidRecipient,
 ];
 
 /**
@@ -712,46 +727,24 @@ const handleEIP1559Support = async () => {
   if (supported && Array.isArray(accounts) && accounts.length >= 1) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
-    sendWithInvalidValue.disabled = false;
-    sendWithInvalidValue.hidden = false;
-    sendWithInvalidTxType.disabled = false;
-    sendWithInvalidTxType.hidden = false;
-    sendWithOddHexData.disabled = false;
-    sendWithOddHexData.hidden = false;
-    approveERC20WithOddHexData.disabled = false;
-    approveERC20WithOddHexData.hidden = false;
-    sendWithInvalidRecipient.disabled = false;
-    sendWithInvalidRecipient.hidden = false;
-    sendWithInvalidGasLimit.disabled = false;
-    sendWithInvalidGasLimit.hidden = false;
     sendWithInvalidMaxFeePerGas.disabled = false;
     sendWithInvalidMaxFeePerGas.hidden = false;
     sendEIP1559Batch.disabled = false;
     sendEIP1559Batch.hidden = false;
     sendEIP1559Queue.disabled = false;
     sendEIP1559Queue.hidden = false;
+    sendWithInvalidGasLimit.disabled = false;
+    sendWithInvalidGasLimit.hidden = false;
     sendButton.innerText = 'Send Legacy Transaction';
   } else {
     sendEIP1559Button.disabled = true;
     sendEIP1559Button.hidden = true;
-    sendWithInvalidValue.disabled = true;
-    sendWithInvalidValue.hidden = true;
-    sendWithInvalidTxType.disabled = true;
-    sendWithInvalidTxType.hidden = true;
-    sendWithOddHexData.disabled = true;
-    sendWithOddHexData.hidden = true;
-    approveERC20WithOddHexData.disabled = true;
-    approveERC20WithOddHexData.hidden = true;
-    sendWithInvalidRecipient.disabled = true;
-    sendWithInvalidRecipient.hidden = true;
-    sendWithInvalidGasLimit.disabled = true;
-    sendWithInvalidGasLimit.hidden = true;
-    sendWithInvalidMaxFeePerGas.disabled = true;
-    sendWithInvalidMaxFeePerGas.hidden = true;
     sendEIP1559Batch.disabled = true;
     sendEIP1559Batch.hidden = true;
     sendEIP1559Queue.disabled = true;
     sendEIP1559Queue.hidden = true;
+    sendWithInvalidGasLimit.disabled = true;
+    sendWithInvalidGasLimit.hidden = true;
     sendButton.innerText = 'Send';
   }
 };
@@ -2967,9 +2960,6 @@ const initializeFormElements = () => {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: 'string',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
           },
         ],
       });
@@ -2994,8 +2984,6 @@ const initializeFormElements = () => {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
-            gasLimit: '0x5208',
-            gasPrice: '0x2540be400',
             type: '0x5',
           },
         ],
@@ -3079,9 +3067,6 @@ const initializeFormElements = () => {
             from,
             to: 'invalid',
             value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
           },
         ],
       });
