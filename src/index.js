@@ -284,6 +284,7 @@ const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
 // PPOM
+const mintERC20 = document.getElementById('mintERC20');
 const maliciousApprovalButton = document.getElementById(
   'maliciousApprovalButton',
 );
@@ -375,6 +376,7 @@ const allConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  mintERC20,
 ];
 
 // Buttons that are available after initially connecting an account
@@ -417,6 +419,7 @@ const initialConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  mintERC20,
 ];
 
 // Buttons that are available after connecting via Wallet Connect
@@ -451,6 +454,7 @@ const walletConnectButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  mintERC20,
 ];
 
 /**
@@ -669,6 +673,11 @@ const handleNewChain = (chainId) => {
 
 const handleNewNetwork = (networkId) => {
   networkDiv.innerHTML = networkId;
+  if (networkId === ('11155111' || '0xaa36a7')) {
+    mintERC20.hidden = false;
+  } else {
+    mintERC20.hidden = true;
+  }
 };
 
 const getNetworkAndChainId = async () => {
@@ -1515,6 +1524,24 @@ const initializeFormElements = () => {
   /**
    *  PPOM
    */
+
+  // Mint ERC20 in Sepolia
+  mintERC20.onclick = async () => {
+    const from = accounts[0];
+    const noPrefixedAddress = from.slice(2);
+    const result = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from,
+          to: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
+          value: '0x0',
+          data: `0x40c10f19000000000000000000000000${noPrefixedAddress}000000000000000000000000000000000000000000000000000000001dcd6500`,
+        },
+      ],
+    });
+    console.log(result);
+  };
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
@@ -3126,19 +3153,23 @@ const initializeFormElements = () => {
    */
   sendEIP1559Batch.onclick = async () => {
     for (let i = 0; i < 10; i++) {
-      provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-            value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
+      try {
+        provider.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: accounts[0],
+              to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+              value: '0x0',
+              gasLimit: '0x5028',
+              maxFeePerGas: '0x2540be400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+            },
+          ],
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -3147,19 +3178,23 @@ const initializeFormElements = () => {
    */
   sendEIP1559Queue.onclick = async () => {
     for (let i = 0; i < 10; i++) {
-      await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
+      try {
+        await provider.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: accounts[0],
+              to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+              value: '0x0',
+              gasLimit: '0x5028',
+              maxFeePerGas: '0x2540be400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+            },
+          ],
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
