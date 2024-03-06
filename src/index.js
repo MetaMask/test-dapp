@@ -247,6 +247,9 @@ const signMalformedResult = document.getElementById('signMalformedResult');
 const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
 const sendWithInvalidTxType = document.getElementById('sendWithInvalidTxType');
 const sendWithOddHexData = document.getElementById('sendWithOddHexData');
+const approveERC20WithOddHexData = document.getElementById(
+  'approveERC20WithOddHexData',
+);
 const sendWithInvalidRecipient = document.getElementById(
   'sendWithInvalidRecipient',
 );
@@ -715,6 +718,8 @@ const handleEIP1559Support = async () => {
     sendWithInvalidTxType.hidden = false;
     sendWithOddHexData.disabled = false;
     sendWithOddHexData.hidden = false;
+    approveERC20WithOddHexData.disabled = false;
+    approveERC20WithOddHexData.hidden = false;
     sendWithInvalidRecipient.disabled = false;
     sendWithInvalidRecipient.hidden = false;
     sendWithInvalidGasLimit.disabled = false;
@@ -735,6 +740,8 @@ const handleEIP1559Support = async () => {
     sendWithInvalidTxType.hidden = true;
     sendWithOddHexData.disabled = true;
     sendWithOddHexData.hidden = true;
+    approveERC20WithOddHexData.disabled = true;
+    approveERC20WithOddHexData.hidden = true;
     sendWithInvalidRecipient.disabled = true;
     sendWithInvalidRecipient.hidden = true;
     sendWithInvalidGasLimit.disabled = true;
@@ -3014,10 +3021,40 @@ const initializeFormElements = () => {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
             data: '0x1',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Approve ERC20 With Odd Hex Data
+   */
+
+  approveERC20WithOddHexData.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
+    }
+
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: erc20Contract,
+            value: '0x0',
+            data: '0x95ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
           },
         ],
       });
