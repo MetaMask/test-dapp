@@ -270,7 +270,7 @@ const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
 // PPOM
-const mintERC20 = document.getElementById('mintERC20');
+const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
 const maliciousApprovalButton = document.getElementById(
   'maliciousApprovalButton',
 );
@@ -362,7 +362,7 @@ const allConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
-  mintERC20,
+  mintSepoliaERC20,
 ];
 
 // Buttons that are available after initially connecting an account
@@ -405,7 +405,7 @@ const initialConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
-  mintERC20,
+  mintSepoliaERC20,
 ];
 
 // Buttons that are available after connecting via Wallet Connect
@@ -440,7 +440,7 @@ const walletConnectButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
-  mintERC20,
+  mintSepoliaERC20,
 ];
 
 /**
@@ -659,10 +659,12 @@ const handleNewChain = (chainId) => {
 
 const handleNewNetwork = (networkId) => {
   networkDiv.innerHTML = networkId;
-  if (networkId === ('11155111' || '0xaa36a7')) {
-    mintERC20.hidden = false;
+  const isNetworkIdSepolia = networkId === ('11155111' || '0xaa36a7');
+
+  if (isNetworkIdSepolia) {
+    mintSepoliaERC20.hidden = false;
   } else {
-    mintERC20.hidden = true;
+    mintSepoliaERC20.hidden = true;
   }
 };
 
@@ -1488,7 +1490,7 @@ const initializeFormElements = () => {
    */
 
   // Mint ERC20 in Sepolia
-  mintERC20.onclick = async () => {
+  mintSepoliaERC20.onclick = async () => {
     const from = accounts[0];
     const noPrefixedAddress = from.slice(2);
     const result = await provider.request({
