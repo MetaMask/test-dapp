@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## [8.3.0]
 ### Fixed
-- Replace removed `window.ethereum.selectedAddress` property with local account value ([#300](https://github.com/MetaMask/test-dapp/pull/300))
+- Replace deprecated `window.ethereum.selectedAddress` property with local account value ([#300](https://github.com/MetaMask/test-dapp/pull/300))
 
 ## [8.2.0]
 ### Added
