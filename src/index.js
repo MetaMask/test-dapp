@@ -1909,7 +1909,7 @@ const initializeFormElements = () => {
     try {
       cleartextDisplay.innerText = await provider.request({
         method: 'eth_decrypt',
-        params: [ciphertextDisplay.innerText, provider.selectedAddress],
+        params: [ciphertextDisplay.innerText, accounts[0]],
       });
     } catch (error) {
       cleartextDisplay.innerText = `Error: ${error.message}`;
