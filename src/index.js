@@ -164,7 +164,9 @@ const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
 const transferFromTokens = document.getElementById('transferFromTokens');
 const approveTokens = document.getElementById('approveTokens');
-const increaseTokenAllowance = document.getElementById('increaseTokenAllowance');
+const increaseTokenAllowance = document.getElementById(
+  'increaseTokenAllowance',
+);
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
 );
@@ -1704,7 +1706,7 @@ const initializeFormElements = () => {
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
-    increaseTokenAllowance.disabled = false
+    increaseTokenAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     approveTokensToInput.disabled = false;
