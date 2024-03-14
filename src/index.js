@@ -814,6 +814,8 @@ const initializeContracts = () => {
         hstAbi,
         ethersProvider.getSigner(),
       );
+      transferTokensDeeplink.src =
+        `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e18`
       piggybankContract = new ethers.Contract(
         deployedContractAddress,
         piggybankAbi,
@@ -1020,6 +1022,7 @@ const updateContractElements = () => {
     tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
+    transferTokensDeeplink.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     transferTokensWithoutGas.disabled = false;
