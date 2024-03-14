@@ -164,6 +164,7 @@ const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
 const transferFromTokens = document.getElementById('transferFromTokens');
 const approveTokens = document.getElementById('approveTokens');
+const increaseTokenAllowance = document.getElementById('increaseTokenAllowance');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
 );
@@ -322,6 +323,7 @@ const allConnectedButtons = [
   transferTokens,
   transferFromTokens,
   approveTokens,
+  increaseTokenAllowance,
   transferFromRecipientInput,
   transferFromSenderInput,
   transferTokensWithoutGas,
@@ -1022,6 +1024,7 @@ const updateContractElements = () => {
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
+    increaseTokenAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     transferFromSenderInput.disabled = false;
@@ -1701,6 +1704,7 @@ const initializeFormElements = () => {
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
+    increaseTokenAllowance.disabled = false
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     approveTokensToInput.disabled = false;
@@ -1750,6 +1754,19 @@ const initializeFormElements = () => {
     const result = await hstContract.approve(
       approveTokensToInput.value,
       `${7 * 10 ** decimalUnitsInput.value}`,
+      {
+        from: accounts[0],
+        gasLimit: 60000,
+        gasPrice: '20000000000',
+      },
+    );
+    console.log('result', result);
+  };
+
+  increaseTokenAllowance.onclick = async () => {
+    const result = await hstContract.increaseAllowance(
+      approveTokensToInput.value,
+      `${1 * 10 ** decimalUnitsInput.value}`,
       {
         from: accounts[0],
         gasLimit: 60000,
