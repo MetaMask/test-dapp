@@ -3007,8 +3007,8 @@ const initializeFormElements = () => {
         params: [
           {
             from,
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
+            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+            value: '0x9184e72a000',
             data: '0x1',
           },
         ],
