@@ -1743,11 +1743,7 @@ const initializeFormElements = () => {
       decimalUnitsInput.value === '0'
         ? 1
         : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: 60000,
-        gasPrice: '20000000000',
-      },
+      { from: accounts[0] },
     );
     console.log('result', result);
   };
@@ -1756,11 +1752,7 @@ const initializeFormElements = () => {
     const result = await hstContract.approve(
       approveTokensToInput.value,
       `${7 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: 60000,
-        gasPrice: '20000000000',
-      },
+      { from: accounts[0] },
     );
     console.log('result', result);
   };
@@ -1769,11 +1761,7 @@ const initializeFormElements = () => {
     const result = await hstContract.increaseAllowance(
       approveTokensToInput.value,
       `${1 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: 60000,
-        gasPrice: '20000000000',
-      },
+      { from: accounts[0] },
     );
     console.log('result', result);
   };
@@ -1785,11 +1773,7 @@ const initializeFormElements = () => {
       decimalUnitsInput.value === '0'
         ? 1
         : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: '95000',
-        gasPrice: '20000000000',
-      },
+      { from: accounts[0] },
     );
     console.log('result', result);
   };
