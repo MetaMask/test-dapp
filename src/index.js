@@ -1767,15 +1767,19 @@ const initializeFormElements = () => {
   };
 
   transferFromTokens.onclick = async () => {
-    const result = await hstContract.transferFrom(
-      transferFromSenderInput.value,
-      transferFromRecipientInput.value,
-      decimalUnitsInput.value === '0'
-        ? 1
-        : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      { from: accounts[0] },
-    );
-    console.log('result', result);
+    try {
+      const result = await hstContract.transferFrom(
+        transferFromSenderInput.value,
+        transferFromRecipientInput.value,
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
+        { from: accounts[0] },
+      );
+      console.log('result', result);
+    } catch (error) {
+      tokenAddresses.innerHTML = error.message;
+    }
   };
 
   transferTokensWithoutGas.onclick = async () => {
