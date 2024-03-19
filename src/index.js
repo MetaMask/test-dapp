@@ -174,6 +174,8 @@ const approveTokensWithoutGas = document.getElementById(
   'approveTokensWithoutGas',
 );
 
+const tokenMethodsResult = document.getElementById('tokenMethodsResult');
+
 // Encrypt / Decrypt Section
 const getEncryptionKeyButton = document.getElementById(
   'getEncryptionKeyButton',
@@ -920,6 +922,7 @@ const clearDisplayElements = () => {
   cleartextDisplay.innerText = '';
   batchTransferTokenIds.value = '';
   batchTransferTokenAmounts.value = '';
+  tokenMethodsResult.value = '';
 };
 
 const updateOnboardElements = () => {
@@ -1767,15 +1770,20 @@ const initializeFormElements = () => {
   };
 
   transferFromTokens.onclick = async () => {
-    const result = await hstContract.transferFrom(
-      transferFromSenderInput.value,
-      transferFromRecipientInput.value,
-      decimalUnitsInput.value === '0'
-        ? 1
-        : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      { from: accounts[0] },
-    );
-    console.log('result', result);
+    try {
+      const result = await hstContract.transferFrom(
+        transferFromSenderInput.value,
+        transferFromRecipientInput.value,
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
+        { from: accounts[0] },
+      );
+      console.log('result', result);
+      tokenMethodsResult.innerHTML = result;
+    } catch (error) {
+      tokenMethodsResult.innerHTML = error.message;
+    }
   };
 
   transferTokensWithoutGas.onclick = async () => {
