@@ -2961,7 +2961,7 @@ const initializeFormElements = () => {
           {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: 'string',
+            value: 'invalid', // invalid value - expected int/hex value
           },
         ],
       });
@@ -2986,7 +2986,7 @@ const initializeFormElements = () => {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
-            type: '0x5',
+            type: '0x5', // invalid tx type - expected 0x1 or 0x2
           },
         ],
       });
@@ -3011,7 +3011,7 @@ const initializeFormElements = () => {
             from,
             to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
             value: '0x9184e72a000',
-            data: '0x1',
+            data: '0x1', // odd hex data - expected 0x01
           },
         ],
       });
@@ -3044,6 +3044,7 @@ const initializeFormElements = () => {
             from,
             to: erc20Contract,
             value: '0x0',
+            // odd approve hex data - expected 0x095ea7b3...
             data: '0x95ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
           },
         ],
@@ -3067,7 +3068,7 @@ const initializeFormElements = () => {
         params: [
           {
             from,
-            to: 'invalid',
+            to: 'invalid', // invalid recipient - expected int/hex address
             value: '0x0',
           },
         ],
@@ -3093,7 +3094,7 @@ const initializeFormElements = () => {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
-            gasLimit: 'string',
+            gasLimit: 'invalid', // invalid gasLimit - expected int/hex value
             maxFeePerGas: '0x2540be400',
             maxPriorityFeePerGas: '0x3b9aca00',
           },
@@ -3121,7 +3122,7 @@ const initializeFormElements = () => {
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
             gasLimit: '0x5028',
-            maxFeePerGas: 'string',
+            maxFeePerGas: 'invalid', // invalid maxFeePerGas - expected int/hex value
             maxPriorityFeePerGas: '0x3b9aca00',
           },
         ],
