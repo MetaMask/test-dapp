@@ -174,6 +174,8 @@ const approveTokensWithoutGas = document.getElementById(
   'approveTokensWithoutGas',
 );
 
+const tokenMethodsResult = document.getElementById('tokenMethodsResult');
+
 // Encrypt / Decrypt Section
 const getEncryptionKeyButton = document.getElementById(
   'getEncryptionKeyButton',
@@ -920,6 +922,7 @@ const clearDisplayElements = () => {
   cleartextDisplay.innerText = '';
   batchTransferTokenIds.value = '';
   batchTransferTokenAmounts.value = '';
+  tokenMethodsResult.value = '';
 };
 
 const updateOnboardElements = () => {
@@ -1777,8 +1780,9 @@ const initializeFormElements = () => {
         { from: accounts[0] },
       );
       console.log('result', result);
+      tokenMethodsResult.innerHTML = result;
     } catch (error) {
-      tokenAddresses.innerHTML = error.message;
+      tokenMethodsResult.innerHTML = error.message;
     }
   };
 
