@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [8.4.0]
+### Added
+- Add Malformed Transactions ([#295](https://github.com/MetaMask/test-dapp/pull/295))
+- Adds transferFromTokens error to token addresses text box ([#304](https://github.com/MetaMask/test-dapp/pull/304))
+- Add Increase Token Allowance btn ([#302](https://github.com/MetaMask/test-dapp/pull/302))
+
 ## [8.3.0]
 ### Fixed
 - Replace deprecated `window.ethereum.selectedAddress` property with local account value ([#300](https://github.com/MetaMask/test-dapp/pull/300))
