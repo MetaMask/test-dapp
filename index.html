@@ -372,6 +372,14 @@
                   Approve Tokens
                 </button>
 
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="increaseTokenAllowance"
+                  disabled
+                >
+                  Increase Token Allowance
+                </button>
+
                 <div class="form-group">
                   <label>Transfer From</label>
                   <input
@@ -409,6 +417,10 @@
                 >
                   Approve Tokens Without Gas
                 </button>
+
+                <p class="info-text alert alert-secondary">
+                  Token methods result: <span id="tokenMethodsResult"></span>
+                </p>
               </div>
             </div>
           </div>
@@ -1245,6 +1257,75 @@
                 <p class="info-text alert alert-warning">
                   Result:
                   <span id="signMalformedResult"></span>
+                </p>
+              </div>
+          </div>
+        </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Malformed Transactions
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidValue"
+                  disabled
+                >
+                Invalid Value Type (string)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidTxType"
+                  disabled
+                >
+                Invalid Transaction Type (not supported)
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithOddHexData"
+                  disabled
+                >
+                Send with Odd Hex Data
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="approveERC20WithOddHexData"
+                  disabled
+                >
+                Approve ERC20 with Odd Hex Data
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidRecipient"
+                  disabled
+                >
+                Invalid Recipient (string)
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidGasLimit"
+                  disabled
+                >
+                Invalid Gas Limit (string)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidMaxFeePerGas"
+                  disabled
+                >
+                Invalid Max Fee Per Gas (string)
+                </button>
+                <p class="info-text alert alert-warning">
+                  Result:
+                  <span id="sendMalformedResult"></span>
                 </p>
               </div>
           </div>
