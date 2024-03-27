@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [8.5.0]
+### Added
+- Add Base network support ([#2310](https://github.com/MetaMask/test-dapp/pull/310))
+
 ## [8.4.0]
 ### Added
 - Add Malformed Transactions ([#295](https://github.com/MetaMask/test-dapp/pull/295))
