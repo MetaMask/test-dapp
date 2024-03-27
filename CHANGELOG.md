@@ -161,7 +161,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[8.4.0]: https://github.com/MetaMask/test-dapp/compare/v8.3.0...release-v8.4.0
+[8.5.0]: https://github.com/MetaMask/test-dapp/compare/v8.4.0...release-v8.5.0
+[8.4.0]: https://github.com/MetaMask/test-dapp/compare/v8.3.0...v8.4.0
 [8.3.0]: https://github.com/MetaMask/test-dapp/compare/v8.2.0...v8.3.0
 [8.2.0]: https://github.com/MetaMask/test-dapp/compare/v8.1.0...v8.2.0
 [8.1.0]: https://github.com/MetaMask/test-dapp/compare/v8.0.0...v8.1.0
