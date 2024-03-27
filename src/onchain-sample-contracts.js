@@ -16,7 +16,7 @@ export const ERC20_SAMPLE_CONTRACTS = {
   avalanche: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
   arbitrum: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
   sepolia: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
-  base: '',
+  base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
 };
 
 export const ERC721_SAMPLE_CONTRACTS = {
@@ -26,5 +26,5 @@ export const ERC721_SAMPLE_CONTRACTS = {
   avalanche: '0x880f7e04D722e305126F7E1efd3434A7d5b1465c',
   arbitrum: '0x8659a4876369b94515a86048fe7f99daba6b9a7d',
   sepolia: '0xbba60aa8144579e07c6db64121b0f608ab6f0c89',
-  base: '',
+  base: '0xc2a953B9c7a9FD458b1A6CdF17f61D828efE4bc5',
 };
