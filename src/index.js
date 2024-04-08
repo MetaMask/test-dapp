@@ -169,7 +169,6 @@ const increaseTokenAllowance = document.getElementById(
 );
 const allowanceOwnerInput = document.getElementById('allowanceOwner');
 const allowanceSpenderInput = document.getElementById('allowanceSpender');
-
 const allowanceAmountResult = document.getElementById('allowanceAmountResult');
 const getAllowance = document.getElementById('getAllowance');
 const transferTokensWithoutGas = document.getElementById(
@@ -352,8 +351,8 @@ const allConnectedButtons = [
   increaseTokenAllowance,
   allowanceOwnerInput,
   allowanceSpenderInput,
-  getAllowance,
   allowanceAmountResult,
+  getAllowance,
   transferFromRecipientInput,
   transferFromSenderInput,
   transferTokensWithoutGas,
@@ -1077,10 +1076,10 @@ const updateContractElements = () => {
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     increaseTokenAllowance.disabled = false;
-    allowanceSpenderInput.disabled = false;
     allowanceOwnerInput.disabled = false;
-    getAllowance.disabled = false;
+    allowanceSpenderInput.disabled = false;
     allowanceAmountResult.disabled = false;
+    getAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     transferFromSenderInput.disabled = false;
