@@ -167,6 +167,11 @@ const approveTokens = document.getElementById('approveTokens');
 const increaseTokenAllowance = document.getElementById(
   'increaseTokenAllowance',
 );
+const allowanceOwnerInput = document.getElementById('allowanceOwner');
+const allowanceSpenderInput = document.getElementById('allowanceSpender');
+
+const allowanceAmount = document.getElementById('allowanceAmount');
+const getAllowance = document.getElementById('getAllowance');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
 );
@@ -345,6 +350,10 @@ const allConnectedButtons = [
   transferFromTokens,
   approveTokens,
   increaseTokenAllowance,
+  allowanceOwnerInput,
+  allowanceSpenderInput,
+  getAllowance,
+  allowanceAmount,
   transferFromRecipientInput,
   transferFromSenderInput,
   transferTokensWithoutGas,
@@ -1068,6 +1077,10 @@ const updateContractElements = () => {
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     increaseTokenAllowance.disabled = false;
+    allowanceSpenderInput.disabled = false;
+    allowanceOwnerInput.disabled = false;
+    getAllowance.disabled = false;
+    allowanceAmount.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     transferFromSenderInput.disabled = false;
@@ -1748,6 +1761,10 @@ const initializeFormElements = () => {
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     increaseTokenAllowance.disabled = false;
+    allowanceOwnerInput.disabled = false;
+    allowanceSpenderInput.disabled = false;
+    allowanceAmount.disabled = false;
+    getAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     approveTokensToInput.disabled = false;
@@ -1805,6 +1822,15 @@ const initializeFormElements = () => {
       { from: accounts[0] },
     );
     console.log('result', result);
+  };
+
+  getAllowance.onclick = async () => {
+    const result = await hstContract.allowance(
+      allowanceOwnerInput.value,
+      allowanceSpenderInput.value,
+      { from: accounts[0] },
+    );
+    allowanceAmount.innerHTML = result.toNumber();
   };
 
   transferFromTokens.onclick = async () => {
