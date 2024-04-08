@@ -317,6 +317,7 @@ const maliciousSetApprovalForAll = document.getElementById(
 );
 
 // Deeplinks
+const sendDeeplinkButton = document.getElementById('sendDeeplinkButton');
 const transferTokensDeeplink = document.getElementById(
   'transferTokensDeeplink',
 );
@@ -3282,6 +3283,8 @@ const initializeFormElements = () => {
 };
 
 const setDeeplinks = () => {
+  sendDeeplinkButton.href =
+    'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
   transferTokensDeeplink.href = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${tokenDecimals}`;
   approveTokensDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
 };
