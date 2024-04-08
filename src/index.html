@@ -354,7 +354,7 @@
                 >
                   Transfer Tokens
                 </button>
-
+                <hr />
                 <div class="form-group">
                   <label>Approve to Address</label>
                   <input
@@ -380,6 +380,33 @@
                   Increase Token Allowance
                 </button>
 
+                <hr />
+                <div class="form-group">
+                  <label>Owner Address</label>
+                  <input
+                    class="form-control"
+                    id="allowanceOwner"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Spender Address</label>
+                  <input
+                    class="form-control"
+                    id="allowanceSpender"
+                  />
+                </div>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="getAllowance"
+                  disabled
+                >
+                  Get Allowance
+                </button>
+                <p class="info-text alert alert-secondary">
+                  Allowance amount: <span id="allowanceAmountResult"></span>
+                </p>
+                <hr />
                 <div class="form-group">
                   <label>Transfer From</label>
                   <input
@@ -402,6 +429,7 @@
                 >
                   Transfer From Tokens
                 </button>
+                <hr />
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="transferTokensWithoutGas"
