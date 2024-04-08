@@ -170,7 +170,7 @@ const increaseTokenAllowance = document.getElementById(
 const allowanceOwnerInput = document.getElementById('allowanceOwner');
 const allowanceSpenderInput = document.getElementById('allowanceSpender');
 
-const allowanceAmount = document.getElementById('allowanceAmount');
+const allowanceAmountResult = document.getElementById('allowanceAmountResult');
 const getAllowance = document.getElementById('getAllowance');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
@@ -353,7 +353,7 @@ const allConnectedButtons = [
   allowanceOwnerInput,
   allowanceSpenderInput,
   getAllowance,
-  allowanceAmount,
+  allowanceAmountResult,
   transferFromRecipientInput,
   transferFromSenderInput,
   transferTokensWithoutGas,
@@ -1080,7 +1080,7 @@ const updateContractElements = () => {
     allowanceSpenderInput.disabled = false;
     allowanceOwnerInput.disabled = false;
     getAllowance.disabled = false;
-    allowanceAmount.disabled = false;
+    allowanceAmountResult.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     transferFromSenderInput.disabled = false;
@@ -1763,7 +1763,7 @@ const initializeFormElements = () => {
     increaseTokenAllowance.disabled = false;
     allowanceOwnerInput.disabled = false;
     allowanceSpenderInput.disabled = false;
-    allowanceAmount.disabled = false;
+    allowanceAmountResult.disabled = false;
     getAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
@@ -1830,7 +1830,10 @@ const initializeFormElements = () => {
       allowanceSpenderInput.value,
       { from: accounts[0] },
     );
-    allowanceAmount.innerHTML = result.toNumber();
+    const allowance = result.toNumber() / 10 ** decimalUnitsInput.value;
+    allowanceAmountResult.innerHTML = allowance.toFixed(
+      decimalUnitsInput.value,
+    );
   };
 
   transferFromTokens.onclick = async () => {
