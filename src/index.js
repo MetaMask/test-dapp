@@ -775,7 +775,7 @@ const closeProvider = () => {
   if (isMetaMaskInstalled()) {
     provider.removeListener('chainChanged', handleNewChain);
     provider.removeListener('chainChanged', handleEIP1559Support);
-    provider.removeListener('chainChanged', handleNewNetwork);
+    provider.removeListener('networkChanged', handleNewNetwork);
     provider.removeListener('accountsChanged', handleNewAccounts);
     provider.removeListener('accountsChanged', handleEIP1559Support);
   }
@@ -793,7 +793,7 @@ const initializeProvider = async () => {
 
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
-    provider.on('chainChanged', handleNewNetwork);
+    provider.on('networkChanged', handleNewNetwork);
     provider.on('accountsChanged', handleNewAccounts);
     provider.on('accountsChanged', handleEIP1559Support);
 
