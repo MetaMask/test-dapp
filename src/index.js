@@ -46,6 +46,11 @@ if (!ethers.utils.isAddress(deployedContractAddress)) {
   deployedContractAddress = '';
 }
 
+let tokenDecimals = urlSearchParams.get('decimals');
+if (!tokenDecimals) {
+  tokenDecimals = '18';
+}
+
 const scrollTo = urlSearchParams.get('scrollTo');
 
 /**
@@ -310,6 +315,12 @@ const maliciousSeaport = document.getElementById('maliciousSeaport');
 const maliciousSetApprovalForAll = document.getElementById(
   'maliciousSetApprovalForAll',
 );
+
+// Deeplinks
+const transferTokensDeeplink = document.getElementById(
+  'transferTokensDeeplink',
+);
+const approveTokensDeeplink = document.getElementById('approveTokensDeeplink');
 
 // Buttons that require connecting an account
 const allConnectedButtons = [
@@ -866,8 +877,6 @@ const initializeContracts = () => {
         hstAbi,
         ethersProvider.getSigner(),
       );
-      transferTokensDeeplink.src =
-        `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e18`
       piggybankContract = new ethers.Contract(
         deployedContractAddress,
         piggybankAbi,
@@ -1075,7 +1084,6 @@ const updateContractElements = () => {
     tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
-    transferTokensDeeplink.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
     increaseTokenAllowance.disabled = false;
@@ -3273,6 +3281,11 @@ const initializeFormElements = () => {
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
 };
 
+const setDeeplinks = () => {
+  transferTokensDeeplink.href = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${tokenDecimals}`;
+  approveTokensDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
+};
+
 /**
  * Entrypoint
  */
@@ -3281,6 +3294,7 @@ const initialize = async () => {
   setActiveProviderDetailWindowEthereum();
   detectEip6963();
   initializeFormElements();
+  setDeeplinks();
 };
 
 window.addEventListener('load', initialize);
