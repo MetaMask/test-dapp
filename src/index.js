@@ -164,12 +164,21 @@ const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
 const transferFromTokens = document.getElementById('transferFromTokens');
 const approveTokens = document.getElementById('approveTokens');
+const increaseTokenAllowance = document.getElementById(
+  'increaseTokenAllowance',
+);
+const allowanceOwnerInput = document.getElementById('allowanceOwner');
+const allowanceSpenderInput = document.getElementById('allowanceSpender');
+const allowanceAmountResult = document.getElementById('allowanceAmountResult');
+const getAllowance = document.getElementById('getAllowance');
 const transferTokensWithoutGas = document.getElementById(
   'transferTokensWithoutGas',
 );
 const approveTokensWithoutGas = document.getElementById(
   'approveTokensWithoutGas',
 );
+
+const tokenMethodsResult = document.getElementById('tokenMethodsResult');
 
 // Encrypt / Decrypt Section
 const getEncryptionKeyButton = document.getElementById(
@@ -243,6 +252,23 @@ const signInvalidVerifyingContractType = document.getElementById(
 );
 const signMalformedResult = document.getElementById('signMalformedResult');
 
+// Malformed Transactions
+const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
+const sendWithInvalidTxType = document.getElementById('sendWithInvalidTxType');
+const sendWithOddHexData = document.getElementById('sendWithOddHexData');
+const approveERC20WithOddHexData = document.getElementById(
+  'approveERC20WithOddHexData',
+);
+const sendWithInvalidRecipient = document.getElementById(
+  'sendWithInvalidRecipient',
+);
+const sendWithInvalidGasLimit = document.getElementById(
+  'sendWithInvalidGasLimit',
+);
+const sendWithInvalidMaxFeePerGas = document.getElementById(
+  'sendWithInvalidMaxFeePerGas',
+);
+const sendMalformedResult = document.getElementById('sendMalformedResult');
 // Batch
 const signTypedDataV4Batch = document.getElementById('signTypedDataV4Batch');
 const sendEIP1559Batch = document.getElementById('sendEIP1559Batch');
@@ -322,6 +348,11 @@ const allConnectedButtons = [
   transferTokens,
   transferFromTokens,
   approveTokens,
+  increaseTokenAllowance,
+  allowanceOwnerInput,
+  allowanceSpenderInput,
+  allowanceAmountResult,
+  getAllowance,
   transferFromRecipientInput,
   transferFromSenderInput,
   transferTokensWithoutGas,
@@ -362,6 +393,11 @@ const allConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithOddHexData,
+  approveERC20WithOddHexData,
+  sendWithInvalidRecipient,
   mintSepoliaERC20,
 ];
 
@@ -405,6 +441,11 @@ const initialConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithOddHexData,
+  approveERC20WithOddHexData,
+  sendWithInvalidRecipient,
   mintSepoliaERC20,
 ];
 
@@ -440,6 +481,11 @@ const walletConnectButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithOddHexData,
+  approveERC20WithOddHexData,
+  sendWithInvalidRecipient,
   mintSepoliaERC20,
 ];
 
@@ -697,10 +743,14 @@ const handleEIP1559Support = async () => {
   if (supported && Array.isArray(accounts) && accounts.length >= 1) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
+    sendWithInvalidMaxFeePerGas.disabled = false;
+    sendWithInvalidMaxFeePerGas.hidden = false;
     sendEIP1559Batch.disabled = false;
     sendEIP1559Batch.hidden = false;
     sendEIP1559Queue.disabled = false;
     sendEIP1559Queue.hidden = false;
+    sendWithInvalidGasLimit.disabled = false;
+    sendWithInvalidGasLimit.hidden = false;
     sendButton.innerText = 'Send Legacy Transaction';
   } else {
     sendEIP1559Button.disabled = true;
@@ -709,6 +759,8 @@ const handleEIP1559Support = async () => {
     sendEIP1559Batch.hidden = true;
     sendEIP1559Queue.disabled = true;
     sendEIP1559Queue.hidden = true;
+    sendWithInvalidGasLimit.disabled = true;
+    sendWithInvalidGasLimit.hidden = true;
     sendButton.innerText = 'Send';
   }
 };
@@ -723,7 +775,7 @@ const closeProvider = () => {
   if (isMetaMaskInstalled()) {
     provider.removeListener('chainChanged', handleNewChain);
     provider.removeListener('chainChanged', handleEIP1559Support);
-    provider.removeListener('chainChanged', handleNewNetwork);
+    provider.removeListener('networkChanged', handleNewNetwork);
     provider.removeListener('accountsChanged', handleNewAccounts);
     provider.removeListener('accountsChanged', handleEIP1559Support);
   }
@@ -741,7 +793,7 @@ const initializeProvider = async () => {
 
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
-    provider.on('chainChanged', handleNewNetwork);
+    provider.on('networkChanged', handleNewNetwork);
     provider.on('accountsChanged', handleNewAccounts);
     provider.on('accountsChanged', handleEIP1559Support);
 
@@ -918,6 +970,7 @@ const clearDisplayElements = () => {
   cleartextDisplay.innerText = '';
   batchTransferTokenIds.value = '';
   batchTransferTokenAmounts.value = '';
+  tokenMethodsResult.value = '';
 };
 
 const updateOnboardElements = () => {
@@ -1025,6 +1078,11 @@ const updateContractElements = () => {
     transferTokensDeeplink.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
+    increaseTokenAllowance.disabled = false;
+    allowanceOwnerInput.disabled = false;
+    allowanceSpenderInput.disabled = false;
+    allowanceAmountResult.disabled = false;
+    getAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     transferFromSenderInput.disabled = false;
@@ -1704,6 +1762,11 @@ const initializeFormElements = () => {
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
     approveTokens.disabled = false;
+    increaseTokenAllowance.disabled = false;
+    allowanceOwnerInput.disabled = false;
+    allowanceSpenderInput.disabled = false;
+    allowanceAmountResult.disabled = false;
+    getAllowance.disabled = false;
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     approveTokensToInput.disabled = false;
@@ -1740,11 +1803,7 @@ const initializeFormElements = () => {
       decimalUnitsInput.value === '0'
         ? 1
         : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: 60000,
-        gasPrice: '20000000000',
-      },
+      { from: accounts[0] },
     );
     console.log('result', result);
   };
@@ -1753,29 +1812,47 @@ const initializeFormElements = () => {
     const result = await hstContract.approve(
       approveTokensToInput.value,
       `${7 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: 60000,
-        gasPrice: '20000000000',
-      },
+      { from: accounts[0] },
     );
     console.log('result', result);
   };
 
-  transferFromTokens.onclick = async () => {
-    const result = await hstContract.transferFrom(
-      transferFromSenderInput.value,
-      transferFromRecipientInput.value,
-      decimalUnitsInput.value === '0'
-        ? 1
-        : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      {
-        from: accounts[0],
-        gasLimit: '95000',
-        gasPrice: '20000000000',
-      },
+  increaseTokenAllowance.onclick = async () => {
+    const result = await hstContract.increaseAllowance(
+      approveTokensToInput.value,
+      `${1 * 10 ** decimalUnitsInput.value}`,
+      { from: accounts[0] },
     );
     console.log('result', result);
+  };
+
+  getAllowance.onclick = async () => {
+    const result = await hstContract.allowance(
+      allowanceOwnerInput.value,
+      allowanceSpenderInput.value,
+      { from: accounts[0] },
+    );
+    const allowance = result.toNumber() / 10 ** decimalUnitsInput.value;
+    allowanceAmountResult.innerHTML = allowance.toFixed(
+      decimalUnitsInput.value,
+    );
+  };
+
+  transferFromTokens.onclick = async () => {
+    try {
+      const result = await hstContract.transferFrom(
+        transferFromSenderInput.value,
+        transferFromRecipientInput.value,
+        decimalUnitsInput.value === '0'
+          ? 1
+          : `${1.5 * 10 ** decimalUnitsInput.value}`,
+        { from: accounts[0] },
+      );
+      console.log('result', result);
+      tokenMethodsResult.innerHTML = result;
+    } catch (error) {
+      tokenMethodsResult.innerHTML = error.message;
+    }
   };
 
   transferTokensWithoutGas.onclick = async () => {
@@ -1912,7 +1989,7 @@ const initializeFormElements = () => {
     try {
       cleartextDisplay.innerText = await provider.request({
         method: 'eth_decrypt',
-        params: [ciphertextDisplay.innerText, provider.selectedAddress],
+        params: [ciphertextDisplay.innerText, accounts[0]],
       });
     } catch (error) {
       cleartextDisplay.innerText = `Error: ${error.message}`;
@@ -2910,6 +2987,192 @@ const initializeFormElements = () => {
     } catch (err) {
       console.error(err);
       signMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid Value
+   */
+
+  sendWithInvalidValue.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: 'invalid', // invalid value - expected int/hex value
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid Transaction Type
+   */
+
+  sendWithInvalidTxType.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            type: '0x5', // invalid tx type - expected 0x1 or 0x2
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Odd Hex Data
+   */
+
+  sendWithOddHexData.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+            value: '0x9184e72a000',
+            data: '0x1', // odd hex data - expected 0x01
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Approve ERC20 With Odd Hex Data
+   */
+
+  approveERC20WithOddHexData.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
+    }
+
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: erc20Contract,
+            value: '0x0',
+            // odd approve hex data - expected 0x095ea7b3...
+            data: '0x95ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid Recipient
+   */
+
+  sendWithInvalidRecipient.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: 'invalid', // invalid recipient - expected int/hex address
+            value: '0x0',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid gasLimit
+   */
+
+  sendWithInvalidGasLimit.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: 'invalid', // invalid gasLimit - expected int/hex value
+            maxFeePerGas: '0x2540be400',
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   * Send With Invalid maxFeePerGas
+   */
+
+  sendWithInvalidMaxFeePerGas.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+            value: '0x0',
+            gasLimit: '0x5028',
+            maxFeePerGas: 'invalid', // invalid maxFeePerGas - expected int/hex value
+            maxPriorityFeePerGas: '0x3b9aca00',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
