@@ -8,9 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.6.0]
 ### Added
 - feat: add deeplinks for Send Eth, Send ERC20 and Approve ERC20 ([#313](https://github.com/MetaMask/test-dapp/pull/313))
-- update NFT contract ([#315](https://github.com/MetaMask/test-dapp/pull/315))
 - feat: add get allowance support for ERC20 tokens ([#312](https://github.com/MetaMask/test-dapp/pull/312))
+### Fixed
 - fix: Fix network status field ([#306](https://github.com/MetaMask/test-dapp/pull/306))
+- update NFT contract ([#315](https://github.com/MetaMask/test-dapp/pull/315))
 
 ## [8.5.0]
 ### Added
