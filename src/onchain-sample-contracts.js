@@ -26,5 +26,5 @@ export const ERC721_SAMPLE_CONTRACTS = {
   avalanche: '0x880f7e04D722e305126F7E1efd3434A7d5b1465c',
   arbitrum: '0x8659a4876369b94515a86048fe7f99daba6b9a7d',
   sepolia: '0xbba60aa8144579e07c6db64121b0f608ab6f0c89',
-  base: '0xc2106ca72996e49bBADcB836eeC52B765977fd20',
+  base: '0x90997fc967e75b7e69f899133aab31d197beb802',
 };
