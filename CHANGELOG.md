@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add get allowance support for ERC20 tokens ([#312](https://github.com/MetaMask/test-dapp/pull/312))
 ### Fixed
 - Fix network status field ([#306](https://github.com/MetaMask/test-dapp/pull/306))
-- Update NFT contract ([#315](https://github.com/MetaMask/test-dapp/pull/315))
+- Fix NFT contract address for Base network ([#315](https://github.com/MetaMask/test-dapp/pull/315))
 
 ## [8.5.0]
 ### Added
