@@ -784,10 +784,15 @@ const closeProvider = () => {
 // Must be called after the active provider changes
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
+  await provider.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: ethers.utils.hexValue(1287) }],
+  });
   initializeContracts();
   updateFormElements();
 
   if (isMetaMaskInstalled()) {
+    // eslint-disable-next-line require-atomic-updates
     provider.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
 
@@ -859,7 +864,10 @@ let erc1155Contract;
 const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+    ethersProvider = new ethers.providers.Web3Provider(provider, {
+      chainId: 1287,
+      name: 'moonbase-alphanet',
+    });
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
