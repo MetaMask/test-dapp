@@ -220,6 +220,15 @@
                 >
                   Send EIP 1559 Transaction
                 </button>
+                <a
+                  id="sendDeeplinkButton"
+                >
+                  <button
+                    class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Send with Deeplink
+                  </button>
+                </a>
                 <hr />
                 <h4 class="card-title">
                   Piggy bank contract
@@ -355,6 +364,17 @@
                   Transfer Tokens
                 </button>
 
+                <a 
+                  id="transferTokensDeeplink"
+                >
+                  <button
+                  class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Transfer Tokens with Deeplink
+                  </button>
+                </a>
+
+                <hr />
                 <div class="form-group">
                   <label>Approve to Address</label>
                   <input
@@ -371,6 +391,15 @@
                 >
                   Approve Tokens
                 </button>
+                <a
+                  id="approveTokensDeeplink"
+                >
+                  <button
+                  class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Approve Tokens with Deeplink
+                  </button>
+                </a>
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
@@ -380,6 +409,33 @@
                   Increase Token Allowance
                 </button>
 
+                <hr />
+                <div class="form-group">
+                  <label>Owner Address</label>
+                  <input
+                    class="form-control"
+                    id="allowanceOwner"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Spender Address</label>
+                  <input
+                    class="form-control"
+                    id="allowanceSpender"
+                  />
+                </div>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="getAllowance"
+                  disabled
+                >
+                  Get Allowance
+                </button>
+                <p class="info-text alert alert-secondary">
+                  Allowance amount: <span id="allowanceAmountResult"></span>
+                </p>
+                <hr />
                 <div class="form-group">
                   <label>Transfer From</label>
                   <input
@@ -402,6 +458,7 @@
                 >
                   Transfer From Tokens
                 </button>
+                <hr />
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="transferTokensWithoutGas"
