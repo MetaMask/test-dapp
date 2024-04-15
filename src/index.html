@@ -135,6 +135,12 @@
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
+                  id="open-connect-modal"
+                >
+                Wallet Connect
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
                   id="getAccounts"
                 >
                   eth_accounts
@@ -214,6 +220,15 @@
                 >
                   Send EIP 1559 Transaction
                 </button>
+                <a
+                  id="sendDeeplinkButton"
+                >
+                  <button
+                    class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Send with Deeplink
+                  </button>
+                </a>
                 <hr />
                 <h4 class="card-title">
                   Piggy bank contract
@@ -349,6 +364,17 @@
                   Transfer Tokens
                 </button>
 
+                <a 
+                  id="transferTokensDeeplink"
+                >
+                  <button
+                  class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Transfer Tokens with Deeplink
+                  </button>
+                </a>
+
+                <hr />
                 <div class="form-group">
                   <label>Approve to Address</label>
                   <input
@@ -365,7 +391,51 @@
                 >
                   Approve Tokens
                 </button>
+                <a
+                  id="approveTokensDeeplink"
+                >
+                  <button
+                  class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Approve Tokens with Deeplink
+                  </button>
+                </a>
 
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="increaseTokenAllowance"
+                  disabled
+                >
+                  Increase Token Allowance
+                </button>
+
+                <hr />
+                <div class="form-group">
+                  <label>Owner Address</label>
+                  <input
+                    class="form-control"
+                    id="allowanceOwner"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Spender Address</label>
+                  <input
+                    class="form-control"
+                    id="allowanceSpender"
+                  />
+                </div>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="getAllowance"
+                  disabled
+                >
+                  Get Allowance
+                </button>
+                <p class="info-text alert alert-secondary">
+                  Allowance amount: <span id="allowanceAmountResult"></span>
+                </p>
+                <hr />
                 <div class="form-group">
                   <label>Transfer From</label>
                   <input
@@ -388,6 +458,7 @@
                 >
                   Transfer From Tokens
                 </button>
+                <hr />
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="transferTokensWithoutGas"
@@ -403,6 +474,10 @@
                 >
                   Approve Tokens Without Gas
                 </button>
+
+                <p class="info-text alert alert-secondary">
+                  Token methods result: <span id="tokenMethodsResult"></span>
+                </p>
               </div>
             </div>
           </div>
@@ -720,6 +795,7 @@
           </div>
         </div>
       </div>
+      </div>
       </section>
 
       <section>
@@ -739,6 +815,13 @@
                 >
                   Malicious Eth Transfer
                 </button>
+                <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="mintSepoliaERC20"
+                hidden
+              >
+                Mint ERC20
+              </button>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="maliciousERC20TransferButton"
@@ -784,7 +867,61 @@
               </div>
             </div>
           </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Batch of 10 Malicious Transactions
+                </h4>
+          
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendEIP1559Batch"
+                  disabled
+                >
+                  Send Eth Malicious x10 Batch
+                </button>
+                <h4>
+                  Queue of 10 Malicious Transactions
+                </h4>
+          
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendEIP1559Queue"
+                  disabled
+                >
+                  Send Eth Malicious x10 Queue
+                </button>
+                <h4>
+                  Batch of 10 Malicious Signatures
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signTypedDataV4Batch"
+                  disabled
+                >
+                  Sign Malicious x10 Batch
+                </button>
+
+                <h4>
+                  Queue of 10 Malicious Signatures
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signTypedDataV4Queue"
+                  disabled
+                >
+                  Sign Malicious x10 Queue
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
       </section>
 
       <section>
@@ -1117,10 +1254,137 @@
                   Result:
                   <span id="siweResult"></span>
                 </p>
-
-
               </div>
             </div>
+          </div>
+            <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Malformed Signatures
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signInvalidType"
+                  disabled
+                >
+                Invalid Type
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signEmptyDomain"
+                  disabled
+                >
+                Empty Domain
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signExtraDataNotTyped"
+                  disabled
+                >
+                Extra Data not Typed
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signInvalidPrimaryType"
+                  disabled
+                >
+                Invalid Primary Type
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signNoPrimaryTypeDefined"
+                  disabled
+                >
+                No Primary Type Defined
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="signInvalidVerifyingContractType"
+                  disabled
+                >
+                Invalid Verifying Contract Type
+                </button>
+                <p class="info-text alert alert-warning">
+                  Result:
+                  <span id="signMalformedResult"></span>
+                </p>
+              </div>
+          </div>
+        </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  Malformed Transactions
+                </h4>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidValue"
+                  disabled
+                >
+                Invalid Value Type (string)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidTxType"
+                  disabled
+                >
+                Invalid Transaction Type (not supported)
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithOddHexData"
+                  disabled
+                >
+                Send with Odd Hex Data
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="approveERC20WithOddHexData"
+                  disabled
+                >
+                Approve ERC20 with Odd Hex Data
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidRecipient"
+                  disabled
+                >
+                Invalid Recipient (string)
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidGasLimit"
+                  disabled
+                >
+                Invalid Gas Limit (string)
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendWithInvalidMaxFeePerGas"
+                  disabled
+                >
+                Invalid Max Fee Per Gas (string)
+                </button>
+                <p class="info-text alert alert-warning">
+                  Result:
+                  <span id="sendMalformedResult"></span>
+                </p>
+              </div>
           </div>
         </div>
       </section>
