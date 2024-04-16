@@ -2573,8 +2573,8 @@ const initializeFormElements = () => {
     const EIP712Domain = [
       { name: 'name', type: 'string' },
       { name: 'version', type: 'string' },
-      { name: 'verifyingContract', type: 'address' },
       { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
     ];
 
     const permit = {
@@ -2657,8 +2657,8 @@ const initializeFormElements = () => {
     const EIP712Domain = [
       { name: 'name', type: 'string' },
       { name: 'version', type: 'string' },
-      { name: 'verifyingContract', type: 'address' },
       { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
     ];
 
     const permit = {
