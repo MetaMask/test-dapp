@@ -5,10 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [8.7.0]
+### Added
+- Add support for Send EIP1559 tx's without suggested gas values ([#320](https://github.com/MetaMask/test-dapp/pull/320))
+
+### Fixed
+- Fix Permit signature domain by following EIP-712 ([#319](https://github.com/MetaMask/test-dapp/pull/319))
+
 ## [8.6.0]
 ### Added
 - Add deeplinks for Send Eth, Send ERC20 and Approve ERC20 ([#313](https://github.com/MetaMask/test-dapp/pull/313))
 - Add get allowance support for ERC20 tokens ([#312](https://github.com/MetaMask/test-dapp/pull/312))
+
 ### Fixed
 - Fix network status field ([#306](https://github.com/MetaMask/test-dapp/pull/306))
 - Fix NFT contract address for Base network ([#315](https://github.com/MetaMask/test-dapp/pull/315))
@@ -169,7 +177,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.6.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.7.0...HEAD
+[8.7.0]: https://github.com/MetaMask/test-dapp/compare/v8.6.0...v8.7.0
 [8.6.0]: https://github.com/MetaMask/test-dapp/compare/v8.5.0...v8.6.0
 [8.5.0]: https://github.com/MetaMask/test-dapp/compare/v8.4.0...v8.5.0
 [8.4.0]: https://github.com/MetaMask/test-dapp/compare/v8.3.0...v8.4.0
