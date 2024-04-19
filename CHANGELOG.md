@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix Permit signature domain by following EIP-712 ([#319](https://github.com/MetaMask/test-dapp/pull/319))
+- Fix queue transactions with correct malicious recipient address ([#322](https://github.com/MetaMask/test-dapp/pull/322)) 
 
 ## [8.6.0]
 ### Added
