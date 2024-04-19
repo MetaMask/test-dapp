@@ -58,7 +58,6 @@
     "@walletconnect/modal": "^2.6.2",
     "ethers": "5.7.2",
     "gh-pages": "^3.1.0",
-    "https-browserify": "^1.0.0",
     "prettier": "^2.3.1",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
