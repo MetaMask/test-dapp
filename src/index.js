@@ -150,6 +150,9 @@ const eip747Status = document.getElementById('eip747Status');
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
+const sendEIP1559WithoutGasButton = document.getElementById(
+  'sendEIP1559WithoutGasButton',
+);
 
 // Send Tokens Section
 const decimalUnitsInput = document.getElementById('tokenDecimals');
@@ -753,6 +756,8 @@ const handleEIP1559Support = async () => {
   if (supported && Array.isArray(accounts) && accounts.length >= 1) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
+    sendEIP1559WithoutGasButton.disabled = false;
+    sendEIP1559WithoutGasButton.hidden = false;
     sendWithInvalidMaxFeePerGas.disabled = false;
     sendWithInvalidMaxFeePerGas.hidden = false;
     sendEIP1559Batch.disabled = false;
@@ -765,6 +770,8 @@ const handleEIP1559Support = async () => {
   } else {
     sendEIP1559Button.disabled = true;
     sendEIP1559Button.hidden = true;
+    sendEIP1559WithoutGasButton.disabled = true;
+    sendEIP1559WithoutGasButton.hidden = true;
     sendEIP1559Batch.disabled = true;
     sendEIP1559Batch.hidden = true;
     sendEIP1559Queue.disabled = true;
@@ -1732,6 +1739,20 @@ const initializeFormElements = () => {
     console.log(result);
   };
 
+  sendEIP1559WithoutGasButton.onclick = async () => {
+    const result = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+          value: '0x0',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
   /**
    * ERC20 Token
    */
@@ -2574,8 +2595,8 @@ const initializeFormElements = () => {
     const EIP712Domain = [
       { name: 'name', type: 'string' },
       { name: 'version', type: 'string' },
-      { name: 'verifyingContract', type: 'address' },
       { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
     ];
 
     const permit = {
@@ -2658,8 +2679,8 @@ const initializeFormElements = () => {
     const EIP712Domain = [
       { name: 'name', type: 'string' },
       { name: 'version', type: 'string' },
-      { name: 'verifyingContract', type: 'address' },
       { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
     ];
 
     const permit = {
@@ -3263,7 +3284,7 @@ const initializeFormElements = () => {
           params: [
             {
               from: accounts[0],
-              to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+              to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
               value: '0x0',
               gasLimit: '0x5028',
               maxFeePerGas: '0x2540be400',
