@@ -42,7 +42,7 @@
     "@metamask/eslint-config": "^6.0.0",
     "@metamask/eslint-config-nodejs": "^6.0.0",
     "@metamask/onboarding": "^1.0.0",
-    "@openzeppelin/contracts": "4.9.3",
+    "@openzeppelin/contracts": "4.9.6",
     "assert": "^2.1.0",
     "base64-sol": "1.1.0",
     "clean-webpack-plugin": "^4.0.0",
