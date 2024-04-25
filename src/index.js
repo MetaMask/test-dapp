@@ -479,16 +479,16 @@ const initialConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
+  sendWithInvalidValue,
+  sendWithInvalidTxType,
+  sendWithInvalidRecipient,
+  mintSepoliaERC20,
   maliciousSendWithOddHexData,
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
-  sendWithInvalidValue,
-  sendWithInvalidTxType,
   maliciousSendWithOddHexData,
   maliciousApproveERC20WithOddHexData,
-  sendWithInvalidRecipient,
-  mintSepoliaERC20,
 ];
 
 // Buttons that are available after connecting via Wallet Connect
