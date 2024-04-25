@@ -314,6 +314,7 @@ const maliciousSeaport = document.getElementById('maliciousSeaport');
 const maliciousSetApprovalForAll = document.getElementById(
   'maliciousSetApprovalForAll',
 );
+const maliciousAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 // Deeplinks
 const sendDeeplinkButton = document.getElementById('sendDeeplinkButton');
@@ -729,11 +730,13 @@ const handleNewAccounts = (newAccounts) => {
 
 let chainIdInt;
 let networkName;
+let chainIdPadded;
 
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
   const networkId = parseInt(networkDiv.innerHTML, 10);
   chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+  chainIdPadded = `0x${chainIdInt.toString(16).padStart(77, '0')}`;
   networkName = NETWORKS_BY_CHAIN_ID[chainIdInt];
 
   if (chainId === '0x1') {
@@ -1666,7 +1669,7 @@ const initializeFormElements = () => {
       params: [
         {
           from: accounts[0],
-          to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+          to: `${maliciousAddress}`,
           value: '0x9184e72a000',
         },
       ],
@@ -1692,7 +1695,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
-        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"0x5FbDB2315678afecb367f032d93F642f64180aa3","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
+        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":${maliciousAddress},"expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
       ],
     });
     console.log(result);
@@ -3228,7 +3231,7 @@ const initializeFormElements = () => {
           params: [
             {
               from: accounts[0],
-              to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+              to: `${maliciousAddress}`,
               value: '0x0',
               gasLimit: '0x5028',
               maxFeePerGas: '0x2540be400',
@@ -3278,7 +3281,7 @@ const initializeFormElements = () => {
         params: [
           {
             from,
-            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+            to: `${maliciousAddress}`,
             value: '0x9184e72a000',
             data: '0x1', // odd hex data - expected 0x01
           },
@@ -3326,7 +3329,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
-        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":"${chainIdPadded}","version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
       ],
     });
     console.log(result);
@@ -3337,7 +3340,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
-        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"917551056842671309452305380979543736893630245704","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
       ],
     });
     console.log(result);
@@ -3355,11 +3358,9 @@ const setDeeplinks = () => {
     'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
   transferTokensDeeplink.href = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${tokenDecimals}`;
   approveTokensDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
-  maliciousSendEthWithDeeplink.href =
-    'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
-  maliciousTransferERC20WithDeeplink.href = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${tokenDecimals}`;
-  approveTokensDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
-  maliciousApproveERC20WithDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
+  maliciousSendEthWithDeeplink.href = `https://metamask.app.link/send/${maliciousAddress}?value=0`;
+  maliciousTransferERC20WithDeeplink.href = `https://metamask.app.link/send/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/transfer?address=${maliciousAddress}&uint256=1e6`;
+  maliciousApproveERC20WithDeeplink.href = `https://metamask.app.link/approve/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/approve?address=${maliciousAddress}&uint256=1e6`;
 };
 
 /**
