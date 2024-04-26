@@ -339,6 +339,9 @@ const maliciousSendWithOddHexData = document.getElementById(
 const maliciousApproveERC20WithOddHexData = document.getElementById(
   'maliciousApproveERC20WithOddHexData',
 );
+const maliciousSendWithoutHexPrefixValue = document.getElementById(
+  'maliciousSendWithoutHexPrefixValue',
+);
 const maliciousPermitHexPaddedChain = document.getElementById(
   'maliciousPermitHexPaddedChain',
 );
@@ -433,6 +436,7 @@ const allConnectedButtons = [
   mintSepoliaERC20,
   maliciousSendEthWithDeeplink,
   maliciousSendWithOddHexData,
+  maliciousSendWithoutHexPrefixValue,
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
@@ -484,11 +488,10 @@ const initialConnectedButtons = [
   sendWithInvalidRecipient,
   mintSepoliaERC20,
   maliciousSendWithOddHexData,
+  maliciousSendWithoutHexPrefixValue,
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
-  maliciousSendWithOddHexData,
-  maliciousApproveERC20WithOddHexData,
 ];
 
 // Buttons that are available after connecting via Wallet Connect
@@ -528,11 +531,10 @@ const walletConnectButtons = [
   sendWithInvalidRecipient,
   mintSepoliaERC20,
   maliciousSendWithOddHexData,
+  maliciousSendWithoutHexPrefixValue,
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
-  maliciousSendWithOddHexData,
-  maliciousApproveERC20WithOddHexData,
 ];
 
 /**
@@ -3324,6 +3326,25 @@ const initializeFormElements = () => {
     }
   };
 
+  maliciousSendWithoutHexPrefixValue.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: `${maliciousAddress}`,
+            value: 'ffffffffffffff', // value without 0x prefix
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
   maliciousPermitHexPaddedChain.onclick = async () => {
     const result = await provider.request({
       method: 'eth_signTypedData_v4',
