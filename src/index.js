@@ -1806,7 +1806,7 @@ const initializeFormElements = () => {
           options: {
             address: erc20Address,
             symbol: tokenSymbol,
-            decimals: decimalUnitsInput.value,
+            decimals: parseInt(decimalUnitsInput.value, 10),
             image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
           },
         },
