@@ -1991,24 +1991,20 @@ const initializeFormElements = () => {
               scopes: ['eip155:1', 'eip155:0xe708'],
               methods: [
                 'eth_sendTransaction',
-                'eth_signTransaction',
-                'eth_sign',
-                'get_balance',
+                'eth_accounts',
+                'eth_blockNumber',
+                'eth_getBalance',
                 'personal_sign',
               ],
               notifications: ['accountsChanged', 'chainChanged'],
             },
             'eip155:0xaa36a7': {
-              methods: ['get_balance'],
+              methods: ['eth_blockNumber'],
               notifications: ['accountsChanged', 'chainChanged'],
             },
             'wallet': {
               methods: [
                 'wallet_getPermissions',
-                'wallet_creds_store',
-                'wallet_creds_verify',
-                'wallet_creds_issue',
-                'wallet_creds_present',
               ],
               notifications: [],
             },
@@ -2016,10 +2012,10 @@ const initializeFormElements = () => {
           optionalScopes: {
             'eip155:64': {
               methods: [
-                'eth_sendTransaction',
-                'eth_signTransaction',
-                'get_balance',
-                'personal_sign',
+                'eth_blockNumber',
+                'eth_getBalance',
+                'eth_getBlockByHash',
+                'eth_getBlockByNumber',
               ],
               notifications: ['accountsChanged', 'chainChanged'],
             },
