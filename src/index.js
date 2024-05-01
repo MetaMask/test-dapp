@@ -4,10 +4,8 @@ import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 import {
   encrypt,
   recoverPersonalSignature,
-  recoverTypedSignatureLegacy,
   recoverTypedSignature,
-  recoverTypedSignature_v4 as recoverTypedSignatureV4,
-} from 'eth-sig-util';
+} from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
@@ -269,10 +267,6 @@ const signMalformedResult = document.getElementById('signMalformedResult');
 // Malformed Transactions
 const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
 const sendWithInvalidTxType = document.getElementById('sendWithInvalidTxType');
-const sendWithOddHexData = document.getElementById('sendWithOddHexData');
-const approveERC20WithOddHexData = document.getElementById(
-  'approveERC20WithOddHexData',
-);
 const sendWithInvalidRecipient = document.getElementById(
   'sendWithInvalidRecipient',
 );
@@ -324,6 +318,7 @@ const maliciousSeaport = document.getElementById('maliciousSeaport');
 const maliciousSetApprovalForAll = document.getElementById(
   'maliciousSetApprovalForAll',
 );
+const maliciousAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 // Deeplinks
 const sendDeeplinkButton = document.getElementById('sendDeeplinkButton');
@@ -331,7 +326,32 @@ const transferTokensDeeplink = document.getElementById(
   'transferTokensDeeplink',
 );
 const approveTokensDeeplink = document.getElementById('approveTokensDeeplink');
+const maliciousSendEthWithDeeplink = document.getElementById(
+  'maliciousSendEthWithDeeplink',
+);
+const maliciousTransferERC20WithDeeplink = document.getElementById(
+  'maliciousTransferERC20WithDeeplink',
+);
+const maliciousApproveERC20WithDeeplink = document.getElementById(
+  'maliciousApproveERC20WithDeeplink',
+);
 
+// PPOM - Malicious Warning Bypasses
+const maliciousSendWithOddHexData = document.getElementById(
+  'maliciousSendWithOddHexData',
+);
+const maliciousApproveERC20WithOddHexData = document.getElementById(
+  'maliciousApproveERC20WithOddHexData',
+);
+const maliciousSendWithoutHexPrefixValue = document.getElementById(
+  'maliciousSendWithoutHexPrefixValue',
+);
+const maliciousPermitHexPaddedChain = document.getElementById(
+  'maliciousPermitHexPaddedChain',
+);
+const maliciousPermitIntAddress = document.getElementById(
+  'maliciousPermitIntAddress',
+);
 // Buttons that require connecting an account
 const allConnectedButtons = [
   deployButton,
@@ -416,10 +436,15 @@ const allConnectedButtons = [
   maliciousSeaport,
   sendWithInvalidValue,
   sendWithInvalidTxType,
-  sendWithOddHexData,
-  approveERC20WithOddHexData,
   sendWithInvalidRecipient,
   mintSepoliaERC20,
+  maliciousSendEthWithDeeplink,
+  maliciousSendWithOddHexData,
+  maliciousSendWithoutHexPrefixValue,
+  maliciousApproveERC20WithOddHexData,
+  maliciousPermitHexPaddedChain,
+  maliciousPermitIntAddress,
+  maliciousPermitIntAddress,
 ];
 
 // Buttons that are available after initially connecting an account
@@ -464,10 +489,13 @@ const initialConnectedButtons = [
   maliciousSeaport,
   sendWithInvalidValue,
   sendWithInvalidTxType,
-  sendWithOddHexData,
-  approveERC20WithOddHexData,
   sendWithInvalidRecipient,
   mintSepoliaERC20,
+  maliciousSendWithOddHexData,
+  maliciousSendWithoutHexPrefixValue,
+  maliciousApproveERC20WithOddHexData,
+  maliciousPermitHexPaddedChain,
+  maliciousPermitIntAddress,
 ];
 
 // Buttons that are available after connecting via Wallet Connect
@@ -504,10 +532,13 @@ const walletConnectButtons = [
   maliciousSeaport,
   sendWithInvalidValue,
   sendWithInvalidTxType,
-  sendWithOddHexData,
-  approveERC20WithOddHexData,
   sendWithInvalidRecipient,
   mintSepoliaERC20,
+  maliciousSendWithOddHexData,
+  maliciousSendWithoutHexPrefixValue,
+  maliciousApproveERC20WithOddHexData,
+  maliciousPermitHexPaddedChain,
+  maliciousPermitIntAddress,
 ];
 
 /**
@@ -705,11 +736,13 @@ const handleNewAccounts = (newAccounts) => {
 
 let chainIdInt;
 let networkName;
+let chainIdPadded;
 
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
   const networkId = parseInt(networkDiv.innerHTML, 10);
   chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+  chainIdPadded = `0x${chainIdInt.toString(16).padStart(77, '0')}`;
   networkName = NETWORKS_BY_CHAIN_ID[chainIdInt];
 
   if (chainId === '0x1') {
@@ -1642,7 +1675,7 @@ const initializeFormElements = () => {
       params: [
         {
           from: accounts[0],
-          to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+          to: `${maliciousAddress}`,
           value: '0x9184e72a000',
         },
       ],
@@ -1668,7 +1701,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
-        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"0x5FbDB2315678afecb367f032d93F642f64180aa3","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
+        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":${maliciousAddress},"expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
       ],
     });
     console.log(result);
@@ -2068,11 +2101,11 @@ const initializeFormElements = () => {
   encryptButton.onclick = () => {
     try {
       ciphertextDisplay.innerText = stringifiableToHex(
-        encrypt(
-          encryptionKeyDisplay.innerText,
-          { data: encryptMessageInput.value },
-          'x25519-xsalsa20-poly1305',
-        ),
+        encrypt({
+          publicKey: encryptionKeyDisplay.innerText,
+          data: encryptMessageInput.value,
+          version: 'x25519-xsalsa20-poly1305',
+        }),
       );
       decryptButton.disabled = false;
     } catch (error) {
@@ -2283,7 +2316,7 @@ const initializeFormElements = () => {
       const sign = personalSignResult.innerHTML;
       const recoveredAddr = recoverPersonalSignature({
         data: msg,
-        sig: sign,
+        signature: sign,
       });
       if (recoveredAddr === from) {
         console.log(`SigUtil Successfully verified signer as ${recoveredAddr}`);
@@ -2362,9 +2395,10 @@ const initializeFormElements = () => {
     try {
       const from = accounts[0];
       const sign = signTypedDataResult.innerHTML;
-      const recoveredAddr = await recoverTypedSignatureLegacy({
+      const recoveredAddr = await recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V1',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -2481,7 +2515,8 @@ const initializeFormElements = () => {
       const sign = signTypedDataV3Result.innerHTML;
       const recoveredAddr = await recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V3',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -2626,9 +2661,10 @@ const initializeFormElements = () => {
     try {
       const from = accounts[0];
       const sign = signTypedDataV4Result.innerHTML;
-      const recoveredAddr = recoverTypedSignatureV4({
+      const recoveredAddr = recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V4',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -2775,9 +2811,10 @@ const initializeFormElements = () => {
     };
     try {
       const sign = signPermitResult.innerHTML;
-      const recoveredAddr = recoverTypedSignatureV4({
+      const recoveredAddr = recoverTypedSignature({
         data: msgParams,
-        sig: sign,
+        signature: sign,
+        version: 'V4',
       });
       if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
         console.log(`Successfully verified signer as ${recoveredAddr}`);
@@ -3136,65 +3173,6 @@ const initializeFormElements = () => {
   };
 
   /**
-   * Send With Odd Hex Data
-   */
-
-  sendWithOddHexData.onclick = async () => {
-    try {
-      const from = accounts[0];
-      const send = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-            value: '0x9184e72a000',
-            data: '0x1', // odd hex data - expected 0x01
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Approve ERC20 With Odd Hex Data
-   */
-
-  approveERC20WithOddHexData.onclick = async () => {
-    let erc20Contract;
-
-    if (networkName) {
-      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
-    } else {
-      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
-    }
-
-    try {
-      const from = accounts[0];
-      const send = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: erc20Contract,
-            value: '0x0',
-            // odd approve hex data - expected 0x095ea7b3...
-            data: '0x95ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
    * Send With Invalid Recipient
    */
 
@@ -3323,7 +3301,7 @@ const initializeFormElements = () => {
           params: [
             {
               from: accounts[0],
-              to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+              to: `${maliciousAddress}`,
               value: '0x0',
               gasLimit: '0x5028',
               maxFeePerGas: '0x2540be400',
@@ -3363,6 +3341,101 @@ const initializeFormElements = () => {
   };
 
   /**
+   *  PPOM - Malicious Warning Bypasses
+   */
+  maliciousSendWithOddHexData.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: `${maliciousAddress}`,
+            value: '0x9184e72a000',
+            data: '0x1', // odd hex data - expected 0x01
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  maliciousApproveERC20WithOddHexData.onclick = async () => {
+    let erc20Contract;
+
+    if (networkName) {
+      erc20Contract = ERC20_SAMPLE_CONTRACTS[networkName];
+    } else {
+      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
+    }
+
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: erc20Contract,
+            value: '0x0',
+            // odd approve hex data - expected 0x095ea7b3...
+            data: '0x95ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  maliciousSendWithoutHexPrefixValue.onclick = async () => {
+    try {
+      const from = accounts[0];
+      const send = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from,
+            to: `${maliciousAddress}`,
+            value: 'ffffffffffffff', // value without 0x prefix
+          },
+        ],
+      });
+      sendMalformedResult.innerHTML = send;
+    } catch (err) {
+      console.error(err);
+      sendMalformedResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+  maliciousPermitHexPaddedChain.onclick = async () => {
+    const result = await provider.request({
+      method: 'eth_signTypedData_v4',
+      params: [
+        accounts[0],
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":"${chainIdPadded}","version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+      ],
+    });
+    console.log(result);
+  };
+
+  maliciousPermitIntAddress.onclick = async () => {
+    const result = await provider.request({
+      method: 'eth_signTypedData_v4',
+      params: [
+        accounts[0],
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"917551056842671309452305380979543736893630245704","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+      ],
+    });
+    console.log(result);
+  };
+
+  /**
    * Providers
    */
 
@@ -3374,6 +3447,9 @@ const setDeeplinks = () => {
     'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
   transferTokensDeeplink.href = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${tokenDecimals}`;
   approveTokensDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
+  maliciousSendEthWithDeeplink.href = `https://metamask.app.link/send/${maliciousAddress}?value=0`;
+  maliciousTransferERC20WithDeeplink.href = `https://metamask.app.link/send/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/transfer?address=${maliciousAddress}&uint256=1e6`;
+  maliciousApproveERC20WithDeeplink.href = `https://metamask.app.link/approve/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/approve?address=${maliciousAddress}&uint256=1e6`;
 };
 
 /**
