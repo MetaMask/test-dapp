@@ -1,5 +1,4 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 // eslint-disable-next-line camelcase
 import {
   encrypt,
@@ -8,13 +7,18 @@ import {
 } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
-import { getPermissionsDisplayString, stringifiableToHex } from './utils';
+import {
+  handleSdkConnect,
+  handleWalletConnect,
+  walletConnect,
+} from './connections';
 import Constants from './constants.json';
 import {
-  NETWORKS_BY_CHAIN_ID,
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
+  NETWORKS_BY_CHAIN_ID,
 } from './onchain-sample-contracts';
+import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
 const {
   hstBytecode,
@@ -76,7 +80,8 @@ const warningDiv = document.getElementById('warning');
 const onboardButton = document.getElementById('connectButton');
 const getAccountsButton = document.getElementById('getAccounts');
 const getAccountsResult = document.getElementById('getAccountsResult');
-const openConnectModalBtn = document.getElementById('open-connect-modal');
+const walletConnectBtn = document.getElementById('walletConnect');
+const sdkConnectBtn = document.getElementById('sdkConnect');
 
 // Permissions Actions Section
 const requestPermissionsButton = document.getElementById('requestPermissions');
@@ -492,49 +497,6 @@ const initialConnectedButtons = [
   maliciousPermitIntAddress,
 ];
 
-// Buttons that are available after connecting via Wallet Connect
-const walletConnectButtons = [
-  sendButton,
-  personalSign,
-  signTypedData,
-  ethSign,
-  personalSign,
-  signTypedData,
-  signTypedDataV3,
-  signTypedDataV4,
-  signTypedDataV4Batch,
-  signTypedDataV4Queue,
-  signPermit,
-  siwe,
-  siweResources,
-  siweBadDomain,
-  siweBadAccount,
-  siweMalformed,
-  signInvalidType,
-  signEmptyDomain,
-  signExtraDataNotTyped,
-  signInvalidPrimaryType,
-  signNoPrimaryTypeDefined,
-  signInvalidVerifyingContractType,
-  eip747WatchButton,
-  maliciousApprovalButton,
-  maliciousSetApprovalForAll,
-  maliciousERC20TransferButton,
-  maliciousRawEthButton,
-  maliciousPermit,
-  maliciousTradeOrder,
-  maliciousSeaport,
-  sendWithInvalidValue,
-  sendWithInvalidTxType,
-  sendWithInvalidRecipient,
-  mintSepoliaERC20,
-  maliciousSendWithOddHexData,
-  maliciousSendWithoutHexPrefixValue,
-  maliciousApproveERC20WithOddHexData,
-  maliciousPermitHexPaddedChain,
-  maliciousPermitIntAddress,
-];
-
 /**
  * Provider
  */
@@ -546,62 +508,33 @@ let scrollToHandled = false;
 
 const isMetaMaskConnected = () => accounts && accounts.length > 0;
 let isWalletConnectConnected = false;
+let isSdkConnected = false;
 
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 
-// test id
-const projectId = 'e6360eaee594162688065f1c70c863b7';
-
-const metadata = {
-  name: 'E2e Test Dapp',
-  description: 'This is the E2e Test Dapp',
-  url: 'https://metamask.github.io/test-dapp/',
-  icons: ['https://avatars.mywebsite.com/'],
+walletConnectBtn.onclick = () => {
+  walletConnect.open();
+  walletConnect.subscribeProvider(() => {
+    handleWalletConnect(
+      'wallet-connect',
+      walletConnectBtn,
+      isWalletConnectConnected,
+    );
+  });
 };
 
-const modal = createWeb3Modal({
-  ethersConfig: defaultConfig({ metadata }),
-  projectId,
-});
+sdkConnectBtn.onclick = async () => {
+  await handleSdkConnect('sdk-connect', sdkConnectBtn, isSdkConnected);
+};
 
-async function handleWalletConnectChange({ isConnected }) {
-  if (isConnected) {
-    provider = modal.getWalletProvider().provider;
-    const providerDetail = {
-      info: {
-        uuid: provider.signer.uri,
-        name: 'wallet-connect',
-        icon: './wallet-connect.svg',
-        rdns: 'io.metamask',
-      },
-      provider,
-    };
-    setActiveProviderDetail(providerDetail);
-    handleNewProviderDetail(providerDetail);
-
-    isWalletConnectConnected = true;
-    updateFormElements();
-    try {
-      const newAccounts = await provider.request({
-        method: 'eth_accounts',
-      });
-      handleNewAccounts(newAccounts);
-    } catch (err) {
-      console.error('Error on init when getting accounts', err);
-    }
-  } else {
-    isWalletConnectConnected = false;
-    openConnectModalBtn.innerText = 'Wallet Connect';
-    handleNewAccounts([]);
-    updateFormElements();
-  }
+export function updateWalletConnectState(isConnected) {
+  isWalletConnectConnected = isConnected;
 }
 
-openConnectModalBtn.onclick = () => {
-  modal.open();
-  modal.subscribeProvider(handleWalletConnectChange);
-};
+export function updateSdkConnectionState(isConnected) {
+  isSdkConnected = isConnected;
+}
 
 const detectEip6963 = () => {
   window.addEventListener('eip6963:announceProvider', (event) => {
@@ -616,7 +549,7 @@ const detectEip6963 = () => {
   window.dispatchEvent(new Event('eip6963:requestProvider'));
 };
 
-const setActiveProviderDetail = async (providerDetail) => {
+export const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
   provider = providerDetail.provider;
   initializeProvider();
@@ -678,13 +611,28 @@ const existsProviderDetail = (newProviderDetail) => {
   return false;
 };
 
-const handleNewProviderDetail = (newProviderDetail) => {
+export const handleNewProviderDetail = (newProviderDetail) => {
   if (existsProviderDetail(newProviderDetail)) {
     return;
   }
-
   providerDetails.push(newProviderDetail);
+  renderProviderDetails();
+};
 
+export const removeProviderDetail = (name) => {
+  const index = providerDetails.findIndex(
+    (providerDetail) => providerDetail.info.name === name,
+  );
+  if (index === -1) {
+    console.log(`ProviderDetail with name ${name} not found`);
+    return;
+  }
+  providerDetails.splice(index, 1);
+  renderProviderDetails();
+  console.log(`ProviderDetail with name ${name} removed successfully`);
+};
+
+const renderProviderDetails = () => {
   providersDiv.innerHTML = '';
   providerDetails.forEach((providerDetail) => {
     const { info, provider: provider_ } = providerDetail;
@@ -717,7 +665,7 @@ const handleNewProviderDetail = (newProviderDetail) => {
   });
 };
 
-const handleNewAccounts = (newAccounts) => {
+export const handleNewAccounts = (newAccounts) => {
   accounts = newAccounts;
   updateFormElements();
 
@@ -985,7 +933,7 @@ const initializeContracts = () => {
 
 // Must be called after the provider or connect acccounts change
 // Updates form elements content and disabled status
-const updateFormElements = () => {
+export const updateFormElements = () => {
   const accountButtonsDisabled =
     !isMetaMaskInstalled() || !isMetaMaskConnected();
   if (accountButtonsDisabled) {
@@ -994,14 +942,7 @@ const updateFormElements = () => {
     }
     clearDisplayElements();
   }
-  if (
-    isWalletConnectConnected &&
-    activeProviderNameResult.innerText === 'wallet-connect'
-  ) {
-    for (const button of walletConnectButtons) {
-      button.disabled = false;
-    }
-  } else if (isMetaMaskConnected()) {
+  if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
@@ -1066,8 +1007,6 @@ const updateOnboardElements = () => {
   }
 
   if (isWalletConnectConnected) {
-    openConnectModalBtn.innerText = 'Wallet Connect - Connected';
-
     if (onboarding) {
       onboarding.stopOnboarding();
     }
@@ -3393,6 +3332,7 @@ const setDeeplinks = () => {
 const initialize = async () => {
   setActiveProviderDetailWindowEthereum();
   detectEip6963();
+  setActiveProviderDetail(providerDetails[0]);
   initializeFormElements();
   setDeeplinks();
 };
