@@ -75,7 +75,11 @@
       "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>bigint-buffer": false,
       "@web3modal/ethers5>@coinbase/wallet-sdk>keccak": false,
       "webpack-dev-server>ws>bufferutil": false,
-      "webpack-dev-server>ws>utf-8-validate": false
+      "webpack-dev-server>ws>utf-8-validate": false,
+      "@metamask/sdk>@metamask/sdk-communication-layer>bufferutil": false,
+      "@metamask/sdk>@metamask/sdk-communication-layer>utf-8-validate": false,
+      "@metamask/sdk>eciesjs>secp256k1": false,
+      "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>rpc-websockets>utf-8-validate": false
     }
   },
   "packageManager": "yarn@1.22.19"
