@@ -42,7 +42,10 @@ export async function handleSdkConnect(name, button, isConnected) {
     updateFormElements();
     updateSdkConnectionState(false);
     removeProviderDetail(name);
+    sdk.terminate();
     button.innerText = 'Sdk Connect';
+    button.classList.add('btn-primary');
+    button.classList.remove('btn-danger');
   } else {
     await sdk.connect();
     const provider = sdk.getProvider();
@@ -51,7 +54,9 @@ export async function handleSdkConnect(name, button, isConnected) {
     setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
     updateSdkConnectionState(true);
-    button.innerText = 'Sdk Connect Connected';
+    button.innerText = 'Sdk Connect - Disconnect';
+    button.classList.remove('btn-primary');
+    button.classList.add('btn-danger');
 
     updateFormElements();
 
@@ -73,14 +78,18 @@ export async function handleWalletConnect(name, button, isConnected) {
     updateWalletConnectState(false);
     removeProviderDetail(name);
     button.innerText = 'Wallet Connect';
+    button.classList.add('btn-primary');
+    button.classList.remove('btn-danger');
   } else {
-    const provider = walletConnect.getWalletProvider().provider;
+    const { provider } = walletConnect.getWalletProvider();
     const uuid = provider.signer.uri;
     const providerDetail = _setProviderDetail(provider, name, uuid);
     setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
     updateWalletConnectState(true);
-    button.innerText = 'Wallet Connect Connected';
+    button.innerText = 'Wallet Connect - Disconnect';
+    button.classList.remove('btn-primary');
+    button.classList.add('btn-danger');
 
     updateFormElements();
 
