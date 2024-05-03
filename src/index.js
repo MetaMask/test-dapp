@@ -7,19 +7,18 @@ import {
 } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
-import { getPermissionsDisplayString, stringifiableToHex } from './utils';
-import Constants from './constants.json';
 import {
-  NETWORKS_BY_CHAIN_ID,
-  ERC20_SAMPLE_CONTRACTS,
-  ERC721_SAMPLE_CONTRACTS,
-} from './onchain-sample-contracts';
-
-import {
-  walletConnect,
   handleSdkConnect,
   handleWalletConnect,
+  walletConnect,
 } from './connections';
+import Constants from './constants.json';
+import {
+  ERC20_SAMPLE_CONTRACTS,
+  ERC721_SAMPLE_CONTRACTS,
+  NETWORKS_BY_CHAIN_ID,
+} from './onchain-sample-contracts';
+import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
 const {
   hstBytecode,

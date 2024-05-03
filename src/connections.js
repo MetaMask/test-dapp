@@ -1,13 +1,13 @@
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 import { MetaMaskSDK } from '@metamask/sdk';
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 import {
   handleNewAccounts,
-  updateFormElements,
-  setActiveProviderDetail,
   handleNewProviderDetail,
+  removeProviderDetail,
+  setActiveProviderDetail,
+  updateFormElements,
   updateSdkConnectionState,
   updateWalletConnectState,
-  removeProviderDetail,
 } from '.';
 
 const dappMetadata = {
