@@ -519,7 +519,11 @@ const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 walletConnectBtn.onclick = () => {
   walletConnect.open();
   walletConnect.subscribeProvider(() => {
-    handleWalletConnect('wallet-connect', walletConnectBtn, isWalletConnectConnected);
+    handleWalletConnect(
+      'wallet-connect',
+      walletConnectBtn,
+      isWalletConnectConnected,
+    );
   });
 };
 
@@ -647,6 +651,55 @@ export const handleNewProviderDetail = (newProviderDetail) => {
     eip6963Provider.appendChild(button);
   });
 };
+
+export const removeProviderDetail = (name) => {
+  const index = providerDetails.findIndex(
+    (providerDetail) => providerDetail.info.name === name
+  );
+  
+  if (index !== -1) {
+    providerDetails.splice(index, 1);
+    // Re-render the provider details UI
+    renderProviderDetails();
+    console.log(`ProviderDetail ${name} removed successfully`);
+  } else {
+    console.log(`ProviderDetail ${name} not found`);
+  }
+};
+
+const renderProviderDetails = () => {
+  providersDiv.innerHTML = '';
+  providerDetails.forEach((providerDetail) => {
+    const { info, provider: provider_ } = providerDetail;
+
+    const content = JSON.stringify(
+      {
+        info,
+        provider: provider_ ? '...' : provider_,
+      },
+      null,
+      2,
+    );
+    const eip6963Provider = document.createElement('div');
+    eip6963Provider.id = 'provider';
+    eip6963Provider.className = 'col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12';
+    providersDiv.append(eip6963Provider);
+
+    const pre = document.createElement('pre');
+    pre.className = 'alert alert-secondary';
+    pre.innerText = content;
+    eip6963Provider.appendChild(pre);
+
+    const button = document.createElement('button');
+    button.className = 'btn btn-danger btn-lg btn-block mb-3';
+    button.innerHTML = `Remove ${info.name}`;
+    button.onclick = () => {
+      removeProviderDetail(info.uuid);
+    };
+    eip6963Provider.appendChild(button);
+  });
+};
+
 
 export const handleNewAccounts = (newAccounts) => {
   accounts = newAccounts;
@@ -925,18 +978,7 @@ export const updateFormElements = () => {
     }
     clearDisplayElements();
   }
-  if (
-    (
-      isWalletConnectConnected &&
-      activeProviderNameResult.innerText === 'wallet-connect')
-    ||
-    (
-      isSdkConnected &&
-      activeProviderNameResult.innerText === 'sdk-connect'
-    )
-    ||
-    isMetaMaskConnected()
-  ) {
+  if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
@@ -986,8 +1028,10 @@ const updateOnboardElements = () => {
       onboarding.stopOnboarding();
     }
   } else {
+    console.log("INSIDE ELSE")
     onboardButton.innerText = 'Connect';
     onboardButton.onclick = async () => {
+      
       try {
         const newAccounts = await provider.request({
           method: 'eth_requestAccounts',
@@ -1001,7 +1045,6 @@ const updateOnboardElements = () => {
   }
 
   if (isWalletConnectConnected) {
-
     if (onboarding) {
       onboarding.stopOnboarding();
     }

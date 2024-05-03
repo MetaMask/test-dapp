@@ -7,6 +7,7 @@ import {
   handleNewProviderDetail,
   updateSdkConnectionState,
   updateWalletConnectState,
+  removeProviderDetail,
 } from '.';
 
 const dappMetadata = {
@@ -35,69 +36,61 @@ function _setProviderDetail(provider, name, uuid) {
   return providerDetail;
 }
 
-async function _updateDappWithProviderConnected(provider, providerDetail, name, button) {
-  setActiveProviderDetail(providerDetail);
-  handleNewProviderDetail(providerDetail);
-
-  switch (name) {
-    case 'wallet-connect':
-      updateWalletConnectState(true);
-      button.innerText = 'Wallet Connect Connected';
-      break;
-    case 'sdk-connect':
-      updateSdkConnectionState(true);
-      button.innerText = 'Sdk Connect Connected';
-      break;
-  }
-
-  updateFormElements();
-
-  try {
-    const newAccounts = await provider.request({
-      method: 'eth_accounts',
-    });
-    handleNewAccounts(newAccounts);
-  } catch (err) {
-    console.error('Error on init when getting accounts', err);
-  }
-}
-
-async function _updateDappWithProviderDisconnected(name, button) {
-  handleNewAccounts([]);
-  updateFormElements();
-  switch (name) {
-    case 'wallet-connect':
-      updateWalletConnectState(false);
-      button.innerText = 'Wallet Connect';
-      break;
-    case 'sdk-connect':
-      updateSdkConnectionState(false);
-      button.innerText = 'Sdk Connect';
-      break;
-  }
-}
-
 export async function handleSdkConnect(name, button, isConnected) {
   if (isConnected) {
-    _updateDappWithProviderDisconnected(name, button);
+    handleNewAccounts([]);
+    updateFormElements();
+    updateSdkConnectionState(false);
+    removeProviderDetail(name);
+    button.innerText = 'Sdk Connect';
   } else {
     await sdk.connect();
     const provider = sdk.getProvider();
     const uuid = sdk.getChannelId();
     const providerDetail = _setProviderDetail(provider, name, uuid);
-    button.innerText = `${name.toUpperCase()} Connected`;
-    _updateDappWithProviderConnected(provider, providerDetail, name, button);
+    setActiveProviderDetail(providerDetail);
+    handleNewProviderDetail(providerDetail);
+    updateSdkConnectionState(true);
+    button.innerText = 'Sdk Connect Connected';
+
+    updateFormElements();
+
+    try {
+      const newAccounts = await provider.request({
+        method: 'eth_accounts',
+      });
+      handleNewAccounts(newAccounts);
+    } catch (err) {
+      console.error('Error on init when getting accounts', err);
+    }
   }
 }
 
 export async function handleWalletConnect(name, button, isConnected) {
   if (isConnected) {
-    _updateDappWithProviderDisconnected(name, button);
+    handleNewAccounts([]);
+    updateFormElements();
+    updateWalletConnectState(false);
+    removeProviderDetail(name);
+    button.innerText = 'Wallet Connect';
   } else {
     const provider = walletConnect.getWalletProvider().provider;
     const uuid = provider.signer.uri;
     const providerDetail = _setProviderDetail(provider, name, uuid);
-    button.innerText = `${name.toUpperCase()} Connected`;
-    _updateDappWithProviderConnected(provider, providerDetail, name, button);
+    setActiveProviderDetail(providerDetail);
+    handleNewProviderDetail(providerDetail);
+    updateWalletConnectState(true);
+    button.innerText = 'Wallet Connect Connected';
+
+    updateFormElements();
+
+    try {
+      const newAccounts = await provider.request({
+        method: 'eth_accounts',
+      });
+      handleNewAccounts(newAccounts);
+    } catch (err) {
+      console.error('Error on init when getting accounts', err);
+    }
   }
 }
