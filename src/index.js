@@ -123,6 +123,7 @@ const revokeButton = document.getElementById('revokeButton');
 const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const nftsStatus = document.getElementById('nftsStatus');
+const erc721TokenAddresses = document.getElementById('erc721TokenAddresses');
 
 // ERC 1155 Section
 
@@ -144,6 +145,7 @@ const revokeERC1155Button = document.getElementById('revokeERC1155Button');
 const watchAssetInput = document.getElementById('watchAssetInput');
 const watchAssetButton = document.getElementById('watchAssetButton');
 const erc1155Status = document.getElementById('erc1155Status');
+const erc1155TokenAddresses = document.getElementById('erc1155TokenAddresses');
 
 // ERC 747 Section
 const eip747ContractAddress = document.getElementById('eip747ContractAddress');
@@ -169,7 +171,7 @@ const transferFromRecipientInput = document.getElementById(
   'transferFromRecipientInput',
 );
 const tokenSymbol = 'TST';
-const tokenAddresses = document.getElementById('tokenAddresses');
+const erc20TokenAddresses = document.getElementById('erc20TokenAddresses');
 const createToken = document.getElementById('createToken');
 const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
@@ -1034,6 +1036,7 @@ const updateContractElements = () => {
     multisigContractStatus.innerHTML = 'Deployed';
     sendMultisigButton.disabled = false;
     // ERC721 Token - NFTs contract
+    erc721TokenAddresses.innerHTML = nftsContract ? nftsContract.address : '';
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
     mintAmountInput.disabled = false;
@@ -1049,6 +1052,9 @@ const updateContractElements = () => {
     watchNFTButtons.innerHTML = '';
 
     // ERC 1155 Multi Token
+    erc1155TokenAddresses.innerHTML = erc1155Contract
+      ? erc1155Contract.address
+      : '';
     erc1155Status.innerHTML = 'Deployed';
     batchMintButton.disabled = false;
     batchMintTokenIds.disabled = false;
@@ -1061,7 +1067,7 @@ const updateContractElements = () => {
     watchAssetInput.disabled = false;
     watchAssetButton.disabled = false;
     // ERC20 Token - Send Tokens
-    tokenAddresses.innerHTML = hstContract ? hstContract.address : '';
+    erc20TokenAddresses.innerHTML = hstContract ? hstContract.address : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
@@ -1251,6 +1257,13 @@ const initializeFormElements = () => {
     console.log(
       `Contract mined! address: ${nftsContract.address} transactionHash: ${nftsContract.deployTransaction.hash}`,
     );
+
+    erc721TokenAddresses.innerHTML = erc721TokenAddresses.innerHTML
+      .concat(', ', nftsContract.address)
+      .split(', ')
+      .filter(Boolean)
+      .join(', ');
+
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
     mintAmountInput.disabled = false;
@@ -1401,6 +1414,12 @@ const initializeFormElements = () => {
     console.log(
       `Contract mined! address: ${erc1155Contract.address} transactionHash: ${erc1155Contract.deployTransaction.hash}`,
     );
+
+    erc1155TokenAddresses.innerHTML = erc1155TokenAddresses.innerHTML
+      .concat(', ', erc1155Contract.address)
+      .split(', ')
+      .filter(Boolean)
+      .join(', ');
 
     erc1155Status.innerHTML = 'Deployed';
     batchTransferTokenIds.disabled = false;
@@ -1744,7 +1763,7 @@ const initializeFormElements = () => {
       );
       await hstContract.deployTransaction.wait();
     } catch (error) {
-      tokenAddresses.innerHTML = 'Creation Failed';
+      erc20TokenAddresses.innerHTML = 'Creation Failed';
       throw error;
     }
 
@@ -1755,7 +1774,7 @@ const initializeFormElements = () => {
     console.log(
       `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
     );
-    tokenAddresses.innerHTML = tokenAddresses.innerHTML
+    erc20TokenAddresses.innerHTML = erc20TokenAddresses.innerHTML
       .concat(', ', hstContract.address)
       .split(', ')
       .filter(Boolean)
@@ -1777,7 +1796,7 @@ const initializeFormElements = () => {
   };
 
   watchAssets.onclick = async () => {
-    const contractAddresses = tokenAddresses.innerHTML.split(', ');
+    const contractAddresses = erc20TokenAddresses.innerHTML.split(', ');
 
     const promises = contractAddresses.map((erc20Address) => {
       return provider.request({
