@@ -21,6 +21,7 @@ import {
   NETWORKS_BY_CHAIN_ID,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
+import { createCaipStream } from './temp/caip-stream'
 
 const {
   hstBytecode,
@@ -616,7 +617,9 @@ const setActiveProviderDetailExternallyConnectable = () => {
   const extensionId = externallyConnectableExtensionId.value;
 
   const extensionPort = getBrowser().runtime.connect(extensionId);
-  const connectionStream = new PortStream(extensionPort);
+  const portStream = new PortStream(extensionPort);
+  const connectionStream = createCaipStream(portStream);
+
   const externallyConnectableProvider = new MetaMaskInpageProvider(
     connectionStream,
     {
