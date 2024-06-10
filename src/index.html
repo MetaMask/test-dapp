@@ -145,7 +145,7 @@
             <div class="card">
               <div class="card-body">
                 <h4 class="card-title">
-                  Basic Actions
+                  Connect Actions
                 </h4>
 
                 <button
@@ -158,10 +158,17 @@
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="open-connect-modal"
+                  id="walletConnect"
                 >
                 Wallet Connect
                 </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sdkConnect"
+                >
+                SDK Connect
+                </button>
+                <hr />
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="getAccounts"
@@ -175,11 +182,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="row d-flex justify-content-center">
           <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
             <div class="card">
               <div class="card-body">
@@ -242,6 +244,14 @@
                   hidden
                 >
                   Send EIP 1559 Transaction
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="sendEIP1559WithoutGasButton"
+                  disabled
+                  hidden
+                >
+                  Send EIP 1559 Without Gas
                 </button>
                 <a
                   id="sendDeeplinkButton"
@@ -344,11 +354,11 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  Send Tokens
+                  ERC 20
                 </h4>
 
                 <p class="info-text alert alert-success">
-                  Token(s): <span id="tokenAddresses"></span>
+                  Token(s): <span id="erc20TokenAddresses"></span>
                 </p>
 
                 <div class="form-group">
@@ -499,7 +509,7 @@
                 </button>
 
                 <p class="info-text alert alert-secondary">
-                  Token methods result: <span id="tokenMethodsResult"></span>
+                  ERC 20 methods result: <span id="tokenMethodsResult"></span>
                 </p>
               </div>
             </div>
@@ -510,8 +520,12 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  NFTs
+                  ERC 721
                 </h4>
+
+                <p class="info-text alert alert-success">
+                  Token(s): <span id="erc721TokenAddresses"></span>
+                </p>
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
@@ -635,7 +649,7 @@
                 </div>
 
                 <p class="info-text alert alert-secondary">
-                  NFTs: <span id="nftsStatus"></span>
+                  ERC 721 methods result: <span id="nftsStatus"></span>
                 </p>
               </div>
             </div>
@@ -648,6 +662,10 @@
               <h4 class="card-title">
                 ERC 1155
               </h4>
+
+              <p class="info-text alert alert-success">
+                Token(s): <span id="erc1155TokenAddresses"></span>
+              </p>
 
               <button
               class="btn btn-primary btn-lg btn-block mb-3"
@@ -758,7 +776,7 @@
             </div>
 
             <p class="info-text alert alert-secondary">
-              ERC 1155: <span id="erc1155Status"></span>
+              ERC 1155 methods results: <span id="erc1155Status"></span>
             </p>
           </div>
         </div>
@@ -829,8 +847,10 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  PPOM
+                  PPOM - Malicious Transactions and Signatures
                 </h4>
+                <p>We know we are vulnerable if any of these Transactions/Signatures are not flagged as Malicious</p>
+                <h5>Transactions</h5>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="maliciousRawEthButton"
@@ -849,6 +869,7 @@
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="maliciousERC20TransferButton"
                   disabled
+                  title="This will only be flagged if you have some ERC20 balance"
                 >
                   Malicious ERC20 Transfer (USDC)
                 </button>
@@ -866,6 +887,7 @@
                 >
                   Malicious Set Approval For All
                 </button>
+                <h5>Signatures</h5>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="maliciousPermit"
@@ -896,9 +918,10 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4>
-                  Batch of 10 Malicious Transactions
+                  PPOM - Malicious Batching and Queueing
                 </h4>
-
+                <p>We know we are vulnerable if any of these Transactions/Signatures are not flagged as Malicious</p>
+                <h5>Transactions</h5>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="sendEIP1559Batch"
@@ -906,10 +929,6 @@
                 >
                   Send Eth Malicious x10 Batch
                 </button>
-                <h4>
-                  Queue of 10 Malicious Transactions
-                </h4>
-
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="sendEIP1559Queue"
@@ -917,10 +936,8 @@
                 >
                   Send Eth Malicious x10 Queue
                 </button>
-                <h4>
-                  Batch of 10 Malicious Signatures
-                </h4>
 
+                <h5>Signatures</h5>
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="signTypedDataV4Batch"
@@ -929,16 +946,91 @@
                   Sign Malicious x10 Batch
                 </button>
 
-                <h4>
-                  Queue of 10 Malicious Signatures
-                </h4>
-
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="signTypedDataV4Queue"
                   disabled
                 >
                   Sign Malicious x10 Queue
+                </button>
+                <hr />
+                <h4>PPOM - Malicious Deeplinks</h4>
+                <a
+                  id="maliciousSendEthWithDeeplink"
+                >
+                  <button
+                    class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Malicious Eth Transfer With Deeplink
+                  </button>
+                </a>
+                <a
+                  id="maliciousTransferERC20WithDeeplink"
+                >
+                  <button
+                    class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Malicious ERC20 Transfer With Deeplink
+                  </button>
+                </a>
+                <a
+                id="maliciousApproveERC20WithDeeplink"
+                >
+                  <button
+                    class="btn btn-warning btn-lg btn-block mb-3 text-dark"
+                  >
+                  (Mobile) Malicious ERC20 Approval With Deeplink
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4>
+                  PPOM - Malicious Warning Bypasses
+                </h4>
+                <p>We know we are vulnerable if any of these Transactions/Signatures are not flagged as Malicious</p>
+                <h5>Transactions</h5>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousSendWithOddHexData"
+                  disabled
+                >
+                  Malicious Eth Transfer With Odd Hex Data
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousApproveERC20WithOddHexData"
+                  disabled
+                >
+                  Malicious ERC20 Approval With Odd Hex Data
+                </button>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousSendWithoutHexPrefixValue"
+                  disabled
+                >
+                  Malicious Eth Transfer Without 0x Prefix for Hex Value
+                </button>
+                <h5>Signatures</h5>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousPermitHexPaddedChain"
+                  disabled
+                >
+                  Malicious Permit with Padded chainId
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="maliciousPermitIntAddress"
+                  disabled
+                >
+                  Malicious Permit with Integer Address
                 </button>
               </div>
             </div>
@@ -1367,22 +1459,6 @@
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="sendWithOddHexData"
-                  disabled
-                >
-                Send with Odd Hex Data
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="approveERC20WithOddHexData"
-                  disabled
-                >
-                Approve ERC20 with Odd Hex Data
-                </button>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
                   id="sendWithInvalidRecipient"
                   disabled
                 >
@@ -1413,8 +1489,18 @@
       </section>
       <section>
         <div class="row d-flex justify-content-center">
-          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
-            <div class="card">
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+            <div class="card full-width">
+              <div class="card-body">
+                <h4 class="card-title">
+                  JSON RPC Result
+                </h4>
+                <textarea name="json-rpc-response" id="json-rpc-response" rows="5"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+            <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
                   Ethereum Chain Interactions
@@ -1433,6 +1519,14 @@
                 >
                   Switch to Localhost 8546
                 </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+            <div class="card full-width">
+              <div class="card-body">
+                <h4 class="card-title">
+                </h4>
               </div>
             </div>
           </div>
