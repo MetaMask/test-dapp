@@ -1,5 +1,4 @@
 import { MetaMaskSDK } from '@metamask/sdk';
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5';
 import {
   handleNewAccounts,
   handleNewProviderDetail,
@@ -16,12 +15,33 @@ const dappMetadata = {
   url: 'https://metamask.github.io/test-dapp/',
 };
 
+// eslint-disable-next-line require-unicode-regexp
+const isAndroid = /Android/i.test(navigator.userAgent);
+
 const sdk = new MetaMaskSDK({ dappMetadata });
 
-export const walletConnect = createWeb3Modal({
-  ethersConfig: defaultConfig({ metadata: dappMetadata }),
-  projectId: 'e6360eaee594162688065f1c70c863b7', // test id
-});
+export const initializeWeb3Modal = () => {
+  if (isAndroid) {
+    try {
+      // eslint-disable-next-line node/global-require
+      const { createWeb3Modal, defaultConfig } = require('@web3modal/ethers5');
+
+      const web3Modal = createWeb3Modal({
+        ethersConfig: defaultConfig({ metadata: dappMetadata }),
+      });
+
+      console.log('Web3Modal initialized successfully on Android');
+      return web3Modal;
+    } catch (error) {
+      console.error('Error initializing Web3Modal:', error);
+    }
+  }
+
+  console.log('Web3Modal is not initialized as the platform is not Android');
+  return null;
+};
+
+export const walletConnect = initializeWeb3Modal();
 
 function _setProviderDetail(provider, name, uuid) {
   const providerDetail = {
@@ -51,7 +71,7 @@ export async function handleSdkConnect(name, button, isConnected) {
     const provider = sdk.getProvider();
     const uuid = sdk.getChannelId();
     const providerDetail = _setProviderDetail(provider, name, uuid);
-    setActiveProviderDetail(providerDetail);
+    await setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
     updateSdkConnectionState(true);
     button.innerText = 'Sdk Connect - Disconnect';
@@ -84,7 +104,7 @@ export async function handleWalletConnect(name, button, isConnected) {
     const { provider } = walletConnect.getWalletProvider();
     const uuid = provider.signer.uri;
     const providerDetail = _setProviderDetail(provider, name, uuid);
-    setActiveProviderDetail(providerDetail);
+    await setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
     updateWalletConnectState(true);
     button.innerText = 'Wallet Connect - Disconnect';
