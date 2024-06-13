@@ -21,13 +21,14 @@ const isAndroid = /Android/i.test(navigator.userAgent);
 const sdk = new MetaMaskSDK({ dappMetadata });
 
 export const initializeWeb3Modal = () => {
-  if (isAndroid) {
+  if (!isAndroid) {
     try {
       // eslint-disable-next-line node/global-require
       const { createWeb3Modal, defaultConfig } = require('@web3modal/ethers5');
 
       const web3Modal = createWeb3Modal({
         ethersConfig: defaultConfig({ metadata: dappMetadata }),
+        projectId: 'e6360eaee594162688065f1c70c863b7', // test id
       });
 
       console.log('Web3Modal initialized successfully on Android');
