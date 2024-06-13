@@ -517,8 +517,8 @@ const isMetaMaskInstalled = () => provider && provider.isMetaMask;
 
 walletConnectBtn.onclick = () => {
   walletConnect.open();
-  walletConnect.subscribeProvider(() => {
-    handleWalletConnect(
+  walletConnect.subscribeProvider(async () => {
+    await handleWalletConnect(
       'wallet-connect',
       walletConnectBtn,
       isWalletConnectConnected,
@@ -551,19 +551,24 @@ const detectEip6963 = () => {
   window.dispatchEvent(new Event('eip6963:requestProvider'));
 };
 
-export const setActiveProviderDetail = async (providerDetail) => {
+// eslint-disable-next-line consistent-return
+const retryRequest = async (method, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await provider.request({ method });
+    } catch (error) {
+      if (i === retries - 1) {
+        throw error; // rethrow the error if all retries fail
+      }
+      console.warn(`Retrying ${method} request, attempt ${i + 1}`);
+    }
+  }
+};
+
+export const setActiveProviderDetail = (providerDetail) => {
   closeProvider();
   provider = providerDetail.provider;
   initializeProvider();
-
-  try {
-    const newAccounts = await provider.request({
-      method: 'eth_accounts',
-    });
-    handleNewAccounts(newAccounts);
-  } catch (err) {
-    console.error('Error on init when getting accounts', err);
-  }
 
   const { uuid, name, icon } = providerDetail.info;
   activeProviderUUIDResult.innerText = uuid;
@@ -682,7 +687,7 @@ let chainIdInt;
 let networkName;
 let chainIdPadded;
 
-const handleNewChain = (chainId) => {
+const handleNewChain = async (chainId) => {
   chainIdDiv.innerHTML = chainId;
   const networkId = parseInt(networkDiv.innerHTML, 10);
   chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
@@ -697,7 +702,7 @@ const handleNewChain = (chainId) => {
 
   // Wait until warning rendered or not to improve accuracy
   if (!scrollToHandled) {
-    handleScrollTo({ delay: true });
+    await handleScrollTo({ delay: true });
   }
 };
 
@@ -724,7 +729,7 @@ const getNetworkAndChainId = async () => {
     });
     handleNewNetwork(networkId);
 
-    handleEIP1559Support();
+    await handleEIP1559Support();
   } catch (err) {
     console.error(err);
   }
@@ -791,7 +796,7 @@ const initializeProvider = async () => {
 
   if (isMetaMaskInstalled()) {
     provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+    await getNetworkAndChainId();
 
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
@@ -808,7 +813,7 @@ const initializeProvider = async () => {
       console.error('Error on init when getting accounts', err);
     }
   } else {
-    handleScrollTo();
+    await handleScrollTo();
   }
 };
 
@@ -936,14 +941,14 @@ const initializeContracts = () => {
 // Must be called after the provider or connect acccounts change
 // Updates form elements content and disabled status
 export const updateFormElements = () => {
-  const accountButtonsDisabled =
-    !isMetaMaskInstalled() || !isMetaMaskConnected();
-  if (accountButtonsDisabled) {
-    for (const button of allConnectedButtons) {
-      button.disabled = true;
-    }
-    clearDisplayElements();
-  }
+  // const accountButtonsDisabled =
+  //   !isMetaMaskInstalled() || !isMetaMaskConnected();
+  // if (accountButtonsDisabled) {
+  //   for (const button of allConnectedButtons) {
+  //     button.disabled = true;
+  //   }
+  //   clearDisplayElements();
+  // }
   if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
@@ -1008,19 +1013,19 @@ const updateOnboardElements = () => {
     onboardButton.disabled = false;
   }
 
-  if (isWalletConnectConnected) {
-    if (onboarding) {
-      onboarding.stopOnboarding();
-    }
-    provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+  // if (isWalletConnectConnected) {
+  //   if (onboarding) {
+  //     onboarding.stopOnboarding();
+  //   }
+  //   provider.autoRefreshOnNetworkChange = false;
+  //   getNetworkAndChainId();
 
-    provider.on('chainChanged', handleNewChain);
-    provider.on('chainChanged', handleEIP1559Support);
-    provider.on('chainChanged', handleNewNetwork);
-    provider.on('accountsChanged', handleNewAccounts);
-    provider.on('accountsChanged', handleEIP1559Support);
-  }
+  //   provider.on('chainChanged', handleNewChain);
+  //   provider.on('chainChanged', handleEIP1559Support);
+  //   provider.on('chainChanged', handleNewNetwork);
+  //   provider.on('accountsChanged', handleNewAccounts);
+  //   provider.on('accountsChanged', handleEIP1559Support);
+  // }
 };
 
 const updateContractElements = () => {
@@ -1813,7 +1818,7 @@ const initializeFormElements = () => {
       });
     });
 
-    Promise.all(promises).then((result) => {
+    await Promise.all(promises).then((result) => {
       console.log('result', result);
     });
   };
@@ -2043,7 +2048,7 @@ const initializeFormElements = () => {
     });
   };
 
-  type.onchange = async () => {
+  type.onchange = () => {
     if (type.value === '0x0') {
       gasPriceDiv.style.display = 'block';
       maxFeeDiv.style.display = 'none';
@@ -2150,7 +2155,7 @@ const initializeFormElements = () => {
   /**
    * Sign In With Ethereum
    */
-  siwe.onclick = async () => {
+  siwe.onclick = () => {
     const domain = window.location.host;
     const from = accounts[0];
     const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
@@ -2160,7 +2165,7 @@ const initializeFormElements = () => {
   /**
    * Sign In With Ethereum (with Resources)
    */
-  siweResources.onclick = async () => {
+  siweResources.onclick = () => {
     const domain = window.location.host;
     const from = accounts[0];
     const siweMessageResources = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nNot Before: 2022-03-17T12:45:13.610Z\nRequest ID: some_id\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
@@ -2170,7 +2175,7 @@ const initializeFormElements = () => {
   /**
    * Sign In With Ethereum (Bad Domain)
    */
-  siweBadDomain.onclick = async () => {
+  siweBadDomain.onclick = () => {
     const domain = 'metamask.badactor.io';
     const from = accounts[0];
     const siweMessageBadDomain = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
@@ -2180,7 +2185,7 @@ const initializeFormElements = () => {
   /**
    * Sign In With Ethereum (Bad Account)
    */
-  siweBadAccount.onclick = async () => {
+  siweBadAccount.onclick = () => {
     const domain = window.location.host;
     const from = '0x0000000000000000000000000000000000000000';
     const siweMessageBadAccount = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
@@ -2190,7 +2195,7 @@ const initializeFormElements = () => {
   /**
    * Sign In With Ethereum (Malformed)
    */
-  siweMalformed.onclick = async () => {
+  siweMalformed.onclick = () => {
     const domain = window.location.host;
     const from = accounts[0];
     const siweMessageMissing = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z`;
@@ -2497,7 +2502,7 @@ const initializeFormElements = () => {
   /**
    *  Sign Typed Data V4 Verification
    */
-  signTypedDataV4Verify.onclick = async () => {
+  signTypedDataV4Verify.onclick = () => {
     const msgParams = {
       domain: {
         chainId: chainIdInt,
@@ -2659,7 +2664,7 @@ const initializeFormElements = () => {
   /**
    *  Sign Permit Verification
    */
-  signPermitVerify.onclick = async () => {
+  signPermitVerify.onclick = () => {
     const from = accounts[0];
 
     const domain = {
@@ -3169,7 +3174,7 @@ const initializeFormElements = () => {
     for (let i = 0; i < 10; i++) {
       try {
         const from = accounts[0];
-        provider.request({
+        await provider.request({
           method: 'eth_signTypedData_v4',
           params: [
             from,
@@ -3188,7 +3193,7 @@ const initializeFormElements = () => {
   sendEIP1559Batch.onclick = async () => {
     for (let i = 0; i < 10; i++) {
       try {
-        provider.request({
+        await provider.request({
           method: 'eth_sendTransaction',
           params: [
             {
@@ -3349,6 +3354,9 @@ const setDeeplinks = () => {
  */
 
 const initialize = async () => {
+  await new Promise((resolve) => {
+    setTimeout(resolve, 2000);
+  });
   setActiveProviderDetailWindowEthereum();
   detectEip6963();
   setActiveProviderDetail(providerDetails[0]);

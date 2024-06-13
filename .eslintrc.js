@@ -13,6 +13,7 @@ module.exports = {
 
   rules: {
     'no-use-before-define': 'off',
+    'require-await': 'error',
   },
 
   overrides: [

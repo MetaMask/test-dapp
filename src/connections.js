@@ -51,7 +51,7 @@ export async function handleSdkConnect(name, button, isConnected) {
     const provider = sdk.getProvider();
     const uuid = sdk.getChannelId();
     const providerDetail = _setProviderDetail(provider, name, uuid);
-    setActiveProviderDetail(providerDetail);
+    await setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
     updateSdkConnectionState(true);
     button.innerText = 'Sdk Connect - Disconnect';
@@ -84,7 +84,7 @@ export async function handleWalletConnect(name, button, isConnected) {
     const { provider } = walletConnect.getWalletProvider();
     const uuid = provider.signer.uri;
     const providerDetail = _setProviderDetail(provider, name, uuid);
-    setActiveProviderDetail(providerDetail);
+    await setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
     updateWalletConnectState(true);
     button.innerText = 'Wallet Connect - Disconnect';
