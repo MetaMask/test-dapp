@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [8.8.0]
+### Added
+- Add json RPC result text area ([#334](https://github.com/MetaMask/test-dapp/pull/334))
+- Add token contract addresses and consolidate names ([#332](https://github.com/MetaMask/test-dapp/pull/332))
+- Add SDK support ([#331](https://github.com/MetaMask/test-dapp/pull/331))
+- Add Blockaid bypass for send value without 0x prefix ([#329](https://github.com/MetaMask/test-dapp/pull/329))
+- Add malicious deeplinks, bypasses and reorg ([#328](https://github.com/MetaMask/test-dapp/pull/328))
+
+### Changed
+- Change `eth-sig-util` to `@metamask/eth-sig-util` ([#286](https://github.com/MetaMask/test-dapp/pull/286))
+
 ## [8.7.0]
 ### Added
 - Add support for Send EIP1559 tx's without suggested gas values ([#320](https://github.com/MetaMask/test-dapp/pull/320))
@@ -178,7 +189,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.7.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.8.0...HEAD
+[8.8.0]: https://github.com/MetaMask/test-dapp/compare/v8.7.0...v8.8.0
 [8.7.0]: https://github.com/MetaMask/test-dapp/compare/v8.6.0...v8.7.0
 [8.6.0]: https://github.com/MetaMask/test-dapp/compare/v8.5.0...v8.6.0
 [8.5.0]: https://github.com/MetaMask/test-dapp/compare/v8.4.0...v8.5.0
