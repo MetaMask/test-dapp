@@ -28,17 +28,17 @@ export const initializeWeb3Modal = () => {
 
       const web3Modal = createWeb3Modal({
         ethersConfig: defaultConfig({ metadata: dappMetadata }),
-        projectId: 'e6360eaee594162688065f1c70c863b7', // test id
+        projectId: 'e6360eaee594162688065f1c70c863b7',
       });
 
-      console.log('Web3Modal initialized successfully on Android');
+      console.log('Web3Modal initialized successfully');
       return web3Modal;
     } catch (error) {
-      console.error('Error initializing Web3Modal:', error);
+      console.error('Error initializing Web3Modal', error);
     }
   }
 
-  console.log('Web3Modal is not initialized as the platform is Android');
+  console.log('Web3Modal is not initialized');
   return null;
 };
 
