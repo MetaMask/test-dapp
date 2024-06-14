@@ -38,7 +38,7 @@ export const initializeWeb3Modal = () => {
     }
   }
 
-  console.log('Web3Modal is not initialized as the platform is not Android');
+  console.log('Web3Modal is not initialized as the platform is Android');
   return null;
 };
 
