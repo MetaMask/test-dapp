@@ -554,7 +554,7 @@ const detectEip6963 = () => {
 export const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
   provider = providerDetail.provider;
-  initializeProvider();
+  await initializeProvider();
 
   try {
     const newAccounts = await provider.request({
@@ -574,7 +574,7 @@ export const setActiveProviderDetail = async (providerDetail) => {
   updateFormElements();
 };
 
-const setActiveProviderDetailWindowEthereum = () => {
+const setActiveProviderDetailWindowEthereum = async () => {
   const providerDetail = {
     info: {
       uuid: '',
@@ -584,7 +584,7 @@ const setActiveProviderDetailWindowEthereum = () => {
     provider: window.ethereum,
   };
 
-  setActiveProviderDetail(providerDetail);
+  await setActiveProviderDetail(providerDetail);
 };
 
 const existsProviderDetail = (newProviderDetail) => {
@@ -3349,9 +3349,9 @@ const setDeeplinks = () => {
  */
 
 const initialize = async () => {
-  setActiveProviderDetailWindowEthereum();
+  await setActiveProviderDetailWindowEthereum();
   detectEip6963();
-  setActiveProviderDetail(providerDetails[0]);
+  await setActiveProviderDetail(providerDetails[0]);
   initializeFormElements();
   setDeeplinks();
 };
