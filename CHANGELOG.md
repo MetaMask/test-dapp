@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [8.8.1]
+### Fixed
+- Fix issue with E2E tests failing on Android when running within Detox environment ([#343](https://github.com/MetaMask/test-dapp/pull/343))
+- Fix yarn.lock syncing to remove unnecessary dependencies and improve package cleanliness ([#339](https://github.com/MetaMask/test-dapp/pull/339))
+
 ## [8.8.0]
 ### Added
 - Add json RPC result text area ([#334](https://github.com/MetaMask/test-dapp/pull/334))
@@ -189,7 +194,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.8.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.8.1...HEAD
+[8.8.1]: https://github.com/MetaMask/test-dapp/compare/v8.8.0...v8.8.1
 [8.8.0]: https://github.com/MetaMask/test-dapp/compare/v8.7.0...v8.8.0
 [8.7.0]: https://github.com/MetaMask/test-dapp/compare/v8.6.0...v8.7.0
 [8.6.0]: https://github.com/MetaMask/test-dapp/compare/v8.5.0...v8.6.0
