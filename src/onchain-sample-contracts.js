@@ -7,7 +7,6 @@ export const NETWORKS_BY_CHAIN_ID = {
   42161: 'arbitrum',
   11155111: 'sepolia',
   8453: 'base',
-  204: 'opBnb',
 };
 
 export const ERC20_SAMPLE_CONTRACTS = {
@@ -18,7 +17,6 @@ export const ERC20_SAMPLE_CONTRACTS = {
   arbitrum: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
   sepolia: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
   base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-  opBnb: '0x9e5aac1ba1a2e6aed6b32689dfcf62a509ca96f3',
 };
 
 export const ERC721_SAMPLE_CONTRACTS = {
@@ -29,5 +27,4 @@ export const ERC721_SAMPLE_CONTRACTS = {
   arbitrum: '0x8659a4876369b94515a86048fe7f99daba6b9a7d',
   sepolia: '0xbba60aa8144579e07c6db64121b0f608ab6f0c89',
   base: '0x90997fc967e75b7e69f899133aab31d197beb802',
-  opBnb: '0x61d7e121185b1d7902a3da7f3c8ac9faaee8863b',
 };
