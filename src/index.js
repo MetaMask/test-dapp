@@ -1274,7 +1274,7 @@ const initializeFormElements = () => {
     const nftsContractAddress = nftsContract.address;
     let watchNftsResult;
     try {
-      watchNftsResult = await ethereum.sendAsync(
+      watchNftsResult = await provider.sendAsync(
         Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
           (tokenId) => {
             return {
@@ -1508,7 +1508,7 @@ const initializeFormElements = () => {
 
   watchAssetButton.onclick = async () => {
     try {
-      const watchAssetResult = await ethereum.request({
+      const watchAssetResult = await provider.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC1155',
