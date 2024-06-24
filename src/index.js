@@ -2056,22 +2056,22 @@ const initializeFormElements = () => {
   walletSwap.onclick = async () => {
     const params = [
       {
-        from: [
+        fromToken: [
           {
-            // 0x6b175474e89094c44da98b954eedeac495271d0f
-            token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-            // token_address: '0x0000000000000000000000000000000000000000',
-            chainId: '0x89',
-            amount: '0xDE0B6B3A7640000',
+            // Convert to CAIP-10 format: eip155:1:0x6B175474E89094C44Da98b954EedeAC495271d0F
+            address: 'eip155:1:0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            value: '0xDE0B6B3A7640000',
           },
         ],
-        to: {
-          //0x0000000000000000000000000000000000000000
-          // token_address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-          token_address: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6',
-          chainId: '0x89',
+        toToken: {
+          // Convert to CAIP-10 format: eip155:1:0x4bf5dc91E2555449293D7824028Eb8Fe5879B689
+          address: 'eip155:1:0x0000000000000000000000000000000000000000',
         },
-        user_address: accounts[0], // we need to pass the wallet address that the user is having the intetion
+        // Assuming accounts[0] is in the format of a standard Ethereum address,
+        // you need to convert it to CAIP-10 format as well.
+        // This conversion assumes accounts[0] is something like '0x123...'
+        // and converts it to 'eip155:1:0x123...'
+        user_address: `eip155:1:${accounts[0]}`, // Convert the user's wallet address to CAIP-10 format
       },
     ];
 
