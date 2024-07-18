@@ -117,6 +117,12 @@ const revokeAccountsPermissionButton = document.getElementById(
   'revokeAccountsPermission',
 );
 
+// Provider Authorize Section
+const providerAuthorizeButton = document.getElementById('providerAuthorize');
+const providerAuthorizeResult = document.getElementById(
+  'providerAuthorizeResult',
+);
+
 // Contract Section
 const deployButton = document.getElementById('deployButton');
 const depositButton = document.getElementById('depositButton');
@@ -2007,6 +2013,66 @@ const initializeFormElements = () => {
       });
     } catch (err) {
       permissionsResult.innerHTML = `${err.message}`;
+    }
+  };
+
+  /**
+   * Provider Authorize
+   */
+
+  providerAuthorizeButton.onclick = async () => {
+    try {
+      const datePlusOneYear = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      );
+      const expiry = datePlusOneYear.toISOString();
+      const session = await provider.request({
+        method: 'provider_authorize',
+        params: {
+          requiredScopes: {
+            'eip155': {
+              scopes: ['eip155:1', 'eip155:0xe708'],
+              methods: [
+                'eth_sendTransaction',
+                'eth_accounts',
+                'eth_blockNumber',
+                'eth_getBalance',
+                'personal_sign',
+              ],
+              notifications: ['accountsChanged', 'chainChanged'],
+            },
+            'eip155:0xaa36a7': {
+              methods: ['eth_blockNumber'],
+              notifications: ['accountsChanged', 'chainChanged'],
+            },
+            'wallet': {
+              methods: [
+                'wallet_getPermissions',
+              ],
+              notifications: [],
+            },
+          },
+          optionalScopes: {
+            'eip155:64': {
+              methods: [
+                'eth_blockNumber',
+                'eth_getBalance',
+                'eth_getBlockByHash',
+                'eth_getBlockByNumber',
+              ],
+              notifications: ['accountsChanged', 'chainChanged'],
+            },
+          },
+          sessionProperties: {
+            expiry,
+            'caip154-mandatory': 'true',
+          },
+        },
+      });
+      providerAuthorizeResult.innerHTML = JSON.stringify(session, null, 2);
+    } catch (err) {
+      console.error(err);
+      providerAuthorizeResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
