@@ -2312,12 +2312,7 @@ const initializeFormElements = () => {
   signTypedDataV3.onclick = async () => {
     const msgParams = {
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Person: [
           { name: 'name', type: 'string' },
           { name: 'wallet', type: 'address' },
@@ -2367,12 +2362,7 @@ const initializeFormElements = () => {
   signTypedDataV3Verify.onclick = async () => {
     const msgParams = {
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Person: [
           { name: 'name', type: 'string' },
           { name: 'wallet', type: 'address' },
@@ -2458,12 +2448,7 @@ const initializeFormElements = () => {
       },
       primaryType: 'Mail',
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Group: [
           { name: 'name', type: 'string' },
           { name: 'members', type: 'Person[]' },
@@ -2528,12 +2513,7 @@ const initializeFormElements = () => {
       },
       primaryType: 'Mail',
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Group: [
           { name: 'name', type: 'string' },
           { name: 'members', type: 'Person[]' },
@@ -2575,22 +2555,30 @@ const initializeFormElements = () => {
   /**
    *  Sign Permit
    */
-  signPermit.onclick = async () => {
+  const EIP712Domain = [
+    { name: 'name', type: 'string' },
+    { name: 'version', type: 'string' },
+    { name: 'chainId', type: 'uint256' },
+    { name: 'verifyingContract', type: 'address' },
+  ];
+
+  const Permit = [
+    { name: 'owner', type: 'address' },
+    { name: 'spender', type: 'address' },
+    { name: 'value', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' },
+  ];
+
+  const permitMsgParamsDomain = {
+    name: 'MyToken',
+    version: '1',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    chainId: chainIdInt,
+  };
+
+  function getPermitMsgParams() {
     const from = accounts[0];
-
-    const domain = {
-      name: 'MyToken',
-      version: '1',
-      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-      chainId: chainIdInt,
-    };
-
-    const EIP712Domain = [
-      { name: 'name', type: 'string' },
-      { name: 'version', type: 'string' },
-      { name: 'chainId', type: 'uint256' },
-      { name: 'verifyingContract', type: 'address' },
-    ];
 
     const permit = {
       owner: from,
@@ -2600,40 +2588,37 @@ const initializeFormElements = () => {
       deadline: 50000000000,
     };
 
-    const Permit = [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
-    ];
-
-    const splitSig = (sig) => {
-      const pureSig = sig.replace('0x', '');
-
-      const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
-      const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
-      const _v = Buffer.from(
-        parseInt(pureSig.substring(128, 130), 16).toString(),
-      );
-
-      return { _r, _s, _v };
-    };
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    const msgParams = {
+    return {
       types: {
         EIP712Domain,
         Permit,
       },
       primaryType: 'Permit',
-      domain,
+      domain: permitMsgParamsDomain,
       message: permit,
     };
+  }
+
+  function splitSig(sig) {
+    const pureSig = sig.replace('0x', '');
+
+    const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
+    const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
+    const _v = Buffer.from(
+      parseInt(pureSig.substring(128, 130), 16).toString(),
+    );
+
+    return { _r, _s, _v };
+  }
+
+  signPermit.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = getPermitMsgParams();
+
+    let sign;
+    let r;
+    let s;
+    let v;
 
     try {
       sign = await provider.request({
@@ -2661,46 +2646,8 @@ const initializeFormElements = () => {
    */
   signPermitVerify.onclick = async () => {
     const from = accounts[0];
+    const msgParams = getPermitMsgParams();
 
-    const domain = {
-      name: 'MyToken',
-      version: '1',
-      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-      chainId: chainIdInt,
-    };
-
-    const EIP712Domain = [
-      { name: 'name', type: 'string' },
-      { name: 'version', type: 'string' },
-      { name: 'chainId', type: 'uint256' },
-      { name: 'verifyingContract', type: 'address' },
-    ];
-
-    const permit = {
-      owner: from,
-      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
-      value: 3000,
-      nonce: 0,
-      deadline: 50000000000,
-    };
-
-    const Permit = [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
-    ];
-
-    const msgParams = {
-      types: {
-        EIP712Domain,
-        Permit,
-      },
-      primaryType: 'Permit',
-      domain,
-      message: permit,
-    };
     try {
       const sign = signPermitResult.innerHTML;
       const recoveredAddr = recoverTypedSignature({
@@ -2735,12 +2682,7 @@ const initializeFormElements = () => {
         verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
       },
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         OrderComponents: [
           { name: 'consideration', type: 'ConsiderationItem[+' },
         ],
@@ -2800,12 +2742,7 @@ const initializeFormElements = () => {
       },
       primaryType: 'Mail',
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Group: [
           { name: 'name', type: 'string' },
           { name: 'members', type: 'Person[]' },
@@ -2852,12 +2789,7 @@ const initializeFormElements = () => {
       },
       primaryType: 'Wallet',
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Wallet: [{ name: 'name', type: 'string' }],
       },
     };
@@ -2890,12 +2822,7 @@ const initializeFormElements = () => {
       },
       primaryType: 'Non-Existent',
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Wallet: [{ name: 'name', type: 'string' }],
       },
     };
@@ -2944,12 +2871,7 @@ const initializeFormElements = () => {
         ],
       },
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Group: [
           { name: 'name', type: 'string' },
           { name: 'members', type: 'Person[]' },
@@ -2993,12 +2915,7 @@ const initializeFormElements = () => {
       },
       primaryType: 'Wallet',
       types: {
-        EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
-        ],
+        EIP712Domain,
         Wallet: [{ name: 'name', type: 'string' }],
       },
     };
