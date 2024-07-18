@@ -2562,6 +2562,14 @@ const initializeFormElements = () => {
     { name: 'verifyingContract', type: 'address' },
   ];
 
+  const Permit = [
+    { name: 'owner', type: 'address' },
+    { name: 'spender', type: 'address' },
+    { name: 'value', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' },
+  ];
+
   const permitMsgParamsDomain = {
     name: 'MyToken',
     version: '1',
@@ -2579,14 +2587,6 @@ const initializeFormElements = () => {
       nonce: 0,
       deadline: 50000000000,
     };
-
-    const Permit = [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
-    ];
 
     return {
       types: {
