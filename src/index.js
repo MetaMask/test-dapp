@@ -2599,21 +2599,21 @@ const initializeFormElements = () => {
     };
   }
 
+  function splitSig(sig) {
+    const pureSig = sig.replace('0x', '');
+
+    const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
+    const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
+    const _v = Buffer.from(
+      parseInt(pureSig.substring(128, 130), 16).toString(),
+    );
+
+    return { _r, _s, _v };
+  }
+
   signPermit.onclick = async () => {
     const from = accounts[0];
     const msgParams = getPermitMsgParams();
-
-    const splitSig = (sig) => {
-      const pureSig = sig.replace('0x', '');
-
-      const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
-      const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
-      const _v = Buffer.from(
-        parseInt(pureSig.substring(128, 130), 16).toString(),
-      );
-
-      return { _r, _s, _v };
-    };
 
     let sign;
     let r;
