@@ -219,16 +219,52 @@
             <div class="card">
               <div class="card-body">
                 <h4 class="card-title">
-                  CAIP-25 Actions
+                  Multichain Actions
                 </h4>
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="providerAuthorize"
                 >
-                  Provider Authorize
+                  Send Provider Authorize
                 </button>
-                <pre class="alert alert-secondary" id="providerAuthorizeResult"></pre>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="providerAuthorizeFailing"
+                >
+                  Send Provider Authorize (Failing)
+                </button>
+                <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="providerRequestMainnetBlockNumber"
+              >
+                Send Mainnet Block Number Provider Request
+              </button>
+                <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="providerRequestMainnetGasPrice"
+              >
+                Send Mainnet Gas Price Provider Request
+              </button>
+                <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="providerRequestLineaBlockNumber"
+              >
+                Send Linea Block Number Provider Request
+              </button>
+                <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="providerRequestLineaGasPrice"
+              >
+                Send Linea Gas Price Provider Request
+              </button>
+                <button
+                class="btn btn-primary btn-lg btn-block mb-3"
+                id="providerRequestWalletGetPermissions"
+              >
+                Send Wallet Get Permissions Provider Request
+              </button>
+              <pre class="alert alert-secondary" id="multichainResult"></pre>
               </div>
             </div>
           </div>

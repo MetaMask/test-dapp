@@ -119,9 +119,25 @@ const revokeAccountsPermissionButton = document.getElementById(
 
 // Provider Authorize Section
 const providerAuthorizeButton = document.getElementById('providerAuthorize');
-const providerAuthorizeResult = document.getElementById(
-  'providerAuthorizeResult',
+const providerAuthorizeFailingButton = document.getElementById(
+  'providerAuthorizeFailing',
 );
+const providerRequestMainnetBlockNumber = document.getElementById(
+  'providerRequestMainnetBlockNumber',
+);
+const providerRequestMainnetGasPrice = document.getElementById(
+  'providerRequestMainnetGasPrice',
+);
+const providerRequestLineaBlockNumber = document.getElementById(
+  'providerRequestLineaBlockNumber',
+);
+const providerRequestLineaGasPrice = document.getElementById(
+  'providerRequestLineaGasPrice',
+);
+const providerRequestWalletGetPermissions = document.getElementById(
+  'providerRequestWalletGetPermissions',
+);
+const multichainResult = document.getElementById('multichainResult');
 
 // Contract Section
 const deployButton = document.getElementById('deployButton');
@@ -2019,7 +2035,7 @@ const initializeFormElements = () => {
   };
 
   /**
-   * Provider Authorize
+   * Multichain
    */
 
   providerAuthorizeButton.onclick = async () => {
@@ -2032,33 +2048,17 @@ const initializeFormElements = () => {
         method: 'provider_authorize',
         params: {
           requiredScopes: {
-            'eip155': {
-              scopes: ['eip155:1', 'eip155:59144'],
-              methods: [
-                'eth_sendTransaction',
-                'eth_accounts',
-                'eth_blockNumber',
-                'eth_getBalance',
-                'personal_sign',
-              ],
+            'eip155:1': {
+              methods: ['eth_blockNumber', 'eth_gasPrice'],
+              notifications: ['accountsChanged', 'chainChanged'],
+            },
+            'eip155:59144': {
+              methods: ['eth_blockNumber'],
               notifications: ['accountsChanged', 'chainChanged'],
             },
             'wallet': {
-              methods: [
-                'wallet_getPermissions',
-              ],
+              methods: ['wallet_getPermissions'],
               notifications: [],
-            },
-          },
-          optionalScopes: {
-            'eip155:11155111': {
-              methods: [
-                'eth_blockNumber',
-                'eth_getBalance',
-                'eth_getBlockByHash',
-                'eth_getBlockByNumber',
-              ],
-              notifications: ['accountsChanged', 'chainChanged'],
             },
           },
           sessionProperties: {
@@ -2067,10 +2067,129 @@ const initializeFormElements = () => {
           },
         },
       });
-      providerAuthorizeResult.innerHTML = JSON.stringify(session, null, 2);
+      multichainResult.innerHTML = JSON.stringify(session, null, 2);
     } catch (err) {
       console.error(err);
-      providerAuthorizeResult.innerHTML = `Error: ${err.message}`;
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerAuthorizeFailingButton.onclick = async () => {
+    try {
+      const datePlusOneYear = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      );
+      const expiry = datePlusOneYear.toISOString();
+      const session = await provider.request({
+        method: 'provider_authorize',
+        params: {
+          requiredScopes: {
+            eip155: {
+              scopes: ['invalid:'],
+              methods: [],
+              notifications: [],
+            },
+          },
+          sessionProperties: {
+            expiry,
+            'caip154-mandatory': 'true',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(session, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestMainnetBlockNumber.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:1',
+          request: {
+            method: 'eth_blockNumber',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestMainnetGasPrice.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:1',
+          request: {
+            method: 'eth_gasPrice',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestLineaBlockNumber.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:59144',
+          request: {
+            method: 'eth_blockNumber',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestLineaGasPrice.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:59144',
+          request: {
+            method: 'eth_gasPrice',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestWalletGetPermissions.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'wallet',
+          request: {
+            method: 'wallet_getPermissions',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
@@ -3367,7 +3486,9 @@ const initializeFormElements = () => {
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
   useExternallyConnectableProviderButton.onclick =
     setActiveProviderDetailExternallyConnectable;
-  externallyConnectableExtensionId.value = localStorage.getItem('externally_connectable_extension_id');
+  externallyConnectableExtensionId.value = localStorage.getItem(
+    'externally_connectable_extension_id',
+  );
 };
 
 const setDeeplinks = () => {
