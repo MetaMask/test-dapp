@@ -7,6 +7,8 @@ import {
 } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
+import { MetaMaskInpageProvider } from '@metamask/providers';
+import PortStream from 'extension-port-stream';
 import {
   handleSdkConnect,
   handleWalletConnect,
@@ -19,6 +21,7 @@ import {
   NETWORKS_BY_CHAIN_ID,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
+import { createCaipStream } from './caip-stream';
 
 const {
   hstBytecode,
@@ -56,6 +59,23 @@ if (!tokenDecimals) {
 const scrollTo = urlSearchParams.get('scrollTo');
 
 /**
+ * Browser
+ */
+const getBrowser = () => {
+  if ('chrome' in globalThis) {
+    // eslint-disable-next-line no-undef
+    return chrome;
+  }
+
+  if ('browser' in globalThis) {
+    // eslint-disable-next-line no-undef
+    return browser;
+  }
+
+  throw new Error('failed to resolve browser object');
+};
+
+/**
  * DOM
  */
 
@@ -68,6 +88,12 @@ const activeProviderIconResult = document.getElementById('activeProviderIcon');
 const providersDiv = document.getElementById('providers');
 const useWindowProviderButton = document.getElementById(
   'useWindowProviderButton',
+);
+const useExternallyConnectableProviderButton = document.getElementById(
+  'useExternallyConnectableProviderButton',
+);
+const externallyConnectableExtensionId = document.getElementById(
+  'externallyConnectableExtensionId',
 );
 
 // Dapp Status Section
@@ -90,6 +116,28 @@ const permissionsResult = document.getElementById('permissionsResult');
 const revokeAccountsPermissionButton = document.getElementById(
   'revokeAccountsPermission',
 );
+
+// Provider Authorize Section
+const providerAuthorizeButton = document.getElementById('providerAuthorize');
+const providerAuthorizeFailingButton = document.getElementById(
+  'providerAuthorizeFailing',
+);
+const providerRequestMainnetBlockNumber = document.getElementById(
+  'providerRequestMainnetBlockNumber',
+);
+const providerRequestMainnetGasPrice = document.getElementById(
+  'providerRequestMainnetGasPrice',
+);
+const providerRequestLineaBlockNumber = document.getElementById(
+  'providerRequestLineaBlockNumber',
+);
+const providerRequestLineaGasPrice = document.getElementById(
+  'providerRequestLineaGasPrice',
+);
+const providerRequestWalletGetPermissions = document.getElementById(
+  'providerRequestWalletGetPermissions',
+);
+const multichainResult = document.getElementById('multichainResult');
 
 // Contract Section
 const deployButton = document.getElementById('deployButton');
@@ -585,6 +633,34 @@ const setActiveProviderDetailWindowEthereum = async () => {
   };
 
   await setActiveProviderDetail(providerDetail);
+};
+
+const setActiveProviderDetailExternallyConnectable = () => {
+  const extensionId = externallyConnectableExtensionId.value;
+
+  localStorage.setItem('externally_connectable_extension_id', extensionId);
+
+  const extensionPort = getBrowser().runtime.connect(extensionId);
+  const portStream = new PortStream(extensionPort);
+  const connectionStream = createCaipStream(portStream);
+
+  const externallyConnectableProvider = new MetaMaskInpageProvider(
+    connectionStream,
+    {
+      shouldSendMetadata: true,
+    },
+  );
+
+  const providerDetail = {
+    info: {
+      uuid: '',
+      name: extensionId,
+      icon: '',
+    },
+    provider: externallyConnectableProvider,
+  };
+
+  setActiveProviderDetail(providerDetail);
 };
 
 const existsProviderDetail = (newProviderDetail) => {
@@ -1959,6 +2035,165 @@ const initializeFormElements = () => {
   };
 
   /**
+   * Multichain
+   */
+
+  providerAuthorizeButton.onclick = async () => {
+    try {
+      const datePlusOneYear = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      );
+      const expiry = datePlusOneYear.toISOString();
+      const session = await provider.request({
+        method: 'provider_authorize',
+        params: {
+          requiredScopes: {
+            'eip155:1': {
+              methods: ['eth_blockNumber', 'eth_gasPrice'],
+              notifications: ['accountsChanged', 'chainChanged'],
+            },
+            'eip155:59144': {
+              methods: ['eth_blockNumber'],
+              notifications: ['accountsChanged', 'chainChanged'],
+            },
+            'wallet': {
+              methods: ['wallet_getPermissions'],
+              notifications: [],
+            },
+          },
+          sessionProperties: {
+            expiry,
+            'caip154-mandatory': 'true',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(session, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerAuthorizeFailingButton.onclick = async () => {
+    try {
+      const datePlusOneYear = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      );
+      const expiry = datePlusOneYear.toISOString();
+      const session = await provider.request({
+        method: 'provider_authorize',
+        params: {
+          requiredScopes: {
+            eip155: {
+              scopes: ['invalid:'],
+              methods: [],
+              notifications: [],
+            },
+          },
+          sessionProperties: {
+            expiry,
+            'caip154-mandatory': 'true',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(session, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestMainnetBlockNumber.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:1',
+          request: {
+            method: 'eth_blockNumber',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestMainnetGasPrice.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:1',
+          request: {
+            method: 'eth_gasPrice',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestLineaBlockNumber.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:59144',
+          request: {
+            method: 'eth_blockNumber',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestLineaGasPrice.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:59144',
+          request: {
+            method: 'eth_gasPrice',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  providerRequestWalletGetPermissions.onclick = async () => {
+    try {
+      const result = await provider.request({
+        method: 'provider_request',
+        params: {
+          scope: 'wallet',
+          request: {
+            method: 'wallet_getPermissions',
+          },
+        },
+      });
+      multichainResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (err) {
+      console.error(err);
+      multichainResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
    * Encrypt / Decrypt
    */
 
@@ -3249,6 +3484,11 @@ const initializeFormElements = () => {
    */
 
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
+  useExternallyConnectableProviderButton.onclick =
+    setActiveProviderDetailExternallyConnectable;
+  externallyConnectableExtensionId.value = localStorage.getItem(
+    'externally_connectable_extension_id',
+  );
 };
 
 const setDeeplinks = () => {
