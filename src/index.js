@@ -2562,15 +2562,15 @@ const initializeFormElements = () => {
     { name: 'verifyingContract', type: 'address' },
   ];
 
+  const permitMsgParamsDomain = {
+    name: 'MyToken',
+    version: '1',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    chainId: chainIdInt,
+  };
+
   signPermit.onclick = async () => {
     const from = accounts[0];
-
-    const domain = {
-      name: 'MyToken',
-      version: '1',
-      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-      chainId: chainIdInt,
-    };
 
     const permit = {
       owner: from,
@@ -2611,7 +2611,7 @@ const initializeFormElements = () => {
         Permit,
       },
       primaryType: 'Permit',
-      domain,
+      domain: permitMsgParamsDomain,
       message: permit,
     };
 
@@ -2642,13 +2642,6 @@ const initializeFormElements = () => {
   signPermitVerify.onclick = async () => {
     const from = accounts[0];
 
-    const domain = {
-      name: 'MyToken',
-      version: '1',
-      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-      chainId: chainIdInt,
-    };
-
     const permit = {
       owner: from,
       spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
@@ -2671,7 +2664,7 @@ const initializeFormElements = () => {
         Permit,
       },
       primaryType: 'Permit',
-      domain,
+      domain: permitMsgParamsDomain,
       message: permit,
     };
     try {
