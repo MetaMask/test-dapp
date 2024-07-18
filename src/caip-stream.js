@@ -1,51 +1,51 @@
-import { isObject } from "@metamask/utils"
-import { Transform, pipeline, Duplex } from "readable-stream"
+import { isObject } from '@metamask/utils';
+import { Transform, pipeline, Duplex } from 'readable-stream';
 
 export class SplitStream extends Duplex {
   constructor(substream) {
-    super({ objectMode: true })
-    this.substream = substream ?? new SplitStream(this)
+    super({ objectMode: true });
+    this.substream = substream || new SplitStream(this);
   }
 
   _read() {
-    return undefined
+    return undefined;
   }
 
   _write(value, _encoding, callback) {
-    this.substream.push(value)
-    callback()
+    this.substream.push(value);
+    callback();
   }
 }
 
 export class CaipToMultiplexStream extends Transform {
   constructor() {
-    super({ objectMode: true })
+    super({ objectMode: true });
   }
 
   _write(value, _encoding, callback) {
-    if (isObject(value) && value.type === "caip-x") {
+    if (isObject(value) && value.type === 'caip-x') {
       this.push({
-        name: "metamask-provider",
-        data: value.data
-      })
+        name: 'metamask-provider',
+        data: value.data,
+      });
     }
-    callback()
+    callback();
   }
 }
 
 export class MultiplexToCaipStream extends Transform {
   constructor() {
-    super({ objectMode: true })
+    super({ objectMode: true });
   }
 
   _write(value, _encoding, callback) {
-    if (isObject(value) && value.name === "metamask-provider") {
+    if (isObject(value) && value.name === 'metamask-provider') {
       this.push({
-        type: "caip-x",
-        data: value.data
-      })
+        type: 'caip-x',
+        data: value.data,
+      });
     }
-    callback()
+    callback();
   }
 }
 
@@ -61,10 +61,10 @@ export class MultiplexToCaipStream extends Transform {
  * @param portStream - The source and sink duplex stream
  * @returns a new duplex stream that should be operated on instead of the original portStream
  */
-export const createCaipStream = portStream => {
-  const splitStream = new SplitStream()
-  const caipToMultiplexStream = new CaipToMultiplexStream()
-  const multiplexToCaipStream = new MultiplexToCaipStream()
+export const createCaipStream = (portStream) => {
+  const splitStream = new SplitStream();
+  const caipToMultiplexStream = new CaipToMultiplexStream();
+  const multiplexToCaipStream = new MultiplexToCaipStream();
 
   pipeline(
     portStream,
@@ -72,8 +72,8 @@ export const createCaipStream = portStream => {
     splitStream,
     multiplexToCaipStream,
     portStream,
-    err => console.log("MetaMask CAIP stream", err)
-  )
+    (err) => console.log('MetaMask CAIP stream', err),
+  );
 
-  return splitStream.substream
-}
+  return splitStream.substream;
+};

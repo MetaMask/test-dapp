@@ -21,7 +21,7 @@ import {
   NETWORKS_BY_CHAIN_ID,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
-import { createCaipStream } from './temp/caip-stream'
+import { createCaipStream } from './caip-stream';
 
 const {
   hstBytecode,
