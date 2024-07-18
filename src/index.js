@@ -7,6 +7,8 @@ import {
 } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
+import { MetaMaskInpageProvider } from '@metamask/providers';
+import PortStream from 'extension-port-stream';
 import {
   handleSdkConnect,
   handleWalletConnect,
@@ -19,6 +21,7 @@ import {
   NETWORKS_BY_CHAIN_ID,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
+import { createCaipStream } from './temp/caip-stream'
 
 const {
   hstBytecode,
@@ -56,6 +59,23 @@ if (!tokenDecimals) {
 const scrollTo = urlSearchParams.get('scrollTo');
 
 /**
+ * Browser
+ */
+const getBrowser = () => {
+  if ('chrome' in globalThis) {
+    // eslint-disable-next-line no-undef
+    return chrome;
+  }
+
+  if ('browser' in globalThis) {
+    // eslint-disable-next-line no-undef
+    return browser;
+  }
+
+  throw new Error('failed to resolve browser object');
+};
+
+/**
  * DOM
  */
 
@@ -68,6 +88,12 @@ const activeProviderIconResult = document.getElementById('activeProviderIcon');
 const providersDiv = document.getElementById('providers');
 const useWindowProviderButton = document.getElementById(
   'useWindowProviderButton',
+);
+const useExternallyConnectableProviderButton = document.getElementById(
+  'useExternallyConnectableProviderButton',
+);
+const externallyConnectableExtensionId = document.getElementById(
+  'externallyConnectableExtensionId',
 );
 
 // Dapp Status Section
@@ -585,6 +611,32 @@ const setActiveProviderDetailWindowEthereum = async () => {
   };
 
   await setActiveProviderDetail(providerDetail);
+};
+
+const setActiveProviderDetailExternallyConnectable = () => {
+  const extensionId = externallyConnectableExtensionId.value;
+
+  const extensionPort = getBrowser().runtime.connect(extensionId);
+  const portStream = new PortStream(extensionPort);
+  const connectionStream = createCaipStream(portStream);
+
+  const externallyConnectableProvider = new MetaMaskInpageProvider(
+    connectionStream,
+    {
+      shouldSendMetadata: true,
+    },
+  );
+
+  const providerDetail = {
+    info: {
+      uuid: '',
+      name: extensionId,
+      icon: '',
+    },
+    provider: externallyConnectableProvider,
+  };
+
+  setActiveProviderDetail(providerDetail);
 };
 
 const existsProviderDetail = (newProviderDetail) => {
@@ -3249,6 +3301,8 @@ const initializeFormElements = () => {
    */
 
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
+  useExternallyConnectableProviderButton.onclick =
+    setActiveProviderDetailExternallyConnectable;
 };
 
 const setDeeplinks = () => {
