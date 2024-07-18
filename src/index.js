@@ -2033,7 +2033,7 @@ const initializeFormElements = () => {
         params: {
           requiredScopes: {
             'eip155': {
-              scopes: ['eip155:1', 'eip155:0xe708'],
+              scopes: ['eip155:1', 'eip155:59144'],
               methods: [
                 'eth_sendTransaction',
                 'eth_accounts',
@@ -2041,10 +2041,6 @@ const initializeFormElements = () => {
                 'eth_getBalance',
                 'personal_sign',
               ],
-              notifications: ['accountsChanged', 'chainChanged'],
-            },
-            'eip155:0xaa36a7': {
-              methods: ['eth_blockNumber'],
               notifications: ['accountsChanged', 'chainChanged'],
             },
             'wallet': {
@@ -2055,7 +2051,7 @@ const initializeFormElements = () => {
             },
           },
           optionalScopes: {
-            'eip155:64': {
+            'eip155:11155111': {
               methods: [
                 'eth_blockNumber',
                 'eth_getBalance',
