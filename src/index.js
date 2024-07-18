@@ -622,6 +622,8 @@ const setActiveProviderDetailWindowEthereum = async () => {
 const setActiveProviderDetailExternallyConnectable = () => {
   const extensionId = externallyConnectableExtensionId.value;
 
+  localStorage.setItem('externally_connectable_extension_id', extensionId);
+
   const extensionPort = getBrowser().runtime.connect(extensionId);
   const portStream = new PortStream(extensionPort);
   const connectionStream = createCaipStream(portStream);
@@ -3369,6 +3371,7 @@ const initializeFormElements = () => {
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
   useExternallyConnectableProviderButton.onclick =
     setActiveProviderDetailExternallyConnectable;
+  externallyConnectableExtensionId.value = localStorage.getItem('externally_connectable_extension_id');
 };
 
 const setDeeplinks = () => {
