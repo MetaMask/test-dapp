@@ -2569,7 +2569,7 @@ const initializeFormElements = () => {
     chainId: chainIdInt,
   };
 
-  signPermit.onclick = async () => {
+  function getPermitMsgParams() {
     const from = accounts[0];
 
     const permit = {
@@ -2588,6 +2588,21 @@ const initializeFormElements = () => {
       { name: 'deadline', type: 'uint256' },
     ];
 
+    return {
+      types: {
+        EIP712Domain,
+        Permit,
+      },
+      primaryType: 'Permit',
+      domain: permitMsgParamsDomain,
+      message: permit,
+    };
+  }
+
+  signPermit.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = getPermitMsgParams();
+
     const splitSig = (sig) => {
       const pureSig = sig.replace('0x', '');
 
@@ -2604,16 +2619,6 @@ const initializeFormElements = () => {
     let r;
     let s;
     let v;
-
-    const msgParams = {
-      types: {
-        EIP712Domain,
-        Permit,
-      },
-      primaryType: 'Permit',
-      domain: permitMsgParamsDomain,
-      message: permit,
-    };
 
     try {
       sign = await provider.request({
@@ -2641,32 +2646,8 @@ const initializeFormElements = () => {
    */
   signPermitVerify.onclick = async () => {
     const from = accounts[0];
+    const msgParams = getPermitMsgParams();
 
-    const permit = {
-      owner: from,
-      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
-      value: 3000,
-      nonce: 0,
-      deadline: 50000000000,
-    };
-
-    const Permit = [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
-    ];
-
-    const msgParams = {
-      types: {
-        EIP712Domain,
-        Permit,
-      },
-      primaryType: 'Permit',
-      domain: permitMsgParamsDomain,
-      message: permit,
-    };
     try {
       const sign = signPermitResult.innerHTML;
       const recoveredAddr = recoverTypedSignature({
