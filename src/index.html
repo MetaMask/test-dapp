@@ -204,6 +204,31 @@
                   Send Eth
                 </h4>
 
+                <div class="form-group">
+                  <label>From</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="fromInputSendEth"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>To</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="toInputSendEth"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="amountInputSendEth"
+                  />
+                </div>
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="sendButton"
@@ -221,9 +246,17 @@
                   Send EIP 1559 Transaction
                 </button>
                 <hr />
+                <label>Smart Contract Address</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  id="smartContractAddress"
+                />
+                <hr/>
                 <h4 class="card-title">
                   Piggy bank contract
                 </h4>
+
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
@@ -846,7 +879,7 @@
                 <h4>
                   Batch of 10 Malicious Transactions
                 </h4>
-          
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="sendEIP1559Batch"
@@ -857,7 +890,7 @@
                 <h4>
                   Queue of 10 Malicious Transactions
                 </h4>
-          
+
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="sendEIP1559Queue"
@@ -963,6 +996,16 @@
           <div
             class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
+            <div class="card full-width">
+              <div class="card-body">
+                <label>Address to sign</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  id="signMessageAddress"
+                />
+              </div>
+            </div>
             <div class="card full-width">
               <div class="card-body">
                 <h4>

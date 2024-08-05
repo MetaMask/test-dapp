@@ -41,11 +41,6 @@ const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
 const urlSearchParams = new URLSearchParams(window.location.search);
-let deployedContractAddress = urlSearchParams.get('contract');
-if (!ethers.utils.isAddress(deployedContractAddress)) {
-  deployedContractAddress = '';
-}
-
 const scrollTo = urlSearchParams.get('scrollTo');
 
 /**
@@ -96,6 +91,10 @@ const sendMultisigButton = document.getElementById('sendMultisigButton');
 const multisigContractStatus = document.getElementById(
   'multisigContractStatus',
 );
+const deployAddressSmartContract = document.getElementById(
+  'smartContractAddress',
+);
+const deployedContractAddress = deployAddressSmartContract.value;
 
 // NFTs Section
 const deployNFTsButton = document.getElementById('deployNFTsButton');
@@ -145,6 +144,9 @@ const eip747WatchButton = document.getElementById('eip747WatchButton');
 const eip747Status = document.getElementById('eip747Status');
 
 // Send Eth Section
+const fromDivSendEth = document.getElementById('fromInputSendEth');
+const toDivSendEth = document.getElementById('toInputSendEth');
+const amountSendEth = document.getElementById('amountInputSendEth');
 const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
 
@@ -192,6 +194,7 @@ const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
+const messageAddressSign = document.getElementById('signMessageAddress');
 const ethSign = document.getElementById('ethSign');
 const ethSignResult = document.getElementById('ethSignResult');
 const personalSign = document.getElementById('personalSign');
@@ -785,8 +788,20 @@ const closeProvider = () => {
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
   await provider.request({
-    method: 'wallet_switchEthereumChain',
-    params: [{ chainId: ethers.utils.hexValue(1287) }],
+    method: 'wallet_addEthereumChain',
+    params: [
+      {
+        chainId: ethers.utils.hexValue(1287),
+        chainName: 'Moonbase Alpha',
+        rpcUrls: ['https://moonbase-alpha.drpc.org'],
+        nativeCurrency: {
+          name: 'Dev',
+          symbol: 'DEV',
+          decimals: 18,
+        },
+        blockExplorerUrls: ['https://moonbase.moonscan.io'],
+      },
+    ],
   });
   initializeContracts();
   updateFormElements();
@@ -864,10 +879,7 @@ let erc1155Contract;
 const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(provider, {
-      chainId: 1287,
-      name: 'moonbase-alphanet',
-    });
+    ethersProvider = new ethers.providers.Web3Provider(provider);
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
@@ -1701,9 +1713,9 @@ const initializeFormElements = () => {
       method: 'eth_sendTransaction',
       params: [
         {
-          from: accounts[0],
-          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-          value: '0x0',
+          from: fromDivSendEth.value,
+          to: toDivSendEth.value,
+          value: amountSendEth.value,
           gasLimit: '0x5208',
           gasPrice: '0x2540be400',
           type: '0x0',
@@ -2083,7 +2095,7 @@ const initializeFormElements = () => {
         '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
       const ethResult = await provider.request({
         method: 'eth_sign',
-        params: [accounts[0], msg],
+        params: [messageAddressSign.value, msg],
       });
       ethSignResult.innerHTML = JSON.stringify(ethResult);
     } catch (err) {
@@ -2098,7 +2110,7 @@ const initializeFormElements = () => {
   personalSign.onclick = async () => {
     const exampleMessage = 'Example `personal_sign` message';
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
       const sign = await provider.request({
         method: 'personal_sign',
@@ -2118,7 +2130,7 @@ const initializeFormElements = () => {
 
   const siweSign = async (siweMessage) => {
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
       const sign = await provider.request({
         method: 'personal_sign',
@@ -2136,7 +2148,7 @@ const initializeFormElements = () => {
    */
   siwe.onclick = async () => {
     const domain = window.location.host;
-    const from = accounts[0];
+    const from = messageAddressSign.value;
     const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
     siweSign(siweMessage);
   };
@@ -2146,7 +2158,7 @@ const initializeFormElements = () => {
    */
   siweResources.onclick = async () => {
     const domain = window.location.host;
-    const from = accounts[0];
+    const from = messageAddressSign.value;
     const siweMessageResources = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nNot Before: 2022-03-17T12:45:13.610Z\nRequest ID: some_id\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
     siweSign(siweMessageResources);
   };
@@ -2156,7 +2168,7 @@ const initializeFormElements = () => {
    */
   siweBadDomain.onclick = async () => {
     const domain = 'metamask.badactor.io';
-    const from = accounts[0];
+    const from = messageAddressSign.value;
     const siweMessageBadDomain = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
     siweSign(siweMessageBadDomain);
   };
@@ -2176,7 +2188,7 @@ const initializeFormElements = () => {
    */
   siweMalformed.onclick = async () => {
     const domain = window.location.host;
-    const from = accounts[0];
+    const from = messageAddressSign.value;
     const siweMessageMissing = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z`;
     siweSign(siweMessageMissing);
   };
@@ -2187,7 +2199,7 @@ const initializeFormElements = () => {
   personalSignVerify.onclick = async () => {
     const exampleMessage = 'Example `personal_sign` message';
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
       const sign = personalSignResult.innerHTML;
       const recoveredAddr = recoverPersonalSignature({
@@ -2239,7 +2251,7 @@ const initializeFormElements = () => {
       },
     ];
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData',
         params: [msgParams, from],
@@ -2269,7 +2281,7 @@ const initializeFormElements = () => {
       },
     ];
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = signTypedDataResult.innerHTML;
       const recoveredAddr = await recoverTypedSignatureLegacy({
         data: msgParams,
@@ -2331,7 +2343,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v3',
         params: [from, JSON.stringify(msgParams)],
@@ -2386,7 +2398,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = signTypedDataV3Result.innerHTML;
       const recoveredAddr = await recoverTypedSignature({
         data: msgParams,
@@ -2463,7 +2475,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -2533,7 +2545,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = signTypedDataV4Result.innerHTML;
       const recoveredAddr = recoverTypedSignatureV4({
         data: msgParams,
@@ -2557,7 +2569,7 @@ const initializeFormElements = () => {
    *  Sign Permit
    */
   signPermit.onclick = async () => {
-    const from = accounts[0];
+    const from = messageAddressSign.value;
 
     const domain = {
       name: 'MyToken',
@@ -2641,7 +2653,7 @@ const initializeFormElements = () => {
    *  Sign Permit Verification
    */
   signPermitVerify.onclick = async () => {
-    const from = accounts[0];
+    const from = messageAddressSign.value;
 
     const domain = {
       name: 'MyToken',
@@ -2739,7 +2751,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -2803,7 +2815,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -2842,7 +2854,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -2880,7 +2892,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -2946,7 +2958,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -2983,7 +2995,7 @@ const initializeFormElements = () => {
       },
     };
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
@@ -3001,7 +3013,7 @@ const initializeFormElements = () => {
 
   sendWithInvalidValue.onclick = async () => {
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const send = await provider.request({
         method: 'eth_sendTransaction',
         params: [
@@ -3025,7 +3037,7 @@ const initializeFormElements = () => {
 
   sendWithInvalidTxType.onclick = async () => {
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const send = await provider.request({
         method: 'eth_sendTransaction',
         params: [
@@ -3050,7 +3062,7 @@ const initializeFormElements = () => {
 
   sendWithOddHexData.onclick = async () => {
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const send = await provider.request({
         method: 'eth_sendTransaction',
         params: [
@@ -3083,7 +3095,7 @@ const initializeFormElements = () => {
     }
 
     try {
-      const from = accounts[0];
+      const from = messageAddressSign.value;
       const send = await provider.request({
         method: 'eth_sendTransaction',
         params: [
