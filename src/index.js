@@ -557,7 +557,7 @@ export const setActiveProviderDetail = async (providerDetail) => {
   // but because the SDK is already init the window.ethereum has been injected
   // this doesn't mean we can refer to it directly as the connection may have
   // not been approved which is there uuid comes in as empty
-  if (!providerDetail || providerDetail.uuid === '') {
+  if (!providerDetail || providerDetail.info.uuid === '') {
     return;
   }
   provider = providerDetail.provider;
