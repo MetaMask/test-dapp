@@ -43,7 +43,7 @@
     "@metamask/eslint-config-nodejs": "^6.0.0",
     "@metamask/eth-sig-util": "^7.0.1",
     "@metamask/onboarding": "^1.0.0",
-    "@metamask/sdk": "^0.26.5",
+    "@metamask/sdk": "^0.27.0",
     "@openzeppelin/contracts": "4.9.6",
     "@walletconnect/modal": "^2.6.2",
     "@web3modal/ethers5": "^3.2.0",
