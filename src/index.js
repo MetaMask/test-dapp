@@ -635,8 +635,9 @@ const setActiveProviderDetailWindowEthereum = async () => {
   await setActiveProviderDetail(providerDetail);
 };
 
-const setActiveProviderDetailExternallyConnectable = () => {
-  const extensionId = externallyConnectableExtensionId.value;
+const setActiveProviderDetailExternallyConnectable = (storedExtensionId) => {
+  const extensionId =
+    storedExtensionId || externallyConnectableExtensionId.value;
 
   localStorage.setItem('externally_connectable_extension_id', extensionId);
 
@@ -2056,7 +2057,7 @@ const initializeFormElements = () => {
               methods: ['eth_blockNumber'],
               notifications: ['accountsChanged', 'chainChanged'],
             },
-            'wallet': {
+            wallet: {
               methods: ['wallet_getPermissions'],
               notifications: [],
             },
@@ -2111,6 +2112,7 @@ const initializeFormElements = () => {
           scope: 'eip155:1',
           request: {
             method: 'eth_blockNumber',
+            params: [],
           },
         },
       });
@@ -2129,6 +2131,7 @@ const initializeFormElements = () => {
           scope: 'eip155:1',
           request: {
             method: 'eth_gasPrice',
+            params: [],
           },
         },
       });
@@ -2147,6 +2150,7 @@ const initializeFormElements = () => {
           scope: 'eip155:59144',
           request: {
             method: 'eth_blockNumber',
+            params: [],
           },
         },
       });
@@ -2165,6 +2169,7 @@ const initializeFormElements = () => {
           scope: 'eip155:59144',
           request: {
             method: 'eth_gasPrice',
+            params: [],
           },
         },
       });
@@ -2182,7 +2187,8 @@ const initializeFormElements = () => {
         params: {
           scope: 'wallet',
           request: {
-            method: 'wallet_getPermissions',
+            method: 'wallet_getSession',
+            params: [],
           },
         },
       });
@@ -3484,8 +3490,8 @@ const initializeFormElements = () => {
    */
 
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
-  useExternallyConnectableProviderButton.onclick =
-    setActiveProviderDetailExternallyConnectable;
+  useExternallyConnectableProviderButton.onclick = () =>
+    setActiveProviderDetailExternallyConnectable();
   externallyConnectableExtensionId.value = localStorage.getItem(
     'externally_connectable_extension_id',
   );
@@ -3506,9 +3512,16 @@ const setDeeplinks = () => {
  */
 
 const initialize = async () => {
-  await setActiveProviderDetailWindowEthereum();
-  detectEip6963();
-  await setActiveProviderDetail(providerDetails[0]);
+  const extensionId = localStorage.getItem(
+    'externally_connectable_extension_id',
+  );
+  if (extensionId) {
+    await setActiveProviderDetailExternallyConnectable(extensionId);
+  } else {
+    await setActiveProviderDetailWindowEthereum();
+    detectEip6963();
+    await setActiveProviderDetail(providerDetails[0]);
+  }
   initializeFormElements();
   setDeeplinks();
 };
