@@ -553,6 +553,13 @@ const detectEip6963 = () => {
 
 export const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
+  // When the extension is not installed the providerDetails comes in undefined
+  // but because the SDK is already init the window.ethereum has been injected
+  // this doesn't mean we can refer to it directly as the connection may have
+  // not been approved which is there uuid comes in as empty
+  if (!providerDetail || providerDetail.info.uuid === '') {
+    return;
+  }
   provider = providerDetail.provider;
   await initializeProvider();
 
@@ -791,7 +798,7 @@ const initializeProvider = async () => {
 
   if (isMetaMaskInstalled()) {
     provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+    await getNetworkAndChainId();
 
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
@@ -3268,7 +3275,11 @@ const setDeeplinks = () => {
 const initialize = async () => {
   await setActiveProviderDetailWindowEthereum();
   detectEip6963();
-  await setActiveProviderDetail(providerDetails[0]);
+  // We only want to set the activeProviderDetail is there is one instead of
+  // assuming it exists
+  if (providerDetails.length > 0) {
+    await setActiveProviderDetail(providerDetails[0]);
+  }
   initializeFormElements();
   setDeeplinks();
 };
