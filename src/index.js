@@ -583,6 +583,12 @@ const setActiveProviderDetail = async (providerDetail) => {
       method: 'eth_accounts',
     });
     handleNewAccounts(newAccounts);
+    console.log('onononoin');
+    provider.on('chainChanged', handleNewChain);
+    provider.on('chainChanged', handleEIP1559Support);
+    provider.on('networkChanged', handleNewNetwork);
+    provider.on('accountsChanged', handleNewAccounts);
+    provider.on('accountsChanged', handleEIP1559Support);
   } catch (err) {
     console.error('Error on init when getting accounts', err);
   }
@@ -675,6 +681,7 @@ const handleNewProviderDetail = (newProviderDetail) => {
 };
 
 const handleNewAccounts = (newAccounts) => {
+  console.log(newAccounts, '12312321');
   accounts = newAccounts;
   updateFormElements();
 
@@ -803,30 +810,28 @@ const initializeProvider = async () => {
       },
     ],
   });
+  chainIdInt = 1287;
   initializeContracts();
   updateFormElements();
+  console.log('add event listener');
+  // eslint-disable-next-line require-atomic-updates
+  provider.autoRefreshOnNetworkChange = false;
 
-  if (isMetaMaskInstalled()) {
-    // eslint-disable-next-line require-atomic-updates
-    provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+  getNetworkAndChainId();
+  console.log('onononoin');
+  provider.on('chainChanged', handleNewChain);
+  provider.on('chainChanged', handleEIP1559Support);
+  provider.on('networkChanged', handleNewNetwork);
+  provider.on('accountsChanged', handleNewAccounts);
+  provider.on('accountsChanged', handleEIP1559Support);
 
-    provider.on('chainChanged', handleNewChain);
-    provider.on('chainChanged', handleEIP1559Support);
-    provider.on('networkChanged', handleNewNetwork);
-    provider.on('accountsChanged', handleNewAccounts);
-    provider.on('accountsChanged', handleEIP1559Support);
-
-    try {
-      const newAccounts = await provider.request({
-        method: 'eth_accounts',
-      });
-      handleNewAccounts(newAccounts);
-    } catch (err) {
-      console.error('Error on init when getting accounts', err);
-    }
-  } else {
-    handleScrollTo();
+  try {
+    const newAccounts = await provider.request({
+      method: 'eth_accounts',
+    });
+    handleNewAccounts(newAccounts);
+  } catch (err) {
+    console.error('Error on init when getting accounts', err);
   }
 };
 
@@ -1026,6 +1031,12 @@ const updateOnboardElements = () => {
           method: 'eth_requestAccounts',
         });
         handleNewAccounts(newAccounts);
+        console.log('onononoin');
+        provider.on('chainChanged', handleNewChain);
+        provider.on('chainChanged', handleEIP1559Support);
+        provider.on('networkChanged', handleNewNetwork);
+        provider.on('accountsChanged', handleNewAccounts);
+        provider.on('accountsChanged', handleEIP1559Support);
       } catch (error) {
         console.error(error);
       }
@@ -1041,7 +1052,7 @@ const updateOnboardElements = () => {
     }
     provider.autoRefreshOnNetworkChange = false;
     getNetworkAndChainId();
-
+    console.log('xyz');
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
     provider.on('chainChanged', handleNewNetwork);
@@ -1929,6 +1940,7 @@ const initializeFormElements = () => {
 
   getAccountsButton.onclick = async () => {
     try {
+      console.log('runnnn');
       const _accounts = await provider.request({
         method: 'eth_accounts',
       });
@@ -1945,7 +1957,7 @@ const initializeFormElements = () => {
         method: 'wallet_revokePermissions',
         params: [
           {
-            eth_accounts: {},
+            eth_accounts: '12312312312',
           },
         ],
       });
@@ -2422,6 +2434,7 @@ const initializeFormElements = () => {
    * Sign Typed Data V4
    */
   signTypedDataV4.onclick = async () => {
+    console.log(chainIdInt, 'chainId');
     const msgParams = {
       domain: {
         chainId: chainIdInt.toString(),
@@ -2492,6 +2505,7 @@ const initializeFormElements = () => {
    *  Sign Typed Data V4 Verification
    */
   signTypedDataV4Verify.onclick = async () => {
+    console.log(chainIdInt, 'chainId');
     const msgParams = {
       domain: {
         chainId: chainIdInt,
