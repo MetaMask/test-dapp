@@ -198,6 +198,7 @@ const messageAddressSign = document.getElementById('signMessageAddress');
 const ethSign = document.getElementById('ethSign');
 const ethSignResult = document.getElementById('ethSignResult');
 const personalSign = document.getElementById('personalSign');
+const personalSignCaseString = document.getElementById('personalSign_caseString');
 const personalSignResult = document.getElementById('personalSignResult');
 const personalSignVerify = document.getElementById('personalSignVerify');
 const personalSignVerifySigUtilResult = document.getElementById(
@@ -208,17 +209,25 @@ const personalSignVerifyECRecoverResult = document.getElementById(
 );
 const signTypedData = document.getElementById('signTypedData');
 const signTypedDataResult = document.getElementById('signTypedDataResult');
+const signTypedDataCaseArray = document.getElementById('signTypedData_caseArray');
+const signTypedDataCase712Shcema = document.getElementById('signTypedData_case712Schema');
 const signTypedDataVerify = document.getElementById('signTypedDataVerify');
 const signTypedDataVerifyResult = document.getElementById(
   'signTypedDataVerifyResult',
 );
 const signTypedDataV3 = document.getElementById('signTypedDataV3');
+const signTypedDataV3CaseObjOrString = document.getElementById('signTypedDataV3_caseObjOrString');
+const signTypedDataV3CaseJSON = document.getElementById('signTypedDataV3_caseJSONString');
+const signTypedDataV3Case712 = document.getElementById('signTypedDataV3_case712Schema');
 const signTypedDataV3Result = document.getElementById('signTypedDataV3Result');
 const signTypedDataV3Verify = document.getElementById('signTypedDataV3Verify');
 const signTypedDataV3VerifyResult = document.getElementById(
   'signTypedDataV3VerifyResult',
 );
 const signTypedDataV4 = document.getElementById('signTypedDataV4');
+const signTypedDataV4CaseObjOrString = document.getElementById('signTypedDataV4_caseObjOrString');
+const signTypedDataV4CaseJSON = document.getElementById('signTypedDataV4_caseJSONString');
+const signTypedDataV4Case712 = document.getElementById('signTypedDataV4_case712Schema');
 const signTypedDataV4Result = document.getElementById('signTypedDataV4Result');
 const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
 const signTypedDataV4VerifyResult = document.getElementById(
@@ -2136,6 +2145,23 @@ const initializeFormElements = () => {
     }
   };
 
+  personalSignCaseString.onclick = async () => {
+    const exampleMessage = 'Example `personal_sign` message';
+    try {
+      const from = messageAddressSign.value;
+      const msg = 213123;
+      const sign = await provider.request({
+        method: 'personal_sign',
+        params: [msg, from, 'Example password'],
+      });
+      personalSignResult.innerHTML = sign;
+      personalSignVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      personalSign.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
   /**
    * Sign In With Ethereum helper
    */
@@ -2276,6 +2302,58 @@ const initializeFormElements = () => {
     }
   };
 
+  signTypedDataCaseArray.onclick = async () => {
+    const msgParams = [
+      {
+        type: 'string',
+        name: 'Message',
+        value: 'Hi, Alice!',
+      },
+      {
+        type: 'uint32',
+        name: 'A number',
+        value: '1337',
+      },
+    ];
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData',
+        params: [12741924, from],
+      });
+      signTypedDataResult.innerHTML = sign;
+      signTypedDataVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataCase712Shcema.onclick = async () => {
+    const msgParams = [
+      {
+        type: 'string',
+      },
+      {
+        type: 'uint32',
+        name: 'A number',
+        value: '1337',
+      },
+    ];
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData',
+        params: [msgParams, from],
+      });
+      signTypedDataResult.innerHTML = sign;
+      signTypedDataVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
   /**
    * Sign Typed Data Verification
    */
@@ -2333,6 +2411,198 @@ const initializeFormElements = () => {
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person' },
           { name: 'contents', type: 'string' },
+        ],
+      },
+      primaryType: 'Mail',
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: chainIdInt,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      },
+      message: {
+        from: {
+          name: 'Cow',
+          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+        },
+        to: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+        contents: 'Hello, Bob!',
+      },
+    };
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v3',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      signTypedDataV3Result.innerHTML = sign;
+      signTypedDataV3Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV3Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataV3CaseObjOrString.onclick = async () => {
+    const msgParams = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents', type: 'string' },
+        ],
+      },
+      primaryType: 'Mail',
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: chainIdInt,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      },
+      message: {
+        from: {
+          name: 'Cow',
+          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+        },
+        to: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+        contents: 'Hello, Bob!',
+      },
+    };
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v3',
+        params: [from, 123123],
+      });
+      signTypedDataV3Result.innerHTML = sign;
+      signTypedDataV3Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV3Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataV3CaseJSON.onclick = async () => {
+    const msgParams = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents', type: 'string' },
+        ],
+      },
+      primaryType: 'Mail',
+      domain: {
+        name: 'Ether Mail',
+        version: '1',
+        chainId: chainIdInt,
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+      },
+      message: {
+        from: {
+          name: 'Cow',
+          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+        },
+        to: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+        contents: 'Hello, Bob!',
+      },
+    };
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v3',
+        params: [from, `{
+          types {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            Person: [
+              { name: 'name', type: 'string' },
+              { name: 'wallet', type: 'address' },
+            ],
+            Mail: [
+              { name: 'from', type: 'Person' },
+              { name: 'to', type: 'Person' },
+              { name: 'contents', type: 'string' },
+            ],
+          },
+          primaryType: 'Mail',
+          domain: {
+            name: 'Ether Mail',
+            version: '1',
+            chainId: chainIdInt,
+            verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+          },
+          message: {
+            from: {
+              name: 'Cow',
+              wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            },
+            to: {
+              name: 'Bob',
+              wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+            },
+            contents: 'Hello, Bob!',
+          },
+        }`]
+      });
+      signTypedDataV3Result.innerHTML = sign;
+      signTypedDataV3Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV3Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataV3Case712.onclick = async () => {
+    const msgParams = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+          { name: 'contents'},
         ],
       },
       primaryType: 'Mail',
@@ -2492,6 +2762,261 @@ const initializeFormElements = () => {
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
+      });
+      signTypedDataV4Result.innerHTML = sign;
+      signTypedDataV4Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV4Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataV4Case712.onclick = async () => {
+    console.log(chainIdInt, 'chainId');
+    const msgParams = {
+      domain: {
+        chainId: chainIdInt.toString(),
+        name: 'Ether Mail',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      message: {
+        contents: 'Hello, Bob!',
+        from: {
+          name: 'Cow',
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+          ],
+        },
+        to: [
+          {
+            name: 'Bob',
+            wallets: [
+              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+              '0xB0B0b0b0b0b0B000000000000000000000000000',
+            ],
+          },
+        ],
+        attachment: '0x',
+      },
+      primaryType: 'Mail',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract'},
+        ],
+        Group: [
+          { name: 'name', type: 'string' },
+          { name: 'members', type: 'Person[]' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person[]' },
+          { name: 'contents', type: 'string' },
+          { name: 'attachment', type: 'bytes' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallets', type: 'address[]' },
+        ],
+      },
+    };
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      signTypedDataV4Result.innerHTML = sign;
+      signTypedDataV4Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV4Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataV4CaseObjOrString.onclick = async () => {
+    console.log(chainIdInt, 'chainId');
+    const msgParams = {
+      domain: {
+        chainId: chainIdInt.toString(),
+        name: 'Ether Mail',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      message: {
+        contents: 'Hello, Bob!',
+        from: {
+          name: 'Cow',
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+          ],
+        },
+        to: [
+          {
+            name: 'Bob',
+            wallets: [
+              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+              '0xB0B0b0b0b0b0B000000000000000000000000000',
+            ],
+          },
+        ],
+        attachment: '0x',
+      },
+      primaryType: 'Mail',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Group: [
+          { name: 'name', type: 'string' },
+          { name: 'members', type: 'Person[]' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person[]' },
+          { name: 'contents', type: 'string' },
+          { name: 'attachment', type: 'bytes' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallets', type: 'address[]' },
+        ],
+      },
+    };
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, 123123],
+      });
+      signTypedDataV4Result.innerHTML = sign;
+      signTypedDataV4Verify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signTypedDataV4Result.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signTypedDataV4CaseJSON.onclick = async () => {
+    console.log(chainIdInt, 'chainId');
+    const msgParams = {
+      domain: {
+        chainId: chainIdInt.toString(),
+        name: 'Ether Mail',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      message: {
+        contents: 'Hello, Bob!',
+        from: {
+          name: 'Cow',
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+          ],
+        },
+        to: [
+          {
+            name: 'Bob',
+            wallets: [
+              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+              '0xB0B0b0b0b0b0B000000000000000000000000000',
+            ],
+          },
+        ],
+        attachment: '0x',
+      },
+      primaryType: 'Mail',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Group: [
+          { name: 'name', type: 'string' },
+          { name: 'members', type: 'Person[]' },
+        ],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person[]' },
+          { name: 'contents', type: 'string' },
+          { name: 'attachment', type: 'bytes' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallets', type: 'address[]' },
+        ],
+      },
+    };
+    try {
+      const from = messageAddressSign.value;
+      const sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, `{
+          domain {
+            chainId: chainIdInt.toString(),
+            name: 'Ether Mail',
+            verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+            version: '1',
+          },
+          message: {
+            contents: 'Hello, Bob!',
+            from: {
+              name: 'Cow',
+              wallets: [
+                '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+                '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
+              ],
+            },
+            to: [
+              {
+                name: 'Bob',
+                wallets: [
+                  '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+                  '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+                  '0xB0B0b0b0b0b0B000000000000000000000000000',
+                ],
+              },
+            ],
+            attachment: '0x',
+          },
+          primaryType: 'Mail',
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            Group: [
+              { name: 'name', type: 'string' },
+              { name: 'members', type: 'Person[]' },
+            ],
+            Mail: [
+              { name: 'from', type: 'Person' },
+              { name: 'to', type: 'Person[]' },
+              { name: 'contents', type: 'string' },
+              { name: 'attachment', type: 'bytes' },
+            ],
+            Person: [
+              { name: 'name', type: 'string' },
+              { name: 'wallets', type: 'address[]' },
+            ],
+          },
+        }`],
       });
       signTypedDataV4Result.innerHTML = sign;
       signTypedDataV4Verify.disabled = false;
