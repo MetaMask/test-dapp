@@ -5,6 +5,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [8.9.0]
+### Added
+- Add opBnB chain ([#335](https://github.com/MetaMask/test-dapp/pull/335))
+
+### Fixed
+- Fix issue with E2E tests failing on Android when running within Detox environment ([#343](https://github.com/MetaMask/test-dapp/pull/343))
+- Fix yarn.lock syncing to remove unnecessary dependencies and improve package cleanliness ([#339](https://github.com/MetaMask/test-dapp/pull/339))
+
+## [8.8.0]
+### Added
+- Add json RPC result text area ([#334](https://github.com/MetaMask/test-dapp/pull/334))
+- Add token contract addresses and consolidate names ([#332](https://github.com/MetaMask/test-dapp/pull/332))
+- Add SDK support ([#331](https://github.com/MetaMask/test-dapp/pull/331))
+- Add Blockaid bypass for send value without 0x prefix ([#329](https://github.com/MetaMask/test-dapp/pull/329))
+- Add malicious deeplinks, bypasses and reorg ([#328](https://github.com/MetaMask/test-dapp/pull/328))
+
+### Changed
+- Change `eth-sig-util` to `@metamask/eth-sig-util` ([#286](https://github.com/MetaMask/test-dapp/pull/286))
+
+## [8.7.0]
+### Added
+- Add support for Send EIP1559 tx's without suggested gas values ([#320](https://github.com/MetaMask/test-dapp/pull/320))
+
+### Fixed
+- Fix Permit signature domain by following EIP-712 ([#319](https://github.com/MetaMask/test-dapp/pull/319))
+- Fix queue transactions with correct malicious recipient address ([#322](https://github.com/MetaMask/test-dapp/pull/322)) 
+
+## [8.6.0]
+### Added
+- Add deeplinks for Send Eth, Send ERC20 and Approve ERC20 ([#313](https://github.com/MetaMask/test-dapp/pull/313))
+- Add get allowance support for ERC20 tokens ([#312](https://github.com/MetaMask/test-dapp/pull/312))
+
+### Fixed
+- Fix network status field ([#306](https://github.com/MetaMask/test-dapp/pull/306))
+- Fix NFT contract address for Base network ([#315](https://github.com/MetaMask/test-dapp/pull/315))
+
 ## [8.5.0]
 ### Added
 - Add Base network support ([#2310](https://github.com/MetaMask/test-dapp/pull/310))
@@ -161,7 +197,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.5.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.9.0...HEAD
+[8.9.0]: https://github.com/MetaMask/test-dapp/compare/v8.8.0...v8.9.0
+[8.8.0]: https://github.com/MetaMask/test-dapp/compare/v8.7.0...v8.8.0
+[8.7.0]: https://github.com/MetaMask/test-dapp/compare/v8.6.0...v8.7.0
+[8.6.0]: https://github.com/MetaMask/test-dapp/compare/v8.5.0...v8.6.0
 [8.5.0]: https://github.com/MetaMask/test-dapp/compare/v8.4.0...v8.5.0
 [8.4.0]: https://github.com/MetaMask/test-dapp/compare/v8.3.0...v8.4.0
 [8.3.0]: https://github.com/MetaMask/test-dapp/compare/v8.2.0...v8.3.0

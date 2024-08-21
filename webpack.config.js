@@ -11,6 +11,10 @@ module.exports = {
       assert: require.resolve('assert/'),
       process: require.resolve('process/browser'),
       stream: require.resolve('stream-browserify'),
+      http: false,
+      https: false,
+      zlib: false,
+      url: false,
     },
   },
   devtool: 'eval-source-map',
@@ -32,7 +36,8 @@ module.exports = {
     devMiddleware: {
       writeToDisk: true,
     },
-    port: 9011,
+    host: '0.0.0.0',
+    port: 9000,
     static: {
       directory: DIST,
     },

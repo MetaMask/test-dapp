@@ -1,6 +1,6 @@
 {
   "name": "@metamask/test-dapp",
-  "version": "8.5.0",
+  "version": "8.9.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "engines": {
     "node": ">= 18.0.0"
@@ -41,8 +41,12 @@
     "@metamask/auto-changelog": "^2.5.0",
     "@metamask/eslint-config": "^6.0.0",
     "@metamask/eslint-config-nodejs": "^6.0.0",
+    "@metamask/eth-sig-util": "^7.0.1",
     "@metamask/onboarding": "^1.0.0",
-    "@openzeppelin/contracts": "4.9.3",
+    "@metamask/sdk": "^0.26.5",
+    "@openzeppelin/contracts": "4.9.6",
+    "@walletconnect/modal": "^2.6.2",
+    "@web3modal/ethers5": "^3.2.0",
     "assert": "^2.1.0",
     "base64-sol": "1.1.0",
     "clean-webpack-plugin": "^4.0.0",
@@ -52,12 +56,9 @@
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "eth-sig-util": "^2.5.3",
     "ethereumjs-util": "^5.1.1",
-    "@web3modal/ethers5": "^3.2.0",
-    "@walletconnect/modal": "^2.6.2",
     "ethers": "5.7.2",
-    "gh-pages": "^3.1.0",
+    "gh-pages": "^5.0.0",
     "prettier": "^2.3.1",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
@@ -74,7 +75,11 @@
       "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>bigint-buffer": false,
       "@web3modal/ethers5>@coinbase/wallet-sdk>keccak": false,
       "webpack-dev-server>ws>bufferutil": false,
-      "webpack-dev-server>ws>utf-8-validate": false
+      "webpack-dev-server>ws>utf-8-validate": false,
+      "@metamask/sdk>@metamask/sdk-communication-layer>bufferutil": false,
+      "@metamask/sdk>@metamask/sdk-communication-layer>utf-8-validate": false,
+      "@metamask/sdk>eciesjs>secp256k1": false,
+      "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>rpc-websockets>utf-8-validate": false
     }
   },
   "packageManager": "yarn@1.22.19"
