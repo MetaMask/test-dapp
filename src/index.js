@@ -719,32 +719,30 @@ const handleNewChain = (chainId) => {
   }
 };
 
-function toggleSepoliaMintButton(networkId) {
-  const isNetworkIdSepolia =
-    networkId === SEPOLIA_NETWORK_ID_DEC ||
-    networkId === SEPOLIA_NETWORK_ID_HEX;
-
-  // Show or hide mintSepoliaERC20 based on network
-  mintSepoliaERC20.hidden = !isNetworkIdSepolia;
+function isSepoliaNetworkId(networkId) {
+  return (
+    networkId === SEPOLIA_NETWORK_ID_DEC || networkId === SEPOLIA_NETWORK_ID_HEX
+  );
 }
 
-function toggleMaliciousContractInteractionButtonButton(networkId) {
-  const isNetworkIdSepolia =
-    networkId === SEPOLIA_NETWORK_ID_DEC ||
-    networkId === SEPOLIA_NETWORK_ID_HEX;
-  const isNetworkBase =
-    networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
+function isBaseNetworkId(networkId) {
+  return networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
+}
 
-  // Show or hide maliciousContractInteractionButton based on network
+function toggleSepoliaMintButton(networkId) {
+  mintSepoliaERC20.hidden = !isSepoliaNetworkId(networkId);
+}
+
+function toggleMaliciousContractInteractionButton(networkId) {
   maliciousContractInteractionButton.hidden =
-    isNetworkBase || isNetworkIdSepolia;
+    isBaseNetworkId(networkId) || isSepoliaNetworkId(networkId);
 }
 
 function handleNewNetwork(networkId) {
   networkDiv.innerHTML = networkId;
 
   toggleSepoliaMintButton(networkId);
-  toggleMaliciousContractInteractionButtonButton(networkId);
+  toggleMaliciousContractInteractionButton(networkId);
 }
 
 const getNetworkAndChainId = async () => {
