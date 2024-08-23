@@ -39,6 +39,10 @@ const {
  * Page
  */
 
+const SEPOLIA_NETWORK_ID_HEX = '0xaa36a7';
+const SEPOLIA_NETWORK_ID_DEC = '11155111';
+const BASE_NETWORK_ID = '8453';
+
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
@@ -714,18 +718,32 @@ const handleNewChain = (chainId) => {
   }
 };
 
-const handleNewNetwork = (networkId) => {
-  networkDiv.innerHTML = networkId;
-  const isNetworkIdSepolia = networkId === ('11155111' || '0xaa36a7');
+function toggleSepoliaMintButton(networkId) {
+  const isNetworkIdSepolia =
+    networkId === SEPOLIA_NETWORK_ID_DEC ||
+    networkId === SEPOLIA_NETWORK_ID_HEX;
 
-  if (isNetworkIdSepolia) {
-    mintSepoliaERC20.hidden = false;
-    maliciousContractInteractionButton.hidden = true;
-  } else {
-    mintSepoliaERC20.hidden = true;
-    maliciousContractInteractionButton.hidden = false;
-  }
-};
+  // Show or hide mintSepoliaERC20 based on network
+  mintSepoliaERC20.hidden = !isNetworkIdSepolia;
+}
+
+function toggleMaliciousContractInteractionButtonButton(networkId) {
+  const isNetworkIdSepolia =
+    networkId === SEPOLIA_NETWORK_ID_DEC ||
+    networkId === SEPOLIA_NETWORK_ID_HEX;
+  const isNetworkBase = networkId === BASE_NETWORK_ID;
+
+  // Show or hide maliciousContractInteractionButton based on network
+  maliciousContractInteractionButton.hidden =
+    isNetworkBase || isNetworkIdSepolia;
+}
+
+function handleNewNetwork(networkId) {
+  networkDiv.innerHTML = networkId;
+
+  toggleSepoliaMintButton(networkId);
+  toggleMaliciousContractInteractionButtonButton(networkId);
+}
 
 const getNetworkAndChainId = async () => {
   try {
@@ -1614,22 +1632,21 @@ const initializeFormElements = () => {
 
   // Malicious Mint
   maliciousContractInteractionButton.onclick = async () => {
-    const contractAddresses = {
-      base: '0x00008295E602841F093afBFbFB9ccc746a490000',
-      mainnet: '0x000062Accd1a9d62eF428eC86cA3dD4f45120000',
-      default: '0x00008F1149168C1D2fa1eBa1Ad3e9cD644510000',
-    };
+    let contractAddress;
 
-    const erc20Contract =
-      contractAddresses[networkName] || contractAddresses.default;
+    if (networkName === 'mainnet') {
+      contractAddress = '0x000062Accd1a9d62eF428eC86cA3dD4f45120000';
+    } else {
+      contractAddress = '0x00008F1149168C1D2fa1eBa1Ad3e9cD644510000';
+    }
 
     const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: erc20Contract,
-          data: '0x34c73884',
+          to: contractAddress,
+          data: '0xef5cfb8c0000000000000000000000000b3e87a076ac4b0d1975f0f232444af6deb96c59',
           value: '0x0',
         },
       ],
