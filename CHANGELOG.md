@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [8.10.0]
+### Added
+- Add malicious contract interaction as an option ([#356](https://github.com/MetaMask/test-dapp/pull/356))
+
+### Changed
+- Updates mmsdk to latest and fixes a bad call when extension doesn't exist ([#354](https://github.com/MetaMask/test-dapp/pull/354))
+- Bump MetaMask SDK version to 0.26.5 ([#349](https://github.com/MetaMask/test-dapp/pull/349))
+- Refactor permit code ([#351](https://github.com/MetaMask/test-dapp/pull/351))
+
+### Fixed
+- Fix the watch all nfts and watch ERC1155 dapp actions to use provider ([#348](https://github.com/MetaMask/test-dapp/pull/348))
+
 ## [8.9.0]
 ### Added
 - Add opBnB chain ([#335](https://github.com/MetaMask/test-dapp/pull/335))
@@ -197,7 +208,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v8.9.0...HEAD
+[8.10.0]: https://github.com/MetaMask/test-dapp/compare/v8.9.0...HEAD
 [8.9.0]: https://github.com/MetaMask/test-dapp/compare/v8.8.0...v8.9.0
 [8.8.0]: https://github.com/MetaMask/test-dapp/compare/v8.7.0...v8.8.0
 [8.7.0]: https://github.com/MetaMask/test-dapp/compare/v8.6.0...v8.7.0
