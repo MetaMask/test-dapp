@@ -309,7 +309,9 @@ const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
 const maliciousApprovalButton = document.getElementById(
   'maliciousApprovalButton',
 );
-const maliciousMintButton = document.getElementById('maliciousMintButton');
+const maliciousContractInteractionButton = document.getElementById(
+  'maliciousContractInteractionButton',
+);
 
 const maliciousERC20TransferButton = document.getElementById(
   'maliciousERC20TransferButton',
@@ -431,7 +433,7 @@ const allConnectedButtons = [
   signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
-  maliciousMintButton,
+  maliciousContractInteractionButton,
   maliciousSetApprovalForAll,
   maliciousERC20TransferButton,
   maliciousRawEthButton,
@@ -485,7 +487,7 @@ const initialConnectedButtons = [
   signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
-  maliciousMintButton,
+  maliciousContractInteractionButton,
   maliciousSetApprovalForAll,
   maliciousERC20TransferButton,
   maliciousRawEthButton,
@@ -718,8 +720,10 @@ const handleNewNetwork = (networkId) => {
 
   if (isNetworkIdSepolia) {
     mintSepoliaERC20.hidden = false;
+    maliciousContractInteractionButton.hidden = true;
   } else {
     mintSepoliaERC20.hidden = true;
+    maliciousContractInteractionButton.hidden = false;
   }
 };
 
@@ -1609,13 +1613,22 @@ const initializeFormElements = () => {
   };
 
   // Malicious Mint
-  maliciousMintButton.onclick = async () => {
+  maliciousContractInteractionButton.onclick = async () => {
+    const contractAddresses = {
+      base: '0x00008295E602841F093afBFbFB9ccc746a490000',
+      mainnet: '0x000062Accd1a9d62eF428eC86cA3dD4f45120000',
+      default: '0x00008F1149168C1D2fa1eBa1Ad3e9cD644510000',
+    };
+
+    const erc20Contract =
+      contractAddresses[networkName] || contractAddresses.default;
+
     const result = await provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: accounts[0],
-          to: '0x000062Accd1a9d62eF428eC86cA3dD4f45120000',
+          to: erc20Contract,
           data: '0x34c73884',
           value: '0x0',
         },
