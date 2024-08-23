@@ -42,6 +42,7 @@ const {
 const SEPOLIA_NETWORK_ID_HEX = '0xaa36a7';
 const SEPOLIA_NETWORK_ID_DEC = '11155111';
 const BASE_NETWORK_ID = '8453';
+const BASE_NETWORK_ID_HEX = '0x2105';
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -731,7 +732,8 @@ function toggleMaliciousContractInteractionButtonButton(networkId) {
   const isNetworkIdSepolia =
     networkId === SEPOLIA_NETWORK_ID_DEC ||
     networkId === SEPOLIA_NETWORK_ID_HEX;
-  const isNetworkBase = networkId === BASE_NETWORK_ID;
+  const isNetworkBase =
+    networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
 
   // Show or hide maliciousContractInteractionButton based on network
   maliciousContractInteractionButton.hidden =
