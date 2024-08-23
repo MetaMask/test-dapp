@@ -17,6 +17,7 @@ import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
   NETWORKS_BY_CHAIN_ID,
+  MALICIOUS_CONTRACT_ADDRESSES,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
@@ -1630,15 +1631,11 @@ const initializeFormElements = () => {
     console.log(result);
   };
 
-  // Malicious Mint
+  // Malicious Contract interaction
   maliciousContractInteractionButton.onclick = async () => {
-    let contractAddress;
-
-    if (networkName === 'mainnet') {
-      contractAddress = '0x000062Accd1a9d62eF428eC86cA3dD4f45120000';
-    } else {
-      contractAddress = '0x00008F1149168C1D2fa1eBa1Ad3e9cD644510000';
-    }
+    const contractAddress =
+      MALICIOUS_CONTRACT_ADDRESSES[networkName] ||
+      MALICIOUS_CONTRACT_ADDRESSES.default;
 
     const result = await provider.request({
       method: 'eth_sendTransaction',
