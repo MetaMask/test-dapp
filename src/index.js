@@ -17,6 +17,7 @@ import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
   NETWORKS_BY_CHAIN_ID,
+  MALICIOUS_CONTRACT_ADDRESSES,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
@@ -38,6 +39,11 @@ const {
 /**
  * Page
  */
+
+const SEPOLIA_NETWORK_ID_HEX = '0xaa36a7';
+const SEPOLIA_NETWORK_ID_DEC = '11155111';
+const BASE_NETWORK_ID = '8453';
+const BASE_NETWORK_ID_HEX = '0x2105';
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -309,6 +315,10 @@ const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
 const maliciousApprovalButton = document.getElementById(
   'maliciousApprovalButton',
 );
+const maliciousContractInteractionButton = document.getElementById(
+  'maliciousContractInteractionButton',
+);
+
 const maliciousERC20TransferButton = document.getElementById(
   'maliciousERC20TransferButton',
 );
@@ -429,6 +439,7 @@ const allConnectedButtons = [
   signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
+  maliciousContractInteractionButton,
   maliciousSetApprovalForAll,
   maliciousERC20TransferButton,
   maliciousRawEthButton,
@@ -482,6 +493,7 @@ const initialConnectedButtons = [
   signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
+  maliciousContractInteractionButton,
   maliciousSetApprovalForAll,
   maliciousERC20TransferButton,
   maliciousRawEthButton,
@@ -553,6 +565,13 @@ const detectEip6963 = () => {
 
 export const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
+  // When the extension is not installed the providerDetails comes in undefined
+  // but because the SDK is already init the window.ethereum has been injected
+  // this doesn't mean we can refer to it directly as the connection may have
+  // not been approved which is there uuid comes in as empty
+  if (!providerDetail || providerDetail.info.uuid === '') {
+    return;
+  }
   provider = providerDetail.provider;
   await initializeProvider();
 
@@ -701,16 +720,31 @@ const handleNewChain = (chainId) => {
   }
 };
 
-const handleNewNetwork = (networkId) => {
-  networkDiv.innerHTML = networkId;
-  const isNetworkIdSepolia = networkId === ('11155111' || '0xaa36a7');
+function isSepoliaNetworkId(networkId) {
+  return (
+    networkId === SEPOLIA_NETWORK_ID_DEC || networkId === SEPOLIA_NETWORK_ID_HEX
+  );
+}
 
-  if (isNetworkIdSepolia) {
-    mintSepoliaERC20.hidden = false;
-  } else {
-    mintSepoliaERC20.hidden = true;
-  }
-};
+function isBaseNetworkId(networkId) {
+  return networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
+}
+
+function toggleSepoliaMintButton(networkId) {
+  mintSepoliaERC20.hidden = !isSepoliaNetworkId(networkId);
+}
+
+function toggleMaliciousContractInteractionButton(networkId) {
+  maliciousContractInteractionButton.hidden =
+    isBaseNetworkId(networkId) || isSepoliaNetworkId(networkId);
+}
+
+function handleNewNetwork(networkId) {
+  networkDiv.innerHTML = networkId;
+
+  toggleSepoliaMintButton(networkId);
+  toggleMaliciousContractInteractionButton(networkId);
+}
 
 const getNetworkAndChainId = async () => {
   try {
@@ -791,7 +825,7 @@ const initializeProvider = async () => {
 
   if (isMetaMaskInstalled()) {
     provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+    await getNetworkAndChainId();
 
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
@@ -1591,6 +1625,26 @@ const initializeFormElements = () => {
           from: accounts[0],
           to: erc20Contract,
           data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious Contract interaction
+  maliciousContractInteractionButton.onclick = async () => {
+    const contractAddress =
+      MALICIOUS_CONTRACT_ADDRESSES[networkName] ||
+      MALICIOUS_CONTRACT_ADDRESSES.default;
+
+    const result = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: contractAddress,
+          data: '0xef5cfb8c0000000000000000000000000b3e87a076ac4b0d1975f0f232444af6deb96c59',
+          value: '0x0',
         },
       ],
     });
@@ -3268,7 +3322,11 @@ const setDeeplinks = () => {
 const initialize = async () => {
   await setActiveProviderDetailWindowEthereum();
   detectEip6963();
-  await setActiveProviderDetail(providerDetails[0]);
+  // We only want to set the activeProviderDetail is there is one instead of
+  // assuming it exists
+  if (providerDetails.length > 0) {
+    await setActiveProviderDetail(providerDetails[0]);
+  }
   initializeFormElements();
   setDeeplinks();
 };

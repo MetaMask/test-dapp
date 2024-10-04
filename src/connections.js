@@ -63,7 +63,7 @@ export async function handleSdkConnect(name, button, isConnected) {
     updateFormElements();
     updateSdkConnectionState(false);
     removeProviderDetail(name);
-    sdk.terminate();
+    await sdk.terminate();
     button.innerText = 'Sdk Connect';
     button.classList.add('btn-primary');
     button.classList.remove('btn-danger');
