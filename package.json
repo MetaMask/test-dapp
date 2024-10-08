@@ -82,5 +82,5 @@
       "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>rpc-websockets>utf-8-validate": false
     }
   },
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "yarn@1.22.22"
 }
