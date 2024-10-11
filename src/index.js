@@ -363,6 +363,12 @@ const maliciousPermitHexPaddedChain = document.getElementById(
 const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
+
+// ENS Resolution
+const ensInput = document.getElementById('ensInput');
+const ensSubmit = document.getElementById('ensSubmit');
+const ensResult = document.getElementById('ensResult');
+
 // Buttons that require connecting an account
 const allConnectedButtons = [
   deployButton,
@@ -457,6 +463,7 @@ const allConnectedButtons = [
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
   maliciousPermitIntAddress,
+  ensSubmit,
 ];
 
 // Buttons that are available after initially connecting an account
@@ -509,6 +516,7 @@ const initialConnectedButtons = [
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
+  ensSubmit,
 ];
 
 /**
@@ -3296,6 +3304,23 @@ const initializeFormElements = () => {
       ],
     });
     console.log(result);
+  };
+
+  /**
+   * ENS Resolution
+   */
+  ensSubmit.onclick = async () => {
+    try {
+      ensResult.innerHTML = 'Resolving...';
+      const ensAddress = ensInput.value;
+      const ensResolver = await ethersProvider.getResolver(ensAddress);
+      const ethAddress = await ensResolver.getAddress();
+
+      ensResult.innerHTML = String(ethAddress);
+    } catch (error) {
+      console.error(error);
+      ensResult.innerHTML = 'Failed to resolve address';
+    }
   };
 
   /**
