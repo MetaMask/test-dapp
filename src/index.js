@@ -130,6 +130,16 @@ const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const nftsStatus = document.getElementById('nftsStatus');
 const erc721TokenAddresses = document.getElementById('erc721TokenAddresses');
+// 721 Permit
+const sign721Permit = document.getElementById('sign721Permit');
+const sign721PermitResult = document.getElementById('sign721PermitResult');
+const sign721PermitResultR = document.getElementById('sign721PermitResultR');
+const sign721PermitResultS = document.getElementById('sign721PermitResultS');
+const sign721PermitResultV = document.getElementById('sign721PermitResultV');
+const sign721PermitVerify = document.getElementById('sign721PermitVerify');
+const sign721PermitVerifyResult = document.getElementById(
+  'sign721PermitVerifyResult',
+);
 
 // ERC 1155 Section
 
@@ -376,6 +386,8 @@ const allConnectedButtons = [
   withdrawButton,
   deployNFTsButton,
   mintButton,
+  sign721Permit,
+  sign721PermitVerify,
   mintAmountInput,
   approveTokenInput,
   approveButton,
@@ -1081,6 +1093,7 @@ const updateContractElements = () => {
     erc721TokenAddresses.innerHTML = nftsContract ? nftsContract.address : '';
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
+    sign721Permit.disabled = false;
     mintAmountInput.disabled = false;
     approveTokenInput.disabled = false;
     approveButton.disabled = false;
@@ -1308,6 +1321,7 @@ const initializeFormElements = () => {
 
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
+    sign721Permit.disabled = false;
     mintAmountInput.disabled = false;
   };
 
@@ -1356,6 +1370,65 @@ const initializeFormElements = () => {
     transferFromButton.disabled = false;
     watchNFTsButton.disabled = false;
     watchNFTButtons.innerHTML = '';
+  };
+
+  sign721Permit.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = await getNFTMsgParams();
+    console.log(msgParams);
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    try {
+      sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      sign721PermitResult.innerHTML = sign;
+      sign721PermitResultR.innerHTML = `r: ${r}`;
+      sign721PermitResultS.innerHTML = `s: ${s}`;
+      sign721PermitResultV.innerHTML = `v: ${v}`;
+      sign721PermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      sign721PermitResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   *  Sign Permit Verification
+   */
+  sign721PermitVerify.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = await getNFTMsgParams();
+
+    try {
+      const sign = sign721PermitResult.innerHTML;
+      const recoveredAddr = recoverTypedSignature({
+        data: msgParams,
+        signature: sign,
+        version: 'V4',
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        sign721PermitVerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      sign721PermitVerifyResult.innerHTML = `Error: ${err.message}`;
+    }
   };
 
   watchNFTButton.onclick = async () => {
@@ -2658,6 +2731,32 @@ const initializeFormElements = () => {
       primaryType: 'Permit',
       domain: permitMsgParamsDomain,
       message: permit,
+    };
+  }
+
+  async function getNFTMsgParams() {
+    return {
+      domain: {
+        name: 'My NFT',
+        version: '1',
+        chainId: chainIdInt,
+        verifyingContract: nftsContract.address,
+      },
+      types: {
+        Permit: [
+          { name: 'spender', type: 'address' },
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+      primaryType: 'Permit',
+      message: {
+        spender: '0x0521797E19b8E274E4ED3bFe5254FAf6fac96F08',
+        tokenId: '3606393',
+        nonce: '0',
+        deadline: '1734995006',
+      },
     };
   }
 
