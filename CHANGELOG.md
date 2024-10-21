@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.11.0]
 ### Added
 - Add NFT permit option ([#363](https://github.com/MetaMask/test-dapp/pull/363))
+- Add ENS resolution ([#362](https://github.com/MetaMask/test-dapp/pull/362))
 
 ## [8.10.0]
 ### Added
