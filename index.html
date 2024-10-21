@@ -625,6 +625,38 @@
                   </button>
                 </div>
 
+                <div class="form-group">
+                  <label>NFT Permit</label>
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="sign721Permit"
+                    disabled
+                  >
+                    Sign
+                  </button>
+
+                  <p class="info-text alert alert-warning">
+                    Result:
+                    <span id="sign721PermitResult"></span>
+                    <p class="info-text alert alert-warning" id="sign721PermitResultR">r: </p>
+                    <p class="info-text alert alert-warning" id="sign721PermitResultS">s: </p>
+                    <p class="info-text alert alert-warning" id="sign721PermitResultV">v: </p>
+                  </p>
+
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="sign721PermitVerify"
+                    disabled
+                  >
+                    Verify
+                  </button>
+
+                  <p class="info-text alert alert-warning">
+                    Recovery result:
+                    <span id="sign721PermitVerifyResult"></span>
+                  </p>
+                </div>
+
                 <p class="info-text alert alert-secondary">
                   ERC 721 methods result: <span id="nftsStatus"></span>
                 </p>
@@ -1594,6 +1626,37 @@
                 >
                   Submit
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="row d-flex justify-content-center">
+          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">
+                  ENS Resolution
+                </h4>
+                <div class="form-group">
+                  <label>Address</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="ensInput"
+                  />
+                </div>
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="ensSubmit"
+                >
+                  Submit
+                </button>
+                <p class="info-text alert alert-warning">
+                  Result:
+                  <span id="ensResult"></span>
+                </p>
               </div>
             </div>
           </div>
