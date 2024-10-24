@@ -715,6 +715,8 @@ export const handleNewAccounts = (newAccounts) => {
   gasPriceDiv.style.display = 'block';
   maxFeeDiv.style.display = 'none';
   maxPriorityDiv.style.display = 'none';
+
+  handleEIP1559Support();
 };
 
 let chainIdInt;
@@ -785,6 +787,10 @@ const getNetworkAndChainId = async () => {
 };
 
 const handleEIP1559Support = async () => {
+  if (!Array.isArray(accounts) || accounts.length <= 0) {
+    return;
+  }
+
   const block = await provider.request({
     method: 'eth_getBlockByNumber',
     params: ['latest', false],
@@ -792,7 +798,7 @@ const handleEIP1559Support = async () => {
 
   const supported = block.baseFeePerGas !== undefined;
 
-  if (supported && Array.isArray(accounts) && accounts.length >= 1) {
+  if (supported) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
     sendEIP1559WithoutGasButton.disabled = false;
