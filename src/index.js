@@ -715,6 +715,8 @@ export const handleNewAccounts = (newAccounts) => {
   gasPriceDiv.style.display = 'block';
   maxFeeDiv.style.display = 'none';
   maxPriorityDiv.style.display = 'none';
+
+  handleEIP1559Support();
 };
 
 let chainIdInt;
