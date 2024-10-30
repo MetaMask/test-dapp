@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum DApp</title>
+</head>
+<body>
+    <h1>Ethereum EIP-1193 API DApp</h1>
+    <button id="connectButton">Connect Wallet</button>
+    <br>
+    <div id="connectedAccounts">Connected Accounts: Not available</div>
+    <br><br>
+    <label for="chainSelect">Select Chain:</label>
+    <select id="chainSelect">
+        <option value="0x1">Ethereum Mainnet</option>
+        <option value="0xe708">Linea Mainnet</option>
+        <option value="0xaa36a7">Sepolia Testnet</option>
+        <option value="0xe705">Linea Sepolia</option>
+    </select>
+    <br><br>
+    <button id="sendTxButton">Send 0 Ether to Null Address</button>
+    <br><br>
+    <div id="currentChain">Current Chain: Not available</div>
+    <div id="blockHead">Current Block Head: Not available</div>
+
+    <script>
+        let accounts = [];
+
+        // Function to connect wallet
+        async function connectWallet() {
+            try {
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                // Update connected accounts display
+                updateConnectedAccountsDisplay();
+
+                // Switch to the chain selected in the dropdown
+                const selectedChainId = document.getElementById('chainSelect').value;
+                await switchChain(selectedChainId);
+                await updateCurrentChainDisplay();
+                await subscribeToBlockHeaders();
+            } catch (error) {
+                console.error(error);
+                alert('Failed to connect wallet!');
+            }
+        }
+
+        // Function to switch chain
+        async function switchChain(chainId) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: chainId }],
+                });
+            } catch (switchError) {
+                console.error(switchError);
+            }
+        }
+
+        // Function to get the current chain ID
+        async function getCurrentChainId() {
+            return await window.ethereum.request({ method: 'eth_chainId' });
+        }
+
+        // Function to send transaction
+        async function sendTransaction() {
+            if (accounts.length === 0) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+
+            const selectedChainId = document.getElementById('chainSelect').value;
+            const currentChainId = await getCurrentChainId();
+
+            // Switch to the selected chain if not already on it
+            if (currentChainId !== selectedChainId) {
+                alert(`The wallet's current chain ${currentChainId} does not match the dapp expectations. Will try to change to the expected chain ${selectedChainId} now.`);
+                await switchChain(selectedChainId);
+            }
+
+            const transactionParameters = {
+                to: '0x0000000000000000000000000000000000000000',
+                from: accounts[0],
+                value: '0x0',
+            };
+
+            try {
+                alert(`Will make eth_sendTransaction request intended for ${selectedChainId} after this alert is dismissed.`)
+                await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [transactionParameters],
+                });
+                alert('Transaction sent!');
+            } catch (error) {
+                console.error(error);
+                alert('Transaction failed!');
+            }
+        }
+
+        // Function to subscribe to new block headers
+        async function subscribeToBlockHeaders() {
+            window.ethereum.request({
+                method: 'eth_subscribe',
+                params: ['newHeads'],
+            }).then(subscriptionId => {
+                window.ethereum.on('message', (message) => {
+                    if (message.type === 'eth_subscription' && message.data.subscription === subscriptionId) {
+                        const blockHead = message.data.result;
+                        document.getElementById('blockHead').innerText = `Current Block Head: ${parseInt(blockHead.number, 16)}`;
+                    }
+                });
+            }).catch(error => {
+                console.error('Failed to subscribe to new block headers:', error);
+            });
+        }
+
+        // Function to update the current chain display
+        async function updateCurrentChainDisplay() {
+            const currentChainId = await getCurrentChainId();
+            document.getElementById('currentChain').innerText = `Current Chain: ${currentChainId}`;
+        }
+
+        // Function to update the connected accounts display
+        function updateConnectedAccountsDisplay() {
+            document.getElementById('connectedAccounts').innerText = `Connected Accounts: ${accounts.join(', ')}`;
+        }
+
+        // Function to check if wallet is already connected
+        async function checkWalletConnection() {
+            try {
+                accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                    updateConnectedAccountsDisplay();
+                    await updateCurrentChainDisplay();
+                    await subscribeToBlockHeaders();
+                }
+            } catch (error) {
+                console.error('Failed to check wallet connection:', error);
+            }
+        }
+
+        // Event listener for connect wallet button
+        document.getElementById('connectButton').addEventListener('click', connectWallet);
+
+        // Event listener for chain selection
+        document.getElementById('chainSelect').addEventListener('change', async (event) => {
+            const chainId = event.target.value;
+            await switchChain(chainId);
+            await subscribeToBlockHeaders();
+            await updateCurrentChainDisplay();
+        });
+
+        // Event listener for send transaction button
+        document.getElementById('sendTxButton').addEventListener('click', sendTransaction);
+
+        // Subscribe to chainChanged event
+        window.ethereum.on('chainChanged', async (chainId) => {
+            const selectedChainId = document.getElementById('chainSelect').value;
+            if (chainId !== selectedChainId) {
+                alert(`Wallet has changed the current chain to ${chainId}. Will try to change it back to ${selectedChainId} now.`);
+                await switchChain(selectedChainId);
+            }
+            document.getElementById('blockHead').innerText = 'Current Block Head: Not available';
+            await updateCurrentChainDisplay();
+            await subscribeToBlockHeaders();
+        });
+
+        // Initial setup
+        checkWalletConnection();
+    </script>
+</body>
+</html>
