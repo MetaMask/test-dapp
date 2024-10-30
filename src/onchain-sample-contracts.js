@@ -31,3 +31,8 @@ export const ERC721_SAMPLE_CONTRACTS = {
   base: '0x90997fc967e75b7e69f899133aab31d197beb802',
   opBnb: '0x61d7e121185b1d7902a3da7f3c8ac9faaee8863b',
 };
+
+export const MALICIOUS_CONTRACT_ADDRESSES = {
+  mainnet: '0x000062Accd1a9d62eF428eC86cA3dD4f45120000',
+  default: '0x00008F1149168C1D2fa1eBa1Ad3e9cD644510000',
+};

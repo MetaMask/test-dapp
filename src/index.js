@@ -17,6 +17,7 @@ import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
   NETWORKS_BY_CHAIN_ID,
+  MALICIOUS_CONTRACT_ADDRESSES,
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
@@ -38,6 +39,11 @@ const {
 /**
  * Page
  */
+
+const SEPOLIA_NETWORK_ID_HEX = '0xaa36a7';
+const SEPOLIA_NETWORK_ID_DEC = '11155111';
+const BASE_NETWORK_ID = '8453';
+const BASE_NETWORK_ID_HEX = '0x2105';
 
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
@@ -124,6 +130,16 @@ const transferTokenInput = document.getElementById('transferTokenInput');
 const transferFromButton = document.getElementById('transferFromButton');
 const nftsStatus = document.getElementById('nftsStatus');
 const erc721TokenAddresses = document.getElementById('erc721TokenAddresses');
+// 721 Permit
+const sign721Permit = document.getElementById('sign721Permit');
+const sign721PermitResult = document.getElementById('sign721PermitResult');
+const sign721PermitResultR = document.getElementById('sign721PermitResultR');
+const sign721PermitResultS = document.getElementById('sign721PermitResultS');
+const sign721PermitResultV = document.getElementById('sign721PermitResultV');
+const sign721PermitVerify = document.getElementById('sign721PermitVerify');
+const sign721PermitVerifyResult = document.getElementById(
+  'sign721PermitVerifyResult',
+);
 
 // ERC 1155 Section
 
@@ -309,6 +325,10 @@ const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
 const maliciousApprovalButton = document.getElementById(
   'maliciousApprovalButton',
 );
+const maliciousContractInteractionButton = document.getElementById(
+  'maliciousContractInteractionButton',
+);
+
 const maliciousERC20TransferButton = document.getElementById(
   'maliciousERC20TransferButton',
 );
@@ -353,6 +373,12 @@ const maliciousPermitHexPaddedChain = document.getElementById(
 const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
+
+// ENS Resolution
+const ensInput = document.getElementById('ensInput');
+const ensSubmit = document.getElementById('ensSubmit');
+const ensResult = document.getElementById('ensResult');
+
 // Buttons that require connecting an account
 const allConnectedButtons = [
   deployButton,
@@ -360,6 +386,8 @@ const allConnectedButtons = [
   withdrawButton,
   deployNFTsButton,
   mintButton,
+  sign721Permit,
+  sign721PermitVerify,
   mintAmountInput,
   approveTokenInput,
   approveButton,
@@ -429,6 +457,7 @@ const allConnectedButtons = [
   signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
+  maliciousContractInteractionButton,
   maliciousSetApprovalForAll,
   maliciousERC20TransferButton,
   maliciousRawEthButton,
@@ -446,6 +475,7 @@ const allConnectedButtons = [
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
   maliciousPermitIntAddress,
+  ensSubmit,
 ];
 
 // Buttons that are available after initially connecting an account
@@ -482,6 +512,7 @@ const initialConnectedButtons = [
   signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
+  maliciousContractInteractionButton,
   maliciousSetApprovalForAll,
   maliciousERC20TransferButton,
   maliciousRawEthButton,
@@ -497,6 +528,7 @@ const initialConnectedButtons = [
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
+  ensSubmit,
 ];
 
 /**
@@ -553,6 +585,13 @@ const detectEip6963 = () => {
 
 export const setActiveProviderDetail = async (providerDetail) => {
   closeProvider();
+  // When the extension is not installed the providerDetails comes in undefined
+  // but because the SDK is already init the window.ethereum has been injected
+  // this doesn't mean we can refer to it directly as the connection may have
+  // not been approved which is there uuid comes in as empty
+  if (!providerDetail || providerDetail.info.uuid === '') {
+    return;
+  }
   provider = providerDetail.provider;
   await initializeProvider();
 
@@ -676,6 +715,8 @@ export const handleNewAccounts = (newAccounts) => {
   gasPriceDiv.style.display = 'block';
   maxFeeDiv.style.display = 'none';
   maxPriorityDiv.style.display = 'none';
+
+  handleEIP1559Support();
 };
 
 let chainIdInt;
@@ -701,16 +742,31 @@ const handleNewChain = (chainId) => {
   }
 };
 
-const handleNewNetwork = (networkId) => {
-  networkDiv.innerHTML = networkId;
-  const isNetworkIdSepolia = networkId === ('11155111' || '0xaa36a7');
+function isSepoliaNetworkId(networkId) {
+  return (
+    networkId === SEPOLIA_NETWORK_ID_DEC || networkId === SEPOLIA_NETWORK_ID_HEX
+  );
+}
 
-  if (isNetworkIdSepolia) {
-    mintSepoliaERC20.hidden = false;
-  } else {
-    mintSepoliaERC20.hidden = true;
-  }
-};
+function isBaseNetworkId(networkId) {
+  return networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
+}
+
+function toggleSepoliaMintButton(networkId) {
+  mintSepoliaERC20.hidden = !isSepoliaNetworkId(networkId);
+}
+
+function toggleMaliciousContractInteractionButton(networkId) {
+  maliciousContractInteractionButton.hidden =
+    isBaseNetworkId(networkId) || isSepoliaNetworkId(networkId);
+}
+
+function handleNewNetwork(networkId) {
+  networkDiv.innerHTML = networkId;
+
+  toggleSepoliaMintButton(networkId);
+  toggleMaliciousContractInteractionButton(networkId);
+}
 
 const getNetworkAndChainId = async () => {
   try {
@@ -731,6 +787,10 @@ const getNetworkAndChainId = async () => {
 };
 
 const handleEIP1559Support = async () => {
+  if (!Array.isArray(accounts) || accounts.length <= 0) {
+    return;
+  }
+
   const block = await provider.request({
     method: 'eth_getBlockByNumber',
     params: ['latest', false],
@@ -738,7 +798,7 @@ const handleEIP1559Support = async () => {
 
   const supported = block.baseFeePerGas !== undefined;
 
-  if (supported && Array.isArray(accounts) && accounts.length >= 1) {
+  if (supported) {
     sendEIP1559Button.disabled = false;
     sendEIP1559Button.hidden = false;
     sendEIP1559WithoutGasButton.disabled = false;
@@ -791,7 +851,7 @@ const initializeProvider = async () => {
 
   if (isMetaMaskInstalled()) {
     provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
+    await getNetworkAndChainId();
 
     provider.on('chainChanged', handleNewChain);
     provider.on('chainChanged', handleEIP1559Support);
@@ -1039,6 +1099,7 @@ const updateContractElements = () => {
     erc721TokenAddresses.innerHTML = nftsContract ? nftsContract.address : '';
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
+    sign721Permit.disabled = false;
     mintAmountInput.disabled = false;
     approveTokenInput.disabled = false;
     approveButton.disabled = false;
@@ -1266,6 +1327,7 @@ const initializeFormElements = () => {
 
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
+    sign721Permit.disabled = false;
     mintAmountInput.disabled = false;
   };
 
@@ -1314,6 +1376,65 @@ const initializeFormElements = () => {
     transferFromButton.disabled = false;
     watchNFTsButton.disabled = false;
     watchNFTButtons.innerHTML = '';
+  };
+
+  sign721Permit.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = await getNFTMsgParams();
+    console.log(msgParams);
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    try {
+      sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      sign721PermitResult.innerHTML = sign;
+      sign721PermitResultR.innerHTML = `r: ${r}`;
+      sign721PermitResultS.innerHTML = `s: ${s}`;
+      sign721PermitResultV.innerHTML = `v: ${v}`;
+      sign721PermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      sign721PermitResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  /**
+   *  Sign Permit Verification
+   */
+  sign721PermitVerify.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = await getNFTMsgParams();
+
+    try {
+      const sign = sign721PermitResult.innerHTML;
+      const recoveredAddr = recoverTypedSignature({
+        data: msgParams,
+        signature: sign,
+        version: 'V4',
+      });
+      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
+        console.log(`Successfully verified signer as ${recoveredAddr}`);
+        sign721PermitVerifyResult.innerHTML = recoveredAddr;
+      } else {
+        console.log(
+          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      sign721PermitVerifyResult.innerHTML = `Error: ${err.message}`;
+    }
   };
 
   watchNFTButton.onclick = async () => {
@@ -1591,6 +1712,26 @@ const initializeFormElements = () => {
           from: accounts[0],
           to: erc20Contract,
           data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+        },
+      ],
+    });
+    console.log(result);
+  };
+
+  // Malicious Contract interaction
+  maliciousContractInteractionButton.onclick = async () => {
+    const contractAddress =
+      MALICIOUS_CONTRACT_ADDRESSES[networkName] ||
+      MALICIOUS_CONTRACT_ADDRESSES.default;
+
+    const result = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: accounts[0],
+          to: contractAddress,
+          data: '0xef5cfb8c0000000000000000000000000b3e87a076ac4b0d1975f0f232444af6deb96c59',
+          value: '0x0',
         },
       ],
     });
@@ -2599,6 +2740,32 @@ const initializeFormElements = () => {
     };
   }
 
+  async function getNFTMsgParams() {
+    return {
+      domain: {
+        name: 'My NFT',
+        version: '1',
+        chainId: chainIdInt,
+        verifyingContract: nftsContract.address,
+      },
+      types: {
+        Permit: [
+          { name: 'spender', type: 'address' },
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+      primaryType: 'Permit',
+      message: {
+        spender: '0x0521797E19b8E274E4ED3bFe5254FAf6fac96F08',
+        tokenId: '3606393',
+        nonce: '0',
+        deadline: '1734995006',
+      },
+    };
+  }
+
   function splitSig(sig) {
     const pureSig = sig.replace('0x', '');
 
@@ -3245,6 +3412,23 @@ const initializeFormElements = () => {
   };
 
   /**
+   * ENS Resolution
+   */
+  ensSubmit.onclick = async () => {
+    try {
+      ensResult.innerHTML = 'Resolving...';
+      const ensAddress = ensInput.value;
+      const ensResolver = await ethersProvider.getResolver(ensAddress);
+      const ethAddress = await ensResolver.getAddress();
+
+      ensResult.innerHTML = String(ethAddress);
+    } catch (error) {
+      console.error(error);
+      ensResult.innerHTML = 'Failed to resolve address';
+    }
+  };
+
+  /**
    * Providers
    */
 
@@ -3268,7 +3452,11 @@ const setDeeplinks = () => {
 const initialize = async () => {
   await setActiveProviderDetailWindowEthereum();
   detectEip6963();
-  await setActiveProviderDetail(providerDetails[0]);
+  // We only want to set the activeProviderDetail is there is one instead of
+  // assuming it exists
+  if (providerDetails.length > 0) {
+    await setActiveProviderDetail(providerDetails[0]);
+  }
   initializeFormElements();
   setDeeplinks();
 };
