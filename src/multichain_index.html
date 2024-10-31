@@ -6,14 +6,20 @@
     <title>Ethereum DApp</title>
 </head>
 <body>
-    <h1>Ethereum Multichain API DApp</h1>
+    <h1>Ethereum Multichain API Dapp</h1>
     <input type="text" id="connectExtensionInput" value="nonfpcflonapegmnfeafnddgdniflbnk" /><br>
     <button id="connectExtensionButton">Connect Extension</button>
     <br>
     <div id="connectedExtension">Connected Extension: Not available</div>
     <br><br>
-    <button id="connectButton">Connect Wallet</button>
+    <button id="connectRequestFullButton">full</button>
+    <button id="connectRequestOnlySendButton">only eth_sendTransaction</button>
+    <button id="connectRequestOnlySubscribeButton">only eth_subscribe</button>
     <br>
+    <textarea id="connectRequestTextarea" rows="25" cols="80"> </textarea>
+    <br>
+    <button id="connectButton">Connect Wallet</button>
+    <br><br>
     <div id="connectedAccounts">Connected Accounts: Not available</div>
     <br><br>
     <label for="scopeSelect">Select Scope:</label>
@@ -136,6 +142,7 @@
 
             // Initial setup
             checkWalletConnection();
+            connectRequestFull();
           } catch (error) {
                 console.error(error);
                 alert('Failed to connect to extension!');
@@ -177,21 +184,65 @@
               })
         }
 
+
+        function connectRequestFull() {
+          const params = {
+            optionalScopes: {
+              "eip155": {
+                "references": ["1", "59141", "11155111", "59144"],
+                "methods": ["personal_sign", "eth_signTypedData_v4", "wallet_watchAsset", "eth_sendTransaction", "eth_subscribe", "eth_unsubscribe"],
+                "notifications": ["eth_subscription"]
+              },
+            }
+          }
+
+          const textarea = document.getElementById('connectRequestTextarea')
+          textarea.value = JSON.stringify(params, null, 2)
+        }
+
+        function connectRequestOnlySend() {
+          const params = {
+            optionalScopes: {
+              "eip155": {
+                "references": ["1", "59141", "11155111", "59144"],
+                "methods": ["eth_sendTransaction"],
+                "notifications": []
+              },
+            }
+          }
+
+          const textarea = document.getElementById('connectRequestTextarea')
+          textarea.value = JSON.stringify(params, null, 2)
+        }
+
+        function connectRequestOnlySubscribe() {
+          const params = {
+            optionalScopes: {
+              "eip155": {
+                "references": ["1", "59141", "11155111", "59144"],
+                "methods": ["eth_subscribe"],
+                "notifications": ["eth_subscription"]
+              },
+            }
+          }
+
+          const textarea = document.getElementById('connectRequestTextarea')
+          textarea.value = JSON.stringify(params, null, 2)
+        }
+
         // Function to connect wallet
         async function connectWallet() {
+            if (!extensionPort) {
+              alert('Connect to extension first.')
+              return
+            }
             try {
+              const textarea = document.getElementById('connectRequestTextarea')
+              const params = JSON.parse(textarea.value)
+
               const {sessionScopes} = await extensionPortRequest({
                 method: 'wallet_createSession',
-                params: {
-                  optionalScopes: {
-                    "eip155": {
-                      "references": ["1", "59141", "11155111", "59144"],
-                      // reduce methods here
-                      "methods": ["personal_sign", "eth_signTypedData_v4", "wallet_watchAsset", "eth_sendTransaction", "eth_decrypt", "eth_getEncryptionPublicKey", "web3_clientVersion", "eth_subscribe", "eth_unsubscribe", "eth_blockNumber", "eth_call", "eth_chainId", "eth_estimateGas", "eth_feeHistory", "eth_gasPrice", "eth_getBalance", "eth_getBlockByHash", "eth_getBlockByNumber", "eth_getBlockTransactionCountByHash", "eth_getBlockTransactionCountByNumber", "eth_getCode", "eth_getFilterChanges", "eth_getFilterLogs", "eth_getLogs", "eth_getProof", "eth_getStorageAt", "eth_getTransactionByBlockHashAndIndex", "eth_getTransactionByBlockNumberAndIndex", "eth_getTransactionByHash", "eth_getTransactionCount", "eth_getTransactionReceipt", "eth_getUncleCountByBlockHash", "eth_getUncleCountByBlockNumber", "eth_newBlockFilter", "eth_newFilter", "eth_newPendingTransactionFilter", "eth_sendRawTransaction", "eth_syncing", "eth_uninstallFilter"],
-                      "notifications": ["eth_subscription"]
-                    },
-                  }
-                }
+                params
               })
 
               await onNewSessionScopes(sessionScopes)
@@ -301,9 +352,6 @@
             }
         }
 
-        // Event listener for connect wallet button
-        document.getElementById('connectButton').addEventListener('click', connectWallet);
-
         // Event listener for connect extension button
         document.getElementById('connectExtensionButton').addEventListener('click', connectExtension);
 
@@ -312,6 +360,12 @@
 
         // Event listener for subscribe button
         document.getElementById('subscribeButton').addEventListener('click', subscribeToBlockHeaders);
+
+        // Event listener for connect wallet buttons
+        document.getElementById('connectButton').addEventListener('click', connectWallet);
+        document.getElementById('connectRequestFullButton').addEventListener('click', connectRequestFull);
+        document.getElementById('connectRequestOnlySendButton').addEventListener('click', connectRequestOnlySend);
+        document.getElementById('connectRequestOnlySubscribeButton').addEventListener('click', connectRequestOnlySubscribe);
 
     </script>
 </body>
