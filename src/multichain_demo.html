@@ -90,10 +90,31 @@ document.addEventListener("DOMContentLoaded", function() {
     // Constants
     //
     const BridgeContracts = {
-        'eip155:5': {
-        contractAddress: '0xdead',
-        sendsTo: ['eip155:111555111']
-        }
+        // Sepolia
+        "eip155:11155111": {
+            contractAddress: '0xdead',
+            supports: ["eip155:59141", "eip155:421614", "eip155:11155420", "eip155:168587773"]
+        },
+        // Linea Sepolia (no Arbitrium)
+        "eip155:59141": {
+            contractAddress: '0xdead',
+            supports: ["eip155:11155111", "eip155:11155420", "eip155:168587773"]
+        },
+        // Arbitrum Sepolia (no Linea)
+        "eip155:421614": {
+            contractAddress: '0xdead',
+            supports: ["eip155:11155111", "eip155:11155420", "eip155:168587773"]
+        },
+        // OP Sepolia (no Blast)
+        "eip155:11155420": {
+            contractAddress: '0xdead',
+            supports: ["eip155:11155111", "eip155:59141", "eip155:421614"]
+        },
+        // Blast Sepolia (no OP)
+        "eip155:168587773": {
+            contractAddress: '0xdead',
+            supports: ["eip155:11155111", "eip155:59141", "eip155:421614"]
+        },
     }
 
     const pastelColors = [
@@ -103,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "#e5c28c", "#e8d097", "#edd9aa", "#f2e6bb", "#f9f3dd"
     ];
     const NODE_PADDING = 20;
-    const NODE_SCALE = 1.33;
+    const NODE_SCALE = 2;
 
     //
     // State
@@ -113,6 +134,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let currentSessionScopes = {};
     let accounts = [];
     let scopeStrings = [];
+
+    let balances = {}
 
     let nodes = [];
     let links = [];
@@ -131,46 +154,52 @@ document.addEventListener("DOMContentLoaded", function() {
     async function connectExtension() {
         const extensionId = document.getElementById("connectExtensionInput").value;
         try {
-        extensionPort = chrome.runtime.connect(extensionId); // externally_connectable
-        extensionPort.onMessage.addListener((msg) => {
-            const { data: { method, params } } = msg;
-            // Subscription Events
-            if (method === "wallet_notify") {
-            handleEthSubscriptionDisplay(
-                params.scope,
-                params.notification.params.result.number,
-            );
-            // Permission Events
-            } else if (method === "wallet_sessionChanged") {
-            onNewSessionScopes(params.sessionScopes);
-            }
-            console.log(msg.data);
-        });
+            extensionPort = chrome.runtime.connect(extensionId); // externally_connectable
+            extensionPort.onMessage.addListener((msg) => {
+                const { data: { method, params } } = msg;
+                // Subscription Events
+                if (method === "wallet_notify") {
+                    handleEthSubscriptionDisplay(
+                        params.scope,
+                        params.notification.params.result.number,
+                    );
+                // Permission Events
+                } else if (method === "wallet_sessionChanged") {
+                    onNewSessionScopes(params.sessionScopes);
+                }
+                console.log(msg.data);
+            });
 
-        // Dapp Initialization
-        checkWalletConnection();
+            // Dapp Initialization
+            checkWalletConnection();
         } catch (error) {
-        console.error(error);
-        alert("Failed to connect to extension!");
+            console.error(error);
+            alert("Failed to connect to extension!");
         }
     }
 
     // Permission Handling
     async function onNewSessionScopes(sessionScopes) {
         const oldScopeStrings = scopeStrings;
-        const eip155ScopeStrings = Object.keys(sessionScopes).filter((scopeString) =>
-        /eip155:[0-9]+/u.test(scopeString),
-        );
+        const eip155ScopeStrings = Object.keys(sessionScopes).filter((scopeString) => {
+            // return /eip155:[0-9]+/u.test(scopeString)
+            if (!BridgeContracts[scopeString]) {
+                console.log(`ignoring ${scopeString} since it is not defined in BridgeContracts`)
+                return false
+            }
+            return true
+        });
 
         const eip155AccountsSet = new Set();
 
         eip155ScopeStrings.forEach((scopeString) => {
-        const scopeObject = sessionScopes[scopeString];
 
-        scopeObject.accounts.forEach((account) => {
-            const address = account.split(":")[2];
-            eip155AccountsSet.add(address);
-        });
+            const scopeObject = sessionScopes[scopeString];
+
+            scopeObject.accounts.forEach((account) => {
+                const address = account.split(":")[2];
+                eip155AccountsSet.add(address);
+            });
         });
 
         currentSessionScopes = sessionScopes;
@@ -189,51 +218,60 @@ document.addEventListener("DOMContentLoaded", function() {
         });
         scopeStrings.forEach(newScopeString => {
             if (!oldScopeStrings.includes(newScopeString)) {
-                addNode(newScopeString, 'HELLO')
+                addNode(newScopeString)
             }
         })
 
-        console.log({nodes, links})
+        startPolling()
+    }
+
+    function getNodeLabelText(scopeString) {
+        const accountsText = accounts.map(account => {
+            const balance = balances[scopeString]?.[account] || 0
+            return `${account.slice(0,7)}...${account.slice(37,42)}: ${balance.toFixed(4)}`
+        }).join('\n')
+        return`${scopeString}\n----------\n${accountsText}`
     }
 
     // Permission Initialization
     async function connectWallet() {
         if (!extensionPort) {
-        alert("Connect to extension first.");
-        return;
+            alert("Connect to extension first.");
+            return;
         }
         try {
 
         const { sessionScopes } = await extensionPortRequest({
-            method: "wallet_createSession",
-            params: {
-                eip155: {
-                    references: ["11155111", "59141", "421614", "11155420", "168587773"],
-                    methods: [
-                        "eth_sendTransaction",
-                        "eth_subscribe",
-                    ],
-                    notifications: ["eth_subscription"],
+                method: "wallet_createSession",
+                params: {
+                    eip155: {
+                        references: ["11155111", "59141", "421614", "11155420", "168587773"],
+                        methods: [
+                            "eth_getBalance",
+                            "eth_sendTransaction",
+                            "eth_subscribe",
+                        ],
+                        notifications: ["eth_subscription"],
+                    },
                 },
-            },
-        });
+            });
 
-        await onNewSessionScopes(sessionScopes);
+            await onNewSessionScopes(sessionScopes);
         } catch (error) {
-        console.error(error);
-        alert("Failed to connect wallet!");
+            console.error(error);
+            alert("Failed to connect wallet!");
         }
     }
 
     async function checkWalletConnection() {
         try {
-        const { sessionScopes } = await extensionPortRequest({
-            method: "wallet_getSession",
-        });
-        await onNewSessionScopes(sessionScopes);
+            const { sessionScopes } = await extensionPortRequest({
+                method: "wallet_getSession",
+            });
+            await onNewSessionScopes(sessionScopes);
         } catch (error) {
-        console.error("Failed to check wallet connection:", error);
-        alert("Failed to check wallet connection");
+            console.error("Failed to check wallet connection:", error);
+            alert("Failed to check wallet connection");
         }
     }
 
@@ -256,24 +294,24 @@ document.addEventListener("DOMContentLoaded", function() {
         const id = generateJsonRpcId();
 
         extensionPort.postMessage({
-        type: "caip-x",
-        data: {
-            jsonrpc: "2.0",
-            id,
-            ...request,
-        },
+            type: "caip-x",
+            data: {
+                jsonrpc: "2.0",
+                id,
+                ...request,
+            },
         });
 
         return new Promise((resolve, reject) => {
         const listener = (msg) => {
             if (msg.type === "caip-x" && msg.data.id === id) {
-            const { result, error } = msg.data;
-            if (result) {
-                resolve(result);
-            } else {
-                reject(error);
-            }
-            extensionPort.onMessage.removeListener(listener);
+                const { result, error } = msg.data;
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject(error);
+                }
+                extensionPort.onMessage.removeListener(listener);
             }
         };
 
@@ -298,7 +336,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2))
         .force("collide", d3.forceCollide().radius(d => getRadius(d.label) * NODE_SCALE + NODE_PADDING + 40)); // Further increased radius
 
-    const link = svg.append("g")
+    let link = svg.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(links)
@@ -311,7 +349,7 @@ document.addEventListener("DOMContentLoaded", function() {
             showModal(`Source: ${sourceNode.label}\nTarget: ${targetNode.label}`);
         });
 
-    const node = svg.append("g")
+    let node = svg.append("g")
         .attr("class", "nodes")
         .selectAll("g")
         .data(nodes)
@@ -324,8 +362,9 @@ document.addEventListener("DOMContentLoaded", function() {
         .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
         .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
 
-    const text = node.append("text")
-        .attr("text-anchor", "middle");
+    let text = node.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "top"); // this may need to be added elsewhere
 
     text.selectAll("tspan")
         .data(d => d.label.split('\n'))
@@ -334,6 +373,49 @@ document.addEventListener("DOMContentLoaded", function() {
         .attr("x", 0)
         .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
         .text(d => d);
+
+
+    function updateGraph() {
+        d3.selectAll("g > *").remove()
+
+        link = svg.append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(links)
+        .enter().append("line")
+        .attr("stroke-width", 2)
+        .attr("stroke", "#999")
+        .on("click", function(event, d) {
+            const sourceNode = nodes.find(node => node.id === d.source.id);
+            const targetNode = nodes.find(node => node.id === d.target.id);
+            showModal(`Source: ${sourceNode.label}\nTarget: ${targetNode.label}`);
+        });
+
+        node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(nodes)
+            .enter().append("g")
+            .on("click", function(event, d) {
+                showModal(d.label);
+            });
+
+        node.append("circle")
+            .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
+            .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
+
+        text = node.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "top"); // this may need to be added elsewhere
+
+        text.selectAll("tspan")
+            .data(d => d.label.split('\n'))
+            .enter()
+            .append("tspan")
+            .attr("x", 0)
+            .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
+            .text(d => d);
+    }
 
     simulation.on("tick", () => {
         link
@@ -429,52 +511,63 @@ document.addEventListener("DOMContentLoaded", function() {
     // }, 5000);
 
 
-    function addNode(id, label) {
-        const newNode = { id, label: generateLabel() };
+    function addNode(id) {
+        console.log('adding node', id)
+        const newNode = { id, label: getNodeLabelText(id) };
         nodes.push(newNode);
 
-        // TODO: GET RID OF THIS
-        if (nodes.length) {
-            const randomNode = nodes[Math.floor(Math.random() * (nodes.length - 1))];
-            links.push({ source: randomNode.id, target: newNode.id });
-        }
+        const supportedScopes = BridgeContracts[id]?.supports || []
+
+        supportedScopes.forEach((supportedScope) => {
+            const targetNode = nodes.find(node => node.id === supportedScope)
+            const targetLink = links.find(link =>
+                (link.source.id === id && link.target.id === supportedScope) ||
+                (link.source.id === supportedScope && link.target.id === id)
+            )
+            if (targetNode && !targetLink) {
+                links.push({ source: id, target: targetNode.id });
+            }
+        })
 
         // Update the simulation with the new node and link
         simulation.nodes(nodes);
         simulation.force("link").links(links);
 
         // Add the new node to the SVG
-        const newNodeSelection = svg.select(".nodes")
-            .selectAll("g")
-            .data(nodes)
-            .enter()
-            .append("g")
-            .on("click", function(event, d) {
-                showModal(d.label);
-            });
+        // const newNodeSelection = svg.select(".nodes")
+        //     .selectAll("g")
+        //     .data(nodes)
+        //     .enter()
+        //     .append("g")
+        //     .on("click", function(event, d) {
+        //         showModal(d.label);
+        //     });
 
-        newNodeSelection.append("circle")
-            .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
-            .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
+        // newNodeSelection.append("circle")
+        //     .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
+        //     .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
 
-        const newText = newNodeSelection.append("text")
-            .attr("text-anchor", "middle");
+        // const newText = newNodeSelection.append("text")
+        //     .attr("text-anchor", "middle");
 
-        newText.selectAll("tspan")
-            .data(d => d.label.split('\n'))
-            .enter()
-            .append("tspan")
-            .attr("x", 0)
-            .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
-            .text(d => d);
+        // newText.selectAll("tspan")
+        //     .data(d => d.label.split('\n'))
+        //     .enter()
+        //     .append("tspan")
+        //     .attr("x", 0)
+        //     .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
+        //     .text(d => d);
+
 
         // Restart the simulation
+        updateGraph()
         simulation.alpha(1).restart();
     }
 
     function removeNode(id) {
-        nodes = nodes.filter(node => node.id !== randomNode.id);
-        links = links.filter(link => link.source.id !== randomNode.id && link.target.id !== randomNode.id);
+        console.log('removing node', id)
+        nodes = nodes.filter(node => node.id !== id);
+        links = links.filter(link => link.source.id !== id && link.target.id !== id);
 
         // Update the simulation with the removed node and links
         simulation.nodes(nodes);
@@ -489,13 +582,88 @@ document.addEventListener("DOMContentLoaded", function() {
             .data(links, d => `${d.source.id}-${d.target.id}`)
             .exit().remove();
 
+        updateGraph()
         // Restart the simulation
+        simulation.alpha(1).restart();
+    }
+
+    function updateNode(id) {
+        nodes.find(node => node.id === id).label = getNodeLabelText(id)
+        text.selectAll("tspan").remove();
+        text.selectAll("tspan")
+            .data(d => d.label.split('\n'))
+            .enter()
+            .append("tspan")
+            .attr("x", 0)
+            .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
+            .text(d => d);
+        node.select("circle").attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING);
+
+        // Restart simulation to adjust positions
         simulation.alpha(1).restart();
     }
 
     // DOM
     document.getElementById("connectExtensionButton").addEventListener("click", connectExtension);
     document.getElementById("connectButton").addEventListener("click", connectWallet);
+
+    // Loops
+    async function updateAccountBalances() {
+        if(!extensionPort) {
+            return
+        }
+        if(!accounts.length) {
+            return
+        }
+
+        for (let account of accounts) {
+            for (let scopeString of scopeStrings) {
+                // console.log(`updating balance for account ${account} on scope ${scopeString}`)
+                try {
+                    const balance = await extensionPortRequest({
+                        method: "wallet_invokeMethod",
+                        params: {
+                            scope: scopeString,
+                            request: {
+                                "method": "eth_getBalance",
+                                "params": [
+                                    account,
+                                    "latest"
+                                ],
+                            },
+                        },
+                    })
+                    balances[scopeString] = balances[scopeString] || {}
+                    const oldBalance = balances[scopeString][account] || 0
+                    balances[scopeString][account] = parseInt(balance, 16) / Math.pow(10, 18);
+
+                    if (oldBalance !== balances[scopeString][account]) {
+                        console.log(`updating node for account ${account} on scope ${scopeString} with ${balances[scopeString][account]}`)
+                        updateNode(scopeString)
+                    }
+
+                } catch (error) {
+                    console.error(`failed updating balance for account ${account} on scope ${scopeString}`, error)
+                }
+            }
+        }
+    }
+
+    async function updateAccountBalancesPoll() {
+        await updateAccountBalances()
+        setTimeout(() => {
+            updateAccountBalancesPoll()
+        }, 10000)
+    }
+
+    let isPolling;
+    function startPolling() {
+        if (!isPolling) {
+            isPolling = true
+            updateAccountBalancesPoll()
+        }
+    }
+
 });
 </script>
 </body>
