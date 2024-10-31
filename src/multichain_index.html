@@ -1,372 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ethereum DApp</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethereum Multichain API Dapp</title>
 </head>
 <body>
-    <h1>Ethereum Multichain API Dapp</h1>
-    <input type="text" id="connectExtensionInput" value="nonfpcflonapegmnfeafnddgdniflbnk" /><br>
-    <button id="connectExtensionButton">Connect Extension</button>
-    <br>
-    <div id="connectedExtension">Connected Extension: Not available</div>
-    <br><br>
-    <button id="connectRequestFullButton">full</button>
-    <button id="connectRequestOnlySendButton">only eth_sendTransaction</button>
-    <button id="connectRequestOnlySubscribeButton">only eth_subscribe</button>
-    <br>
-    <textarea id="connectRequestTextarea" rows="25" cols="80"> </textarea>
-    <br>
-    <button id="connectButton">Connect Wallet</button>
-    <br><br>
-    <div id="connectedAccounts">Connected Accounts: Not available</div>
-    <br><br>
-    <label for="scopeSelect">Select Scope:</label>
-    <select id="scopeSelect"></select>
-    <br><br>
-    <button id="sendTxButton">Send 0 Ether to Null Address</button>
-    <br><br>
-    <button id="subscribeButton">Subscribe to Block Head</button>
-    <br><br>
-    <div id="subscriptionsContainer"></div>
+  <h1>Ethereum Multichain API Dapp</h1>
+  <input type="text" id="connectExtensionInput" value="nonfpcflonapegmnfeafnddgdniflbnk" />
+  <br>
+  <button id="connectExtensionButton">Connect Extension</button>
+  <br>
+  <div id="connectedExtension">Connected Extension: Not available</div>
+  <br><br>
+  <button id="connectRequestFullButton">full</button>
+  <button id="connectRequestMixedButton">mixed</button>
+  <button id="connectRequestOnlySendButton">only eth_sendTransaction</button>
+  <button id="connectRequestOnlySubscribeButton">only eth_subscribe</button>
+  <br>
+  <textarea id="connectRequestTextarea" rows="25" cols="80"></textarea>
+  <br>
+  <button id="connectButton">Connect Wallet</button>
+  <br><br>
+  <div id="connectedAccounts">Connected Accounts: Not available</div>
+  <br><br>
+  <label for="scopeSelect">Select Scope:</label>
+  <select id="scopeSelect"></select>
+  <br><br>
+  <button id="sendTxButton">Send 0 Ether to Null Address</button>
+  <br><br>
+  <button id="subscribeButton">Subscribe to Block Head</button>
+  <br><br>
+  <div id="subscriptionsContainer"></div>
 
-    <script>
-        let extensionPort;
-        let jsonRpcId;
-        let accounts = [];
-        let scopeStrings = [];
+<script>
+  let extensionPort;
+  let jsonRpcId;
+  let accounts = [];
+  let scopeStrings = [];
 
+  // externally_connectable helpers
+  function generateJsonRpcId(opts) {
+    let max = Number.MAX_SAFE_INTEGER
+    jsonRpcId = jsonRpcId ?? Math.floor(Math.random() * max);
 
-        function generateJsonRpcId(opts){
-          let max = Number.MAX_SAFE_INTEGER
-          jsonRpcId = jsonRpcId ?? Math.floor(Math.random() * max);
+    jsonRpcId = jsonRpcId % max;
+    jsonRpcId += 1
+    return jsonRpcId;
+  }
 
-          jsonRpcId = jsonRpcId % max;
-          jsonRpcId += 1
-          return jsonRpcId;
+  async function extensionPortRequest(request) {
+    const id = generateJsonRpcId()
+
+    extensionPort.postMessage({
+      type: 'caip-x',
+      data: {
+        jsonrpc: "2.0",
+        id,
+        ...request
+      }
+    })
+
+    return new Promise((resolve, reject) => {
+      const listener = (msg) => {
+        if (msg.type === 'caip-x' && msg.data.id === id) {
+          const {
+            result,
+            error
+          } = msg.data
+          if (result) {
+            resolve(result)
+          } else {
+            reject(error)
+          }
+          extensionPort.onMessage.removeListener(listener)
+        }
+      }
+
+      extensionPort.onMessage.addListener(listener)
+    })
+  }
+
+  // Subscription DOM helpers
+  async function removeEthSubscriptionDisplay(scope) {
+    const scopeContainerId = `subscriptionsContainer-${scope}`;
+    const scopeContainer = document.getElementById(scopeContainerId)
+    if (scopeContainer) {
+      scopeContainer.remove()
+    }
+  }
+
+  async function handleEthSubscriptionDisplay(scope, value = "Not available") {
+    const scopeContainerId = `subscriptionsContainer-${scope}`;
+    let scopeContainer = document.getElementById(scopeContainerId)
+
+    if (!scopeContainer) {
+      const subscriptionsContainer = document.getElementById('subscriptionsContainer')
+      scopeContainer = document.createElement('div');
+      scopeContainer.id = scopeContainerId
+      scopeContainer.style.display = "inline-block";
+      scopeContainer.style.margin = "15px 15px 15px 0";
+      scopeContainer.style.padding = "5px";
+      scopeContainer.style.border = "1px solid black";
+      subscriptionsContainer.appendChild(scopeContainer);
+    }
+
+    scopeContainer.innerHTML = `
+                <b>${scope}</b>
+                <br>
+                Block Number: ${value}
+              `
+    scopeContainer.style.border = "1px solid red";
+    setTimeout(() => {
+      scopeContainer.style.border = "1px solid black";
+    }, 1500)
+  }
+
+  // Connecting to connection via externally_connectable
+  async function connectExtension() {
+    const extensionId = document.getElementById('connectExtensionInput').value;
+    try {
+      extensionPort = chrome.runtime.connect(extensionId)
+      extensionPort.onMessage.addListener((msg) => {
+        if (msg.data.method === 'wallet_notify') {
+          handleEthSubscriptionDisplay(msg.data.params.scope, msg.data.params.notification.params.result.number)
+        } else if (msg.data.method === 'wallet_sessionChanged') {
+          onNewSessionScopes(msg.data.params.sessionScopes)
         }
 
-        async function extensionPortRequest(request) {
-          const id = generateJsonRpcId()
+        console.log(msg.data)
+      })
+      extensionPort.onDisconnect.addListener(() => {
+        console.log('extension disconnected')
+        document.getElementById('connectedExtension').innerText = `Connected Extension: None`;
+      })
+      document.getElementById('connectedExtension').innerText = `Connected Extension: ${extensionId}`;
 
-          extensionPort.postMessage({
-              type: 'caip-x',
-              data: {
-                  jsonrpc: "2.0",
-                  id,
-                  ...request
-              }
-          })
+      // Initial setup
+      checkWalletConnection();
+      connectRequestFull();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to connect to extension!');
+    }
+  }
 
-          return new Promise((resolve, reject) => {
-            const listener = (msg) => {
-              if (msg.type === 'caip-x' && msg.data.id === id) {
-                const { result, error } = msg.data
-                if (result) {
-                  resolve(result)
-                } else {
-                  reject(error)
-                }
-                extensionPort.onMessage.removeListener(listener)
-              }
-            }
+  async function onNewSessionScopes(sessionScopes) {
+    const oldScopeStrings = scopeStrings
+    const eip155ScopeStrings = Object.keys(sessionScopes).filter((scopeString) =>
+      (/eip155:[0-9]+/u).test(scopeString)
+    )
 
-            extensionPort.onMessage.addListener(listener)
-          })
-        }
+    const eip155AccountsSet = new Set()
 
-        async function removeEthSubscriptionDisplay(scope) {
-          const scopeContainerId = `subscriptionsContainer-${scope}`;
-          const scopeContainer = document.getElementById(scopeContainerId)
-          if(scopeContainer) {
-            scopeContainer.remove()
+    eip155ScopeStrings.forEach((scopeString) => {
+      const scopeObject = sessionScopes[scopeString]
+
+      scopeObject.accounts.forEach((account) => {
+        const address = account.split(':')[2]
+        eip155AccountsSet.add(address)
+      })
+    })
+
+    accounts = [...eip155AccountsSet]
+    scopeStrings = [...eip155ScopeStrings]
+
+    // Update connected accounts display
+    updateConnectedAccountsDisplay();
+
+    // Update scopes dropdown options
+    updateScopeSelectOptions()
+
+    // Update subscriptions display
+    oldScopeStrings.forEach(oldScopeString => {
+      if (!scopeStrings.includes(oldScopeString)) {
+        removeEthSubscriptionDisplay(oldScopeString)
+      }
+    })
+  }
+
+  // Connection DOM Helpers
+  function connectRequestFull() {
+    const params = {
+      optionalScopes: {
+        "eip155": {
+          "references": ["1", "59141", "11155111", "59144"],
+          "methods": ["personal_sign", "eth_signTypedData_v4", "wallet_watchAsset", "eth_sendTransaction", "eth_subscribe", "eth_unsubscribe"],
+          "notifications": ["eth_subscription"]
+        },
+      }
+    }
+
+    const textarea = document.getElementById('connectRequestTextarea')
+    textarea.value = JSON.stringify(params, null, 2)
+  }
+
+  function connectRequestMixed() {
+    const params = {
+      optionalScopes: {
+        "eip155:1": {
+          "methods": ["eth_sendTransaction", "eth_subscribe"],
+          "notifications": ["eth_subscription"]
+        },
+        "eip155:59141": {
+          "methods": ["eth_sendTransaction"],
+          "notifications": []
+        },
+        "eip155:11155111": {
+          "methods": ["eth_subscribe"],
+          "notifications": ["eth_subscription"]
+        },
+        "eip155:59144": {
+          "methods": ["eth_call"],
+          "notifications": []
+        },
+      }
+    }
+
+    const textarea = document.getElementById('connectRequestTextarea')
+    textarea.value = JSON.stringify(params, null, 2)
+  }
+
+  function connectRequestOnlySend() {
+    const params = {
+      optionalScopes: {
+        "eip155": {
+          "references": ["1", "59141", "11155111", "59144"],
+          "methods": ["eth_sendTransaction"],
+          "notifications": []
+        },
+      }
+    }
+
+    const textarea = document.getElementById('connectRequestTextarea')
+    textarea.value = JSON.stringify(params, null, 2)
+  }
+
+  function connectRequestOnlySubscribe() {
+    const params = {
+      optionalScopes: {
+        "eip155": {
+          "references": ["1", "59141", "11155111", "59144"],
+          "methods": ["eth_subscribe"],
+          "notifications": ["eth_subscription"]
+        },
+      }
+    }
+
+    const textarea = document.getElementById('connectRequestTextarea')
+    textarea.value = JSON.stringify(params, null, 2)
+  }
+
+  async function connectWallet() {
+    if (!extensionPort) {
+      alert('Connect to extension first.')
+      return
+    }
+    try {
+      const textarea = document.getElementById('connectRequestTextarea')
+      const params = JSON.parse(textarea.value)
+
+      const {
+        sessionScopes
+      } = await extensionPortRequest({
+        method: 'wallet_createSession',
+        params
+      })
+
+      await onNewSessionScopes(sessionScopes)
+    } catch (error) {
+      console.error(error);
+      alert('Failed to connect wallet!');
+    }
+  }
+
+  async function sendTransaction() {
+    if (accounts.length === 0) {
+      alert('Please connect your wallet first!');
+      return;
+    }
+
+    const selectedScope = document.getElementById('scopeSelect').value;
+
+    const transactionParameters = {
+      to: '0x0000000000000000000000000000000000000000',
+      from: accounts[0],
+      value: '0x0',
+    };
+
+    try {
+      alert(`Will make eth_sendTransaction request intended for ${selectedScope} after this alert is dismissed.`)
+      await extensionPortRequest({
+        method: 'wallet_invokeMethod',
+        params: {
+          scope: selectedScope,
+          request: {
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
           }
         }
+      });
+      alert('Transaction sent!');
+    } catch (error) {
+      console.error(error);
+      alert('Transaction failed!');
+    }
+  }
 
-        async function handleEthSubscriptionDisplay(scope, value = "Not available") {
-          const scopeContainerId = `subscriptionsContainer-${scope}`;
-          let scopeContainer = document.getElementById(scopeContainerId)
+  async function subscribeToBlockHeaders() {
+    const selectedScope = document.getElementById('scopeSelect').value
+    if (!selectedScope) {
+      return
+    }
 
-          if (!scopeContainer) {
-            const subscriptionsContainer = document.getElementById('subscriptionsContainer')
-            scopeContainer = document.createElement('div');
-            scopeContainer.id = scopeContainerId
-            scopeContainer.style.display = "inline-block";
-            scopeContainer.style.margin = "15px 15px 15px 0";
-            scopeContainer.style.padding = "5px";
-            scopeContainer.style.border = "1px solid black";
-            subscriptionsContainer.appendChild(scopeContainer);
-          }
+    const scopeContainerId = `subscriptionsContainer-${selectedScope}`;
+    const scopeContainer = document.getElementById(scopeContainerId)
+    if (scopeContainer) {
+      return;
+    }
 
-          scopeContainer.innerHTML = `
-            <b>${scope}</b>
-            <br>
-            Block Number: ${value}
-          `
-          scopeContainer.style.border = "1px solid red";
-          setTimeout(() => {
-            scopeContainer.style.border = "1px solid black";
-          }, 1500)
-        }
-
-        // Function to connect to the extension
-        async function connectExtension() {
-          const extensionId = document.getElementById('connectExtensionInput').value;
-          try {
-            extensionPort = chrome.runtime.connect(extensionId)
-            extensionPort.onMessage.addListener((msg) => {
-                // format wallet_notify events nicely so that we can read them more easily later
-                if (msg.data.method === 'wallet_notify') {
-                    console.log('wallet_notify:', {
-                        scope: msg.data.params.scope,
-                        method: msg.data.params.notification.method,
-                        subscription: msg.data.params.notification.params.subscription,
-                        number: msg.data.params.notification.params.result.number
-                    })
-                    handleEthSubscriptionDisplay(msg.data.params.scope, msg.data.params.notification.params.result.number)
-                    return;
-                }
-
-                if(msg.data.method === 'wallet_sessionChanged') {
-                  onNewSessionScopes(msg.data.params.sessionScopes)
-                }
-
-                console.log(msg.data)
-            })
-            extensionPort.onDisconnect.addListener(() => {
-              console.log('extension disconnected')
-              document.getElementById('connectedExtension').innerText = `Connected Extension: None`;
-            })
-            document.getElementById('connectedExtension').innerText = `Connected Extension: ${extensionId}`;
-
-            // Initial setup
-            checkWalletConnection();
-            connectRequestFull();
-          } catch (error) {
-                console.error(error);
-                alert('Failed to connect to extension!');
-            }
-        }
-
-        async function onNewSessionScopes(sessionScopes) {
-          const oldScopeStrings = scopeStrings
-          const eip155ScopeStrings = Object.keys(sessionScopes).filter((scopeString) =>
-                (/eip155:[0-9]+/u).test(scopeString)
-              )
-
-
-              const eip155AccountsSet = new Set()
-
-              eip155ScopeStrings.forEach((scopeString) => {
-                const scopeObject = sessionScopes[scopeString]
-
-                scopeObject.accounts.forEach((account) =>  {
-                  const address = account.split(':')[2]
-                  eip155AccountsSet.add(address)
-                })
-              })
-
-              accounts = [...eip155AccountsSet]
-              scopeStrings = [...eip155ScopeStrings]
-
-              // Update connected accounts display
-              updateConnectedAccountsDisplay();
-
-              // Update scopes dropdown options
-              updateScopeSelectOptions()
-
-              // Update subscriptions display
-              oldScopeStrings.forEach(oldScopeString => {
-                if(!scopeStrings.includes(oldScopeString)) {
-                  removeEthSubscriptionDisplay(oldScopeString)
-                }
-              })
-        }
-
-
-        function connectRequestFull() {
-          const params = {
-            optionalScopes: {
-              "eip155": {
-                "references": ["1", "59141", "11155111", "59144"],
-                "methods": ["personal_sign", "eth_signTypedData_v4", "wallet_watchAsset", "eth_sendTransaction", "eth_subscribe", "eth_unsubscribe"],
-                "notifications": ["eth_subscription"]
-              },
-            }
-          }
-
-          const textarea = document.getElementById('connectRequestTextarea')
-          textarea.value = JSON.stringify(params, null, 2)
-        }
-
-        function connectRequestOnlySend() {
-          const params = {
-            optionalScopes: {
-              "eip155": {
-                "references": ["1", "59141", "11155111", "59144"],
-                "methods": ["eth_sendTransaction"],
-                "notifications": []
-              },
-            }
-          }
-
-          const textarea = document.getElementById('connectRequestTextarea')
-          textarea.value = JSON.stringify(params, null, 2)
-        }
-
-        function connectRequestOnlySubscribe() {
-          const params = {
-            optionalScopes: {
-              "eip155": {
-                "references": ["1", "59141", "11155111", "59144"],
-                "methods": ["eth_subscribe"],
-                "notifications": ["eth_subscription"]
-              },
-            }
-          }
-
-          const textarea = document.getElementById('connectRequestTextarea')
-          textarea.value = JSON.stringify(params, null, 2)
-        }
-
-        // Function to connect wallet
-        async function connectWallet() {
-            if (!extensionPort) {
-              alert('Connect to extension first.')
-              return
-            }
-            try {
-              const textarea = document.getElementById('connectRequestTextarea')
-              const params = JSON.parse(textarea.value)
-
-              const {sessionScopes} = await extensionPortRequest({
-                method: 'wallet_createSession',
-                params
-              })
-
-              await onNewSessionScopes(sessionScopes)
-            } catch (error) {
-                console.error(error);
-                alert('Failed to connect wallet!');
-            }
-        }
-
-        // Function to send transaction
-        async function sendTransaction() {
-            if (accounts.length === 0) {
-                alert('Please connect your wallet first!');
-                return;
-            }
-
-            const selectedScope = document.getElementById('scopeSelect').value;
-
-            const transactionParameters = {
-                to: '0x0000000000000000000000000000000000000000',
-                from: accounts[0],
-                value: '0x0',
-            };
-
-            try {
-                alert(`Will make eth_sendTransaction request intended for ${selectedScope} after this alert is dismissed.`)
-                await extensionPortRequest({
-                    method: 'wallet_invokeMethod',
-                    params: {
-                      scope: selectedScope,
-                      request: {
-                        method: 'eth_sendTransaction',
-                        params: [transactionParameters],
-                      }
-                    }
-                });
-                alert('Transaction sent!');
-            } catch (error) {
-                console.error(error);
-                alert('Transaction failed!');
-            }
-        }
-
-        // Function to subscribe to new block headers
-        async function subscribeToBlockHeaders() {
-          const selectedScope = document.getElementById('scopeSelect').value
-          if(!selectedScope) {
-            return
-          }
-
-          const scopeContainerId = `subscriptionsContainer-${selectedScope}`;
-          const scopeContainer = document.getElementById(scopeContainerId)
-          if (scopeContainer) {
-            return;
-          }
-
-          try {
-            await extensionPortRequest({
-                  method: 'wallet_invokeMethod',
-                  params: {
-                    scope: selectedScope,
-                    request: {
-                      method: "eth_subscribe",
-                      params: [
-                          "newHeads"
-                      ],
-                    }
-                  }
-              });
-              handleEthSubscriptionDisplay(selectedScope)
-          } catch (error) {
-              console.error(error);
-              alert('Subscription failed!');
+    try {
+      await extensionPortRequest({
+        method: 'wallet_invokeMethod',
+        params: {
+          scope: selectedScope,
+          request: {
+            method: "eth_subscribe",
+            params: [
+              "newHeads"
+            ],
           }
         }
+      });
+      handleEthSubscriptionDisplay(selectedScope)
+    } catch (error) {
+      console.error(error);
+      alert('Subscription failed!');
+    }
+  }
 
-        // Function to update the connected accounts display
-        function updateConnectedAccountsDisplay() {
-            if (accounts.length > 0) {
-              document.getElementById('connectedAccounts').innerText = `Connected Accounts: ${accounts.join(', ')}`;
-            } else {
-              document.getElementById('connectedAccounts').innerText = `Connected Accounts: Not available`;
-            }
-        }
+  function updateConnectedAccountsDisplay() {
+    if (accounts.length > 0) {
+      document.getElementById('connectedAccounts').innerText = `Connected Accounts: ${accounts.join(', ')}`;
+    } else {
+      document.getElementById('connectedAccounts').innerText = `Connected Accounts: Not available`;
+    }
+  }
 
-        // Function to update the connected accounts display
-        function updateScopeSelectOptions() {
-          const select = document.getElementById('scopeSelect')
-          select.innerHTML = ""
+  function updateScopeSelectOptions() {
+    const select = document.getElementById('scopeSelect')
+    select.innerHTML = ""
 
-          scopeStrings.forEach((scopeString) => {
-            const opt = document.createElement('option');
-            opt.value = scopeString;
-            opt.innerHTML = scopeString;
-            select.appendChild(opt);
-          })
-        }
+    scopeStrings.forEach((scopeString) => {
+      const opt = document.createElement('option');
+      opt.value = scopeString;
+      opt.innerHTML = scopeString;
+      select.appendChild(opt);
+    })
+  }
 
-        // Function to check if wallet is already connected
-        async function checkWalletConnection() {
-            try {
-                const {sessionScopes} = await extensionPortRequest({ method: 'wallet_getSession' })
-                await onNewSessionScopes(sessionScopes)
+  async function checkWalletConnection() {
+    try {
+      const {
+        sessionScopes
+      } = await extensionPortRequest({
+        method: 'wallet_getSession'
+      })
+      await onNewSessionScopes(sessionScopes)
 
-            } catch (error) {
-                console.error('Failed to check wallet connection:', error);
-            }
-        }
+    } catch (error) {
+      console.error('Failed to check wallet connection:', error);
+    }
+  }
 
-        // Event listener for connect extension button
-        document.getElementById('connectExtensionButton').addEventListener('click', connectExtension);
-
-        // Event listener for send transaction button
-        document.getElementById('sendTxButton').addEventListener('click', sendTransaction);
-
-        // Event listener for subscribe button
-        document.getElementById('subscribeButton').addEventListener('click', subscribeToBlockHeaders);
-
-        // Event listener for connect wallet buttons
-        document.getElementById('connectButton').addEventListener('click', connectWallet);
-        document.getElementById('connectRequestFullButton').addEventListener('click', connectRequestFull);
-        document.getElementById('connectRequestOnlySendButton').addEventListener('click', connectRequestOnlySend);
-        document.getElementById('connectRequestOnlySubscribeButton').addEventListener('click', connectRequestOnlySubscribe);
-
-    </script>
+  // DOM
+  document.getElementById('connectExtensionButton').addEventListener('click', connectExtension);
+  document.getElementById('sendTxButton').addEventListener('click', sendTransaction);
+  document.getElementById('subscribeButton').addEventListener('click', subscribeToBlockHeaders);
+  document.getElementById('connectButton').addEventListener('click', connectWallet);
+  document.getElementById('connectRequestFullButton').addEventListener('click', connectRequestFull);
+  document.getElementById('connectRequestMixedButton').addEventListener('click', connectRequestMixed);
+  document.getElementById('connectRequestOnlySendButton').addEventListener('click', connectRequestOnlySend);
+  document.getElementById('connectRequestOnlySubscribeButton').addEventListener('click', connectRequestOnlySubscribe);
+</script>
 </body>
 </html>
