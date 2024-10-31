@@ -44,9 +44,7 @@
       window.ethereum.on("chainChanged", async (chainId) => {
         const selectedChainId = document.getElementById("chainSelect").value;
         if (chainId !== selectedChainId) {
-          alert(
-            `Wallet has changed the current chain to ${chainId}. Will try to change it back to ${selectedChainId} now.`,
-          );
+          alert(`Wallet has changed the current chain to ${chainId}. Will try to change it back to ${selectedChainId} now.`);
           await switchChain(selectedChainId);
         }
         document.getElementById("blockHead").innerText = "Current Block Head: Not available";
