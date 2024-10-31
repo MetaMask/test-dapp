@@ -6,7 +6,7 @@
     <title>Ethereum DApp</title>
 </head>
 <body>
-    <h1>Ethereum EIP-1193 API DApp</h1>
+    <h1>Ethereum EIP-1193 API Dapp</h1>
     <button id="connectButton">Connect Wallet</button>
     <br>
     <div id="connectedAccounts">Connected Accounts: Not available</div>
@@ -107,7 +107,12 @@
                 window.ethereum.on('message', (message) => {
                     if (message.type === 'eth_subscription' && message.data.subscription === subscriptionId) {
                         const blockHead = message.data.result;
-                        document.getElementById('blockHead').innerText = `Current Block Head: ${parseInt(blockHead.number, 16)}`;
+                        const blockHeadDisplay = document.getElementById('blockHead')
+                        blockHeadDisplay.innerText = `Current Block Head: ${parseInt(blockHead.number, 16)}`;
+                        blockHeadDisplay.style.color = "red";
+                            setTimeout(() => {
+                                blockHeadDisplay.style.color = "black";
+                            }, 1500)
                     }
                 });
             }).catch(error => {
