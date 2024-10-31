@@ -35,6 +35,7 @@
     <script>
       let extensionPort;
       let jsonRpcId;
+      let currentSessionScopes = {};
       let accounts = [];
       let scopeStrings = [];
 
@@ -84,11 +85,13 @@
           });
         });
 
+        currentSessionScopes = sessionScopes;
         accounts = [...eip155AccountsSet];
         scopeStrings = [...eip155ScopeStrings];
 
         updateConnectedAccountsDisplay();
         updateScopeSelectOptions();
+        updateMethodButtonsState();
 
         oldScopeStrings.forEach((oldScopeString) => {
           if (!scopeStrings.includes(oldScopeString)) {
@@ -257,8 +260,22 @@
       document.getElementById("connectRequestMixedButton").addEventListener("click", connectRequestMixed);
       document.getElementById("connectRequestOnlySendButton").addEventListener("click", connectRequestOnlySend);
       document.getElementById("connectRequestOnlySubscribeButton").addEventListener("click", connectRequestOnlySubscribe);
+      document.getElementById("scopeSelect").addEventListener("change", async () => {
+        updateMethodButtonsState();
+      });
 
       // DOM Helpers
+      function updateMethodButtonsState() {
+        const scopeString = document.getElementById("scopeSelect").value;
+        const scopeObject = currentSessionScopes[scopeString];
+
+        const canSend = scopeObject?.methods?.includes?.('eth_sendTransaction');
+        document.getElementById("sendTxButton").style.color = canSend ? "green" : "red";
+
+        const canSubscribe = scopeObject?.methods?.includes?.('eth_subscribe');
+        document.getElementById("subscribeButton").style.color = canSubscribe ? "green" : "red";
+      }
+
       function updateScopeSelectOptions() {
         const select = document.getElementById("scopeSelect");
         select.innerHTML = "";
