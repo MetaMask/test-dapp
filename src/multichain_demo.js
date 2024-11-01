@@ -51,11 +51,14 @@ const NODE_PADDING = 20;
 const NODE_SCALE = 1.3;
 const NODE_TEXT_START = "-2.4em";
 const NODE_TEXT_SPACING = "1.2em";
+const EDGE_STROKE_WIDTH = 3;
+
+const ETH_VALUE_PRECISION = 4;
 
 const USE_SUBSCRIPTIONS = true; // use false for polling
 // subscriptions
-const SUBSCRIPTION_STAGGER = 10000;
-const SUBSCRIPTION_DEBOUNCE = 2000;
+const SUBSCRIPTION_STAGGER = 5000;
+const SUBSCRIPTION_DEBOUNCE = 2500;
 const SUBSCRIPTION_REQUEST_DELAY = 666; // just to avoid rate limiting a bit better
 // polling
 const POLLING_RATE = 12500; // mainnet block time -ish
@@ -179,15 +182,19 @@ async function subscribeToBlockHeaders(scopeString) {
   }
 }
 
+function getShortAddress(address) {
+  return `${address.slice(0,7)}...${address.slice(37,42)}`
+}
+
 function getNodeLabelText(scopeString) {
     const {name, contractAddress} = BridgeableScopes[scopeString];
     const accountsText = accounts.map(account => {
         const balance = balances[scopeString]?.[account] || 0
-        return `${account.slice(0,7)}...${account.slice(37,42)}: ${balance.toFixed(4)} ETH`
+        return `${getShortAddress(account)}: ${balance.toFixed(ETH_VALUE_PRECISION)} ETH`
     }).join('\n')
 
     const contractBalance = balances[scopeString]?.[contractAddress] || 0
-    return`${name}\nBridge Contract: ${contractBalance.toFixed(4)} ETH\n--------------------------\n${accountsText}`
+    return`${name}\nBridge Contract: ${contractBalance.toFixed(ETH_VALUE_PRECISION)} ETH\n--------------------------\n${accountsText}`
 }
 
 // Permission Initialization
@@ -295,12 +302,10 @@ let link = svg.append("g")
     .selectAll("line")
     .data(links)
     .enter().append("line")
-    .attr("stroke-width", 2)
+    .attr("stroke-width", EDGE_STROKE_WIDTH)
     .attr("stroke", "#999")
     .on("click", function(event, d) {
-        const sourceNode = nodes.find(node => node.id === d.source.id);
-        const targetNode = nodes.find(node => node.id === d.target.id);
-        showModal(`Source: ${sourceNode.label}\nTarget: ${targetNode.label}`);
+        showEdgeModal(d);
     });
 
 let node = svg.append("g")
@@ -337,12 +342,10 @@ function updateGraph() {
     .selectAll("line")
     .data(links)
     .enter().append("line")
-    .attr("stroke-width", 2)
+    .attr("stroke-width", EDGE_STROKE_WIDTH)
     .attr("stroke", "#999")
     .on("click", function(event, d) {
-        const sourceNode = nodes.find(node => node.id === d.source.id);
-        const targetNode = nodes.find(node => node.id === d.target.id);
-        showModal(`Source: ${sourceNode.label}\nTarget: ${targetNode.label}`);
+      showEdgeModal(d);
     });
 
     node = svg.append("g")
@@ -405,22 +408,120 @@ const modal = document.getElementById("myModal");
 const modalText = document.getElementById("modal-text");
 const span = document.getElementsByClassName("close")[0];
 
-function showModal(content) {
-    modalText.textContent = content;
-    modal.style.display = "block";
-}
-
 
 function generateBlockExplorerAddressLink(blockExplorerUrl, address, label) {
   return `<a href="${blockExplorerUrl}/address/${address}" target="_blank">${label || address}</a>`
 }
+
+function showEdgeModal(edge) {
+  const source = BridgeableScopes[edge.source.id]
+  const target = BridgeableScopes[edge.target.id]
+
+  let maxAmount = Math.min(
+    balances[edge.source.id]?.[source.contractAddress] || 0,
+    balances[edge.target.id]?.[target.contractAddress] || 0,
+    balances[edge.source.id]?.[accounts[0]] || 0
+  )
+
+  modalText.innerHTML = `
+    <h1>Bridge ${source.name} <-> ${target.name}</h1>
+    <p><b>${source.name} Bridge Contract:</b> ${generateBlockExplorerAddressLink(source.blockExplorerUrl, source.contractAddress)} (${(balances[edge.source.id]?.[source.contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</p>
+    <p><b>${target.name} Bridge Contract:</b> ${generateBlockExplorerAddressLink(target.blockExplorerUrl, target.contractAddress)} (${(balances[edge.target.id]?.[target.contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</p>
+    <hr>
+    <label for="fromScopeSelect">From:</label>
+    <select id="fromScopeSelect">
+      <option value="${edge.source.id}">${source.name} (${(balances[edge.source.id]?.[source.contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</option>
+      <option value="${edge.target.id}">${target.name} (${(balances[edge.target.id]?.[target.contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</option>
+    </select>
+    <label for="toScopeSelect">To:</label>
+    <select id="toScopeSelect">
+      <option value="${edge.target.id}">${target.name} (${(balances[edge.target.id]?.[target.contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</option>
+      <option value="${edge.source.id}">${source.name} (${(balances[edge.source.id]?.[source.contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</option>
+    </select>
+    <br>
+    <label for="accountSelect">Account:</label>
+    <select id="accountSelect">
+      ${
+        accounts.map(account => {
+          const balance = balances[edge.source.id]?.[account] || 0
+          return `<option value="${account}">${getShortAddress(account)} (${balance.toFixed(ETH_VALUE_PRECISION)} ETH)</option>`
+        }).join('')
+      }
+    </select>
+    <br>
+    <label for="amountText">Amount:</label>
+    <input type="text" id="amountText" value="${1/Math.pow(10, ETH_VALUE_PRECISION)}" />
+    Max: <span id="maxAmountDisplay">${maxAmount.toFixed(ETH_VALUE_PRECISION)}</span> ETH
+    <br>
+    <button id="bridgeButton">Bridge ETH</button>
+  `;
+
+  modal.style.display = "block";
+
+  document.getElementById("fromScopeSelect").addEventListener("change", (event) => {
+    const fromScope = event.target.value;
+    const toScope = fromScope === edge.source.id ? edge.target.id : edge.source.id;
+    document.getElementById("accountSelect").innerHTML = accounts.map(account => {
+      const balance = balances[fromScope]?.[account] || 0
+      return `<option value="${account}">${getShortAddress(account)} (${balance.toFixed(ETH_VALUE_PRECISION)} ETH)</option>`
+    }).join('')
+
+    document.getElementById("toScopeSelect").value = toScope
+
+    const account = document.getElementById("accountSelect").value
+    maxAmount = Math.min(
+      balances[edge.source.id]?.[source.contractAddress] || 0,
+      balances[edge.target.id]?.[target.contractAddress] || 0,
+      balances[fromScope]?.[account] || 0
+    )
+    document.getElementById("maxAmountDisplay").innerText = maxAmount.toFixed(ETH_VALUE_PRECISION)
+  });
+
+  document.getElementById("toScopeSelect").addEventListener("change", (event) => {
+    const toScope = event.target.value;
+    const fromScope = toScope === edge.source.id ? edge.target.id : edge.source.id;
+    document.getElementById("fromScopeSelect").value = fromScope
+  });
+
+  document.getElementById("accountSelect").addEventListener("change", (event) => {
+    const account = event.target.value;
+    const fromScope = document.getElementById("fromScopeSelect").value
+
+    maxAmount = Math.min(
+      balances[edge.source.id]?.[source.contractAddress] || 0,
+      balances[edge.target.id]?.[target.contractAddress] || 0,
+      balances[fromScope]?.[account] || 0
+    )
+    document.getElementById("maxAmountDisplay").innerText = maxAmount.toFixed(ETH_VALUE_PRECISION)
+  });
+
+  document.getElementById("bridgeButton").addEventListener("click", () => {
+    try {
+      const amount = Number(document.getElementById("amountText").value)
+      if (amount > maxAmount) {
+        alert(`Amount must be less than ${maxAmount}`)
+        return;
+      }
+      if (amount <= 0 || Number.isNaN(amount)) {
+        alert(`Amount must be greater than 0`)
+        return;
+      }
+      console.log('send')
+
+    } catch (error) {
+      console.log(error)
+      alert('failed to bridge!')
+    }
+  });
+}
+
 
 function showNodeModal(id) {
     const {name, contractAddress, supports, blockExplorerUrl} = BridgeableScopes[id]
     modalText.innerHTML = `
         <h1>${name}</h1>
         <p><a href="${blockExplorerUrl}" target="_blank">Block Explorer</a></p>
-        <p><b>Bridge Contract:</b> ${generateBlockExplorerAddressLink(blockExplorerUrl, contractAddress)} (${(balances[id]?.[contractAddress] || 0).toFixed(4)} ETH)</p>
+        <p><b>Bridge Contract:</b> ${generateBlockExplorerAddressLink(blockExplorerUrl, contractAddress)} (${(balances[id]?.[contractAddress] || 0).toFixed(ETH_VALUE_PRECISION)} ETH)</p>
         <p><b>Bridgeable Scopes:</b> ${supports.map(scopeString => BridgeableScopes[scopeString].name).join(', ')}</p>
         <hr>
         <b>Accounts:</b>
@@ -428,7 +529,7 @@ function showNodeModal(id) {
         <ul>
         ${accounts.map(account => {
             const balance = balances[id]?.[account] || 0
-            return `<li>${generateBlockExplorerAddressLink(blockExplorerUrl, account)} (${balance.toFixed(4)} ETH)</li>`
+            return `<li>${generateBlockExplorerAddressLink(blockExplorerUrl, account)} (${balance.toFixed(ETH_VALUE_PRECISION)} ETH)</li>`
         }).join('')}
         </ul>
 
