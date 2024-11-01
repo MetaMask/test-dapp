@@ -410,12 +410,17 @@ function showModal(content) {
     modal.style.display = "block";
 }
 
+
+function generateBlockExplorerAddressLink(blockExplorerUrl, address, label) {
+  return `<a href="${blockExplorerUrl}/address/${address}" target="_blank">${label || address}</a>`
+}
+
 function showNodeModal(id) {
     const {name, contractAddress, supports, blockExplorerUrl} = BridgeableScopes[id]
     modalText.innerHTML = `
         <h1>${name}</h1>
         <p><a href="${blockExplorerUrl}" target="_blank">Block Explorer</a></p>
-        <p><b>Bridge Contract:</b> ${contractAddress} (${(balances[id]?.[contractAddress] || 0).toFixed(4)} ETH)</p>
+        <p><b>Bridge Contract:</b> ${generateBlockExplorerAddressLink(blockExplorerUrl, contractAddress)} (${(balances[id]?.[contractAddress] || 0).toFixed(4)} ETH)</p>
         <p><b>Bridgeable Scopes:</b> ${supports.map(scopeString => BridgeableScopes[scopeString].name).join(', ')}</p>
         <hr>
         <b>Accounts:</b>
@@ -423,7 +428,7 @@ function showNodeModal(id) {
         <ul>
         ${accounts.map(account => {
             const balance = balances[id]?.[account] || 0
-            return `<li>${account} (${balance.toFixed(4)} ETH)</li>`
+            return `<li>${generateBlockExplorerAddressLink(blockExplorerUrl, account)} (${balance.toFixed(4)} ETH)</li>`
         }).join('')}
         </ul>
 
