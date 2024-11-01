@@ -1,8 +1,13 @@
 import * as d3 from "d3";
+import { Contract } from 'web3-eth-contract';
+import abi from './multichain_demo_contract_abi.json'
+const bridgeContract = new Contract(abi)
 
 //
 // Constants
 //
+const WeiPerEth = 1000000000000000000
+
 const BridgeableScopes = {
     // Sepolia
     "eip155:11155111": {
@@ -51,9 +56,11 @@ const NODE_PADDING = 20;
 const NODE_SCALE = 1.3;
 const NODE_TEXT_START = "-2.4em";
 const NODE_TEXT_SPACING = "1.2em";
+const EDGE_COLOR = "#999";
 const EDGE_STROKE_WIDTH = 3;
+const FLASH_DURATION = 2000;
 
-const ETH_VALUE_PRECISION = 4;
+const ETH_VALUE_PRECISION = 3;
 
 const USE_SUBSCRIPTIONS = true; // use false for polling
 // subscriptions
@@ -73,6 +80,7 @@ let accounts = [];
 let scopeStrings = [];
 
 let balances = {};
+let transactions = [];
 let subscriptionDebounce = {};
 
 let nodes = [];
@@ -211,6 +219,7 @@ async function connectWallet() {
                 eip155: {
                     references: ["11155111", "59141", "421614", "11155420", "168587773"],
                     methods: [
+                        "eth_getTransactionReceipt",
                         "eth_getBalance",
                         "eth_sendTransaction",
                         "eth_subscribe",
@@ -303,7 +312,7 @@ let link = svg.append("g")
     .data(links)
     .enter().append("line")
     .attr("stroke-width", EDGE_STROKE_WIDTH)
-    .attr("stroke", "#999")
+    .attr("stroke", EDGE_COLOR)
     .on("click", function(event, d) {
         showEdgeModal(d);
     });
@@ -343,7 +352,7 @@ function updateGraph() {
     .data(links)
     .enter().append("line")
     .attr("stroke-width", EDGE_STROKE_WIDTH)
-    .attr("stroke", "#999")
+    .attr("stroke", EDGE_COLOR)
     .on("click", function(event, d) {
       showEdgeModal(d);
     });
@@ -495,7 +504,13 @@ function showEdgeModal(edge) {
     document.getElementById("maxAmountDisplay").innerText = maxAmount.toFixed(ETH_VALUE_PRECISION)
   });
 
-  document.getElementById("bridgeButton").addEventListener("click", () => {
+  document.getElementById("bridgeButton").addEventListener("click", async () => {
+    const account = document.getElementById("accountSelect").value
+    const fromScope = document.getElementById("fromScopeSelect").value
+    const toScope = document.getElementById("toScopeSelect").value
+
+    const { contractAddress } = BridgeableScopes[fromScope]
+
     try {
       const amount = Number(document.getElementById("amountText").value)
       if (amount > maxAmount) {
@@ -506,8 +521,34 @@ function showEdgeModal(edge) {
         alert(`Amount must be greater than 0`)
         return;
       }
-      console.log('send')
 
+
+      const transactionHash = await extensionPortRequest({
+        method: "wallet_invokeMethod",
+        params: {
+            scope: fromScope,
+            request: {
+                "method": "eth_sendTransaction",
+                "params": [{
+                  to: contractAddress,
+                  from: account,
+                  data: "0x",
+                  value: `0x${(amount * WeiPerEth).toString(16)}`
+                }]
+            }
+        },
+      })
+
+      transactions.push({
+        account,
+        toScope,
+        fromScope,
+        amount,
+        transactionHash,
+        type: 'bridge'
+      })
+      updateEdge(fromScope, toScope, "black")
+      modal.style.display = "none";
     } catch (error) {
       console.log(error)
       alert('failed to bridge!')
@@ -547,36 +588,35 @@ window.onclick = function(event) {
     }
 }
 
-// Flash an edge
-// setTimeout(() => {
-//     const randomLink = d3.select(link.nodes()[Math.floor(Math.random() * links.length)]);
-//     const originalColor = randomLink.attr("stroke");
-//     randomLink.attr("stroke", "green");
-//     setTimeout(() => {
-//         randomLink.attr("stroke", originalColor);
-//     }, 3000);
-// }, 5000);
+function updateEdge(sourceId, targetId, color = EDGE_COLOR) {
+    const targetLink = links.find(link =>
+      (link.source.id === sourceId && link.target.id === targetId) ||
+      (link.source.id === targetId && link.target.id === sourceId)
+    )
+    if (!targetLink) {
+      console.log('couldnt find link', {sourceId, targetId, color})
+      return
+    }
 
+    const linkSelection = d3.select(link.nodes()[links.indexOf(targetLink)])
 
-// setTimeout(() => {
-//     const randomLink = links[Math.floor(Math.random() * links.length)];
-//     const linkSelection = d3.select(link.nodes()[links.indexOf(randomLink)]);
-//     const sourceNode = nodes.find(node => node.id === randomLink.source.id);
-//     const targetNode = nodes.find(node => node.id === randomLink.target.id);
+    linkSelection.attr("stroke", color);
 
-//     const edgeLabel = svg.append("text")
-//         .attr("x", (sourceNode.x + targetNode.x) / 2)
-//         .attr("y", (sourceNode.y + targetNode.y) / 2)
-//         .attr("dy", -5)
-//         .attr("text-anchor", "middle")
-//         .attr("fill", "green")
-//         .text("sending...");
+    // const sourceNode = nodes.find(node => node.id === randomLink.source.id);
+    // const targetNode = nodes.find(node => node.id === randomLink.target.id);
 
-//     setTimeout(() => {
-//         edgeLabel.remove();
-//     }, 3000);
-// }, 5000);
+    // const edgeLabel = svg.append("text")
+    //     .attr("x", (sourceNode.x + targetNode.x) / 2)
+    //     .attr("y", (sourceNode.y + targetNode.y) / 2)
+    //     .attr("dy", -5)
+    //     .attr("text-anchor", "middle")
+    //     .attr("fill", "green")
+    //     .text("sending...");
 
+    // setTimeout(() => {
+    //     edgeLabel.remove();
+    // }, 3000);
+}
 
 function addNode(id) {
     // console.log('adding node', id)
@@ -672,7 +712,7 @@ function updateNode(id, color) {
         targetNodeCircle.attr("stroke", color).attr("stroke-width", 3);
         setTimeout(() => {
             targetNodeCircle.attr("stroke", null).attr("stroke-width", null);
-        }, 2000);
+        }, FLASH_DURATION);
     }
     // Restart simulation to adjust positions
     simulation.alpha(1).restart();
@@ -682,6 +722,38 @@ function updateNode(id, color) {
 document.getElementById("connectExtensionButton").addEventListener("click", connectExtension);
 document.getElementById("connectButton").addEventListener("click", connectWallet);
 
+// Claim
+async function claimBridgedEth(transaction) {
+  const { toScope, fromScope, account, amount } = transaction
+  const { contractAddress } = BridgeableScopes[toScope]
+
+  const data = await bridgeContract.methods.withdraw(`0x${(amount * WeiPerEth).toString(16)}`).encodeABI();
+
+  const transactionHash = await extensionPortRequest({
+    method: "wallet_invokeMethod",
+    params: {
+        scope: toScope,
+        request: {
+            "method": "eth_sendTransaction",
+            "params": [{
+              to: contractAddress,
+              from: account,
+              data
+            }]
+        }
+    },
+  })
+
+  transactions.push({
+    account,
+    toScope,
+    fromScope,
+    amount,
+    transactionHash,
+    type: 'claim'
+  })
+  updateEdge(fromScope, toScope, "black")
+}
 
 // Events/Loops
 async function handleEthSubscription(scopeString, _blockHead) {
@@ -694,9 +766,10 @@ async function handleEthSubscription(scopeString, _blockHead) {
   }
   subscriptionDebounce[scopeString] = true
 
-  console.log(`Subscription: updating account balances and contract balance for scope ${scopeString}`)
-  await updateAccountBalancesForScope(scopeString)
+  console.log(`Subscription: updating account balances, contract balance, tx statuses for scope ${scopeString}`)
+  await updateTransactionStatusesForScope(scopeString)
   await updateContractBalanceForScope(scopeString)
+  await updateAccountBalancesForScope(scopeString)
 
   setTimeout(() => {
     subscriptionDebounce[scopeString] = false
@@ -880,11 +953,155 @@ async function updateContractBalancesPoll() {
     }, POLLING_RATE)
 }
 
+async function updateTransactionStatusesForScope(scopeString) {
+  if(!extensionPort) {
+      return
+  }
+  if(!accounts.length || !scopeStrings.length) {
+      return
+  }
+
+  const pendingTransactions = transactions.filter(transaction => !transaction.status)
+
+  await Promise.allSettled(pendingTransactions.map(async pendingTransaction => {
+      const {fromScope, toScope, type, transactionHash } = pendingTransaction
+
+      const targetScope = type === 'bridge' ? fromScope : toScope
+
+      if(targetScope !== scopeString) {
+        return
+      }
+
+      console.log(`getting tx receipt for tx hash ${transactionHash} on scope ${targetScope}`)
+      try {
+          const receipt = await extensionPortRequest({
+              method: "wallet_invokeMethod",
+              params: {
+                  scope: targetScope,
+                  request: {
+                      "method": "eth_getTransactionReceipt",
+                      "params": [
+                          transactionHash
+                      ],
+                  },
+              },
+          })
+
+          if(!receipt) {
+              return;
+          }
+
+          pendingTransaction.status = receipt.status
+          updateEdge(fromScope, toScope, receipt.status === '0x1' ? 'green' : 'red')
+          setTimeout(() => {
+            updateEdge(fromScope, toScope)
+          }, FLASH_DURATION)
+          if (pendingTransaction.type === 'bridge') {
+            setTimeout(() => {
+              claimBridgedEth(pendingTransaction)
+            }, FLASH_DURATION + 1000)
+          }
+          console.log(`got tx receipt for tx hash ${transactionHash} on scope ${targetScope}`, receipt.status)
+      } catch (error) {
+          console.error(`failed getting tx receipt for tx hash ${transactionHash} on scope ${targetScope}`)
+      }
+  }))
+}
+
+async function updateTransactionStatuses() {
+  if(!extensionPort) {
+      return
+  }
+  if(!accounts.length || !scopeStrings.length) {
+      return
+  }
+
+  const pendingTransactions = transactions.filter(transaction => !transaction.status)
+
+  await Promise.allSettled(pendingTransactions.map(async pendingTransaction => {
+      const {fromScope, toScope, type, transactionHash } = pendingTransaction
+
+      const targetScope = type === 'bridge' ? fromScope : toScope
+
+      console.log(`getting tx receipt for tx hash ${transactionHash} on scope ${targetScope}`)
+      try {
+          const receipt = await extensionPortRequest({
+              method: "wallet_invokeMethod",
+              params: {
+                  scope: targetScope,
+                  request: {
+                      "method": "eth_getTransactionReceipt",
+                      "params": [
+                          transactionHash
+                      ],
+                  },
+              },
+          })
+
+          if(!receipt) {
+              return;
+          }
+
+          pendingTransaction.status = receipt.status
+          updateEdge(fromScope, toScope, receipt.status === '0x1' ? 'green' : 'red')
+          setTimeout(() => {
+            updateEdge(fromScope, toScope)
+          }, FLASH_DURATION)
+          if (pendingTransaction.type === 'bridge') {
+            setTimeout(() => {
+              claimBridgedEth(pendingTransaction)
+            }, FLASH_DURATION + 1000)
+          }
+          console.log(`got tx receipt for tx hash ${transactionHash} on scope ${targetScope}`, receipt.status)
+      } catch (error) {
+          console.error(`failed getting tx receipt for tx hash ${transactionHash} on scope ${targetScope}`)
+      }
+  }))
+}
+async function updateTransactionStatusesPoll() {
+  console.log("Polling: updating all tx statuses")
+  await updateTransactionStatuses()
+  setTimeout(() => {
+      updateTransactionStatusesPoll()
+  }, POLLING_RATE)
+}
+
 let isPolling;
 async function startPolling() {
     if (!isPolling) {
         isPolling = true
-        updateAccountBalancesPoll()
+        updateTransactionStatusesPoll()
         updateContractBalancesPoll()
+        updateAccountBalancesPoll()
     }
 }
+
+// Flash an edge
+// setTimeout(() => {
+//     const randomLink = d3.select(link.nodes()[Math.floor(Math.random() * links.length)]);
+//     const originalColor = randomLink.attr("stroke");
+//     randomLink.attr("stroke", "green");
+//     setTimeout(() => {
+//         randomLink.attr("stroke", originalColor);
+//     }, 3000);
+// }, 5000);
+
+
+// setTimeout(() => {
+//     const randomLink = links[Math.floor(Math.random() * links.length)];
+//     const linkSelection = d3.select(link.nodes()[links.indexOf(randomLink)]);
+//     const sourceNode = nodes.find(node => node.id === randomLink.source.id);
+//     const targetNode = nodes.find(node => node.id === randomLink.target.id);
+
+//     const edgeLabel = svg.append("text")
+//         .attr("x", (sourceNode.x + targetNode.x) / 2)
+//         .attr("y", (sourceNode.y + targetNode.y) / 2)
+//         .attr("dy", -5)
+//         .attr("text-anchor", "middle")
+//         .attr("fill", "green")
+//         .text("sending...");
+
+//     setTimeout(() => {
+//         edgeLabel.remove();
+//     }, 3000);
+// }, 5000);
