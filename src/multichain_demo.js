@@ -52,15 +52,17 @@ const pastelColors = [
     "#9ac7a8", "#b8dbc9", "#c5e3d2", "#d1ebdb", "#d6e1c8",
     "#e5c28c", "#e8d097", "#edd9aa", "#f2e6bb", "#f9f3dd"
 ];
+const NODE_MIN_RADIUS = 130;
 const NODE_PADDING = 20;
 const NODE_SCALE = 1.3;
 const NODE_TEXT_START = "-2.4em";
 const NODE_TEXT_SPACING = "1.2em";
+const NODE_FLASH_COLOR = "gray"
 const EDGE_COLOR = "#999";
 const EDGE_STROKE_WIDTH = 3;
-const FLASH_DURATION = 2000;
+const FLASH_DURATION = 3000;
 
-const ETH_VALUE_PRECISION = 3;
+const ETH_VALUE_PRECISION = 4;
 
 const USE_SUBSCRIPTIONS = true; // use false for polling
 // subscriptions
@@ -163,7 +165,7 @@ async function onNewSessionScopes(sessionScopes) {
               }, Math.floor(Math.random() * (SUBSCRIPTION_STAGGER + 1)))
             }
         } else if (accountsDidChange) {
-            updateNode(newScopeString, "black")
+            refreshNodeContent(newScopeString)
         }
     })
 
@@ -197,12 +199,13 @@ function getShortAddress(address) {
 function getNodeLabelText(scopeString) {
     const {name, contractAddress} = BridgeableScopes[scopeString];
     const accountsText = accounts.map(account => {
-        const balance = balances[scopeString]?.[account] || 0
-        return `${getShortAddress(account)}: ${balance.toFixed(ETH_VALUE_PRECISION)} ETH`
+        const balance = balances[scopeString]?.[account]?.toFixed(ETH_VALUE_PRECISION) ?? '------'
+        return `${getShortAddress(account)}: ${balance} ETH`
     }).join('\n')
 
     const contractBalance = balances[scopeString]?.[contractAddress] || 0
-    return`${name}\nBridge Contract: ${contractBalance.toFixed(ETH_VALUE_PRECISION)} ETH\n--------------------------\n${accountsText}`
+    // return`${name}\nBridge Contract: ${contractBalance.toFixed(ETH_VALUE_PRECISION)} ETH\n--------------------------\n${accountsText}`
+    return`${name}\n--------------------------\n${accountsText}`
 }
 
 // Permission Initialization
@@ -304,7 +307,7 @@ const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).id(d => d.id).distance(400)) // Further increased distance
     .force("charge", d3.forceManyBody().strength(-1600)) // Further increased negative strength
     .force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2))
-    .force("collide", d3.forceCollide().radius(d => getRadius(d.label) * NODE_SCALE + NODE_PADDING + 40)); // Further increased radius
+    .force("collide", d3.forceCollide().radius(d => getRadius(d.label) + 40)); // Further increased radius
 
 let link = svg.append("g")
     .attr("class", "links")
@@ -327,7 +330,7 @@ let node = svg.append("g")
     });
 
 node.append("circle")
-    .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
+    .attr("r", d => getRadius(d.label))
     .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
 
 let text = node.append("text")
@@ -367,7 +370,7 @@ function updateGraph() {
         });
 
     node.append("circle")
-        .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
+        .attr("r", d => getRadius(d.label))
         .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
 
     text = node.append("text")
@@ -402,7 +405,8 @@ function getRadius(text) {
     const maxWidth = Math.max(...lines.map(line => context.measureText(line).width));
     const lineHeight = 10; // Approximate line height
     const textHeight = lines.length * lineHeight;
-    return Math.max(20, Math.sqrt(maxWidth * maxWidth + textHeight * textHeight) / 2 + 10); // Ensure a minimum radius of 20
+    const original = Math.sqrt(maxWidth * maxWidth + textHeight * textHeight) / 2 + 10
+    return Math.max(NODE_MIN_RADIUS, original * NODE_SCALE + NODE_PADDING);
 }
 
 window.addEventListener("resize", () => {
@@ -459,7 +463,7 @@ function showEdgeModal(edge) {
     </select>
     <br>
     <label for="amountText">Amount:</label>
-    <input type="text" id="amountText" value="${1/Math.pow(10, ETH_VALUE_PRECISION)}" />
+    <input type="text" id="amountText" value="${1/Math.pow(10, ETH_VALUE_PRECISION - 1)}" />
     Max: <span id="maxAmountDisplay">${maxAmount.toFixed(ETH_VALUE_PRECISION)}</span> ETH
     <br>
     <button id="bridgeButton">Bridge ETH</button>
@@ -547,7 +551,8 @@ function showEdgeModal(edge) {
         transactionHash,
         type: 'bridge'
       })
-      updateEdge(fromScope, toScope, "black")
+      updateEdgeColor(fromScope, toScope, "orange")
+      updateNodeBorderColor(fromScope, "orange")
       modal.style.display = "none";
     } catch (error) {
       console.log(error)
@@ -588,7 +593,7 @@ window.onclick = function(event) {
     }
 }
 
-function updateEdge(sourceId, targetId, color = EDGE_COLOR) {
+function updateEdgeColor(sourceId, targetId, color = EDGE_COLOR) {
     const targetLink = links.find(link =>
       (link.source.id === sourceId && link.target.id === targetId) ||
       (link.source.id === targetId && link.target.id === sourceId)
@@ -651,7 +656,7 @@ function addNode(id) {
     //     });
 
     // newNodeSelection.append("circle")
-    //     .attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING)
+    //     .attr("r", d => getRadius(d.label))
     //     .attr("fill", () => pastelColors[Math.floor(Math.random() * pastelColors.length)]);
 
     // const newText = newNodeSelection.append("text")
@@ -694,7 +699,7 @@ function removeNode(id) {
     simulation.alpha(1).restart();
 }
 
-function updateNode(id, color) {
+function refreshNodeContent(id) {
     const targetNode = nodes.find(node => node.id === id)
     targetNode.label = getNodeLabelText(id)
     text.selectAll("tspan").remove();
@@ -705,17 +710,41 @@ function updateNode(id, color) {
         .attr("x", 0)
         .attr("dy", (d, i) => i === 0 ? NODE_TEXT_START : NODE_TEXT_SPACING)
         .text(d => d);
-    node.select("circle").attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING);
+    node.select("circle").attr("r", d => getRadius(d.label));
 
-    if (color) {
-        const targetNodeCircle = d3.select(node.nodes()[nodes.indexOf(targetNode)]).select("circle");
-        targetNodeCircle.attr("stroke", color).attr("stroke-width", 3);
-        setTimeout(() => {
-            targetNodeCircle.attr("stroke", null).attr("stroke-width", null);
-        }, FLASH_DURATION);
+    const originalColor = svg.selectAll(".nodes circle")
+      .filter(d => d.id === id)
+      .attr("fill");
+
+    if(originalColor !== NODE_FLASH_COLOR) {
+      svg.selectAll(".nodes circle")
+        .filter(d => d.id === id)
+        .attr("fill", NODE_FLASH_COLOR);
+
+      setTimeout(() => {
+        svg.selectAll(".nodes circle")
+          .filter(d => d.id === id)
+          .attr("fill", originalColor);
+      }, FLASH_DURATION / 4)
     }
+
+
     // Restart simulation to adjust positions
-    simulation.alpha(1).restart();
+    // simulation.alpha(1).restart();
+}
+
+function updateNodeBorderColor(id, color) {
+  const targetNode = nodes.find(node => node.id === id)
+
+  const targetNodeCircle = d3.select(node.nodes()[nodes.indexOf(targetNode)]).select("circle");
+  if (color) {
+    targetNodeCircle.attr("stroke", color).attr("stroke-width", 3);
+  } else {
+    targetNodeCircle.attr("stroke", null).attr("stroke-width", null);
+  }
+
+  // Restart simulation to adjust positions
+  // simulation.alpha(1).restart();
 }
 
 // DOM
@@ -726,6 +755,11 @@ document.getElementById("connectButton").addEventListener("click", connectWallet
 async function claimBridgedEth(transaction) {
   const { toScope, fromScope, account, amount } = transaction
   const { contractAddress } = BridgeableScopes[toScope]
+
+  if (!confirm(`Initial bridge tranasction on ${BridgeableScopes[fromScope].name} was successful. Finish by claiming the ${amount} ETH now waiting on ${BridgeableScopes[toScope].name}?`)) {
+    console.log(`User chose not to finish claiming ${amount} ETH that has already been bridged from  ${BridgeableScopes[fromScope].name} to ${BridgeableScopes[toScope].name}`);
+    return
+  }
 
   const data = await bridgeContract.methods.withdraw(`0x${(amount * WeiPerEth).toString(16)}`).encodeABI();
 
@@ -752,7 +786,8 @@ async function claimBridgedEth(transaction) {
     transactionHash,
     type: 'claim'
   })
-  updateEdge(fromScope, toScope, "black")
+  updateEdgeColor(fromScope, toScope, "orange")
+  updateNodeBorderColor(toScope, "orange")
 }
 
 // Events/Loops
@@ -806,7 +841,8 @@ async function updateAccountBalancesForScope(scopeString) {
 
           if (oldBalance !== balances[scopeString][account]) {
               // console.log(`updating node for account ${account} on scope ${scopeString} with ${balances[scopeString][account]}`)
-              updateNode(scopeString, !oldBalance || balances[scopeString][account] > oldBalance ? "green" : "red")
+              // refreshNodeContent(scopeString, !oldBalance || balances[scopeString][account] > oldBalance ? "green" : "red")
+              refreshNodeContent(scopeString)
           }
 
       } catch (error) {
@@ -849,7 +885,8 @@ async function updateAccountBalances() {
 
                 if (oldBalance !== balances[scopeString][account]) {
                     // console.log(`updating node for account ${account} on scope ${scopeString} with ${balances[scopeString][account]}`)
-                    updateNode(scopeString, !oldBalance || balances[scopeString][account] > oldBalance ? "green" : "red")
+                    // refreshNodeContent(scopeString, !oldBalance || balances[scopeString][account] > oldBalance ? "green" : "red")
+                    refreshNodeContent(scopeString)
                 }
 
             } catch (error) {
@@ -897,7 +934,7 @@ async function updateContractBalanceForScope(scopeString) {
 
       if (oldBalance !== balances[scopeString][contractAddress]) {
           // console.log(`updating node for contract ${contractAddress} on scope ${scopeString} with ${balances[scopeString][contractAddress]}`)
-          updateNode(scopeString)
+          refreshNodeContent(scopeString)
       }
 
   } catch (error) {
@@ -937,7 +974,7 @@ async function updateContractBalances() {
 
             if (oldBalance !== balances[scopeString][contractAddress]) {
                 // console.log(`updating node for contract ${contractAddress} on scope ${scopeString} with ${balances[scopeString][contractAddress]}`)
-                updateNode(scopeString)
+                refreshNodeContent(scopeString)
             }
 
         } catch (error) {
@@ -966,7 +1003,8 @@ async function updateTransactionStatusesForScope(scopeString) {
   await Promise.allSettled(pendingTransactions.map(async pendingTransaction => {
       const {fromScope, toScope, type, transactionHash } = pendingTransaction
 
-      const targetScope = type === 'bridge' ? fromScope : toScope
+      const isBridge = type === 'bridge'
+      const targetScope = isBridge ? fromScope : toScope
 
       if(targetScope !== scopeString) {
         return
@@ -992,14 +1030,17 @@ async function updateTransactionStatusesForScope(scopeString) {
           }
 
           pendingTransaction.status = receipt.status
-          updateEdge(fromScope, toScope, receipt.status === '0x1' ? 'green' : 'red')
+          const color = receipt.status === '0x1' ? 'green' : 'red'
+          updateEdgeColor(fromScope, toScope, color)
+          updateNodeBorderColor(isBridge ? fromScope : toScope, color)
           setTimeout(() => {
-            updateEdge(fromScope, toScope)
+            updateEdgeColor(fromScope, toScope)
+            updateNodeBorderColor(isBridge ? fromScope : toScope)
           }, FLASH_DURATION)
-          if (pendingTransaction.type === 'bridge') {
+          if (isBridge) {
             setTimeout(() => {
               claimBridgedEth(pendingTransaction)
-            }, FLASH_DURATION + 1000)
+            }, FLASH_DURATION + 500)
           }
           console.log(`got tx receipt for tx hash ${transactionHash} on scope ${targetScope}`, receipt.status)
       } catch (error) {
@@ -1043,14 +1084,17 @@ async function updateTransactionStatuses() {
           }
 
           pendingTransaction.status = receipt.status
-          updateEdge(fromScope, toScope, receipt.status === '0x1' ? 'green' : 'red')
+          const color = receipt.status === '0x1' ? 'green' : 'red'
+          updateEdgeColor(fromScope, toScope, color)
+          updateNodeBorderColor(isBridge ? fromScope : toScope, color)
           setTimeout(() => {
-            updateEdge(fromScope, toScope)
+            updateEdgeColor(fromScope, toScope)
+            updateNodeBorderColor(isBridge ? fromScope : toScope)
           }, FLASH_DURATION)
-          if (pendingTransaction.type === 'bridge') {
+          if (isBridge) {
             setTimeout(() => {
               claimBridgedEth(pendingTransaction)
-            }, FLASH_DURATION + 1000)
+            }, FLASH_DURATION + 500)
           }
           console.log(`got tx receipt for tx hash ${transactionHash} on scope ${targetScope}`, receipt.status)
       } catch (error) {
