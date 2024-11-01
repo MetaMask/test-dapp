@@ -49,8 +49,16 @@ const pastelColors = [
 ];
 const NODE_PADDING = 20;
 const NODE_SCALE = 1.3;
-const NODE_TEXT_START = "-2.4em"
-const NODE_TEXT_SPACING = "1.2em"
+const NODE_TEXT_START = "-2.4em";
+const NODE_TEXT_SPACING = "1.2em";
+
+const USE_SUBSCRIPTIONS = true; // use false for polling
+// subscriptions
+const SUBSCRIPTION_STAGGER = 10000;
+const SUBSCRIPTION_DEBOUNCE = 2000;
+const SUBSCRIPTION_REQUEST_DELAY = 666; // just to avoid rate limiting a bit better
+// polling
+const POLLING_RATE = 12500; // mainnet block time -ish
 
 //
 // State
@@ -61,16 +69,11 @@ let currentSessionScopes = {};
 let accounts = [];
 let scopeStrings = [];
 
-let balances = {}
+let balances = {};
+let subscriptionDebounce = {};
 
 let nodes = [];
 let links = [];
-for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-        links.push({ source: nodes[i].id, target: nodes[j].id });
-    }
-}
-
 
 //
 // Helpers
@@ -85,7 +88,7 @@ async function connectExtension() {
             const { data: { method, params } } = msg;
             // Subscription Events
             if (method === "wallet_notify") {
-                handleEthSubscriptionDisplay(
+                handleEthSubscription(
                     params.scope,
                     params.notification.params.result.number,
                 );
@@ -93,7 +96,7 @@ async function connectExtension() {
             } else if (method === "wallet_sessionChanged") {
                 onNewSessionScopes(params.sessionScopes);
             }
-            console.log(msg.data);
+            // console.log(msg.data);
         });
 
         // Dapp Initialization
@@ -111,7 +114,7 @@ async function onNewSessionScopes(sessionScopes) {
     const eip155ScopeStrings = Object.keys(sessionScopes).filter((scopeString) => {
         // return /eip155:[0-9]+/u.test(scopeString)
         if (!BridgeableScopes[scopeString]) {
-            console.log(`ignoring ${scopeString} since it is not defined in BridgeableScopes`)
+            // console.log(`ignoring ${scopeString} since it is not defined in BridgeableScopes`)
             return false
         }
         return true
@@ -133,11 +136,6 @@ async function onNewSessionScopes(sessionScopes) {
     accounts = [...eip155AccountsSet];
     scopeStrings = [...eip155ScopeStrings];
 
-
-    // updateConnectedAccountsDisplay();
-    // updateScopeSelectOptions();
-    // updateMethodButtonsState();
-
     const accountsDidChange = oldAccounts.length !== accounts.length || accounts.some(account => !oldAccounts.includes(account))
 
     oldScopeStrings.forEach((oldScopeString) => {
@@ -148,13 +146,37 @@ async function onNewSessionScopes(sessionScopes) {
     scopeStrings.forEach(newScopeString => {
         if (!oldScopeStrings.includes(newScopeString)) {
             addNode(newScopeString)
+            if (USE_SUBSCRIPTIONS) {
+              setTimeout(() => {
+                subscribeToBlockHeaders(newScopeString)
+              }, Math.floor(Math.random() * (SUBSCRIPTION_STAGGER + 1)))
+            }
         } else if (accountsDidChange) {
             updateNode(newScopeString, "black")
         }
     })
 
+    if (!USE_SUBSCRIPTIONS) {
+      startPolling()
+    }
+}
 
-    startPolling()
+async function subscribeToBlockHeaders(scopeString) {
+  try {
+    await extensionPortRequest({
+      method: "wallet_invokeMethod",
+      params: {
+        scope: scopeString,
+        request: {
+          method: "eth_subscribe",
+          params: ["newHeads"],
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    alert("Subscription failed!");
+  }
 }
 
 function getNodeLabelText(scopeString) {
@@ -419,20 +441,6 @@ window.onclick = function(event) {
     }
 }
 
-// setTimeout(() => {
-//     nodes[0].label = generateLabel();
-//     text.selectAll("tspan").remove();
-//     text.selectAll("tspan")
-//         .data(d => d.label.split('\n'))
-//         .enter()
-//         .append("tspan")
-//         .attr("x", 0)
-//         .attr("dy", (d, i) => i === 0 ? NODE_TEXT_START : NODE_TEXT_SPACING)
-//         .text(d => d);
-//     node.select("circle").attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING);
-//     simulation.alpha(1).restart(); // Restart simulation to adjust positions
-// }, 3000);
-
 // Flash an edge
 // setTimeout(() => {
 //     const randomLink = d3.select(link.nodes()[Math.floor(Math.random() * links.length)]);
@@ -465,7 +473,7 @@ window.onclick = function(event) {
 
 
 function addNode(id) {
-    console.log('adding node', id)
+    // console.log('adding node', id)
     const newNode = { id, label: getNodeLabelText(id) };
     nodes.push(newNode);
 
@@ -518,7 +526,7 @@ function addNode(id) {
 }
 
 function removeNode(id) {
-    console.log('removing node', id)
+    // console.log('removing node', id)
     nodes = nodes.filter(node => node.id !== id);
     links = links.filter(link => link.source.id !== id && link.target.id !== id);
 
@@ -568,7 +576,67 @@ function updateNode(id, color) {
 document.getElementById("connectExtensionButton").addEventListener("click", connectExtension);
 document.getElementById("connectButton").addEventListener("click", connectWallet);
 
-// Loops
+
+// Events/Loops
+async function handleEthSubscription(scopeString, _blockHead) {
+  if (!scopeStrings.includes(scopeString)) {
+    // Not sure how this would happen
+    return
+  }
+  if(subscriptionDebounce[scopeString]) {
+    return
+  }
+  subscriptionDebounce[scopeString] = true
+
+  console.log(`Subscription: updating account balances and contract balance for scope ${scopeString}`)
+  await updateAccountBalancesForScope(scopeString)
+  await updateContractBalanceForScope(scopeString)
+
+  setTimeout(() => {
+    subscriptionDebounce[scopeString] = false
+  }, SUBSCRIPTION_DEBOUNCE)
+}
+
+async function updateAccountBalancesForScope(scopeString) {
+  if(!extensionPort) {
+      return
+  }
+  if(!accounts.length || !scopeStrings.includes(scopeString)) {
+      return
+  }
+
+  for (let account of accounts) {
+      // console.log(`updating balance for account ${account} on scope ${scopeString}`)
+      try {
+          const balance = await extensionPortRequest({
+              method: "wallet_invokeMethod",
+              params: {
+                  scope: scopeString,
+                  request: {
+                      "method": "eth_getBalance",
+                      "params": [
+                          account,
+                          "latest"
+                      ],
+                  },
+              },
+          })
+          balances[scopeString] = balances[scopeString] || {}
+          const oldBalance = balances[scopeString][account] || 0
+          balances[scopeString][account] = parseInt(balance, 16) / Math.pow(10, 18);
+
+          if (oldBalance !== balances[scopeString][account]) {
+              // console.log(`updating node for account ${account} on scope ${scopeString} with ${balances[scopeString][account]}`)
+              updateNode(scopeString, !oldBalance || balances[scopeString][account] > oldBalance ? "green" : "red")
+          }
+
+      } catch (error) {
+          console.error(`failed updating balance for account ${account} on scope ${scopeString}`, error)
+      }
+      await new Promise((resolve) => setTimeout(resolve, SUBSCRIPTION_REQUEST_DELAY))
+  }
+}
+
 async function updateAccountBalances() {
     if(!extensionPort) {
         return
@@ -578,6 +646,7 @@ async function updateAccountBalances() {
     }
 
     for (let account of accounts) {
+      console.log(`Polling: updating account balances for account ${account}`)
         // Notice how we hit multiple chains at once
         await Promise.allSettled(scopeStrings.map(async scopeString => {
             // console.log(`updating balance for account ${account} on scope ${scopeString}`)
@@ -615,7 +684,46 @@ async function updateAccountBalancesPoll() {
     await updateAccountBalances()
     setTimeout(() => {
         updateAccountBalancesPoll()
-    }, 12000) // Mainnet block time, idk
+    }, POLLING_RATE)
+}
+
+
+async function updateContractBalanceForScope(scopeString) {
+  if(!extensionPort) {
+      return
+  }
+  if(!accounts.length || !scopeStrings.includes(scopeString)) {
+    return
+  }
+
+  const {contractAddress} = BridgeableScopes[scopeString]
+  // console.log(`updating balance for contract ${contractAddress} on scope ${scopeString}`)
+  try {
+      const balance = await extensionPortRequest({
+          method: "wallet_invokeMethod",
+          params: {
+              scope: scopeString,
+              request: {
+                  "method": "eth_getBalance",
+                  "params": [
+                      contractAddress,
+                      "latest"
+                  ],
+              },
+          },
+      })
+      balances[scopeString] = balances[scopeString] || {}
+      const oldBalance = balances[scopeString][contractAddress] || 0
+      balances[scopeString][contractAddress] = parseInt(balance, 16) / Math.pow(10, 18);
+
+      if (oldBalance !== balances[scopeString][contractAddress]) {
+          // console.log(`updating node for contract ${contractAddress} on scope ${scopeString} with ${balances[scopeString][contractAddress]}`)
+          updateNode(scopeString)
+      }
+
+  } catch (error) {
+      console.error(`failed updating balance for contract ${contractAddress} on scope ${scopeString}`, error)
+  }
 }
 
 async function updateContractBalances() {
@@ -659,10 +767,11 @@ async function updateContractBalances() {
     }))
 }
 async function updateContractBalancesPoll() {
+    console.log("Polling: updating all contract balances")
     await updateContractBalances()
     setTimeout(() => {
         updateContractBalancesPoll()
-    }, 12000) // Mainnet block time, idk
+    }, POLLING_RATE)
 }
 
 let isPolling;
