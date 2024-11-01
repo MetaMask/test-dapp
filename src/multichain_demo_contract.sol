@@ -28,9 +28,8 @@ contract RestrictedWithdrawal {
         allowedCount = initialAllowedAddresses.length;
     }
 
-    function deposit() external payable {
-        require(msg.value > 0, "Must deposit non-zero amount");
-        emit Deposit(msg.sender, msg.value);
+    receive() external payable {
+      emit Deposit(msg.sender, msg.value);
     }
 
     function withdraw(uint256 amount) external onlyAllowed {
