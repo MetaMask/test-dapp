@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D3.js Graph Visualization</title>
+    <title>Multichain API EVM Bridging Demo Dapp</title>
     <style>
         body {
             margin: 0;
@@ -65,22 +65,22 @@
         <button id="connectExtensionButton">Connect Extension</button>
         <button id="connectButton">Connect Wallet</button>
         <br><br>
-        <a href="https://chainlist.org/chain/11155111">Sepolia</a>
+        <a href="https://chainlist.org/chain/11155111" target="_blank">Sepolia</a>
         <br>
-        <a href="https://chainlist.org/chain/59141">Linea Sepolia</a>
+        <a href="https://chainlist.org/chain/59141" target="_blank">Linea Sepolia</a>
         <br>
-        <a href="https://chainlist.org/chain/421614">Arbitrum Sepolia</a>
+        <a href="https://chainlist.org/chain/421614" target="_blank">Arbitrum Sepolia</a>
         <br>
-        <a href="https://chainlist.org/chain/11155420">OP Sepolia</a>
+        <a href="https://chainlist.org/chain/11155420" target="_blank">OP Sepolia</a>
         <br>
-        <a href="https://chainlist.org/chain/168587773">Blast Sepolia</a>
+        <a href="https://chainlist.org/chain/168587773" target="_blank">Blast Sepolia</a>
     </div>
 
     <!-- Modal Structure -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <p id="modal-text"></p>
+            <div id="modal-text"></div>
         </div>
     </div>
 
@@ -89,30 +89,40 @@ document.addEventListener("DOMContentLoaded", function() {
     //
     // Constants
     //
-    const BridgeContracts = {
+    const BridgeableScopes = {
         // Sepolia
         "eip155:11155111": {
-            contractAddress: '0xdead',
+            name: "Sepolia",
+            contractAddress: '0x2e2512fd69cba059DFf557cD6f683a3279402e91',
+            blockExplorerUrl: 'https://sepolia.etherscan.io',
             supports: ["eip155:59141", "eip155:421614", "eip155:11155420", "eip155:168587773"]
         },
         // Linea Sepolia (no Arbitrium)
         "eip155:59141": {
-            contractAddress: '0xdead',
+            name: "Linea Sepolia",
+            contractAddress: '0x786Cb4C684F9D4bA4aBEbddE2c8a4D4ec80a9b78',
+            blockExplorerUrl: 'https://sepolia.lineascan.build/',
             supports: ["eip155:11155111", "eip155:11155420", "eip155:168587773"]
         },
         // Arbitrum Sepolia (no Linea)
         "eip155:421614": {
-            contractAddress: '0xdead',
+            name: "Arbitrum Sepolia",
+            contractAddress: '0x697230B7c217F4F45C460d5d181F792AB0aC6549',
+            blockExplorerUrl: 'https://sepolia.arbiscan.io/',
             supports: ["eip155:11155111", "eip155:11155420", "eip155:168587773"]
         },
         // OP Sepolia (no Blast)
         "eip155:11155420": {
-            contractAddress: '0xdead',
+            name: "OP Sepolia",
+            contractAddress: '0x697230B7c217F4F45C460d5d181F792AB0aC6549',
+            blockExplorerUrl: 'https://sepolia-optimism.etherscan.io/',
             supports: ["eip155:11155111", "eip155:59141", "eip155:421614"]
         },
         // Blast Sepolia (no OP)
         "eip155:168587773": {
-            contractAddress: '0xdead',
+            name: "Blast Sepolia",
+            contractAddress: '0x697230B7c217F4F45C460d5d181F792AB0aC6549',
+            blockExplorerUrl: 'https://sepolia.blastscan.io/',
             supports: ["eip155:11155111", "eip155:59141", "eip155:421614"]
         },
     }
@@ -181,10 +191,11 @@ document.addEventListener("DOMContentLoaded", function() {
     // Permission Handling
     async function onNewSessionScopes(sessionScopes) {
         const oldScopeStrings = scopeStrings;
+        const oldAccounts = accounts;
         const eip155ScopeStrings = Object.keys(sessionScopes).filter((scopeString) => {
             // return /eip155:[0-9]+/u.test(scopeString)
-            if (!BridgeContracts[scopeString]) {
-                console.log(`ignoring ${scopeString} since it is not defined in BridgeContracts`)
+            if (!BridgeableScopes[scopeString]) {
+                console.log(`ignoring ${scopeString} since it is not defined in BridgeableScopes`)
                 return false
             }
             return true
@@ -211,6 +222,8 @@ document.addEventListener("DOMContentLoaded", function() {
         // updateScopeSelectOptions();
         // updateMethodButtonsState();
 
+        const accountsDidChange = oldAccounts.length !== accounts.length || accounts.some(account => !oldAccounts.includes(account))
+
         oldScopeStrings.forEach((oldScopeString) => {
             if (!scopeStrings.includes(oldScopeString)) {
                 removeNode(oldScopeString)
@@ -219,18 +232,24 @@ document.addEventListener("DOMContentLoaded", function() {
         scopeStrings.forEach(newScopeString => {
             if (!oldScopeStrings.includes(newScopeString)) {
                 addNode(newScopeString)
+            } else if (accountsDidChange) {
+                updateNode(newScopeString, "black")
             }
         })
+
 
         startPolling()
     }
 
     function getNodeLabelText(scopeString) {
+        const {name, contractAddress} = BridgeableScopes[scopeString];
         const accountsText = accounts.map(account => {
             const balance = balances[scopeString]?.[account] || 0
-            return `${account.slice(0,7)}...${account.slice(37,42)}: ${balance.toFixed(4)}`
+            return `${account.slice(0,7)}...${account.slice(37,42)}: ${balance.toFixed(4)} ETH`
         }).join('\n')
-        return`${scopeString}\n----------\n${accountsText}`
+
+        const contractBalance = balances[scopeString]?.[contractAddress] || 0
+        return`${name}\nBridge Contract: ${contractBalance.toFixed(4)} ETH\n----------------\n${accountsText}`
     }
 
     // Permission Initialization
@@ -322,9 +341,6 @@ document.addEventListener("DOMContentLoaded", function() {
     //
     // D3
     //
-    function generateLabel() {
-        return accounts.map(account => `${account}: ${(Math.random() * 10).toFixed(3)}`).join('\n');
-    }
 
     const svg = d3.select("body").append("svg")
         .attr("width", window.innerWidth)
@@ -355,7 +371,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .data(nodes)
         .enter().append("g")
         .on("click", function(event, d) {
-            showModal(d.label);
+            showNodeModal(d.id);
         });
 
     node.append("circle")
@@ -397,7 +413,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .data(nodes)
             .enter().append("g")
             .on("click", function(event, d) {
-                showModal(d.label);
+                showNodeModal(d.id);
             });
 
         node.append("circle")
@@ -453,6 +469,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function showModal(content) {
         modalText.textContent = content;
+        modal.style.display = "block";
+    }
+
+    function showNodeModal(id) {
+        const {name, contractAddress, supports, blockExplorerUrl} = BridgeableScopes[id]
+        modalText.innerHTML = `
+            <h1>${name}</h1>
+            <p><a href="${blockExplorerUrl}" target="_blank">Block Explorer</a></p>
+            <p><b>Bridge Contract:</b> ${contractAddress} (${(balances[id]?.[contractAddress] || 0).toFixed(4)} ETH)</p>
+            <p><b>Bridgeable Scopes:</b> ${supports.map(scopeString => BridgeableScopes[scopeString].name).join(', ')}</p>
+            <hr>
+            <b>Accounts:</b>
+            <br>
+            <ul>
+            ${accounts.map(account => {
+                const balance = balances[id]?.[account] || 0
+                return `<li>${account} (${balance.toFixed(4)} ETH)</li>`
+            }).join('')}
+            </ul>
+
+        `;
         modal.style.display = "block";
     }
 
@@ -516,7 +553,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const newNode = { id, label: getNodeLabelText(id) };
         nodes.push(newNode);
 
-        const supportedScopes = BridgeContracts[id]?.supports || []
+        const supportedScopes = BridgeableScopes[id]?.supports || []
 
         supportedScopes.forEach((supportedScope) => {
             const targetNode = nodes.find(node => node.id === supportedScope)
@@ -587,8 +624,9 @@ document.addEventListener("DOMContentLoaded", function() {
         simulation.alpha(1).restart();
     }
 
-    function updateNode(id) {
-        nodes.find(node => node.id === id).label = getNodeLabelText(id)
+    function updateNode(id, color) {
+        const targetNode = nodes.find(node => node.id === id)
+        targetNode.label = getNodeLabelText(id)
         text.selectAll("tspan").remove();
         text.selectAll("tspan")
             .data(d => d.label.split('\n'))
@@ -599,6 +637,13 @@ document.addEventListener("DOMContentLoaded", function() {
             .text(d => d);
         node.select("circle").attr("r", d => getRadius(d.label) * NODE_SCALE + NODE_PADDING);
 
+        if (color) {
+            const targetNodeCircle = d3.select(node.nodes()[nodes.indexOf(targetNode)]).select("circle");
+            targetNodeCircle.attr("stroke", color).attr("stroke-width", 3);
+            setTimeout(() => {
+                targetNodeCircle.attr("stroke", null).attr("stroke-width", null);
+            }, 2000);
+        }
         // Restart simulation to adjust positions
         simulation.alpha(1).restart();
     }
@@ -612,12 +657,13 @@ document.addEventListener("DOMContentLoaded", function() {
         if(!extensionPort) {
             return
         }
-        if(!accounts.length) {
+        if(!accounts.length || !scopeStrings.length) {
             return
         }
 
         for (let account of accounts) {
-            for (let scopeString of scopeStrings) {
+            // Notice how we hit multiple chains at once
+            await Promise.allSettled(scopeStrings.map(async scopeString => {
                 // console.log(`updating balance for account ${account} on scope ${scopeString}`)
                 try {
                     const balance = await extensionPortRequest({
@@ -638,29 +684,77 @@ document.addEventListener("DOMContentLoaded", function() {
                     balances[scopeString][account] = parseInt(balance, 16) / Math.pow(10, 18);
 
                     if (oldBalance !== balances[scopeString][account]) {
-                        console.log(`updating node for account ${account} on scope ${scopeString} with ${balances[scopeString][account]}`)
-                        updateNode(scopeString)
+                        // console.log(`updating node for account ${account} on scope ${scopeString} with ${balances[scopeString][account]}`)
+                        updateNode(scopeString, !oldBalance || balances[scopeString][account] > oldBalance ? "green" : "red")
                     }
 
                 } catch (error) {
                     console.error(`failed updating balance for account ${account} on scope ${scopeString}`, error)
                 }
-            }
+
+            }))
         }
     }
-
     async function updateAccountBalancesPoll() {
         await updateAccountBalances()
         setTimeout(() => {
             updateAccountBalancesPoll()
-        }, 10000)
+        }, 12000) // Mainnet block time, idk
+    }
+
+    async function updateContractBalances() {
+        if(!extensionPort) {
+            return
+        }
+        if(!accounts.length || !scopeStrings.length) {
+            return
+        }
+
+
+        await Promise.allSettled(scopeStrings.map(async scopeString => {
+            const {contractAddress} = BridgeableScopes[scopeString]
+            // console.log(`updating balance for contract ${contractAddress} on scope ${scopeString}`)
+            try {
+                const balance = await extensionPortRequest({
+                    method: "wallet_invokeMethod",
+                    params: {
+                        scope: scopeString,
+                        request: {
+                            "method": "eth_getBalance",
+                            "params": [
+                                contractAddress,
+                                "latest"
+                            ],
+                        },
+                    },
+                })
+                balances[scopeString] = balances[scopeString] || {}
+                const oldBalance = balances[scopeString][contractAddress] || 0
+                balances[scopeString][contractAddress] = parseInt(balance, 16) / Math.pow(10, 18);
+
+                if (oldBalance !== balances[scopeString][contractAddress]) {
+                    // console.log(`updating node for contract ${contractAddress} on scope ${scopeString} with ${balances[scopeString][contractAddress]}`)
+                    updateNode(scopeString)
+                }
+
+            } catch (error) {
+                console.error(`failed updating balance for contract ${contractAddress} on scope ${scopeString}`, error)
+            }
+        }))
+    }
+    async function updateContractBalancesPoll() {
+        await updateContractBalances()
+        setTimeout(() => {
+            updateContractBalancesPoll()
+        }, 12000) // Mainnet block time, idk
     }
 
     let isPolling;
-    function startPolling() {
+    async function startPolling() {
         if (!isPolling) {
             isPolling = true
             updateAccountBalancesPoll()
+            updateContractBalancesPoll()
         }
     }
 
