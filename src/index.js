@@ -2245,7 +2245,7 @@ const initializeFormElements = () => {
       ethSignResult.innerHTML = JSON.stringify(ethResult);
     } catch (err) {
       console.error(err);
-      ethSign.innerHTML = `Error: ${err.message}`;
+      ethSignResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
@@ -2265,7 +2265,7 @@ const initializeFormElements = () => {
       personalSignVerify.disabled = false;
     } catch (err) {
       console.error(err);
-      personalSign.innerHTML = `Error: ${err.message}`;
+      personalSignResult.innerHTML = `Error: ${err.message}`;
     }
   };
 
