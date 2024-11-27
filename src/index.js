@@ -2806,146 +2806,54 @@ const initializeFormElements = () => {
     }
   };
 
+  async function requestSignTypedDataVariant(primaryType) {
+    const from = accounts[0];
+    const msgParams = getPermitMsgParams(
+      {
+        primaryType,
+        chainId: chainIdInt,
+      },
+      { fromAddress: from },
+    );
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    try {
+      sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      signPermitVariantResult.innerHTML = sign;
+      signPermitVariantResultR.innerHTML = `r: ${r}`;
+      signPermitVariantResultS.innerHTML = `s: ${s}`;
+      signPermitVariantResultV.innerHTML = `v: ${v}`;
+      signPermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
+    }
+  }
+
   signBlurOrder.onclick = async () => {
-    const from = accounts[0];
-    const msgParams = getPermitMsgParams(
-      {
-        primaryType: MSG_PRIMARY_TYPE.BLUR_ORDER,
-        chainId: chainIdInt,
-      },
-      { fromAddress: from },
-    );
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      signPermitVariantResult.innerHTML = sign;
-      signPermitVariantResultR.innerHTML = `r: ${r}`;
-      signPermitVariantResultS.innerHTML = `s: ${s}`;
-      signPermitVariantResultV.innerHTML = `v: ${v}`;
-      signPermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
-    }
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.BLUR_ORDER);
   };
-
   signPermitBatch.onclick = async () => {
-    const from = accounts[0];
-    const msgParams = getPermitMsgParams({
-      primaryType: MSG_PRIMARY_TYPE.PERMIT_BATCH,
-      chainId: chainIdInt,
-    });
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      signPermitVariantResult.innerHTML = sign;
-      signPermitVariantResultR.innerHTML = `r: ${r}`;
-      signPermitVariantResultS.innerHTML = `s: ${s}`;
-      signPermitVariantResultV.innerHTML = `v: ${v}`;
-      signPermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
-    }
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.PERMIT_BATCH);
   };
-
   signPermitSingle.onclick = async () => {
-    const from = accounts[0];
-    const msgParams = getPermitMsgParams({
-      primaryType: MSG_PRIMARY_TYPE.PERMIT_SINGLE,
-      chainId: chainIdInt,
-    });
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      signPermitVariantResult.innerHTML = sign;
-      signPermitVariantResultR.innerHTML = `r: ${r}`;
-      signPermitVariantResultS.innerHTML = `s: ${s}`;
-      signPermitVariantResultV.innerHTML = `v: ${v}`;
-      signPermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
-    }
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.PERMIT_SINGLE);
   };
-
   signSeaportBulkOrder.onclick = async () => {
-    const from = accounts[0];
-    const msgParams = getPermitMsgParams(
-      {
-        primaryType: MSG_PRIMARY_TYPE.SEAPORT_BULK_ORDER,
-        chainId: chainIdInt,
-      },
-      { fromAddress: from },
-    );
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      signPermitVariantResult.innerHTML = sign;
-      signPermitVariantResultR.innerHTML = `r: ${r}`;
-      signPermitVariantResultS.innerHTML = `s: ${s}`;
-      signPermitVariantResultV.innerHTML = `v: ${v}`;
-      signPermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
-    }
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.SEAPORT_BULK_ORDER);
   };
 
   /**
