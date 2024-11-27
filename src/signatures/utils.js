@@ -66,6 +66,7 @@ export function getPermitMsgParams(
     }
     case MSG_PRIMARY_TYPE.PERMIT: {
       return {
+        primaryType: 'Permit',
         types: {
           EIP712Domain,
           Permit: [
@@ -76,7 +77,6 @@ export function getPermitMsgParams(
             { name: 'deadline', type: 'uint256' },
           ],
         },
-        primaryType: 'Permit',
         domain: {
           chainId,
           name: 'MyToken',
@@ -94,6 +94,7 @@ export function getPermitMsgParams(
     }
     case MSG_PRIMARY_TYPE.PERMIT_BATCH: {
       return {
+        primaryType: 'PermitBatch',
         types: {
           PermitBatch: [
             {
@@ -148,7 +149,6 @@ export function getPermitMsgParams(
           verifyingContract: '0x000000000022d473030f116ddee9f6b43ac78ba3',
           version: '1',
         },
-        primaryType: 'PermitBatch',
         message: {
           details: [
             {
@@ -171,6 +171,7 @@ export function getPermitMsgParams(
     }
     case MSG_PRIMARY_TYPE.PERMIT_SINGLE: {
       return {
+        primaryType: 'PermitSingle',
         types: {
           PermitSingle: [
             {
@@ -212,7 +213,6 @@ export function getPermitMsgParams(
           verifyingContract: '0x000000000022d473030f116ddee9f6b43ac78ba3',
           version: '1',
         },
-        primaryType: 'PermitSingle',
         message: {
           details: {
             token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
