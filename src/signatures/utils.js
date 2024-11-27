@@ -6,9 +6,12 @@ export const EIP712Domain = [
 ];
 
 export const MSG_PRIMARY_TYPE = {
+  BLUR_ORDER: 'Order',
+  BLUR_ROOT: 'Root',
   PERMIT: 'Permit',
   PERMIT_BATCH: 'PermitBatch',
   PERMIT_SINGLE: 'PermitSingle',
+  SEAPORT_BULK_ORDER: 'BulkOrder',
 };
 
 export function getPermitMsgParams(
@@ -16,6 +19,51 @@ export function getPermitMsgParams(
   { fromAddress } = {},
 ) {
   switch (primaryType) {
+    case MSG_PRIMARY_TYPE.BLUR_ORDER: {
+      return {
+        primaryType: 'Order',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Order: [
+            { name: 'trader', type: 'address' }, // User address
+            { name: 'side', type: 'uint8' }, // Buy or Sell (0 = Buy, 1 = Sell)
+            { name: 'collection', type: 'address' }, // NFT collection address
+            { name: 'tokenId', type: 'uint256' }, // Token ID of the NFT
+            { name: 'price', type: 'uint256' }, // Price in Wei
+            { name: 'quantity', type: 'uint256' }, // Quantity of tokens
+            { name: 'nonce', type: 'uint256' }, // Nonce for order uniqueness
+            { name: 'expirationTime', type: 'uint256' }, // Order expiration time in seconds
+          ],
+        },
+        domain: {
+          name: 'Blur Exchange',
+          version: '1.0',
+          chainId,
+          verifyingContract: '0xb2ecfe4e4d61f8790bbb9de2d1259b9e2410cea5',
+        },
+        message: {
+          trader: fromAddress,
+          collection: '0x8a90cab2b38dba80c64b7734e58ee1db38b8992e',
+          listingsRoot:
+            '0xf5126e36e0cf3f8ccdf8e3d76c1501c706c15a029fb8139bca7b536776e9eafe',
+          numberOfListings: '1',
+          expirationTime: '1739484503',
+          assetType: '0',
+          makerFee: {
+            recipient: '0x0000000000000000000000000000000000000000',
+            rate: '0',
+          },
+          salt: '106171581059276559763059578085820161781',
+          orderType: '1',
+          nonce: '0',
+        },
+      };
+    }
     case MSG_PRIMARY_TYPE.PERMIT: {
       return {
         types: {
@@ -174,6 +222,219 @@ export function getPermitMsgParams(
           },
           spender: '0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad',
           sigDeadline: '1720297342',
+        },
+      };
+    }
+    case MSG_PRIMARY_TYPE.SEAPORT_BULK_ORDER: {
+      return {
+        primaryType: 'BulkOrder',
+        types: {
+          BulkOrder: [{ name: 'tree', type: 'OrderComponents[][]' }],
+          OrderComponents: [
+            { name: 'offerer', type: 'address' },
+            { name: 'zone', type: 'address' },
+            { name: 'offer', type: 'OfferItem[]' },
+            { name: 'consideration', type: 'ConsiderationItem[]' },
+            { name: 'orderType', type: 'uint8' },
+            { name: 'startTime', type: 'uint256' },
+            { name: 'endTime', type: 'uint256' },
+            { name: 'zoneHash', type: 'bytes32' },
+            { name: 'salt', type: 'uint256' },
+            { name: 'conduitKey', type: 'bytes32' },
+            { name: 'counter', type: 'uint256' },
+          ],
+          OfferItem: [
+            { name: 'itemType', type: 'uint8' },
+            { name: 'token', type: 'address' },
+            { name: 'identifierOrCriteria', type: 'uint256' },
+            { name: 'startAmount', type: 'uint256' },
+            { name: 'endAmount', type: 'uint256' },
+          ],
+          ConsiderationItem: [
+            { name: 'itemType', type: 'uint8' },
+            { name: 'token', type: 'address' },
+            { name: 'identifierOrCriteria', type: 'uint256' },
+            { name: 'startAmount', type: 'uint256' },
+            { name: 'endAmount', type: 'uint256' },
+            { name: 'recipient', type: 'address' },
+          ],
+        },
+        domain: {
+          name: 'Seaport',
+          version: '1.5',
+          chainId,
+          verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
+        },
+        message: {
+          tree: [
+            [
+              {
+                offerer: fromAddress,
+                offer: [
+                  {
+                    itemType: '2',
+                    token: '0xafd4896984CA60d2feF66136e57f958dCe9482d5',
+                    identifierOrCriteria: '2104',
+                    startAmount: '1',
+                    endAmount: '1',
+                  },
+                ],
+                consideration: [
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '900000000000000000',
+                    endAmount: '900000000000000000',
+                    recipient: fromAddress,
+                  },
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '25000000000000000',
+                    endAmount: '25000000000000000',
+                    recipient: '0x0000a26b00c1F0DF003000390027140000fAa719',
+                  },
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '75000000000000000',
+                    endAmount: '75000000000000000',
+                    recipient: '0x839221C3F9dce0ef5318356c447F8192eD04d38C',
+                  },
+                ],
+                startTime: '1705733618',
+                endTime: '1708411897',
+                orderType: '0',
+                zone: '0x004C00500000aD104D7DBd00e3ae0A5C00560C00',
+                zoneHash:
+                  '0x0000000000000000000000000000000000000000000000000000000000000000',
+                salt: '24446860302761739304752683030156737591518664810215442929806792077947493999137',
+                conduitKey:
+                  '0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000',
+                totalOriginalConsiderationItems: '3',
+                counter: '0',
+              },
+              {
+                offerer: fromAddress,
+                offer: [
+                  {
+                    itemType: '2',
+                    token: '0xafd4896984CA60d2feF66136e57f958dCe9482d5',
+                    identifierOrCriteria: '2103',
+                    startAmount: '1',
+                    endAmount: '1',
+                  },
+                ],
+                consideration: [
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '900000000000000000',
+                    endAmount: '900000000000000000',
+                    recipient: fromAddress,
+                  },
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '25000000000000000',
+                    endAmount: '25000000000000000',
+                    recipient: '0x0000a26b00c1F0DF003000390027140000fAa719',
+                  },
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '75000000000000000',
+                    endAmount: '75000000000000000',
+                    recipient: '0x839221C3F9dce0ef5318356c447F8192eD04d38C',
+                  },
+                ],
+                startTime: '1705733618',
+                endTime: '1708411897',
+                orderType: '0',
+                zone: '0x004C00500000aD104D7DBd00e3ae0A5C00560C00',
+                zoneHash:
+                  '0x0000000000000000000000000000000000000000000000000000000000000000',
+                salt: '24446860302761739304752683030156737591518664810215442929800482629144425056459',
+                conduitKey:
+                  '0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000',
+                totalOriginalConsiderationItems: '3',
+                counter: '0',
+              },
+            ],
+            [
+              {
+                offerer: fromAddress,
+                offer: [
+                  {
+                    itemType: '2',
+                    token: '0xafd4896984CA60d2feF66136e57f958dCe9482d5',
+                    identifierOrCriteria: '2102',
+                    startAmount: '1',
+                    endAmount: '1',
+                  },
+                ],
+                consideration: [
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '900000000000000000',
+                    endAmount: '900000000000000000',
+                    recipient: fromAddress,
+                  },
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '25000000000000000',
+                    endAmount: '25000000000000000',
+                    recipient: '0x0000a26b00c1F0DF003000390027140000fAa719',
+                  },
+                  {
+                    itemType: '0',
+                    token: '0x0000000000000000000000000000000000000000',
+                    identifierOrCriteria: '0',
+                    startAmount: '75000000000000000',
+                    endAmount: '75000000000000000',
+                    recipient: '0x839221C3F9dce0ef5318356c447F8192eD04d38C',
+                  },
+                ],
+                startTime: '1705733618',
+                endTime: '1708411897',
+                orderType: '0',
+                zone: '0x004C00500000aD104D7DBd00e3ae0A5C00560C00',
+                zoneHash:
+                  '0x0000000000000000000000000000000000000000000000000000000000000000',
+                salt: '24446860302761739304752683030156737591518664810215442929800836178870704788113',
+                conduitKey:
+                  '0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000',
+                totalOriginalConsiderationItems: '3',
+                counter: '0',
+              },
+              {
+                offerer: '0x0000000000000000000000000000000000000000',
+                zone: '0x0000000000000000000000000000000000000000',
+                offer: [],
+                consideration: [],
+                orderType: '0',
+                startTime: '0',
+                endTime: '0',
+                zoneHash:
+                  '0x0000000000000000000000000000000000000000000000000000000000000000',
+                salt: '0',
+                conduitKey:
+                  '0x0000000000000000000000000000000000000000000000000000000000000000',
+                counter: '0',
+                totalOriginalConsiderationItems: '0',
+              },
+            ],
+          ],
         },
       };
     }

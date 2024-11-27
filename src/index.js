@@ -267,10 +267,10 @@ const signPermitVerifyResult = document.getElementById(
 
 // Sign Typed Data Variants
 
-const signOrderBlur = document.getElementById('signOrderBlur');
+const signBlurOrder = document.getElementById('signBlurOrder');
 const signPermitSingle = document.getElementById('signPermitSingle');
 const signPermitBatch = document.getElementById('signPermitBatch');
-const signBulkOrder = document.getElementById('signBulkOrder');
+const signSeaportBulkOrder = document.getElementById('signSeaportBulkOrder');
 
 const signPermitVariantResult = document.getElementById(
   'signPermitVariantResult',
@@ -468,12 +468,12 @@ const allConnectedButtons = [
   signTypedDataV4Verify,
   signTypedDataV4Batch,
   signTypedDataV4Queue,
-  signBulkOrder,
+  signBlurOrder,
   signPermit,
   signPermitSingle,
   signPermitBatch,
-  signOrderBlur,
   signPermitVerify,
+  signSeaportBulkOrder,
   siwe,
   siweResources,
   siweBadDomain,
@@ -528,11 +528,11 @@ const initialConnectedButtons = [
   signTypedDataV4,
   signTypedDataV4Batch,
   signTypedDataV4Queue,
-  signBulkOrder,
+  signBlurOrder,
   signPermit,
   signPermitSingle,
   signPermitBatch,
-  signOrderBlur,
+  signSeaportBulkOrder,
   siwe,
   siweResources,
   siweBadDomain,
@@ -2806,7 +2806,43 @@ const initializeFormElements = () => {
     }
   };
 
-  // TODO: implement order and bulk order
+  signBlurOrder.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = getPermitMsgParams(
+      {
+        primaryType: MSG_PRIMARY_TYPE.BLUR_ORDER,
+        chainId: chainIdInt,
+      },
+      { fromAddress: from },
+    );
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    try {
+      sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      signPermitVariantResult.innerHTML = sign;
+      signPermitVariantResultR.innerHTML = `r: ${r}`;
+      signPermitVariantResultS.innerHTML = `s: ${s}`;
+      signPermitVariantResultV.innerHTML = `v: ${v}`;
+      signPermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
   signPermitBatch.onclick = async () => {
     const from = accounts[0];
     const msgParams = getPermitMsgParams({
@@ -2847,6 +2883,43 @@ const initializeFormElements = () => {
       primaryType: MSG_PRIMARY_TYPE.PERMIT_SINGLE,
       chainId: chainIdInt,
     });
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    try {
+      sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      signPermitVariantResult.innerHTML = sign;
+      signPermitVariantResultR.innerHTML = `r: ${r}`;
+      signPermitVariantResultS.innerHTML = `s: ${s}`;
+      signPermitVariantResultV.innerHTML = `v: ${v}`;
+      signPermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
+    }
+  };
+
+  signSeaportBulkOrder.onclick = async () => {
+    const from = accounts[0];
+    const msgParams = getPermitMsgParams(
+      {
+        primaryType: MSG_PRIMARY_TYPE.SEAPORT_BULK_ORDER,
+        chainId: chainIdInt,
+      },
+      { fromAddress: from },
+    );
 
     let sign;
     let r;
