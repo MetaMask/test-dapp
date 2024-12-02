@@ -846,7 +846,8 @@ const closeProvider = () => {
 // Must be called after the active provider changes
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
-  initializeContracts();
+  const initialized = await initializeContracts();
+  contractsInitialized = initialized;
   updateFormElements();
 
   if (isMetaMaskInstalled()) {
@@ -917,8 +918,9 @@ let failingContract;
 let multisigContract;
 let erc1155Contract;
 
-// Must be called after the active provider changes
-const initializeContracts = () => {
+let contractsInitialized = false;
+
+const initializeContracts = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
@@ -954,6 +956,7 @@ const initializeContracts = () => {
         ethersProvider.getSigner(),
       );
     }
+
     hstFactory = new ethers.ContractFactory(
       hstAbi,
       hstBytecode,
@@ -984,8 +987,11 @@ const initializeContracts = () => {
       erc1155Bytecode,
       ethersProvider.getSigner(),
     );
+
+    return true;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to initialize contracts:', error);
+    return false;
   }
 };
 
@@ -996,8 +1002,11 @@ const initializeContracts = () => {
 // Must be called after the provider or connect acccounts change
 // Updates form elements content and disabled status
 export const updateFormElements = () => {
-  const accountButtonsDisabled =
-    !isMetaMaskInstalled() || !isMetaMaskConnected();
+  const accountButtonsDisabled = 
+    !isMetaMaskInstalled() || 
+    !isMetaMaskConnected() || 
+    (deployedContractAddress && !contractsInitialized);
+
   if (accountButtonsDisabled) {
     for (const button of allConnectedButtons) {
       button.disabled = true;
@@ -1006,7 +1015,7 @@ export const updateFormElements = () => {
   }
   if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
-      button.disabled = false;
+      button.disabled = !contractsInitialized && deployedContractAddress;
     }
   }
 
@@ -1084,6 +1093,10 @@ const updateOnboardElements = () => {
 };
 
 const updateContractElements = () => {
+  if (deployedContractAddress && !contractsInitialized) {
+    return; // Don't enable any contract elements if not initialized
+  }
+
   if (deployedContractAddress) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
@@ -3238,7 +3251,7 @@ const initializeFormElements = () => {
           params: [
             from,
             `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
-          ],
+            ],
         });
       } catch (err) {
         console.error(err);
@@ -3258,7 +3271,7 @@ const initializeFormElements = () => {
           params: [
             from,
             `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
-          ],
+            ],
         });
       } catch (err) {
         console.error(err);
