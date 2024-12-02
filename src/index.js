@@ -848,7 +848,7 @@ const closeProvider = () => {
 // Must be called after the active provider changes
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
-  initializeContracts();
+  await initializeContracts();
   updateFormElements();
 
   if (isMetaMaskInstalled()) {
