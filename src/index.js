@@ -848,7 +848,8 @@ const closeProvider = () => {
 // Must be called after the active provider changes
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
-  await initializeContracts();
+  const initialized = await initializeContracts();
+  contractsInitialized = initialized;
   updateFormElements();
 
   if (isMetaMaskInstalled()) {
@@ -919,7 +920,6 @@ let failingContract;
 let multisigContract;
 let erc1155Contract;
 
-// Must be called after the active provider changes
 const initializeContracts = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -956,6 +956,7 @@ const initializeContracts = async () => {
         ethersProvider.getSigner(),
       );
     }
+
     hstFactory = new ethers.ContractFactory(
       hstAbi,
       hstBytecode,
@@ -986,10 +987,11 @@ const initializeContracts = async () => {
       erc1155Bytecode,
       ethersProvider.getSigner(),
     );
+
+    return true;
   } catch (error) {
-    console.error(error);
-  } finally {
-    contractsInitialized = true;
+    console.error('Failed to initialize contracts:', error);
+    return false;
   }
 };
 
@@ -1001,16 +1003,19 @@ const initializeContracts = async () => {
 // Updates form elements content and disabled status
 export const updateFormElements = () => {
   const accountButtonsDisabled =
-    !isMetaMaskInstalled() || !isMetaMaskConnected();
+    !isMetaMaskInstalled() ||
+    !isMetaMaskConnected() ||
+    (deployedContractAddress && !contractsInitialized);
+
   if (accountButtonsDisabled) {
     for (const button of allConnectedButtons) {
       button.disabled = true;
     }
     clearDisplayElements();
   }
-  if (isMetaMaskConnected() && contractsInitialized) {
+  if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
-      button.disabled = false;
+      button.disabled = !contractsInitialized && deployedContractAddress;
     }
   }
 
@@ -1088,7 +1093,11 @@ const updateOnboardElements = () => {
 };
 
 const updateContractElements = () => {
-  if (deployedContractAddress && contractsInitialized) {
+  if (deployedContractAddress && !contractsInitialized) {
+    return; // Don't enable any contract elements if not initialized
+  }
+
+  if (deployedContractAddress) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
     depositButton.disabled = false;
@@ -1798,7 +1807,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         accounts[0],
-        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":"${chainIdInt}","verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":"${maliciousAddress}","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
+        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":${chainIdInt},"verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${accounts[0]}","taker":${maliciousAddress},"expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
       ],
     });
     console.log(result);
