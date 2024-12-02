@@ -379,8 +379,6 @@ const ensInput = document.getElementById('ensInput');
 const ensSubmit = document.getElementById('ensSubmit');
 const ensResult = document.getElementById('ensResult');
 
-let contractsInitialized = false;
-
 // Buttons that require connecting an account
 const allConnectedButtons = [
   deployButton,
@@ -919,6 +917,7 @@ let nftsContract;
 let failingContract;
 let multisigContract;
 let erc1155Contract;
+let contractsInitialized = false;
 
 const initializeContracts = async () => {
   try {
