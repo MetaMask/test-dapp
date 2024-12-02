@@ -1015,7 +1015,7 @@ export const updateFormElements = () => {
   }
 
   updateOnboardElements();
-  updateContractElements(contractsInitialized);
+  updateContractElements();
 };
 
 const clearDisplayElements = () => {
