@@ -1015,7 +1015,7 @@ export const updateFormElements = () => {
   }
 
   updateOnboardElements();
-  updateContractElements();
+  updateContractElements(contractsInitialized);
 };
 
 const clearDisplayElements = () => {
@@ -1088,7 +1088,7 @@ const updateOnboardElements = () => {
 };
 
 const updateContractElements = () => {
-  if (deployedContractAddress) {
+  if (deployedContractAddress && contractsInitialized) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
     depositButton.disabled = false;
