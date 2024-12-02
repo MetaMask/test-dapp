@@ -379,6 +379,8 @@ const ensInput = document.getElementById('ensInput');
 const ensSubmit = document.getElementById('ensSubmit');
 const ensResult = document.getElementById('ensResult');
 
+let contractsInitialized = false;
+
 // Buttons that require connecting an account
 const allConnectedButtons = [
   deployButton,
@@ -918,7 +920,7 @@ let multisigContract;
 let erc1155Contract;
 
 // Must be called after the active provider changes
-const initializeContracts = () => {
+const initializeContracts = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
@@ -986,6 +988,8 @@ const initializeContracts = () => {
     );
   } catch (error) {
     console.error(error);
+  } finally {
+    contractsInitialized = true;
   }
 };
 
@@ -1004,7 +1008,7 @@ export const updateFormElements = () => {
     }
     clearDisplayElements();
   }
-  if (isMetaMaskConnected()) {
+  if (isMetaMaskConnected() && contractsInitialized) {
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }
