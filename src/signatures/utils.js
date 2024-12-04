@@ -29,15 +29,21 @@ export function getPermitMsgParams(
             { name: 'chainId', type: 'uint256' },
             { name: 'verifyingContract', type: 'address' },
           ],
+          MakerFee: [
+            { name: 'recipient', type: 'address' }, // Maker fee recipient address
+            { name: 'rate', type: 'uint256' }, // Maker fee rate
+          ],
           Order: [
-            { name: 'trader', type: 'address' }, // User address
-            { name: 'side', type: 'uint8' }, // Buy or Sell (0 = Buy, 1 = Sell)
+            { name: 'assetType', type: 'uint8' }, // Asset type
             { name: 'collection', type: 'address' }, // NFT collection address
-            { name: 'tokenId', type: 'uint256' }, // Token ID of the NFT
-            { name: 'price', type: 'uint256' }, // Price in Wei
-            { name: 'quantity', type: 'uint256' }, // Quantity of tokens
-            { name: 'nonce', type: 'uint256' }, // Nonce for order uniqueness
             { name: 'expirationTime', type: 'uint256' }, // Order expiration time in seconds
+            { name: 'listingsRoot', type: 'bytes32' }, // Listings root hash
+            { name: 'makerFee', type: 'MakerFee' }, // Maker fee
+            { name: 'nonce', type: 'uint256' }, // Nonce for order uniqueness
+            { name: 'numberOfListings', type: 'uint256' }, // Number of listings
+            { name: 'orderType', type: 'uint8' }, // Order type
+            { name: 'salt', type: 'uint256' }, // Salt for order uniqueness
+            { name: 'trader', type: 'address' }, // User address
           ],
         },
         domain: {
@@ -47,20 +53,20 @@ export function getPermitMsgParams(
           verifyingContract: '0xb2ecfe4e4d61f8790bbb9de2d1259b9e2410cea5',
         },
         message: {
-          trader: fromAddress,
+          assetType: '0',
           collection: '0x8a90cab2b38dba80c64b7734e58ee1db38b8992e',
+          expirationTime: '1739484503',
           listingsRoot:
             '0xf5126e36e0cf3f8ccdf8e3d76c1501c706c15a029fb8139bca7b536776e9eafe',
-          numberOfListings: '1',
-          expirationTime: '1739484503',
-          assetType: '0',
           makerFee: {
             recipient: '0x0000000000000000000000000000000000000000',
             rate: '0',
           },
-          salt: '106171581059276559763059578085820161781',
-          orderType: '1',
           nonce: '0',
+          numberOfListings: '1',
+          orderType: '1',
+          salt: '106171581059276559763059578085820161781',
+          trader: fromAddress,
         },
       };
     }
