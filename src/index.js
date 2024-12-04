@@ -14,6 +14,11 @@ import {
 } from './connections';
 import Constants from './constants.json';
 import {
+  EIP712Domain,
+  getPermitMsgParams,
+  MSG_PRIMARY_TYPE,
+} from './signatures/utils';
+import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
   NETWORKS_BY_CHAIN_ID,
@@ -259,6 +264,27 @@ const signPermitVerify = document.getElementById('signPermitVerify');
 const signPermitVerifyResult = document.getElementById(
   'signPermitVerifyResult',
 );
+
+// Sign Typed Data Variants
+
+const signBlurOrder = document.getElementById('signBlurOrder');
+const signPermitSingle = document.getElementById('signPermitSingle');
+const signPermitBatch = document.getElementById('signPermitBatch');
+const signSeaportBulkOrder = document.getElementById('signSeaportBulkOrder');
+
+const signPermitVariantResult = document.getElementById(
+  'signPermitVariantResult',
+);
+const signPermitVariantResultR = document.getElementById(
+  'signPermitVariantResultR',
+);
+const signPermitVariantResultS = document.getElementById(
+  'signPermitVariantResultS',
+);
+const signPermitVariantResultV = document.getElementById(
+  'signPermitVariantResultV',
+);
+
 const siwe = document.getElementById('siwe');
 const siweResources = document.getElementById('siweResources');
 const siweBadDomain = document.getElementById('siweBadDomain');
@@ -442,8 +468,12 @@ const allConnectedButtons = [
   signTypedDataV4Verify,
   signTypedDataV4Batch,
   signTypedDataV4Queue,
+  signBlurOrder,
   signPermit,
+  signPermitSingle,
+  signPermitBatch,
   signPermitVerify,
+  signSeaportBulkOrder,
   siwe,
   siweResources,
   siweBadDomain,
@@ -498,7 +528,11 @@ const initialConnectedButtons = [
   signTypedDataV4,
   signTypedDataV4Batch,
   signTypedDataV4Queue,
+  signBlurOrder,
   signPermit,
+  signPermitSingle,
+  signPermitBatch,
+  signSeaportBulkOrder,
   siwe,
   siweResources,
   siweBadDomain,
@@ -2696,49 +2730,6 @@ const initializeFormElements = () => {
   /**
    *  Sign Permit
    */
-  const EIP712Domain = [
-    { name: 'name', type: 'string' },
-    { name: 'version', type: 'string' },
-    { name: 'chainId', type: 'uint256' },
-    { name: 'verifyingContract', type: 'address' },
-  ];
-
-  const Permit = [
-    { name: 'owner', type: 'address' },
-    { name: 'spender', type: 'address' },
-    { name: 'value', type: 'uint256' },
-    { name: 'nonce', type: 'uint256' },
-    { name: 'deadline', type: 'uint256' },
-  ];
-
-  const permitMsgParamsDomain = {
-    name: 'MyToken',
-    version: '1',
-    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-    chainId: chainIdInt,
-  };
-
-  function getPermitMsgParams() {
-    const from = accounts[0];
-
-    const permit = {
-      owner: from,
-      spender: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
-      value: 3000,
-      nonce: 0,
-      deadline: 50000000000,
-    };
-
-    return {
-      types: {
-        EIP712Domain,
-        Permit,
-      },
-      primaryType: 'Permit',
-      domain: permitMsgParamsDomain,
-      message: permit,
-    };
-  }
 
   async function getNFTMsgParams() {
     return {
@@ -2780,7 +2771,13 @@ const initializeFormElements = () => {
 
   signPermit.onclick = async () => {
     const from = accounts[0];
-    const msgParams = getPermitMsgParams();
+    const msgParams = getPermitMsgParams(
+      {
+        primaryType: MSG_PRIMARY_TYPE.PERMIT,
+        chainId: chainIdInt,
+      },
+      { fromAddress: from },
+    );
 
     let sign;
     let r;
@@ -2792,6 +2789,7 @@ const initializeFormElements = () => {
         method: 'eth_signTypedData_v4',
         params: [from, JSON.stringify(msgParams)],
       });
+
       const { _r, _s, _v } = splitSig(sign);
       r = `0x${_r.toString('hex')}`;
       s = `0x${_s.toString('hex')}`;
@@ -2808,12 +2806,65 @@ const initializeFormElements = () => {
     }
   };
 
+  async function requestSignTypedDataVariant(primaryType) {
+    const from = accounts[0];
+    const msgParams = getPermitMsgParams(
+      {
+        primaryType,
+        chainId: chainIdInt,
+      },
+      { fromAddress: from },
+    );
+
+    let sign;
+    let r;
+    let s;
+    let v;
+
+    try {
+      sign = await provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify(msgParams)],
+      });
+
+      const { _r, _s, _v } = splitSig(sign);
+      r = `0x${_r.toString('hex')}`;
+      s = `0x${_s.toString('hex')}`;
+      v = _v.toString();
+
+      signPermitVariantResult.innerHTML = sign;
+      signPermitVariantResultR.innerHTML = `r: ${r}`;
+      signPermitVariantResultS.innerHTML = `s: ${s}`;
+      signPermitVariantResultV.innerHTML = `v: ${v}`;
+      signPermitVerify.disabled = false;
+    } catch (err) {
+      console.error(err);
+      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
+    }
+  }
+
+  signBlurOrder.onclick = async () => {
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.BLUR_ORDER);
+  };
+  signPermitBatch.onclick = async () => {
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.PERMIT_BATCH);
+  };
+  signPermitSingle.onclick = async () => {
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.PERMIT_SINGLE);
+  };
+  signSeaportBulkOrder.onclick = async () => {
+    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.SEAPORT_BULK_ORDER);
+  };
+
   /**
    *  Sign Permit Verification
    */
   signPermitVerify.onclick = async () => {
     const from = accounts[0];
-    const msgParams = getPermitMsgParams();
+    const msgParams = getPermitMsgParams({
+      primaryType: MSG_PRIMARY_TYPE.PERMIT,
+      chainId: chainIdInt,
+    });
 
     try {
       const sign = signPermitResult.innerHTML;
