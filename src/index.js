@@ -26,11 +26,13 @@ import {
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
-const globalContext = { 
-  ethersProvider: undefined,
-}; 
+import { ensResolutionComponent } from './components/resolutions/ens-resolution';
 
-export default globalContext; 
+const globalContext = {
+  ethersProvider: undefined,
+};
+
+export default globalContext;
 
 const {
   hstBytecode,
@@ -405,10 +407,7 @@ const maliciousPermitHexPaddedChain = document.getElementById(
 const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
-
-// ENS RESOLUTION MOVED TO components/resolutions/ens-resolution.js
-import { ensResolutionComponent } from './components/resolutions/ens-resolution'; 
-ensResolutionComponent(); 
+ensResolutionComponent();
 
 // Buttons that require connecting an account
 const allConnectedButtons = [
@@ -510,7 +509,7 @@ const allConnectedButtons = [
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
   maliciousPermitIntAddress,
-  ensSubmit,
+  document.getElementById('ensSubmit'),
 ];
 
 // Buttons that are available after initially connecting an account
@@ -567,7 +566,7 @@ const initialConnectedButtons = [
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
-  ensSubmit,
+  document.getElementById('ensSubmit'),
 ];
 
 /**
@@ -959,7 +958,10 @@ let erc1155Contract;
 const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
-    globalContext.ethersProvider = new ethers.providers.Web3Provider(provider, 'any'); 
+    globalContext.ethersProvider = new ethers.providers.Web3Provider(
+      provider,
+      'any',
+    );
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,

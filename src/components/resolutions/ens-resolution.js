@@ -1,11 +1,12 @@
-import globalContext from '../../index';
+import globalContext from '../..';
 
-export function ensResolutionComponent() { 
+export function ensResolutionComponent() {
+  const parentContainer =
+    document.getElementById('components-resolutions') || document.body;
 
-  const parentContainer = document.getElementById('components-resolutions') || document.body; 
-  
-  parentContainer.insertAdjacentHTML('beforeend', 
-`<div class="row d-flex justify-content-center">
+  parentContainer.insertAdjacentHTML(
+    'beforeend',
+    `<div class="row d-flex justify-content-center">
   <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
     <div class="card">
       <div class="card-body">
@@ -33,8 +34,8 @@ export function ensResolutionComponent() {
       </div>
     </div>
   </div>
-</div>`
-  ); 
+</div>`,
+  );
 
   // ENS Resolution
   const ensInput = document.getElementById('ensInput');
@@ -42,13 +43,15 @@ export function ensResolutionComponent() {
   const ensResult = document.getElementById('ensResult');
 
   /**
-     * ENS Resolution
-     */
+   * ENS Resolution
+   */
   ensSubmit.onclick = async () => {
     try {
       ensResult.innerHTML = 'Resolving...';
       const ensAddress = ensInput.value;
-      const ensResolver = await globalContext.ethersProvider.getResolver(ensAddress);
+      const ensResolver = await globalContext.ethersProvider.getResolver(
+        ensAddress,
+      );
       const ethAddress = await ensResolver.getAddress();
 
       ensResult.innerHTML = String(ethAddress);
