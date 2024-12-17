@@ -1,10 +1,6 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 // eslint-disable-next-line camelcase
-import {
-  encrypt,
-  recoverPersonalSignature,
-  recoverTypedSignature,
-} from '@metamask/eth-sig-util';
+import { encrypt, recoverTypedSignature } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
 import {
@@ -13,11 +9,7 @@ import {
   walletConnect,
 } from './connections';
 import Constants from './constants.json';
-import {
-  EIP712Domain,
-  getPermitMsgParams,
-  MSG_PRIMARY_TYPE,
-} from './signatures/utils';
+import { splitSig } from './signatures/utils';
 import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
@@ -28,11 +20,55 @@ import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
 import { sendFormComponent } from './components/forms/send-form';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
+import { ethSign } from './components/signatures/eth-sign';
+import { signaturesComponent } from './components/signatures/signatures';
+import {
+  personalSign,
+  personalSignVerify,
+} from './components/signatures/personal-sign';
+import {
+  signTypedData,
+  signTypedDataVerify,
+} from './components/signatures/signTypedData';
+import {
+  signTypedDataV3,
+  signTypedDataV3Verify,
+} from './components/signatures/signTypedDataV3-sign';
+import {
+  signTypedDataV4,
+  signTypedDataV4Verify,
+} from './components/signatures/signTypedDataV4-sign';
+import {
+  signPermit,
+  signPermitVerify,
+} from './components/signatures/permit-sign';
+import {
+  signBlurOrder,
+  signPermitBatch,
+  signPermitSingle,
+  signSeaportBulkOrder,
+} from './components/signatures/signTypedData-variants';
+import {
+  siwe,
+  siweBadAccount,
+  siweBadDomain,
+  siweMalformed,
+  siweResources,
+} from './components/signatures/siwe';
+import {
+  signEmptyDomain,
+  signExtraDataNotTyped,
+  signInvalidPrimaryType,
+  signInvalidType,
+  signInvalidVerifyingContractType,
+  signNoPrimaryTypeDefined,
+} from './components/signatures/malformed-signatures';
 
 const globalContext = {
   accounts: [],
   provider: undefined,
   ethersProvider: undefined,
+  chainIdInt: undefined,
 };
 
 export default globalContext;
@@ -237,86 +273,7 @@ const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
-const ethSign = document.getElementById('ethSign');
-const ethSignResult = document.getElementById('ethSignResult');
-const personalSign = document.getElementById('personalSign');
-const personalSignResult = document.getElementById('personalSignResult');
-const personalSignVerify = document.getElementById('personalSignVerify');
-const personalSignVerifySigUtilResult = document.getElementById(
-  'personalSignVerifySigUtilResult',
-);
-const personalSignVerifyECRecoverResult = document.getElementById(
-  'personalSignVerifyECRecoverResult',
-);
-const signTypedData = document.getElementById('signTypedData');
-const signTypedDataResult = document.getElementById('signTypedDataResult');
-const signTypedDataVerify = document.getElementById('signTypedDataVerify');
-const signTypedDataVerifyResult = document.getElementById(
-  'signTypedDataVerifyResult',
-);
-const signTypedDataV3 = document.getElementById('signTypedDataV3');
-const signTypedDataV3Result = document.getElementById('signTypedDataV3Result');
-const signTypedDataV3Verify = document.getElementById('signTypedDataV3Verify');
-const signTypedDataV3VerifyResult = document.getElementById(
-  'signTypedDataV3VerifyResult',
-);
-const signTypedDataV4 = document.getElementById('signTypedDataV4');
-const signTypedDataV4Result = document.getElementById('signTypedDataV4Result');
-const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
-const signTypedDataV4VerifyResult = document.getElementById(
-  'signTypedDataV4VerifyResult',
-);
-const signPermit = document.getElementById('signPermit');
-const signPermitResult = document.getElementById('signPermitResult');
-const signPermitResultR = document.getElementById('signPermitResultR');
-const signPermitResultS = document.getElementById('signPermitResultS');
-const signPermitResultV = document.getElementById('signPermitResultV');
-const signPermitVerify = document.getElementById('signPermitVerify');
-const signPermitVerifyResult = document.getElementById(
-  'signPermitVerifyResult',
-);
-
-// Sign Typed Data Variants
-
-const signBlurOrder = document.getElementById('signBlurOrder');
-const signPermitSingle = document.getElementById('signPermitSingle');
-const signPermitBatch = document.getElementById('signPermitBatch');
-const signSeaportBulkOrder = document.getElementById('signSeaportBulkOrder');
-
-const signPermitVariantResult = document.getElementById(
-  'signPermitVariantResult',
-);
-const signPermitVariantResultR = document.getElementById(
-  'signPermitVariantResultR',
-);
-const signPermitVariantResultS = document.getElementById(
-  'signPermitVariantResultS',
-);
-const signPermitVariantResultV = document.getElementById(
-  'signPermitVariantResultV',
-);
-
-const siwe = document.getElementById('siwe');
-const siweResources = document.getElementById('siweResources');
-const siweBadDomain = document.getElementById('siweBadDomain');
-const siweBadAccount = document.getElementById('siweBadAccount');
-const siweMalformed = document.getElementById('siweMalformed');
-const siweResult = document.getElementById('siweResult');
-
-// Malformed Signatues
-const signInvalidType = document.getElementById('signInvalidType');
-const signEmptyDomain = document.getElementById('signEmptyDomain');
-const signExtraDataNotTyped = document.getElementById('signExtraDataNotTyped');
-const signInvalidPrimaryType = document.getElementById(
-  'signInvalidPrimaryType',
-);
-const signNoPrimaryTypeDefined = document.getElementById(
-  'signNoPrimaryTypeDefined',
-);
-const signInvalidVerifyingContractType = document.getElementById(
-  'signInvalidVerifyingContractType',
-);
-const signMalformedResult = document.getElementById('signMalformedResult');
+signaturesComponent();
 
 // Malformed Transactions
 const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
@@ -756,16 +713,17 @@ export const handleNewAccounts = (newAccounts) => {
   handleEIP1559Support();
 };
 
-let chainIdInt;
 let networkName;
 let chainIdPadded;
 
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
   const networkId = parseInt(networkDiv.innerHTML, 10);
-  chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
-  chainIdPadded = `0x${chainIdInt.toString(16).padStart(77, '0')}`;
-  networkName = NETWORKS_BY_CHAIN_ID[chainIdInt];
+  globalContext.chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
+  chainIdPadded = `0x${globalContext.chainIdInt
+    .toString(16)
+    .padStart(77, '0')}`;
+  networkName = NETWORKS_BY_CHAIN_ID[globalContext.chainIdInt];
 
   if (chainId === '0x1') {
     warningDiv.classList.remove('warning-invisible');
@@ -1827,7 +1785,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         globalContext.accounts[0],
-        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${globalContext.chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
       ],
     });
     console.log(result);
@@ -1839,7 +1797,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         globalContext.accounts[0],
-        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":"${chainIdInt}","verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${globalContext.accounts[0]}","taker":"${maliciousAddress}","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
+        `{"types":{"ERC721Order":[{"type":"uint8","name":"direction"},{"type":"address","name":"maker"},{"type":"address","name":"taker"},{"type":"uint256","name":"expiry"},{"type":"uint256","name":"nonce"},{"type":"address","name":"erc20Token"},{"type":"uint256","name":"erc20TokenAmount"},{"type":"Fee[]","name":"fees"},{"type":"address","name":"erc721Token"},{"type":"uint256","name":"erc721TokenId"},{"type":"Property[]","name":"erc721TokenProperties"}],"Fee":[{"type":"address","name":"recipient"},{"type":"uint256","name":"amount"},{"type":"bytes","name":"feeData"}],"Property":[{"type":"address","name":"propertyValidator"},{"type":"bytes","name":"propertyData"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"ZeroEx","version":"1.0.0","chainId":"${globalContext.chainIdInt}","verifyingContract":"0xdef1c0ded9bec7f1a1670819833240f027b25eff"},"primaryType":"ERC721Order","message":{"direction":"0","maker":"${globalContext.accounts[0]}","taker":"${maliciousAddress}","expiry":"2524604400","nonce":"100131415900000000000000000000000000000083840314483690155566137712510085002484","erc20Token":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2","erc20TokenAmount":"42000000000000","fees":[],"erc721Token":"0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e","erc721TokenId":"2516","erc721TokenProperties":[]}}`,
       ],
     });
     console.log(result);
@@ -1851,7 +1809,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         globalContext.accounts[0],
-        `{"types":{"OrderComponents":[{"name":"offerer","type":"address"},{"name":"zone","type":"address"},{"name":"offer","type":"OfferItem[]"},{"name":"consideration","type":"ConsiderationItem[]"},{"name":"orderType","type":"uint8"},{"name":"startTime","type":"uint256"},{"name":"endTime","type":"uint256"},{"name":"zoneHash","type":"bytes32"},{"name":"salt","type":"uint256"},{"name":"conduitKey","type":"bytes32"},{"name":"counter","type":"uint256"}],"OfferItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"}],"ConsiderationItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"},{"name":"recipient","type":"address"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"Seaport","version":"1.1","chainId":${chainIdInt},"verifyingContract":"0x00000000006c3852cbef3e08e8df289169ede581"},"primaryType":"OrderComponents","message":{"offerer":"0x5a6f5477bdeb7801ba137a9f0dc39c0599bac994","zone":"0x004c00500000ad104d7dbd00e3ae0a5c00560c00","offer":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1"}],"consideration":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"}],"orderType":"2","startTime":"1681810415","endTime":"1681983215","zoneHash":"0x0000000000000000000000000000000000000000000000000000000000000000","salt":"1550213294656772168494388599483486699884316127427085531712538817979596","conduitKey":"0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000","counter":"0"}}`,
+        `{"types":{"OrderComponents":[{"name":"offerer","type":"address"},{"name":"zone","type":"address"},{"name":"offer","type":"OfferItem[]"},{"name":"consideration","type":"ConsiderationItem[]"},{"name":"orderType","type":"uint8"},{"name":"startTime","type":"uint256"},{"name":"endTime","type":"uint256"},{"name":"zoneHash","type":"bytes32"},{"name":"salt","type":"uint256"},{"name":"conduitKey","type":"bytes32"},{"name":"counter","type":"uint256"}],"OfferItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"}],"ConsiderationItem":[{"name":"itemType","type":"uint8"},{"name":"token","type":"address"},{"name":"identifierOrCriteria","type":"uint256"},{"name":"startAmount","type":"uint256"},{"name":"endAmount","type":"uint256"},{"name":"recipient","type":"address"}],"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"name":"Seaport","version":"1.1","chainId":${globalContext.chainIdInt},"verifyingContract":"0x00000000006c3852cbef3e08e8df289169ede581"},"primaryType":"OrderComponents","message":{"offerer":"0x5a6f5477bdeb7801ba137a9f0dc39c0599bac994","zone":"0x004c00500000ad104d7dbd00e3ae0a5c00560c00","offer":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1"}],"consideration":[{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"26464","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"7779","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0x60e4d786628fea6478f785a6d7e704777c86a7c6","identifierOrCriteria":"4770","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"9594","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"2118","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"},{"itemType":"2","token":"0xba30e5f9bb24caa003e9f2f0497ad287fdf95623","identifierOrCriteria":"1753","startAmount":"1","endAmount":"1","recipient":"0xdfdc0b1cf8e9950d6a860af6501c4fecf7825cc1"}],"orderType":"2","startTime":"1681810415","endTime":"1681983215","zoneHash":"0x0000000000000000000000000000000000000000000000000000000000000000","salt":"1550213294656772168494388599483486699884316127427085531712538817979596","conduitKey":"0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000","counter":"0"}}`,
       ],
     });
     console.log(result);
@@ -2241,480 +2199,12 @@ const initializeFormElements = () => {
     }
   };
 
-  /**
-   * eth_sign
-   */
-  ethSign.onclick = async () => {
-    try {
-      // const msg = 'Sample message to hash for signature'
-      // const msgHash = keccak256(msg)
-      const msg =
-        '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
-      const ethResult = await globalContext.provider.request({
-        method: 'eth_sign',
-        params: [globalContext.accounts[0], msg],
-      });
-      ethSignResult.innerHTML = JSON.stringify(ethResult);
-    } catch (err) {
-      console.error(err);
-      ethSign.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Personal Sign
-   */
-  personalSign.onclick = async () => {
-    const exampleMessage = 'Example `personal_sign` message';
-    try {
-      const from = globalContext.accounts[0];
-      const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
-      const sign = await globalContext.provider.request({
-        method: 'personal_sign',
-        params: [msg, from, 'Example password'],
-      });
-      personalSignResult.innerHTML = sign;
-      personalSignVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      personalSign.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign In With Ethereum helper
-   */
-
-  const siweSign = async (siweMessage) => {
-    try {
-      const from = globalContext.accounts[0];
-      const msg = `0x${Buffer.from(siweMessage, 'utf8').toString('hex')}`;
-      const sign = await globalContext.provider.request({
-        method: 'personal_sign',
-        params: [msg, from, 'Example password'],
-      });
-      siweResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      siweResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign In With Ethereum
-   */
-  siwe.onclick = async () => {
-    const domain = window.location.host;
-    const from = globalContext.accounts[0];
-    const siweMessage = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z`;
-    siweSign(siweMessage);
-  };
-
-  /**
-   * Sign In With Ethereum (with Resources)
-   */
-  siweResources.onclick = async () => {
-    const domain = window.location.host;
-    const from = globalContext.accounts[0];
-    const siweMessageResources = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nNot Before: 2022-03-17T12:45:13.610Z\nRequest ID: some_id\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
-    siweSign(siweMessageResources);
-  };
-
-  /**
-   * Sign In With Ethereum (Bad Domain)
-   */
-  siweBadDomain.onclick = async () => {
-    const domain = 'metamask.badactor.io';
-    const from = globalContext.accounts[0];
-    const siweMessageBadDomain = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
-    siweSign(siweMessageBadDomain);
-  };
-
-  /**
-   * Sign In With Ethereum (Bad Account)
-   */
-  siweBadAccount.onclick = async () => {
-    const domain = window.location.host;
-    const from = '0x0000000000000000000000000000000000000000';
-    const siweMessageBadAccount = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nURI: https://${domain}\nVersion: 1\nChain ID: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json`;
-    siweSign(siweMessageBadAccount);
-  };
-
-  /**
-   * Sign In With Ethereum (Malformed)
-   */
-  siweMalformed.onclick = async () => {
-    const domain = window.location.host;
-    const from = globalContext.accounts[0];
-    const siweMessageMissing = `${domain} wants you to sign in with your Ethereum account:\n${from}\n\nI accept the MetaMask Terms of Service: https://community.metamask.io/tos\n\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z`;
-    siweSign(siweMessageMissing);
-  };
-
-  /**
-   * Personal Sign Verify
-   */
-  personalSignVerify.onclick = async () => {
-    const exampleMessage = 'Example `personal_sign` message';
-    try {
-      const from = globalContext.accounts[0];
-      const msg = `0x${Buffer.from(exampleMessage, 'utf8').toString('hex')}`;
-      const sign = personalSignResult.innerHTML;
-      const recoveredAddr = recoverPersonalSignature({
-        data: msg,
-        signature: sign,
-      });
-      if (recoveredAddr === from) {
-        console.log(`SigUtil Successfully verified signer as ${recoveredAddr}`);
-        personalSignVerifySigUtilResult.innerHTML = recoveredAddr;
-      } else {
-        console.log(
-          `SigUtil Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-        );
-        console.log(`Failed comparing ${recoveredAddr} to ${from}`);
-      }
-      const ecRecoverAddr = await globalContext.provider.request({
-        method: 'personal_ecRecover',
-        params: [msg, sign],
-      });
-      if (ecRecoverAddr === from) {
-        console.log(`Successfully ecRecovered signer as ${ecRecoverAddr}`);
-        personalSignVerifyECRecoverResult.innerHTML = ecRecoverAddr;
-      } else {
-        console.log(
-          `Failed to verify signer when comparing ${ecRecoverAddr} to ${from}`,
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      personalSignVerifySigUtilResult.innerHTML = `Error: ${err.message}`;
-      personalSignVerifyECRecoverResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Typed Data Test
-   */
-  signTypedData.onclick = async () => {
-    const msgParams = [
-      {
-        type: 'string',
-        name: 'Message',
-        value: 'Hi, Alice!',
-      },
-      {
-        type: 'uint32',
-        name: 'A number',
-        value: '1337',
-      },
-    ];
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData',
-        params: [msgParams, from],
-      });
-      signTypedDataResult.innerHTML = sign;
-      signTypedDataVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signTypedDataResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Typed Data Verification
-   */
-  signTypedDataVerify.onclick = async () => {
-    const msgParams = [
-      {
-        type: 'string',
-        name: 'Message',
-        value: 'Hi, Alice!',
-      },
-      {
-        type: 'uint32',
-        name: 'A number',
-        value: '1337',
-      },
-    ];
-    try {
-      const from = globalContext.accounts[0];
-      const sign = signTypedDataResult.innerHTML;
-      const recoveredAddr = await recoverTypedSignature({
-        data: msgParams,
-        signature: sign,
-        version: 'V1',
-      });
-      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
-        console.log(`Successfully verified signer as ${recoveredAddr}`);
-        signTypedDataVerifyResult.innerHTML = recoveredAddr;
-      } else {
-        console.log(
-          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      signTypedDataVerifyResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Typed Data Version 3 Test
-   */
-  signTypedDataV3.onclick = async () => {
-    const msgParams = {
-      types: {
-        EIP712Domain,
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallet', type: 'address' },
-        ],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person' },
-          { name: 'contents', type: 'string' },
-        ],
-      },
-      primaryType: 'Mail',
-      domain: {
-        name: 'Ether Mail',
-        version: '1',
-        chainId: chainIdInt,
-        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-      },
-      message: {
-        from: {
-          name: 'Cow',
-          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-        },
-        to: {
-          name: 'Bob',
-          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-        },
-        contents: 'Hello, Bob!',
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v3',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signTypedDataV3Result.innerHTML = sign;
-      signTypedDataV3Verify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signTypedDataV3Result.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Typed Data V3 Verification
-   */
-  signTypedDataV3Verify.onclick = async () => {
-    const msgParams = {
-      types: {
-        EIP712Domain,
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallet', type: 'address' },
-        ],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person' },
-          { name: 'contents', type: 'string' },
-        ],
-      },
-      primaryType: 'Mail',
-      domain: {
-        name: 'Ether Mail',
-        version: '1',
-        chainId: chainIdInt,
-        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-      },
-      message: {
-        from: {
-          name: 'Cow',
-          wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-        },
-        to: {
-          name: 'Bob',
-          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-        },
-        contents: 'Hello, Bob!',
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = signTypedDataV3Result.innerHTML;
-      const recoveredAddr = await recoverTypedSignature({
-        data: msgParams,
-        signature: sign,
-        version: 'V3',
-      });
-      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
-        console.log(`Successfully verified signer as ${recoveredAddr}`);
-        signTypedDataV3VerifyResult.innerHTML = recoveredAddr;
-      } else {
-        console.log(
-          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      signTypedDataV3VerifyResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Typed Data V4
-   */
-  signTypedDataV4.onclick = async () => {
-    const msgParams = {
-      domain: {
-        chainId: chainIdInt.toString(),
-        name: 'Ether Mail',
-        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-        version: '1',
-      },
-      message: {
-        contents: 'Hello, Bob!',
-        from: {
-          name: 'Cow',
-          wallets: [
-            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
-          ],
-        },
-        to: [
-          {
-            name: 'Bob',
-            wallets: [
-              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
-              '0xB0B0b0b0b0b0B000000000000000000000000000',
-            ],
-          },
-        ],
-        attachment: '0x',
-      },
-      primaryType: 'Mail',
-      types: {
-        EIP712Domain,
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
-        ],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person[]' },
-          { name: 'contents', type: 'string' },
-          { name: 'attachment', type: 'bytes' },
-        ],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallets', type: 'address[]' },
-        ],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signTypedDataV4Result.innerHTML = sign;
-      signTypedDataV4Verify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signTypedDataV4Result.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   *  Sign Typed Data V4 Verification
-   */
-  signTypedDataV4Verify.onclick = async () => {
-    const msgParams = {
-      domain: {
-        chainId: chainIdInt,
-        name: 'Ether Mail',
-        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-        version: '1',
-      },
-      message: {
-        contents: 'Hello, Bob!',
-        from: {
-          name: 'Cow',
-          wallets: [
-            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
-          ],
-        },
-        to: [
-          {
-            name: 'Bob',
-            wallets: [
-              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
-              '0xB0B0b0b0b0b0B000000000000000000000000000',
-            ],
-          },
-        ],
-        attachment: '0x',
-      },
-      primaryType: 'Mail',
-      types: {
-        EIP712Domain,
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
-        ],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person[]' },
-          { name: 'contents', type: 'string' },
-          { name: 'attachment', type: 'bytes' },
-        ],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallets', type: 'address[]' },
-        ],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = signTypedDataV4Result.innerHTML;
-      const recoveredAddr = recoverTypedSignature({
-        data: msgParams,
-        signature: sign,
-        version: 'V4',
-      });
-      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
-        console.log(`Successfully verified signer as ${recoveredAddr}`);
-        signTypedDataV4VerifyResult.innerHTML = recoveredAddr;
-      } else {
-        console.log(
-          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   *  Sign Permit
-   */
-
   async function getNFTMsgParams() {
     return {
       domain: {
         name: 'My NFT',
         version: '1',
-        chainId: chainIdInt,
+        chainId: globalContext.chainIdInt,
         verifyingContract: nftsContract.address,
       },
       types: {
@@ -2734,399 +2224,6 @@ const initializeFormElements = () => {
       },
     };
   }
-
-  function splitSig(sig) {
-    const pureSig = sig.replace('0x', '');
-
-    const _r = Buffer.from(pureSig.substring(0, 64), 'hex');
-    const _s = Buffer.from(pureSig.substring(64, 128), 'hex');
-    const _v = Buffer.from(
-      parseInt(pureSig.substring(128, 130), 16).toString(),
-    );
-
-    return { _r, _s, _v };
-  }
-
-  signPermit.onclick = async () => {
-    const from = globalContext.accounts[0];
-    const msgParams = getPermitMsgParams(
-      {
-        primaryType: MSG_PRIMARY_TYPE.PERMIT,
-        chainId: chainIdInt,
-      },
-      { fromAddress: from },
-    );
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      signPermitResult.innerHTML = sign;
-      signPermitResultR.innerHTML = `r: ${r}`;
-      signPermitResultS.innerHTML = `s: ${s}`;
-      signPermitResultV.innerHTML = `v: ${v}`;
-      signPermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signPermitResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  async function requestSignTypedDataVariant(primaryType) {
-    const from = globalContext.accounts[0];
-    const msgParams = getPermitMsgParams(
-      {
-        primaryType,
-        chainId: chainIdInt,
-      },
-      { fromAddress: from },
-    );
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      signPermitVariantResult.innerHTML = sign;
-      signPermitVariantResultR.innerHTML = `r: ${r}`;
-      signPermitVariantResultS.innerHTML = `s: ${s}`;
-      signPermitVariantResultV.innerHTML = `v: ${v}`;
-      signPermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      signPermitVariantResult.innerHTML = `Error: ${err.message}`;
-    }
-  }
-
-  signBlurOrder.onclick = async () => {
-    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.BLUR_ORDER);
-  };
-  signPermitBatch.onclick = async () => {
-    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.PERMIT_BATCH);
-  };
-  signPermitSingle.onclick = async () => {
-    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.PERMIT_SINGLE);
-  };
-  signSeaportBulkOrder.onclick = async () => {
-    await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.SEAPORT_BULK_ORDER);
-  };
-
-  /**
-   *  Sign Permit Verification
-   */
-  signPermitVerify.onclick = async () => {
-    const from = globalContext.accounts[0];
-    const msgParams = getPermitMsgParams({
-      primaryType: MSG_PRIMARY_TYPE.PERMIT,
-      chainId: chainIdInt,
-    });
-
-    try {
-      const sign = signPermitResult.innerHTML;
-      const recoveredAddr = recoverTypedSignature({
-        data: msgParams,
-        signature: sign,
-        version: 'V4',
-      });
-      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
-        console.log(`Successfully verified signer as ${recoveredAddr}`);
-        signPermitVerifyResult.innerHTML = recoveredAddr;
-      } else {
-        console.log(
-          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      signPermitVerifyResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Invalid Type
-   */
-  signInvalidType.onclick = async () => {
-    const msgParams = {
-      primaryType: 'OrderComponents',
-      domain: {
-        chainId: chainIdInt,
-        name: 'Seaport',
-        version: '1.5',
-        verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
-      },
-      types: {
-        EIP712Domain,
-        OrderComponents: [
-          { name: 'consideration', type: 'ConsiderationItem[+' },
-        ],
-      },
-      message: {
-        consideration: [
-          {
-            itemType: '0',
-            token: '0x0000000000000000000000000000000000000000',
-            identifierOrCriteria: '0',
-            startAmount: '1950000000000000',
-            endAmount: '1950000000000000',
-            recipient: '0x0000000000000000000000000000000000000000',
-          },
-        ],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signMalformedResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      signMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Empty Domain
-   */
-  signEmptyDomain.onclick = async () => {
-    const msgParams = {
-      domain: {},
-      message: {
-        contents: 'Hello, Bob!',
-        from: {
-          name: 'Cow',
-          wallets: [
-            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
-          ],
-        },
-        to: [
-          {
-            name: 'Bob',
-            wallets: [
-              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
-              '0xB0B0b0b0b0b0B000000000000000000000000000',
-            ],
-          },
-        ],
-        attachment: '0x',
-      },
-      primaryType: 'Mail',
-      types: {
-        EIP712Domain,
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
-        ],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person[]' },
-          { name: 'contents', type: 'string' },
-          { name: 'attachment', type: 'bytes' },
-        ],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallets', type: 'address[]' },
-        ],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signMalformedResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      signMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Extra Data Not Typed
-   */
-  signExtraDataNotTyped.onclick = async () => {
-    const msgParams = {
-      domain: {
-        chainId: chainIdInt,
-        name: 'Seaport',
-        version: '1.5',
-        verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
-      },
-      message: {
-        name: 'Hello, Bob!',
-        extraData: 'This data is not typed!',
-      },
-      primaryType: 'Wallet',
-      types: {
-        EIP712Domain,
-        Wallet: [{ name: 'name', type: 'string' }],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signMalformedResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      signMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign Invalid Primary Type
-   */
-  signInvalidPrimaryType.onclick = async () => {
-    const msgParams = {
-      domain: {
-        chainId: chainIdInt,
-        name: 'Seaport',
-        version: '1.5',
-        verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
-      },
-      message: {
-        name: 'Hello, Bob!',
-      },
-      primaryType: 'Non-Existent',
-      types: {
-        EIP712Domain,
-        Wallet: [{ name: 'name', type: 'string' }],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signMalformedResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      signMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Sign No Primary Type Defined
-   */
-  signNoPrimaryTypeDefined.onclick = async () => {
-    const msgParams = {
-      domain: {
-        chainId: chainIdInt,
-        name: 'Seaport',
-        version: '1.5',
-        verifyingContract: '0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC',
-      },
-      message: {
-        contents: 'Hello, Bob!',
-        from: {
-          name: 'Cow',
-          wallets: [
-            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
-          ],
-        },
-        to: [
-          {
-            name: 'Bob',
-            wallets: [
-              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
-              '0xB0B0b0b0b0b0B000000000000000000000000000',
-            ],
-          },
-        ],
-      },
-      types: {
-        EIP712Domain,
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
-        ],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person[]' },
-          { name: 'contents', type: 'string' },
-        ],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'wallets', type: 'address[]' },
-        ],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signMalformedResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      signMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-  /**
-   * Sign Invalid verifyingContract type
-   */
-  signInvalidVerifyingContractType.onclick = async () => {
-    const msgParams = {
-      domain: {
-        chainId: chainIdInt,
-        name: 'Seaport',
-        version: '1.5',
-        verifyingContract: 1,
-      },
-      message: {
-        name: 'Hello, Bob!',
-      },
-      primaryType: 'Wallet',
-      types: {
-        EIP712Domain,
-        Wallet: [{ name: 'name', type: 'string' }],
-      },
-    };
-    try {
-      const from = globalContext.accounts[0];
-      const sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      signMalformedResult.innerHTML = sign;
-    } catch (err) {
-      console.error(err);
-      signMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
 
   /**
    * Send With Invalid Value
@@ -3266,7 +2363,7 @@ const initializeFormElements = () => {
           method: 'eth_signTypedData_v4',
           params: [
             from,
-            `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+            `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${globalContext.chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
           ],
         });
       } catch (err) {
@@ -3286,7 +2383,7 @@ const initializeFormElements = () => {
           method: 'eth_signTypedData_v4',
           params: [
             from,
-            `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+            `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","chainId":${globalContext.chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
           ],
         });
       } catch (err) {
@@ -3434,7 +2531,7 @@ const initializeFormElements = () => {
       method: 'eth_signTypedData_v4',
       params: [
         globalContext.accounts[0],
-        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"917551056842671309452305380979543736893630245704","chainId":${chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
+        `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","domain":{"name":"USD Coin","verifyingContract":"917551056842671309452305380979543736893630245704","chainId":${globalContext.chainIdInt},"version":"2"},"message":{"owner":"${globalContext.accounts[0]}","spender":"0x1661F1B207629e4F385DA89cFF535C8E5Eb23Ee3","value":"1033366316628","nonce":1,"deadline":1678709555}}`,
       ],
     });
     console.log(result);
