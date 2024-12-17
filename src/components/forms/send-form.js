@@ -1,9 +1,6 @@
 import globalContext from '../..';
 
-export function sendFormComponent() {
-  const parentContainer =
-    document.getElementById('components-forms') || document.body;
-
+export function sendFormComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
     `<div class="row d-flex justify-content-center">

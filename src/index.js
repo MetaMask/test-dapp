@@ -372,9 +372,9 @@ const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
 
-sendFormComponent();
+sendFormComponent(document.getElementById('components-forms'));
 
-ensResolutionComponent();
+ensResolutionComponent(document.getElementById('components-resolutions'));
 
 // Send form controls (because they are updated by certain events in this file)
 const fromDiv = document.getElementById('fromInput');

@@ -1,9 +1,6 @@
 import globalContext from '../..';
 
-export function ensResolutionComponent() {
-  const parentContainer =
-    document.getElementById('components-resolutions') || document.body;
-
+export function ensResolutionComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
     `<div class="row d-flex justify-content-center">
