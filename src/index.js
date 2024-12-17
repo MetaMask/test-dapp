@@ -26,6 +26,12 @@ import {
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
+const globalContext = { 
+  ethersProvider: undefined,
+}; 
+
+export default globalContext; 
+
 const {
   hstBytecode,
   hstAbi,
@@ -400,10 +406,9 @@ const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
 
-// ENS Resolution
-const ensInput = document.getElementById('ensInput');
-const ensSubmit = document.getElementById('ensSubmit');
-const ensResult = document.getElementById('ensResult');
+// ENS RESOLUTION MOVED TO components/resolutions/ens-resolution.js
+import { ensResolutionComponent } from './components/resolutions/ens-resolution'; 
+ensResolutionComponent(); 
 
 // Buttons that require connecting an account
 const allConnectedButtons = [
@@ -937,7 +942,6 @@ const handleScrollTo = async ({ delay = false } = {}) => {
  * Contracts
  */
 
-let ethersProvider;
 let hstFactory;
 let piggybankFactory;
 let nftsFactory;
@@ -955,68 +959,68 @@ let erc1155Contract;
 const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
-    ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+    globalContext.ethersProvider = new ethers.providers.Web3Provider(provider, 'any'); 
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
         hstAbi,
-        ethersProvider.getSigner(),
+        globalContext.ethersProvider.getSigner(),
       );
       piggybankContract = new ethers.Contract(
         deployedContractAddress,
         piggybankAbi,
-        ethersProvider.getSigner(),
+        globalContext.ethersProvider.getSigner(),
       );
       nftsContract = new ethers.Contract(
         deployedContractAddress,
         nftsAbi,
-        ethersProvider.getSigner(),
+        globalContext.ethersProvider.getSigner(),
       );
       failingContract = new ethers.Contract(
         deployedContractAddress,
         failingContractAbi,
-        ethersProvider.getSigner(),
+        globalContext.ethersProvider.getSigner(),
       );
       multisigContract = new ethers.Contract(
         deployedContractAddress,
         multisigAbi,
-        ethersProvider.getSigner(),
+        globalContext.ethersProvider.getSigner(),
       );
       erc1155Contract = new ethers.Contract(
         deployedContractAddress,
         erc1155Abi,
-        ethersProvider.getSigner(),
+        globalContext.ethersProvider.getSigner(),
       );
     }
     hstFactory = new ethers.ContractFactory(
       hstAbi,
       hstBytecode,
-      ethersProvider.getSigner(),
+      globalContext.ethersProvider.getSigner(),
     );
     piggybankFactory = new ethers.ContractFactory(
       piggybankAbi,
       piggybankBytecode,
-      ethersProvider.getSigner(),
+      globalContext.ethersProvider.getSigner(),
     );
     nftsFactory = new ethers.ContractFactory(
       nftsAbi,
       nftsBytecode,
-      ethersProvider.getSigner(),
+      globalContext.ethersProvider.getSigner(),
     );
     failingContractFactory = new ethers.ContractFactory(
       failingContractAbi,
       failingContractBytecode,
-      ethersProvider.getSigner(),
+      globalContext.ethersProvider.getSigner(),
     );
     multisigFactory = new ethers.ContractFactory(
       multisigAbi,
       multisigBytecode,
-      ethersProvider.getSigner(),
+      globalContext.ethersProvider.getSigner(),
     );
     erc1155Factory = new ethers.ContractFactory(
       erc1155Abi,
       erc1155Bytecode,
-      ethersProvider.getSigner(),
+      globalContext.ethersProvider.getSigner(),
     );
   } catch (error) {
     console.error(error);
@@ -3460,23 +3464,6 @@ const initializeFormElements = () => {
       ],
     });
     console.log(result);
-  };
-
-  /**
-   * ENS Resolution
-   */
-  ensSubmit.onclick = async () => {
-    try {
-      ensResult.innerHTML = 'Resolving...';
-      const ensAddress = ensInput.value;
-      const ensResolver = await ethersProvider.getResolver(ensAddress);
-      const ethAddress = await ensResolver.getAddress();
-
-      ensResult.innerHTML = String(ethAddress);
-    } catch (error) {
-      console.error(error);
-      ensResult.innerHTML = 'Failed to resolve address';
-    }
   };
 
   /**
