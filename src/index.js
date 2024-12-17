@@ -18,9 +18,19 @@ import {
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
-import { sendFormComponent } from './components/forms/send-form';
+import { 
+  ethSignComponent,
+  malformedSignaturesComponent,
+  permitSignComponent,
+  personalSignComponent,
+  signTypedDataComponent,
+  signTypedDataVariantsComponent,
+  signTypedDataV3Component,
+  signTypedDataV4Component,
+  siweComponent
+} from './components/signatures'; 
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
-import { signaturesComponent } from './components/signatures/signatures';
+import { sendFormComponent } from './components/forms/send-form';
 
 const globalContext = {
   accounts: [],
@@ -231,7 +241,18 @@ const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
-signaturesComponent();
+const signaturesParentContainer = document.getElementById('components-signatures') || document.body;
+let signaturesRow = document.createElement('div'); 
+signaturesParentContainer.prepend(signaturesRow); 
+ethSignComponent(signaturesRow); 
+personalSignComponent(signaturesRow); 
+signTypedDataComponent(signaturesRow); 
+signTypedDataV3Component(signaturesRow); 
+signTypedDataV4Component(signaturesRow); 
+permitSignComponent(signaturesRow); 
+signTypedDataVariantsComponent(signaturesRow); 
+siweComponent(signaturesRow); 
+malformedSignaturesComponent(signaturesRow); 
 
 const ethSign = document.getElementById('ethSign');
 const personalSign = document.getElementById('personalSign');
