@@ -3,17 +3,6 @@ import { toChecksumAddress } from 'ethereumjs-util';
 import globalContext from '../..';
 import { EIP712Domain } from '../../signatures/utils';
 
-export const signTypedDataV4 = document.getElementById('signTypedDataV4');
-export const signTypedDataV4Result = document.getElementById(
-  'signTypedDataV4Result',
-);
-export const signTypedDataV4Verify = document.getElementById(
-  'signTypedDataV4Verify',
-);
-export const signTypedDataV4VerifyResult = document.getElementById(
-  'signTypedDataV4VerifyResult',
-);
-
 export function signTypedDataV4Component(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
@@ -52,6 +41,17 @@ export function signTypedDataV4Component(parentContainer) {
         </div>
       </div>
     </div>`,
+  );
+
+  const signTypedDataV4 = document.getElementById('signTypedDataV4');
+  const signTypedDataV4Result = document.getElementById(
+    'signTypedDataV4Result',
+  );
+  const signTypedDataV4Verify = document.getElementById(
+    'signTypedDataV4Verify',
+  );
+  const signTypedDataV4VerifyResult = document.getElementById(
+    'signTypedDataV4VerifyResult',
   );
 
   /**

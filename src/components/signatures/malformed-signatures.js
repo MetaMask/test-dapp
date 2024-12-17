@@ -2,23 +2,6 @@ import { EIP712Domain } from '../../signatures/utils';
 import globalContext from '../..';
 
 // Malformed Signatues
-export const signInvalidType = document.getElementById('signInvalidType');
-export const signEmptyDomain = document.getElementById('signEmptyDomain');
-export const signExtraDataNotTyped = document.getElementById(
-  'signExtraDataNotTyped',
-);
-export const signInvalidPrimaryType = document.getElementById(
-  'signInvalidPrimaryType',
-);
-export const signNoPrimaryTypeDefined = document.getElementById(
-  'signNoPrimaryTypeDefined',
-);
-export const signInvalidVerifyingContractType = document.getElementById(
-  'signInvalidVerifyingContractType',
-);
-export const signMalformedResult = document.getElementById(
-  'signMalformedResult',
-);
 
 export function malformedSignaturesComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -83,6 +66,22 @@ export function malformedSignaturesComponent(parentContainer) {
       </div>
     </div>`,
   );
+
+  const signInvalidType = document.getElementById('signInvalidType');
+  const signEmptyDomain = document.getElementById('signEmptyDomain');
+  const signExtraDataNotTyped = document.getElementById(
+    'signExtraDataNotTyped',
+  );
+  const signInvalidPrimaryType = document.getElementById(
+    'signInvalidPrimaryType',
+  );
+  const signNoPrimaryTypeDefined = document.getElementById(
+    'signNoPrimaryTypeDefined',
+  );
+  const signInvalidVerifyingContractType = document.getElementById(
+    'signInvalidVerifyingContractType',
+  );
+  const signMalformedResult = document.getElementById('signMalformedResult');
 
   /**
    * Sign Invalid Type

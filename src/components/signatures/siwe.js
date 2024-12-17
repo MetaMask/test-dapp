@@ -1,12 +1,5 @@
 import globalContext from '../..';
 
-export const siwe = document.getElementById('siwe');
-export const siweResources = document.getElementById('siweResources');
-export const siweBadDomain = document.getElementById('siweBadDomain');
-export const siweBadAccount = document.getElementById('siweBadAccount');
-export const siweMalformed = document.getElementById('siweMalformed');
-export const siweResult = document.getElementById('siweResult');
-
 export function siweComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
@@ -64,6 +57,13 @@ export function siweComponent(parentContainer) {
       </div>
     </div>`,
   );
+
+  const siwe = document.getElementById('siwe');
+  const siweResources = document.getElementById('siweResources');
+  const siweBadDomain = document.getElementById('siweBadDomain');
+  const siweBadAccount = document.getElementById('siweBadAccount');
+  const siweMalformed = document.getElementById('siweMalformed');
+  const siweResult = document.getElementById('siweResult');
 
   /**
    * Sign In With Ethereum helper

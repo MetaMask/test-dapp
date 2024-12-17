@@ -1,15 +1,6 @@
+/* eslint-disable import/no-mutable-exports */
 import { recoverPersonalSignature } from '@metamask/eth-sig-util';
 import globalContext from '../..';
-
-export const personalSign = document.getElementById('personalSign');
-export const personalSignResult = document.getElementById('personalSignResult');
-export const personalSignVerify = document.getElementById('personalSignVerify');
-export const personalSignVerifySigUtilResult = document.getElementById(
-  'personalSignVerifySigUtilResult',
-);
-export const personalSignVerifyECRecoverResult = document.getElementById(
-  'personalSignVerifyECRecoverResult',
-);
 
 export function personalSignComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -52,6 +43,16 @@ export function personalSignComponent(parentContainer) {
         </div>
       </div>
     </div>`,
+  );
+
+  const personalSign = document.getElementById('personalSign');
+  const personalSignResult = document.getElementById('personalSignResult');
+  const personalSignVerify = document.getElementById('personalSignVerify');
+  const personalSignVerifySigUtilResult = document.getElementById(
+    'personalSignVerifySigUtilResult',
+  );
+  const personalSignVerifyECRecoverResult = document.getElementById(
+    'personalSignVerifyECRecoverResult',
   );
 
   /**

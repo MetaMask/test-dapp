@@ -2,17 +2,6 @@ import { recoverTypedSignature } from '@metamask/eth-sig-util';
 import { toChecksumAddress } from 'ethereumjs-util';
 import globalContext from '../..';
 
-export const signTypedData = document.getElementById('signTypedData');
-export const signTypedDataResult = document.getElementById(
-  'signTypedDataResult',
-);
-export const signTypedDataVerify = document.getElementById(
-  'signTypedDataVerify',
-);
-export const signTypedDataVerifyResult = document.getElementById(
-  'signTypedDataVerifyResult',
-);
-
 export function signTypedDataComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
@@ -52,6 +41,12 @@ export function signTypedDataComponent(parentContainer) {
     </div>`,
   );
 
+  const signTypedData = document.getElementById('signTypedData');
+  const signTypedDataResult = document.getElementById('signTypedDataResult');
+  const signTypedDataVerify = document.getElementById('signTypedDataVerify');
+  const signTypedDataVerifyResult = document.getElementById(
+    'signTypedDataVerifyResult',
+  );
   /**
    * Sign Typed Data Test
    */

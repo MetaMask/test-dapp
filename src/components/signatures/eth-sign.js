@@ -1,8 +1,5 @@
 import globalContext from '../..';
 
-export const ethSign = document.getElementById('ethSign');
-export const ethSignResult = document.getElementById('ethSignResult');
-
 export function ethSignComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
@@ -28,6 +25,9 @@ export function ethSignComponent(parentContainer) {
         </div>
     </div>`,
   );
+
+  const ethSign = document.getElementById('ethSign');
+  const ethSignResult = document.getElementById('ethSignResult');
 
   ethSign.onclick = async () => {
     try {

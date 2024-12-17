@@ -7,15 +7,6 @@ import {
 } from '../../signatures/utils';
 import globalContext from '../..';
 
-export const signPermit = document.getElementById('signPermit');
-export const signPermitResult = document.getElementById('signPermitResult');
-export const signPermitResultR = document.getElementById('signPermitResultR');
-export const signPermitResultS = document.getElementById('signPermitResultS');
-export const signPermitResultV = document.getElementById('signPermitResultV');
-export const signPermitVerify = document.getElementById('signPermitVerify');
-export const signPermitVerifyResult = document.getElementById(
-  'signPermitVerifyResult',
-);
 export function permitSignComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
@@ -57,6 +48,16 @@ export function permitSignComponent(parentContainer) {
         </div>
       </div>
     </div>`,
+  );
+
+  const signPermit = document.getElementById('signPermit');
+  const signPermitResult = document.getElementById('signPermitResult');
+  const signPermitResultR = document.getElementById('signPermitResultR');
+  const signPermitResultS = document.getElementById('signPermitResultS');
+  const signPermitResultV = document.getElementById('signPermitResultV');
+  const signPermitVerify = document.getElementById('signPermitVerify');
+  const signPermitVerifyResult = document.getElementById(
+    'signPermitVerifyResult',
   );
 
   /**

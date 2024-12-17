@@ -4,28 +4,6 @@ import {
   splitSig,
 } from '../../signatures/utils';
 import globalContext from '../..';
-import { signPermitVerify } from './permit-sign';
-
-// Sign Typed Data Variants
-export const signBlurOrder = document.getElementById('signBlurOrder');
-export const signPermitSingle = document.getElementById('signPermitSingle');
-export const signPermitBatch = document.getElementById('signPermitBatch');
-export const signSeaportBulkOrder = document.getElementById(
-  'signSeaportBulkOrder',
-);
-
-export const signPermitVariantResult = document.getElementById(
-  'signPermitVariantResult',
-);
-export const signPermitVariantResultR = document.getElementById(
-  'signPermitVariantResultR',
-);
-export const signPermitVariantResultS = document.getElementById(
-  'signPermitVariantResultS',
-);
-export const signPermitVariantResultV = document.getElementById(
-  'signPermitVariantResultV',
-);
 
 export function signTypedDataVariantsComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -80,6 +58,27 @@ export function signTypedDataVariantsComponent(parentContainer) {
             </div>
           </div>`,
   );
+
+  // Sign Typed Data Variants
+  const signBlurOrder = document.getElementById('signBlurOrder');
+  const signPermitSingle = document.getElementById('signPermitSingle');
+  const signPermitBatch = document.getElementById('signPermitBatch');
+  const signSeaportBulkOrder = document.getElementById('signSeaportBulkOrder');
+
+  const signPermitVariantResult = document.getElementById(
+    'signPermitVariantResult',
+  );
+  const signPermitVariantResultR = document.getElementById(
+    'signPermitVariantResultR',
+  );
+  const signPermitVariantResultS = document.getElementById(
+    'signPermitVariantResultS',
+  );
+  const signPermitVariantResultV = document.getElementById(
+    'signPermitVariantResultV',
+  );
+
+  const signPermitVerify = document.getElementById('signPermitVerify');
 
   async function requestSignTypedDataVariant(primaryType) {
     const from = globalContext.accounts[0];

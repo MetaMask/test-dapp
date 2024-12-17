@@ -20,49 +20,7 @@ import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
 import { sendFormComponent } from './components/forms/send-form';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
-import { ethSign } from './components/signatures/eth-sign';
 import { signaturesComponent } from './components/signatures/signatures';
-import {
-  personalSign,
-  personalSignVerify,
-} from './components/signatures/personal-sign';
-import {
-  signTypedData,
-  signTypedDataVerify,
-} from './components/signatures/signTypedData';
-import {
-  signTypedDataV3,
-  signTypedDataV3Verify,
-} from './components/signatures/signTypedDataV3-sign';
-import {
-  signTypedDataV4,
-  signTypedDataV4Verify,
-} from './components/signatures/signTypedDataV4-sign';
-import {
-  signPermit,
-  signPermitVerify,
-} from './components/signatures/permit-sign';
-import {
-  signBlurOrder,
-  signPermitBatch,
-  signPermitSingle,
-  signSeaportBulkOrder,
-} from './components/signatures/signTypedData-variants';
-import {
-  siwe,
-  siweBadAccount,
-  siweBadDomain,
-  siweMalformed,
-  siweResources,
-} from './components/signatures/siwe';
-import {
-  signEmptyDomain,
-  signExtraDataNotTyped,
-  signInvalidPrimaryType,
-  signInvalidType,
-  signInvalidVerifyingContractType,
-  signNoPrimaryTypeDefined,
-} from './components/signatures/malformed-signatures';
 
 const globalContext = {
   accounts: [],
@@ -274,6 +232,45 @@ const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
 signaturesComponent();
+
+const ethSign = document.getElementById('ethSign');
+const personalSign = document.getElementById('personalSign');
+const personalSignVerify = document.getElementById('personalSignVerify');
+const signTypedData = document.getElementById('signTypedData');
+const signTypedDataVerify = document.getElementById('signTypedDataVerify');
+const signTypedDataV3 = document.getElementById('signTypedDataV3');
+const signTypedDataV3Verify = document.getElementById('signTypedDataV3Verify');
+const signTypedDataV4 = document.getElementById('signTypedDataV4');
+const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
+const signPermit = document.getElementById('signPermit');
+const signPermitVerify = document.getElementById('signPermitVerify');
+
+// Sign Typed Data Variants
+
+const signBlurOrder = document.getElementById('signBlurOrder');
+const signPermitSingle = document.getElementById('signPermitSingle');
+const signPermitBatch = document.getElementById('signPermitBatch');
+const signSeaportBulkOrder = document.getElementById('signSeaportBulkOrder');
+
+const siwe = document.getElementById('siwe');
+const siweResources = document.getElementById('siweResources');
+const siweBadDomain = document.getElementById('siweBadDomain');
+const siweBadAccount = document.getElementById('siweBadAccount');
+const siweMalformed = document.getElementById('siweMalformed');
+
+// Malformed Signatues
+const signInvalidType = document.getElementById('signInvalidType');
+const signEmptyDomain = document.getElementById('signEmptyDomain');
+const signExtraDataNotTyped = document.getElementById('signExtraDataNotTyped');
+const signInvalidPrimaryType = document.getElementById(
+  'signInvalidPrimaryType',
+);
+const signNoPrimaryTypeDefined = document.getElementById(
+  'signNoPrimaryTypeDefined',
+);
+const signInvalidVerifyingContractType = document.getElementById(
+  'signInvalidVerifyingContractType',
+);
 
 // Malformed Transactions
 const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
