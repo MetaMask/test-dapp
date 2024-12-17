@@ -18,17 +18,18 @@ import {
 } from './onchain-sample-contracts';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 
-import { 
+import {
   ethSignComponent,
-  malformedSignaturesComponent,
   permitSignComponent,
   personalSignComponent,
   signTypedDataComponent,
   signTypedDataVariantsComponent,
   signTypedDataV3Component,
   signTypedDataV4Component,
-  siweComponent
-} from './components/signatures'; 
+  siweComponent,
+  malformedSignaturesComponent,
+  malformedTransactionsComponent,
+} from './components/signatures';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
 import { sendFormComponent } from './components/forms/send-form';
 
@@ -241,18 +242,21 @@ const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
-const signaturesParentContainer = document.getElementById('components-signatures') || document.body;
-let signaturesRow = document.createElement('div'); 
-signaturesParentContainer.prepend(signaturesRow); 
-ethSignComponent(signaturesRow); 
-personalSignComponent(signaturesRow); 
-signTypedDataComponent(signaturesRow); 
-signTypedDataV3Component(signaturesRow); 
-signTypedDataV4Component(signaturesRow); 
-permitSignComponent(signaturesRow); 
-signTypedDataVariantsComponent(signaturesRow); 
-siweComponent(signaturesRow); 
-malformedSignaturesComponent(signaturesRow); 
+const signaturesParentContainer =
+  document.getElementById('components-signatures') || document.body;
+const signaturesRow = document.createElement('div');
+signaturesRow.className = 'row';
+signaturesParentContainer.appendChild(signaturesRow);
+ethSignComponent(signaturesRow);
+personalSignComponent(signaturesRow);
+signTypedDataComponent(signaturesRow);
+signTypedDataV3Component(signaturesRow);
+signTypedDataV4Component(signaturesRow);
+permitSignComponent(signaturesRow);
+signTypedDataVariantsComponent(signaturesRow);
+siweComponent(signaturesRow);
+malformedSignaturesComponent(signaturesRow);
+malformedTransactionsComponent(signaturesRow);
 
 const ethSign = document.getElementById('ethSign');
 const personalSign = document.getElementById('personalSign');
@@ -306,6 +310,9 @@ const sendWithInvalidMaxFeePerGas = document.getElementById(
   'sendWithInvalidMaxFeePerGas',
 );
 const sendMalformedResult = document.getElementById('sendMalformedResult');
+
+// End Ethereum Signature Section
+
 // Batch
 const signTypedDataV4Batch = document.getElementById('signTypedDataV4Batch');
 const sendEIP1559Batch = document.getElementById('sendEIP1559Batch');
@@ -2242,133 +2249,6 @@ const initializeFormElements = () => {
       },
     };
   }
-
-  /**
-   * Send With Invalid Value
-   */
-
-  sendWithInvalidValue.onclick = async () => {
-    try {
-      const from = globalContext.accounts[0];
-      const send = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: 'invalid', // invalid value - expected int/hex value
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Send With Invalid Transaction Type
-   */
-
-  sendWithInvalidTxType.onclick = async () => {
-    try {
-      const from = globalContext.accounts[0];
-      const send = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
-            type: '0x5', // invalid tx type - expected 0x1 or 0x2
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Send With Invalid Recipient
-   */
-
-  sendWithInvalidRecipient.onclick = async () => {
-    try {
-      const from = globalContext.accounts[0];
-      const send = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: 'invalid', // invalid recipient - expected int/hex address
-            value: '0x0',
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Send With Invalid gasLimit
-   */
-
-  sendWithInvalidGasLimit.onclick = async () => {
-    try {
-      const from = globalContext.accounts[0];
-      const send = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
-            gasLimit: 'invalid', // invalid gasLimit - expected int/hex value
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   * Send With Invalid maxFeePerGas
-   */
-
-  sendWithInvalidMaxFeePerGas.onclick = async () => {
-    try {
-      const from = globalContext.accounts[0];
-      const send = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from,
-            to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-            value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: 'invalid', // invalid maxFeePerGas - expected int/hex value
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
-      sendMalformedResult.innerHTML = send;
-    } catch (err) {
-      console.error(err);
-      sendMalformedResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
 
   /**
    * Queue of 10 Malicious Signatures
