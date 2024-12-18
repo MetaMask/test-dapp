@@ -1,5 +1,5 @@
 import globalContext from '../..';
-import { maliciousAddress } from '../../constants.json';
+import { maliciousAddress } from '../../sample-addresses';
 import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,

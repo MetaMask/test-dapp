@@ -8,20 +8,7 @@ import {
   handleWalletConnect,
   walletConnect,
 } from './connections';
-import {
-  hstBytecode,
-  hstAbi,
-  piggybankBytecode,
-  piggybankAbi,
-  nftsAbi,
-  nftsBytecode,
-  failingContractAbi,
-  failingContractBytecode,
-  multisigAbi,
-  multisigBytecode,
-  erc1155Abi,
-  erc1155Bytecode,
-} from './constants.json';
+import Constants from './constants.json';
 import { splitSig } from './signatures/utils';
 import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 import { getPermissionsDisplayString } from './utils';
@@ -46,6 +33,21 @@ import {
 } from './components/signatures';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
 import { sendFormComponent } from './components/forms/send-form';
+
+const {
+  hstBytecode,
+  hstAbi,
+  piggybankBytecode,
+  piggybankAbi,
+  nftsAbi,
+  nftsBytecode,
+  failingContractAbi,
+  failingContractBytecode,
+  multisigAbi,
+  multisigBytecode,
+  erc1155Abi,
+  erc1155Bytecode,
+} = Constants;
 
 const globalContext = {
   accounts: [],

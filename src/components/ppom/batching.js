@@ -1,5 +1,5 @@
 import globalContext from '../..';
-import { maliciousAddress } from '../../constants.json';
+import { maliciousAddress } from '../../sample-addresses';
 
 export function ppomMaliciousBatchingAndQueueing(parentContainer) {
   parentContainer.insertAdjacentHTML(

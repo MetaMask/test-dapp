@@ -1,5 +1,5 @@
 import globalContext from '../..';
-import { maliciousAddress } from '../../constants.json';
+import { maliciousAddress } from '../../sample-addresses';
 import { ERC20_SAMPLE_CONTRACTS } from '../../onchain-sample-contracts';
 
 export function ppomMaliciousWarningBypasses(parentContainer) {
