@@ -880,7 +880,8 @@ const closeProvider = () => {
 // Must be called after the active provider changes
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
-  initializeContracts();
+  const initialized = await initializeContracts();
+  contractsInitialized = initialized;
   updateFormElements();
 
   if (isMetaMaskInstalled()) {
@@ -950,9 +951,9 @@ let nftsContract;
 let failingContract;
 let multisigContract;
 let erc1155Contract;
+let contractsInitialized = false;
 
-// Must be called after the active provider changes
-const initializeContracts = () => {
+const initializeContracts = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
@@ -988,6 +989,7 @@ const initializeContracts = () => {
         ethersProvider.getSigner(),
       );
     }
+
     hstFactory = new ethers.ContractFactory(
       hstAbi,
       hstBytecode,
@@ -1018,8 +1020,11 @@ const initializeContracts = () => {
       erc1155Bytecode,
       ethersProvider.getSigner(),
     );
+
+    return true;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to initialize contracts:', error);
+    return false;
   }
 };
 
@@ -1031,7 +1036,10 @@ const initializeContracts = () => {
 // Updates form elements content and disabled status
 export const updateFormElements = () => {
   const accountButtonsDisabled =
-    !isMetaMaskInstalled() || !isMetaMaskConnected();
+    !isMetaMaskInstalled() ||
+    !isMetaMaskConnected() ||
+    (deployedContractAddress && !contractsInitialized);
+
   if (accountButtonsDisabled) {
     for (const button of allConnectedButtons) {
       button.disabled = true;
@@ -1040,7 +1048,7 @@ export const updateFormElements = () => {
   }
   if (isMetaMaskConnected()) {
     for (const button of initialConnectedButtons) {
-      button.disabled = false;
+      button.disabled = !contractsInitialized && deployedContractAddress;
     }
   }
 
@@ -1118,6 +1126,10 @@ const updateOnboardElements = () => {
 };
 
 const updateContractElements = () => {
+  if (deployedContractAddress && !contractsInitialized) {
+    return; // Don't enable any contract elements if not initialized
+  }
+
   if (deployedContractAddress) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
