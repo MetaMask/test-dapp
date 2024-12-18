@@ -112,10 +112,13 @@ export function permitSignComponent(parentContainer) {
    */
   signPermitVerify.onclick = async () => {
     const from = globalContext.accounts[0];
-    const msgParams = getPermitMsgParams({
-      primaryType: MSG_PRIMARY_TYPE.PERMIT,
-      chainId: globalContext.chainIdInt,
-    });
+    const msgParams = getPermitMsgParams(
+      {
+        primaryType: MSG_PRIMARY_TYPE.PERMIT,
+        chainId: globalContext.chainIdInt,
+      },
+      { fromAddress: from },
+    );
 
     try {
       const sign = signPermitResult.innerHTML;
