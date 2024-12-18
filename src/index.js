@@ -30,11 +30,13 @@ import {
 } from './components/signatures';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
 import { sendFormComponent } from './components/forms/send-form';
-import { sendComponent } from './components/transactions/send';
-import { erc20Component } from './components/transactions/erc20';
-import { erc721Component } from './components/transactions/erc721';
-import { erc1155Component } from './components/transactions/erc1155';
-import { eip747Component } from './components/transactions/eip747';
+import {
+  sendComponent,
+  erc20Component,
+  erc1155Component,
+  eip747Component,
+  erc721Component,
+} from './components/transactions';
 
 const {
   hstBytecode,
