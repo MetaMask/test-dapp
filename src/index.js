@@ -1,15 +1,12 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 // eslint-disable-next-line camelcase
-import { recoverTypedSignature } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
-import { toChecksumAddress } from 'ethereumjs-util';
 import {
   handleSdkConnect,
   handleWalletConnect,
   walletConnect,
 } from './connections';
 import Constants from './constants.json';
-import { splitSig } from './signatures/utils';
 import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 import { getPermissionsDisplayString } from './utils';
 
@@ -33,6 +30,11 @@ import {
 } from './components/signatures';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
 import { sendFormComponent } from './components/forms/send-form';
+import { sendComponent } from './components/transactions/send';
+import { erc20Component } from './components/transactions/erc20';
+import { erc721Component } from './components/transactions/erc721';
+import { erc1155Component } from './components/transactions/erc1155';
+import { eip747Component } from './components/transactions/eip747';
 
 const {
   hstBytecode,
@@ -57,6 +59,18 @@ const globalContext = {
   chainIdPadded: undefined,
   networkName: undefined,
   _connected: false,
+  piggybankContract: undefined,
+  piggybankFactory: undefined,
+  failingContractFactory: undefined,
+  failingContract: undefined,
+  multisigContract: undefined,
+  multisigFactory: undefined,
+  hstContract: undefined,
+  hstFactory: undefined,
+  nftsContract: undefined,
+  nftsFactory: undefined,
+  erc1155Contract: undefined,
+  erc1155Factory: undefined,
   get connected() {
     return this._connected;
   },
@@ -134,6 +148,17 @@ const revokeAccountsPermissionButton = document.getElementById(
   'revokeAccountsPermission',
 );
 
+const transactionsContainer =
+  document.getElementById('components-tranactions') || document.body;
+const transactionsRow = document.createElement('div');
+transactionsRow.className = 'row';
+transactionsContainer.appendChild(transactionsRow);
+sendComponent(transactionsRow);
+erc20Component(transactionsRow);
+erc721Component(transactionsRow);
+erc1155Component(transactionsRow);
+eip747Component(transactionsRow);
+
 // Contract Section
 const deployButton = document.getElementById('deployButton');
 const depositButton = document.getElementById('depositButton');
@@ -169,14 +194,7 @@ const nftsStatus = document.getElementById('nftsStatus');
 const erc721TokenAddresses = document.getElementById('erc721TokenAddresses');
 // 721 Permit
 const sign721Permit = document.getElementById('sign721Permit');
-const sign721PermitResult = document.getElementById('sign721PermitResult');
-const sign721PermitResultR = document.getElementById('sign721PermitResultR');
-const sign721PermitResultS = document.getElementById('sign721PermitResultS');
-const sign721PermitResultV = document.getElementById('sign721PermitResultV');
 const sign721PermitVerify = document.getElementById('sign721PermitVerify');
-const sign721PermitVerifyResult = document.getElementById(
-  'sign721PermitVerifyResult',
-);
 
 // ERC 1155 Section
 
@@ -201,11 +219,7 @@ const erc1155Status = document.getElementById('erc1155Status');
 const erc1155TokenAddresses = document.getElementById('erc1155TokenAddresses');
 
 // ERC 747 Section
-const eip747ContractAddress = document.getElementById('eip747ContractAddress');
-const eip747Symbol = document.getElementById('eip747Symbol');
-const eip747Decimals = document.getElementById('eip747Decimals');
 const eip747WatchButton = document.getElementById('eip747WatchButton');
-const eip747Status = document.getElementById('eip747Status');
 
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
@@ -223,7 +237,6 @@ const transferFromSenderInput = document.getElementById(
 const transferFromRecipientInput = document.getElementById(
   'transferFromRecipientInput',
 );
-const tokenSymbol = 'TST';
 const erc20TokenAddresses = document.getElementById('erc20TokenAddresses');
 const createToken = document.getElementById('createToken');
 const watchAssets = document.getElementById('watchAssets');
@@ -878,19 +891,6 @@ const handleScrollTo = async ({ delay = false } = {}) => {
  * Contracts
  */
 
-let hstFactory;
-let piggybankFactory;
-let nftsFactory;
-let failingContractFactory;
-let multisigFactory;
-let erc1155Factory;
-let hstContract;
-let piggybankContract;
-let nftsContract;
-let failingContract;
-let multisigContract;
-let erc1155Contract;
-
 // Must be called after the active provider changes
 const initializeContracts = () => {
   try {
@@ -900,63 +900,63 @@ const initializeContracts = () => {
       'any',
     );
     if (deployedContractAddress) {
-      hstContract = new ethers.Contract(
+      globalContext.hstContract = new ethers.Contract(
         deployedContractAddress,
         hstAbi,
         globalContext.ethersProvider.getSigner(),
       );
-      piggybankContract = new ethers.Contract(
+      globalContext.piggybankContract = new ethers.Contract(
         deployedContractAddress,
         piggybankAbi,
         globalContext.ethersProvider.getSigner(),
       );
-      nftsContract = new ethers.Contract(
+      globalContext.nftsContract = new ethers.Contract(
         deployedContractAddress,
         nftsAbi,
         globalContext.ethersProvider.getSigner(),
       );
-      failingContract = new ethers.Contract(
+      globalContext.failingContract = new ethers.Contract(
         deployedContractAddress,
         failingContractAbi,
         globalContext.ethersProvider.getSigner(),
       );
-      multisigContract = new ethers.Contract(
+      globalContext.multisigContract = new ethers.Contract(
         deployedContractAddress,
         multisigAbi,
         globalContext.ethersProvider.getSigner(),
       );
-      erc1155Contract = new ethers.Contract(
+      globalContext.erc1155Contract = new ethers.Contract(
         deployedContractAddress,
         erc1155Abi,
         globalContext.ethersProvider.getSigner(),
       );
     }
-    hstFactory = new ethers.ContractFactory(
+    globalContext.hstFactory = new ethers.ContractFactory(
       hstAbi,
       hstBytecode,
       globalContext.ethersProvider.getSigner(),
     );
-    piggybankFactory = new ethers.ContractFactory(
+    globalContext.piggybankFactory = new ethers.ContractFactory(
       piggybankAbi,
       piggybankBytecode,
       globalContext.ethersProvider.getSigner(),
     );
-    nftsFactory = new ethers.ContractFactory(
+    globalContext.nftsFactory = new ethers.ContractFactory(
       nftsAbi,
       nftsBytecode,
       globalContext.ethersProvider.getSigner(),
     );
-    failingContractFactory = new ethers.ContractFactory(
+    globalContext.failingContractFactory = new ethers.ContractFactory(
       failingContractAbi,
       failingContractBytecode,
       globalContext.ethersProvider.getSigner(),
     );
-    multisigFactory = new ethers.ContractFactory(
+    globalContext.multisigFactory = new ethers.ContractFactory(
       multisigAbi,
       multisigBytecode,
       globalContext.ethersProvider.getSigner(),
     );
-    erc1155Factory = new ethers.ContractFactory(
+    globalContext.erc1155Factory = new ethers.ContractFactory(
       erc1155Abi,
       erc1155Bytecode,
       globalContext.ethersProvider.getSigner(),
@@ -1074,7 +1074,9 @@ const updateContractElements = () => {
     multisigContractStatus.innerHTML = 'Deployed';
     sendMultisigButton.disabled = false;
     // ERC721 Token - NFTs contract
-    erc721TokenAddresses.innerHTML = nftsContract ? nftsContract.address : '';
+    erc721TokenAddresses.innerHTML = globalContext.nftsContract
+      ? globalContext.nftsContract.address
+      : '';
     nftsStatus.innerHTML = 'Deployed';
     mintButton.disabled = false;
     sign721Permit.disabled = false;
@@ -1091,8 +1093,8 @@ const updateContractElements = () => {
     watchNFTButtons.innerHTML = '';
 
     // ERC 1155 Multi Token
-    erc1155TokenAddresses.innerHTML = erc1155Contract
-      ? erc1155Contract.address
+    erc1155TokenAddresses.innerHTML = globalContext.erc1155Contract
+      ? globalContext.erc1155Contract.address
       : '';
     erc1155Status.innerHTML = 'Deployed';
     batchMintButton.disabled = false;
@@ -1106,7 +1108,9 @@ const updateContractElements = () => {
     watchAssetInput.disabled = false;
     watchAssetButton.disabled = false;
     // ERC20 Token - Send Tokens
-    erc20TokenAddresses.innerHTML = hstContract ? hstContract.address : '';
+    erc20TokenAddresses.innerHTML = globalContext.hstContract
+      ? globalContext.hstContract.address
+      : '';
     watchAssets.disabled = false;
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
@@ -1126,738 +1130,6 @@ const updateContractElements = () => {
 
 // Initializes form button onclicks
 const initializeFormElements = () => {
-  /**
-   * Piggy bank
-   */
-
-  deployButton.onclick = async () => {
-    contractStatus.innerHTML = 'Deploying';
-
-    try {
-      piggybankContract = await piggybankFactory.deploy();
-      await piggybankContract.deployTransaction.wait();
-    } catch (error) {
-      contractStatus.innerHTML = 'Deployment Failed';
-      throw error;
-    }
-
-    if (piggybankContract.address === undefined) {
-      return;
-    }
-
-    console.log(
-      `Contract mined! address: ${piggybankContract.address} transactionHash: ${piggybankContract.deployTransaction.hash}`,
-    );
-    contractStatus.innerHTML = 'Deployed';
-    depositButton.disabled = false;
-    withdrawButton.disabled = false;
-  };
-
-  depositButton.onclick = async () => {
-    contractStatus.innerHTML = 'Deposit initiated';
-    const result = await piggybankContract.deposit({
-      from: globalContext.accounts[0],
-      value: '0x3782dace9d900000',
-    });
-    console.log(result);
-    const receipt = await result.wait();
-    console.log(receipt);
-    contractStatus.innerHTML = 'Deposit completed';
-  };
-
-  withdrawButton.onclick = async () => {
-    const result = await piggybankContract.withdraw('0xde0b6b3a7640000', {
-      from: globalContext.accounts[0],
-    });
-    console.log(result);
-    const receipt = await result.wait();
-    console.log(receipt);
-    contractStatus.innerHTML = 'Withdrawn';
-  };
-
-  /**
-   * Failing
-   */
-
-  deployFailingButton.onclick = async () => {
-    failingContractStatus.innerHTML = 'Deploying';
-
-    try {
-      failingContract = await failingContractFactory.deploy();
-      await failingContract.deployTransaction.wait();
-    } catch (error) {
-      failingContractStatus.innerHTML = 'Deployment Failed';
-      throw error;
-    }
-
-    if (failingContract.address === undefined) {
-      return;
-    }
-
-    console.log(
-      `Contract mined! address: ${failingContract.address} transactionHash: ${failingContract.deployTransaction.hash}`,
-    );
-    failingContractStatus.innerHTML = 'Deployed';
-    sendFailingButton.disabled = false;
-  };
-
-  sendFailingButton.onclick = async () => {
-    try {
-      const result = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: globalContext.accounts[0],
-            to: failingContract.address,
-            value: '0x0',
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
-      failingContractStatus.innerHTML =
-        'Failed transaction process completed as expected.';
-      console.log('send failing contract result', result);
-    } catch (error) {
-      console.log('error', error);
-      throw error;
-    }
-  };
-
-  /**
-   * Multisig
-   */
-
-  deployMultisigButton.onclick = async () => {
-    multisigContractStatus.innerHTML = 'Deploying';
-
-    try {
-      multisigContract = await multisigFactory.deploy();
-      await multisigContract.deployTransaction.wait();
-    } catch (error) {
-      multisigContractStatus.innerHTML = 'Deployment Failed';
-      throw error;
-    }
-
-    if (multisigContract.address === undefined) {
-      return;
-    }
-
-    console.log(
-      `Contract mined! address: ${multisigContract.address} transactionHash: ${multisigContract.deployTransaction.hash}`,
-    );
-    multisigContractStatus.innerHTML = 'Deployed';
-    sendMultisigButton.disabled = false;
-  };
-
-  sendMultisigButton.onclick = async () => {
-    try {
-      const result = await globalContext.provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: globalContext.accounts[0],
-            to: multisigContract.address,
-            value: '0x16345785D8A0', // 24414062500000
-            gasLimit: '0x5028',
-            maxFeePerGas: '0x2540be400',
-            maxPriorityFeePerGas: '0x3b9aca00',
-          },
-        ],
-      });
-      multisigContractStatus.innerHTML = 'Transaction completed as expected.';
-      console.log('send multisig contract result', result);
-    } catch (error) {
-      console.log('error', error);
-      throw error;
-    }
-  };
-
-  /**
-   * ERC721 Token
-   */
-
-  deployNFTsButton.onclick = async () => {
-    nftsStatus.innerHTML = 'Deploying';
-
-    try {
-      nftsContract = await nftsFactory.deploy();
-      await nftsContract.deployTransaction.wait();
-    } catch (error) {
-      nftsStatus.innerHTML = 'Deployment Failed';
-      throw error;
-    }
-
-    if (nftsContract.address === undefined) {
-      return;
-    }
-
-    console.log(
-      `Contract mined! address: ${nftsContract.address} transactionHash: ${nftsContract.deployTransaction.hash}`,
-    );
-
-    erc721TokenAddresses.innerHTML = erc721TokenAddresses.innerHTML
-      .concat(', ', nftsContract.address)
-      .split(', ')
-      .filter(Boolean)
-      .join(', ');
-
-    nftsStatus.innerHTML = 'Deployed';
-    mintButton.disabled = false;
-    sign721Permit.disabled = false;
-    mintAmountInput.disabled = false;
-  };
-
-  watchNFTsButton.onclick = async () => {
-    const currentTokenId = await nftsContract.currentTokenId();
-    const nftsContractAddress = nftsContract.address;
-    let watchNftsResult;
-    try {
-      watchNftsResult = await globalContext.provider.sendAsync(
-        Array.from({ length: currentTokenId }, (_, i) => i + 1).map(
-          (tokenId) => {
-            return {
-              method: 'wallet_watchAsset',
-              params: {
-                type: 'ERC721',
-                options: {
-                  address: nftsContractAddress,
-                  tokenId: tokenId.toString(),
-                },
-              },
-            };
-          },
-        ),
-      );
-    } catch (error) {
-      console.error(error);
-    }
-    console.log(watchNftsResult);
-  };
-
-  mintButton.onclick = async () => {
-    nftsStatus.innerHTML = 'Mint initiated';
-    let result = await nftsContract.mintNFTs(mintAmountInput.value, {
-      from: globalContext.accounts[0],
-    });
-    result = await result.wait();
-    console.log(result);
-    nftsStatus.innerHTML = 'Mint completed';
-    approveTokenInput.disabled = false;
-    approveButton.disabled = false;
-    watchNFTInput.disabled = false;
-    watchNFTButton.disabled = false;
-    setApprovalForAllButton.disabled = false;
-    revokeButton.disabled = false;
-    transferTokenInput.disabled = false;
-    transferFromButton.disabled = false;
-    watchNFTsButton.disabled = false;
-    watchNFTButtons.innerHTML = '';
-  };
-
-  sign721Permit.onclick = async () => {
-    const from = globalContext.accounts[0];
-    const msgParams = await getNFTMsgParams();
-    console.log(msgParams);
-
-    let sign;
-    let r;
-    let s;
-    let v;
-
-    try {
-      sign = await globalContext.provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
-      });
-      const { _r, _s, _v } = splitSig(sign);
-      r = `0x${_r.toString('hex')}`;
-      s = `0x${_s.toString('hex')}`;
-      v = _v.toString();
-
-      sign721PermitResult.innerHTML = sign;
-      sign721PermitResultR.innerHTML = `r: ${r}`;
-      sign721PermitResultS.innerHTML = `s: ${s}`;
-      sign721PermitResultV.innerHTML = `v: ${v}`;
-      sign721PermitVerify.disabled = false;
-    } catch (err) {
-      console.error(err);
-      sign721PermitResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  /**
-   *  Sign Permit Verification
-   */
-  sign721PermitVerify.onclick = async () => {
-    const from = globalContext.accounts[0];
-    const msgParams = await getNFTMsgParams();
-
-    try {
-      const sign = sign721PermitResult.innerHTML;
-      const recoveredAddr = recoverTypedSignature({
-        data: msgParams,
-        signature: sign,
-        version: 'V4',
-      });
-      if (toChecksumAddress(recoveredAddr) === toChecksumAddress(from)) {
-        console.log(`Successfully verified signer as ${recoveredAddr}`);
-        sign721PermitVerifyResult.innerHTML = recoveredAddr;
-      } else {
-        console.log(
-          `Failed to verify signer when comparing ${recoveredAddr} to ${from}`,
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      sign721PermitVerifyResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  watchNFTButton.onclick = async () => {
-    let watchNftsResult;
-    try {
-      watchNftsResult = await globalContext.provider.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC721',
-          options: {
-            address: nftsContract.address,
-            tokenId: watchNFTInput.value,
-          },
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-    console.log(watchNftsResult);
-  };
-
-  approveButton.onclick = async () => {
-    nftsStatus.innerHTML = 'Approve initiated';
-    let result = await nftsContract.approve(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-      approveTokenInput.value,
-      {
-        from: globalContext.accounts[0],
-      },
-    );
-    result = await result.wait();
-    console.log(result);
-    nftsStatus.innerHTML = 'Approve completed';
-  };
-
-  setApprovalForAllButton.onclick = async () => {
-    nftsStatus.innerHTML = 'Set Approval For All initiated';
-    let result = await nftsContract.setApprovalForAll(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-      true,
-      {
-        from: globalContext.accounts[0],
-      },
-    );
-    result = await result.wait();
-    console.log(result);
-    nftsStatus.innerHTML = 'Set Approval For All completed';
-  };
-
-  revokeButton.onclick = async () => {
-    nftsStatus.innerHTML = 'Revoke initiated';
-    let result = await nftsContract.setApprovalForAll(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-      false,
-      {
-        from: globalContext.accounts[0],
-      },
-    );
-    result = await result.wait();
-    console.log(result);
-    nftsStatus.innerHTML = 'Revoke completed';
-  };
-
-  transferFromButton.onclick = async () => {
-    nftsStatus.innerHTML = 'Transfer From initiated';
-    let result = await nftsContract.transferFrom(
-      globalContext.accounts[0],
-      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-      transferTokenInput.value,
-      {
-        from: globalContext.accounts[0],
-      },
-    );
-    result = await result.wait();
-    console.log(result);
-    nftsStatus.innerHTML = 'Transfer From completed';
-  };
-
-  /**
-   * ERC1155 Token
-   */
-
-  deployERC1155Button.onclick = async () => {
-    erc1155Status.innerHTML = 'Deploying';
-
-    try {
-      erc1155Contract = await erc1155Factory.deploy();
-      await erc1155Contract.deployTransaction.wait();
-    } catch (error) {
-      erc1155Status.innerHTML = 'Deployment Failed!';
-      throw error;
-    }
-
-    if (erc1155Contract.address === undefined) {
-      return;
-    }
-
-    console.log(
-      `Contract mined! address: ${erc1155Contract.address} transactionHash: ${erc1155Contract.deployTransaction.hash}`,
-    );
-
-    erc1155TokenAddresses.innerHTML = erc1155TokenAddresses.innerHTML
-      .concat(', ', erc1155Contract.address)
-      .split(', ')
-      .filter(Boolean)
-      .join(', ');
-
-    erc1155Status.innerHTML = 'Deployed';
-    batchTransferTokenIds.disabled = false;
-    batchTransferTokenAmounts.disabled = false;
-    batchMintButton.disabled = false;
-    batchTransferFromButton.disabled = false;
-    setApprovalForAllERC1155Button.disabled = false;
-    revokeERC1155Button.disabled = false;
-    watchAssetInput.disabled = false;
-    watchAssetButton.disabled = false;
-  };
-
-  batchMintButton.onclick = async () => {
-    erc1155Status.innerHTML = 'Batch Mint initiated';
-
-    const params = [
-      globalContext.accounts[0],
-      batchMintTokenIds.value.split(',').map(Number),
-      batchMintIdAmounts.value.split(',').map(Number),
-      '0x',
-    ];
-
-    let result;
-
-    try {
-      result = await erc1155Contract.mintBatch(...params);
-    } catch (error) {
-      erc1155Status.innerHTML = 'Mint Failed!';
-      throw error;
-    }
-
-    console.log(result);
-    erc1155Status.innerHTML = 'Batch Minting completed';
-  };
-
-  batchTransferFromButton.onclick = async () => {
-    erc1155Status.innerHTML = 'Batch Transfer From initiated';
-
-    const params = [
-      globalContext.accounts[0],
-      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-      batchTransferTokenIds.value.split(',').map(Number),
-      batchTransferTokenAmounts.value.split(',').map(Number),
-      '0x',
-    ];
-
-    let result;
-
-    try {
-      result = await erc1155Contract.safeBatchTransferFrom(...params);
-    } catch (error) {
-      erc1155Status.innerHTML = 'Transaction Failed!';
-      throw error;
-    }
-    console.log(result);
-    erc1155Status.innerHTML = 'Batch Transfer From completed';
-  };
-
-  setApprovalForAllERC1155Button.onclick = async () => {
-    erc1155Status.innerHTML = 'Set Approval For All initiated';
-    let result = await erc1155Contract.setApprovalForAll(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-      true,
-      {
-        from: globalContext.accounts[0],
-      },
-    );
-    result = await result.wait();
-    console.log(result);
-    erc1155Status.innerHTML = 'Set Approval For All completed';
-  };
-
-  revokeERC1155Button.onclick = async () => {
-    erc1155Status.innerHTML = 'Revoke initiated';
-    let result = await erc1155Contract.setApprovalForAll(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
-      false,
-      {
-        from: globalContext.accounts[0],
-      },
-    );
-    result = await result.wait();
-    console.log(result);
-    erc1155Status.innerHTML = 'Revoke completed';
-  };
-
-  watchAssetButton.onclick = async () => {
-    try {
-      const watchAssetResult = await globalContext.provider.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC1155',
-          options: {
-            address: erc1155Contract.address,
-            tokenId: watchAssetInput.value,
-          },
-        },
-      });
-      console.log(watchAssetResult);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  /**
-   *  EIP 747
-   */
-
-  eip747WatchButton.onclick = async () => {
-    eip747Status.innerHTML = 'Adding token...';
-
-    try {
-      const result = await globalContext.provider.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: eip747ContractAddress.value,
-            symbol: eip747Symbol.value,
-            decimals: parseInt(eip747Decimals.value, 10),
-            image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
-          },
-        },
-      });
-      eip747Status.innerHTML = 'NFT added successfully';
-      console.log(result);
-    } catch (error) {
-      eip747Status.innerHTML =
-        'There was an error adding the token. See console for details.';
-      console.error(error);
-    }
-  };
-
-  /**
-   * Sending ETH
-   */
-
-  sendButton.onclick = async () => {
-    const result = await globalContext.provider.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-          value: '0x0',
-          gasLimit: '0x5208',
-          gasPrice: '0x2540be400',
-          type: '0x0',
-        },
-      ],
-    });
-    console.log(result);
-  };
-
-  sendEIP1559Button.onclick = async () => {
-    const result = await globalContext.provider.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-          value: '0x0',
-          gasLimit: '0x5028',
-          maxFeePerGas: '0x2540be400',
-          maxPriorityFeePerGas: '0x3b9aca00',
-        },
-      ],
-    });
-    console.log(result);
-  };
-
-  sendEIP1559WithoutGasButton.onclick = async () => {
-    const result = await globalContext.provider.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-          value: '0x0',
-        },
-      ],
-    });
-    console.log(result);
-  };
-
-  /**
-   * ERC20 Token
-   */
-
-  createToken.onclick = async () => {
-    const _initialAmount = 10;
-    const _tokenName = 'TST';
-
-    try {
-      hstContract = await hstFactory.deploy(
-        _initialAmount,
-        _tokenName,
-        decimalUnitsInput.value,
-        tokenSymbol,
-      );
-      await hstContract.deployTransaction.wait();
-    } catch (error) {
-      erc20TokenAddresses.innerHTML = 'Creation Failed';
-      throw error;
-    }
-
-    if (hstContract.address === undefined) {
-      return;
-    }
-
-    console.log(
-      `Contract mined! address: ${hstContract.address} transactionHash: ${hstContract.deployTransaction.hash}`,
-    );
-    erc20TokenAddresses.innerHTML = erc20TokenAddresses.innerHTML
-      .concat(', ', hstContract.address)
-      .split(', ')
-      .filter(Boolean)
-      .join(', ');
-    watchAssets.disabled = false;
-    transferTokens.disabled = false;
-    transferFromTokens.disabled = false;
-    approveTokens.disabled = false;
-    increaseTokenAllowance.disabled = false;
-    allowanceOwnerInput.disabled = false;
-    allowanceSpenderInput.disabled = false;
-    allowanceAmountResult.disabled = false;
-    getAllowance.disabled = false;
-    transferTokensWithoutGas.disabled = false;
-    approveTokensWithoutGas.disabled = false;
-    approveTokensToInput.disabled = false;
-    transferFromSenderInput.disabled = false;
-    transferFromRecipientInput.disabled = false;
-  };
-
-  watchAssets.onclick = async () => {
-    const contractAddresses = erc20TokenAddresses.innerHTML.split(', ');
-
-    const promises = contractAddresses.map((erc20Address) => {
-      return globalContext.provider.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: erc20Address,
-            symbol: tokenSymbol,
-            decimals: decimalUnitsInput.value,
-            image: 'https://metamask.github.io/test-dapp/metamask-fox.svg',
-          },
-        },
-      });
-    });
-
-    Promise.all(promises).then((result) => {
-      console.log('result', result);
-    });
-  };
-
-  transferTokens.onclick = async () => {
-    const result = await hstContract.transfer(
-      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-      decimalUnitsInput.value === '0'
-        ? 1
-        : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      { from: globalContext.accounts[0] },
-    );
-    console.log('result', result);
-  };
-
-  approveTokens.onclick = async () => {
-    const result = await hstContract.approve(
-      approveTokensToInput.value,
-      `${7 * 10 ** decimalUnitsInput.value}`,
-      { from: globalContext.accounts[0] },
-    );
-    console.log('result', result);
-  };
-
-  increaseTokenAllowance.onclick = async () => {
-    const result = await hstContract.increaseAllowance(
-      approveTokensToInput.value,
-      `${1 * 10 ** decimalUnitsInput.value}`,
-      { from: globalContext.accounts[0] },
-    );
-    console.log('result', result);
-  };
-
-  getAllowance.onclick = async () => {
-    const result = await hstContract.allowance(
-      allowanceOwnerInput.value,
-      allowanceSpenderInput.value,
-      { from: globalContext.accounts[0] },
-    );
-    const allowance = result.toNumber() / 10 ** decimalUnitsInput.value;
-    allowanceAmountResult.innerHTML = allowance.toFixed(
-      decimalUnitsInput.value,
-    );
-  };
-
-  transferFromTokens.onclick = async () => {
-    try {
-      const result = await hstContract.transferFrom(
-        transferFromSenderInput.value,
-        transferFromRecipientInput.value,
-        decimalUnitsInput.value === '0'
-          ? 1
-          : `${1.5 * 10 ** decimalUnitsInput.value}`,
-        { from: globalContext.accounts[0] },
-      );
-      console.log('result', result);
-      tokenMethodsResult.innerHTML = result;
-    } catch (error) {
-      tokenMethodsResult.innerHTML = error.message;
-    }
-  };
-
-  transferTokensWithoutGas.onclick = async () => {
-    const result = await hstContract.transfer(
-      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-      decimalUnitsInput.value === '0'
-        ? 1
-        : `${1.5 * 10 ** decimalUnitsInput.value}`,
-      {
-        gasPrice: '20000000000',
-      },
-    );
-    console.log('result', result);
-  };
-
-  approveTokensWithoutGas.onclick = async () => {
-    const result = await hstContract.approve(
-      '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-      `${7 * 10 ** decimalUnitsInput.value}`,
-      {
-        gasPrice: '20000000000',
-      },
-    );
-    console.log('result', result);
-  };
-
   /**
    * Permissions
    */
@@ -1953,32 +1225,6 @@ const initializeFormElements = () => {
       maxPriorityDiv.style.display = 'block';
     }
   };
-
-  async function getNFTMsgParams() {
-    return {
-      domain: {
-        name: 'My NFT',
-        version: '1',
-        chainId: globalContext.chainIdInt,
-        verifyingContract: nftsContract.address,
-      },
-      types: {
-        Permit: [
-          { name: 'spender', type: 'address' },
-          { name: 'tokenId', type: 'uint256' },
-          { name: 'nonce', type: 'uint256' },
-          { name: 'deadline', type: 'uint256' },
-        ],
-      },
-      primaryType: 'Permit',
-      message: {
-        spender: '0x0521797E19b8E274E4ED3bFe5254FAf6fac96F08',
-        tokenId: '3606393',
-        nonce: '0',
-        deadline: '1734995006',
-      },
-    };
-  }
 
   /**
    * Providers
