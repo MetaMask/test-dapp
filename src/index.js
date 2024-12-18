@@ -1,6 +1,6 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 // eslint-disable-next-line camelcase
-import { encrypt, recoverTypedSignature } from '@metamask/eth-sig-util';
+import { recoverTypedSignature } from '@metamask/eth-sig-util';
 import { ethers } from 'ethers';
 import { toChecksumAddress } from 'ethereumjs-util';
 import {
@@ -16,8 +16,9 @@ import {
   NETWORKS_BY_CHAIN_ID,
   MALICIOUS_CONTRACT_ADDRESSES,
 } from './onchain-sample-contracts';
-import { getPermissionsDisplayString, stringifiableToHex } from './utils';
+import { getPermissionsDisplayString } from './utils';
 
+import { encryptDecryptComponent } from './components/encryption/encrypt-decrypt';
 import {
   ethSignComponent,
   permitSignComponent,
@@ -243,13 +244,12 @@ const approveTokensWithoutGas = document.getElementById(
 
 const tokenMethodsResult = document.getElementById('tokenMethodsResult');
 
+const encryptionParentContainer = 
+  document.getElementById('components-encryption') || document.body; 
+encryptDecryptComponent(encryptionParentContainer); 
+
 // Encrypt / Decrypt Section
-const getEncryptionKeyButton = document.getElementById(
-  'getEncryptionKeyButton',
-);
 const encryptMessageInput = document.getElementById('encryptMessageInput');
-const encryptButton = document.getElementById('encryptButton');
-const decryptButton = document.getElementById('decryptButton');
 const encryptionKeyDisplay = document.getElementById('encryptionKeyDisplay');
 const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
@@ -448,10 +448,10 @@ const allConnectedButtons = [
   transferFromSenderInput,
   transferTokensWithoutGas,
   approveTokensWithoutGas,
-  getEncryptionKeyButton,
+  document.getElementById('getEncryptionKeyButton'),
   encryptMessageInput,
-  encryptButton,
-  decryptButton,
+  document.getElementById('encryptButton'),
+  document.getElementById('decryptButton'),
   document.getElementById('ethSign'),
   document.getElementById('personalSign'),
   document.getElementById('personalSignVerify'),
@@ -513,7 +513,6 @@ const initialConnectedButtons = [
   deployMultisigButton,
   createToken,
   decimalUnitsInput,
-  getEncryptionKeyButton,
   signTypedDataV4Batch,
   signTypedDataV4Queue,
   eip747WatchButton,
@@ -2108,65 +2107,6 @@ const initializeFormElements = () => {
       });
     } catch (err) {
       permissionsResult.innerHTML = `${err.message}`;
-    }
-  };
-
-  /**
-   * Encrypt / Decrypt
-   */
-
-  getEncryptionKeyButton.onclick = async () => {
-    try {
-      encryptionKeyDisplay.innerText = await globalContext.provider.request({
-        method: 'eth_getEncryptionPublicKey',
-        params: [globalContext.accounts[0]],
-      });
-      encryptMessageInput.disabled = false;
-    } catch (error) {
-      encryptionKeyDisplay.innerText = `Error: ${error.message}`;
-      encryptMessageInput.disabled = true;
-      encryptButton.disabled = true;
-      decryptButton.disabled = true;
-    }
-  };
-
-  encryptMessageInput.onkeyup = () => {
-    if (
-      !getEncryptionKeyButton.disabled &&
-      encryptMessageInput.value.length > 0
-    ) {
-      if (encryptButton.disabled) {
-        encryptButton.disabled = false;
-      }
-    } else if (!encryptButton.disabled) {
-      encryptButton.disabled = true;
-    }
-  };
-
-  encryptButton.onclick = () => {
-    try {
-      ciphertextDisplay.innerText = stringifiableToHex(
-        encrypt({
-          publicKey: encryptionKeyDisplay.innerText,
-          data: encryptMessageInput.value,
-          version: 'x25519-xsalsa20-poly1305',
-        }),
-      );
-      decryptButton.disabled = false;
-    } catch (error) {
-      ciphertextDisplay.innerText = `Error: ${error.message}`;
-      decryptButton.disabled = true;
-    }
-  };
-
-  decryptButton.onclick = async () => {
-    try {
-      cleartextDisplay.innerText = await globalContext.provider.request({
-        method: 'eth_decrypt',
-        params: [ciphertextDisplay.innerText, globalContext.accounts[0]],
-      });
-    } catch (error) {
-      cleartextDisplay.innerText = `Error: ${error.message}`;
     }
   };
 
