@@ -54,6 +54,13 @@ export function signTypedDataV4Component(parentContainer) {
     'signTypedDataV4VerifyResult',
   );
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      signTypedDataV4.disabled = false;
+    }
+  });
+
   /**
    * Sign Typed Data V4
    */

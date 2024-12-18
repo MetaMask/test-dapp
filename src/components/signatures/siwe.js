@@ -65,6 +65,17 @@ export function siweComponent(parentContainer) {
   const siweMalformed = document.getElementById('siweMalformed');
   const siweResult = document.getElementById('siweResult');
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      siwe.disabled = false;
+      siweResources.disabled = false;
+      siweBadDomain.disabled = false;
+      siweBadAccount.disabled = false;
+      siweMalformed.disabled = false;
+    }
+  });
+
   /**
    * Sign In With Ethereum helper
    */

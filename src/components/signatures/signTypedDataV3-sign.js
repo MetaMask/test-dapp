@@ -54,6 +54,13 @@ export function signTypedDataV3Component(parentContainer) {
     'signTypedDataV3VerifyResult',
   );
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      signTypedDataV3.disabled = false;
+    }
+  });
+
   /**
    * Sign Typed Data Version 3 Test
    */

@@ -74,10 +74,22 @@ export function malformedTransactionsComponent(parentContainer) {
   );
   const sendMalformedResult = document.getElementById('sendMalformedResult');
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      sendWithInvalidValue.disabled = false;
+      sendWithInvalidTxType.disabled = false;
+      sendWithInvalidRecipient.disabled = false;
+      /* there is other logic for enabling these 
+      sendWithInvalidGasLimit.disabled = false;
+      sendWithInvalidMaxFeePerGas.disabled = false; 
+      */
+    }
+  });
+
   /**
    * Send With Invalid Value
    */
-
   sendWithInvalidValue.onclick = async () => {
     try {
       const from = globalContext.accounts[0];

@@ -117,6 +117,16 @@ export function signTypedDataVariantsComponent(parentContainer) {
     }
   }
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      signBlurOrder.disabled = false;
+      signPermitBatch.disabled = false;
+      signPermitSingle.disabled = false;
+      signSeaportBulkOrder.disabled = false;
+    }
+  });
+
   signBlurOrder.onclick = async () => {
     await requestSignTypedDataVariant(MSG_PRIMARY_TYPE.BLUR_ORDER);
   };

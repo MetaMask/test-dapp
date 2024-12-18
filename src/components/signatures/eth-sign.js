@@ -29,6 +29,13 @@ export function ethSignComponent(parentContainer) {
   const ethSign = document.getElementById('ethSign');
   const ethSignResult = document.getElementById('ethSignResult');
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      ethSign.disabled = false;
+    }
+  });
+
   ethSign.onclick = async () => {
     try {
       // const msg = 'Sample message to hash for signature'

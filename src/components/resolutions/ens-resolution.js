@@ -39,6 +39,13 @@ export function ensResolutionComponent(parentContainer) {
   const ensSubmit = document.getElementById('ensSubmit');
   const ensResult = document.getElementById('ensResult');
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      ensSubmit.disabled = false;
+    }
+  });
+
   /**
    * ENS Resolution
    */

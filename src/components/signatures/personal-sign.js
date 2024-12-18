@@ -55,6 +55,13 @@ export function personalSignComponent(parentContainer) {
     'personalSignVerifyECRecoverResult',
   );
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      personalSign.disabled = false;
+    }
+  });
+
   /**
    * Personal Sign
    */

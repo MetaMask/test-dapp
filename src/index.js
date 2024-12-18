@@ -38,6 +38,19 @@ const globalContext = {
   provider: undefined,
   ethersProvider: undefined,
   chainIdInt: undefined,
+  _connected: false,
+  get connected() {
+    return this._connected;
+  },
+  set connected(value) {
+    if (this._connected !== value) {
+      const changeEvent = new CustomEvent('globalConnectionChange', {
+        detail: { connected: value },
+      });
+      document.dispatchEvent(changeEvent);
+      this._connected = value;
+    }
+  },
 };
 
 export default globalContext;
@@ -258,9 +271,6 @@ siweComponent(signaturesRow);
 malformedSignaturesComponent(signaturesRow);
 malformedTransactionsComponent(signaturesRow);
 
-const ethSign = document.getElementById('ethSign');
-const personalSign = document.getElementById('personalSign');
-const personalSignVerify = document.getElementById('personalSignVerify');
 const signTypedData = document.getElementById('signTypedData');
 const signTypedDataVerify = document.getElementById('signTypedDataVerify');
 const signTypedDataV3 = document.getElementById('signTypedDataV3');
@@ -442,9 +452,9 @@ const allConnectedButtons = [
   encryptMessageInput,
   encryptButton,
   decryptButton,
-  ethSign,
-  personalSign,
-  personalSignVerify,
+  document.getElementById('ethSign'),
+  document.getElementById('personalSign'),
+  document.getElementById('personalSignVerify'),
   signTypedData,
   signTypedDataVerify,
   signTypedDataV3,
@@ -503,32 +513,9 @@ const initialConnectedButtons = [
   deployMultisigButton,
   createToken,
   decimalUnitsInput,
-  personalSign,
-  signTypedData,
   getEncryptionKeyButton,
-  ethSign,
-  personalSign,
-  signTypedData,
-  signTypedDataV3,
-  signTypedDataV4,
   signTypedDataV4Batch,
   signTypedDataV4Queue,
-  signBlurOrder,
-  signPermit,
-  signPermitSingle,
-  signPermitBatch,
-  signSeaportBulkOrder,
-  siwe,
-  siweResources,
-  siweBadDomain,
-  siweBadAccount,
-  siweMalformed,
-  signInvalidType,
-  signEmptyDomain,
-  signExtraDataNotTyped,
-  signInvalidPrimaryType,
-  signNoPrimaryTypeDefined,
-  signInvalidVerifyingContractType,
   eip747WatchButton,
   maliciousApprovalButton,
   maliciousContractInteractionButton,
@@ -538,16 +525,12 @@ const initialConnectedButtons = [
   maliciousPermit,
   maliciousTradeOrder,
   maliciousSeaport,
-  sendWithInvalidValue,
-  sendWithInvalidTxType,
-  sendWithInvalidRecipient,
   mintSepoliaERC20,
   maliciousSendWithOddHexData,
   maliciousSendWithoutHexPrefixValue,
   maliciousApproveERC20WithOddHexData,
   maliciousPermitHexPaddedChain,
   maliciousPermitIntAddress,
-  document.getElementById('ensSubmit'),
 ];
 
 /**
@@ -1033,6 +1016,7 @@ export const updateFormElements = () => {
     clearDisplayElements();
   }
   if (isMetaMaskConnected()) {
+    globalContext.connected = true;
     for (const button of initialConnectedButtons) {
       button.disabled = false;
     }

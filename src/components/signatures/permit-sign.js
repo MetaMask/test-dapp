@@ -60,6 +60,13 @@ export function permitSignComponent(parentContainer) {
     'signPermitVerifyResult',
   );
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      signPermit.disabled = false;
+    }
+  });
+
   /**
    *  Sign Permit
    */

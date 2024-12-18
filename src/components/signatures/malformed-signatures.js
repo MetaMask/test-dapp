@@ -83,6 +83,18 @@ export function malformedSignaturesComponent(parentContainer) {
   );
   const signMalformedResult = document.getElementById('signMalformedResult');
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      signInvalidType.disabled = false;
+      signEmptyDomain.disabled = false;
+      signExtraDataNotTyped.disabled = false;
+      signInvalidPrimaryType.disabled = false;
+      signNoPrimaryTypeDefined.disabled = false;
+      signInvalidVerifyingContractType.disabled = false;
+    }
+  });
+
   /**
    * Sign Invalid Type
    */

@@ -47,6 +47,14 @@ export function signTypedDataComponent(parentContainer) {
   const signTypedDataVerifyResult = document.getElementById(
     'signTypedDataVerifyResult',
   );
+
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      signTypedData.disabled = false;
+    }
+  });
+
   /**
    * Sign Typed Data Test
    */
