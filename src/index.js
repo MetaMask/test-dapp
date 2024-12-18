@@ -11,6 +11,13 @@ import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 import { getPermissionsDisplayString } from './utils';
 
 import {
+  sendComponent,
+  erc20Component,
+  erc1155Component,
+  eip747Component,
+  erc721Component,
+} from './components/transactions';
+import {
   ppomMaliciousTransactionsAndSignatures,
   ppomMaliciousBatchingAndQueueing,
   ppomMaliciousWarningBypasses,
@@ -29,14 +36,12 @@ import {
   malformedTransactionsComponent,
 } from './components/signatures';
 import { ensResolutionComponent } from './components/resolutions/ens-resolution';
-import { sendFormComponent } from './components/forms/send-form';
 import {
-  sendComponent,
-  erc20Component,
-  erc1155Component,
-  eip747Component,
-  erc721Component,
-} from './components/transactions';
+  jsonRpcResult,
+  ethereumChainInteractions,
+  emptyComponent,
+} from './components/interactions';
+import { sendFormComponent } from './components/forms/send-form';
 
 const {
   hstBytecode,
@@ -356,10 +361,6 @@ const sendEIP1559Batch = document.getElementById('sendEIP1559Batch');
 const signTypedDataV4Queue = document.getElementById('signTypedDataV4Queue');
 const sendEIP1559Queue = document.getElementById('sendEIP1559Queue');
 
-// Miscellaneous
-const addEthereumChain = document.getElementById('addEthereumChain');
-const switchEthereumChain = document.getElementById('switchEthereumChain');
-
 // PPOM
 const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
 const maliciousContractInteractionButton = document.getElementById(
@@ -389,6 +390,20 @@ const maliciousPermitHexPaddedChain = document.getElementById(
 const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
+
+const interactionsParentContainer = document.getElementById(
+  'components-interactions',
+);
+const interactionsRow = document.createElement('div');
+interactionsRow.className = 'row d-flex justify-content-center';
+interactionsParentContainer.appendChild(interactionsRow);
+jsonRpcResult(interactionsRow);
+ethereumChainInteractions(interactionsRow);
+emptyComponent(interactionsRow);
+
+// Miscellaneous
+const addEthereumChain = document.getElementById('addEthereumChain');
+const switchEthereumChain = document.getElementById('switchEthereumChain');
 
 sendFormComponent(document.getElementById('components-forms'));
 
@@ -1188,32 +1203,6 @@ const initializeFormElements = () => {
     } catch (err) {
       permissionsResult.innerHTML = `${err.message}`;
     }
-  };
-
-  addEthereumChain.onclick = async () => {
-    await globalContext.provider.request({
-      method: 'wallet_addEthereumChain',
-      params: [
-        {
-          chainId: '0x53a',
-          rpcUrls: ['http://127.0.0.1:8546'],
-          chainName: 'Localhost 8546',
-          nativeCurrency: { name: 'TEST', decimals: 18, symbol: 'TEST' },
-          blockExplorerUrls: null,
-        },
-      ],
-    });
-  };
-
-  switchEthereumChain.onclick = async () => {
-    await globalContext.provider.request({
-      method: 'wallet_switchEthereumChain',
-      params: [
-        {
-          chainId: '0x53a',
-        },
-      ],
-    });
   };
 
   type.onchange = async () => {
