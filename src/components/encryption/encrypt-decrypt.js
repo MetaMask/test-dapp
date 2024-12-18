@@ -1,5 +1,5 @@
-import { stringifiableToHex } from '../../utils';
 import { encrypt } from '@metamask/eth-sig-util';
+import { stringifiableToHex } from '../../utils';
 import globalContext from '../..';
 
 export function encryptDecryptComponent(parentContainer) {
@@ -64,7 +64,7 @@ export function encryptDecryptComponent(parentContainer) {
           </div>
         </div>
       </div>
-    </div>`
+    </div>`,
   );
 
   const getEncryptionKeyButton = document.getElementById(
@@ -142,4 +142,4 @@ export function encryptDecryptComponent(parentContainer) {
       cleartextDisplay.innerText = `Error: ${error.message}`;
     }
   };
-} 
+}

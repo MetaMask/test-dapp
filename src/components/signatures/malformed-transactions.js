@@ -56,6 +56,7 @@ export function malformedTransactionsComponent(parentContainer) {
             <span id="sendMalformedResult"></span>
           </p>
         </div>
+      </div>
     </div>`,
   );
 
