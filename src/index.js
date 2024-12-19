@@ -930,15 +930,6 @@ const updateContractElements = () => {
   }
 };
 
-// Initializes form button onclicks
-const initializeFormElements = () => {
-  /**
-   * Providers
-   */
-
-  useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
-};
-
 /**
  * Entrypoint
  */
@@ -951,7 +942,7 @@ const initialize = async () => {
   if (providerDetails.length > 0) {
     await setActiveProviderDetail(providerDetails[0]);
   }
-  initializeFormElements();
+  useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
 };
 
 window.addEventListener('load', initialize);
