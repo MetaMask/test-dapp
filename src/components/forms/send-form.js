@@ -94,6 +94,22 @@ export function sendFormComponent(parentContainer) {
   const maxPriority = document.getElementById('maxPriorityFeeInput');
   const data = document.getElementById('dataInput');
 
+  const gasPriceDiv = document.getElementById('gasPriceDiv');
+  const maxFeeDiv = document.getElementById('maxFeeDiv');
+  const maxPriorityDiv = document.getElementById('maxPriorityDiv');
+
+  type.onchange = async () => {
+    if (type.value === '0x0') {
+      gasPriceDiv.style.display = 'block';
+      maxFeeDiv.style.display = 'none';
+      maxPriorityDiv.style.display = 'none';
+    } else {
+      gasPriceDiv.style.display = 'none';
+      maxFeeDiv.style.display = 'block';
+      maxPriorityDiv.style.display = 'block';
+    }
+  };
+
   document.getElementById('submitForm').onclick = async () => {
     let params;
     if (type.value === '0x0') {

@@ -412,7 +412,7 @@ ensResolutionComponent(document.getElementById('components-resolutions'));
 
 // Send form controls (because they are updated by certain events in this file)
 const fromDiv = document.getElementById('fromInput');
-const type = document.getElementById('typeInput');
+
 const gasPriceDiv = document.getElementById('gasPriceDiv');
 const maxFeeDiv = document.getElementById('maxFeeDiv');
 const maxPriorityDiv = document.getElementById('maxPriorityDiv');
@@ -1148,21 +1148,7 @@ const updateContractElements = () => {
 
 // Initializes form button onclicks
 const initializeFormElements = () => {
-  /**
-   * Permissions
-   */
 
-  type.onchange = async () => {
-    if (type.value === '0x0') {
-      gasPriceDiv.style.display = 'block';
-      maxFeeDiv.style.display = 'none';
-      maxPriorityDiv.style.display = 'none';
-    } else {
-      gasPriceDiv.style.display = 'none';
-      maxFeeDiv.style.display = 'block';
-      maxPriorityDiv.style.display = 'block';
-    }
-  };
 
   /**
    * Providers
