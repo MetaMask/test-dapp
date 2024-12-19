@@ -171,7 +171,7 @@ const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
 
 const transactionsContainer =
-  document.getElementById('components-tranactions') || document.body;
+  document.getElementById('components-transactions') || document.body;
 const transactionsRow = document.createElement('div');
 transactionsRow.className = 'row';
 transactionsContainer.appendChild(transactionsRow);
