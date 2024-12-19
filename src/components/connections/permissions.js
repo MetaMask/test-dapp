@@ -46,6 +46,10 @@ export function permissionsComponent(parentContainer) {
   );
   const permissionsResult = document.getElementById('permissionsResult');
 
+  document.addEventListener('disableAndClear', function () {
+    permissionsResult.innerText = '';
+  });
+
   requestPermissions.onclick = async () => {
     try {
       const permissionsArray = await globalContext.provider.request({

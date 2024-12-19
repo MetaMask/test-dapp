@@ -84,6 +84,13 @@ export function encryptDecryptComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    encryptionKeyDisplay.innerText = '';
+    encryptMessageInput.value = '';
+    ciphertextDisplay.innerText = '';
+    cleartextDisplay.innerText = '';
+  });
+
   /**
    * Encrypt / Decrypt
    */

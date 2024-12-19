@@ -55,6 +55,10 @@ export function connectionsComponent(parentContainer) {
   const getAccounts = document.getElementById('getAccounts');
   const getAccountsResult = document.getElementById('getAccountsResult');
 
+  document.addEventListener('disableAndClear', function () {
+    getAccountsResult.innerText = '';
+  });
+
   getAccounts.onclick = async () => {
     try {
       const _accounts = await globalContext.provider.request({

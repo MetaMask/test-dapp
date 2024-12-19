@@ -219,6 +219,10 @@ export function erc20Component(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    tokenMethodsResult.value = '';
+  });
+
   /**
    * ERC20 Token
    */

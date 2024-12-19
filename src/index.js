@@ -269,8 +269,6 @@ const approveTokensWithoutGas = document.getElementById(
   'approveTokensWithoutGas',
 );
 
-const tokenMethodsResult = document.getElementById('tokenMethodsResult');
-
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
 const ppomRow = document.createElement('div');
@@ -286,9 +284,6 @@ encryptDecryptComponent(encryptionSection);
 
 // Encrypt / Decrypt Section
 const encryptMessageInput = document.getElementById('encryptMessageInput');
-const encryptionKeyDisplay = document.getElementById('encryptionKeyDisplay');
-const ciphertextDisplay = document.getElementById('ciphertextDisplay');
-const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
 const signaturesSection = document.createElement('section');
@@ -967,32 +962,18 @@ const initializeContracts = () => {
 // Must be called after the provider or connect acccounts change
 // Updates form elements content and disabled status
 export const updateFormElements = () => {
-  const accountButtonsDisabled =
-    !isMetaMaskInstalled() || !isMetaMaskConnected();
-  if (accountButtonsDisabled) {
+  if (!isMetaMaskInstalled() || !isMetaMaskConnected()) {
+    /* MetaMask is not installed or not connected */
+    document.dispatchEvent(new Event('disableAndClear'));
     for (const button of allConnectedButtons) {
       button.disabled = true;
     }
-    clearDisplayElements();
-  }
-  if (isMetaMaskConnected()) {
+  } else if (isMetaMaskConnected()) {
     globalContext.connected = true;
   }
 
   updateOnboardElements();
   updateContractElements();
-};
-
-const clearDisplayElements = () => {
-  document.getElementById('getAccountsResult').innerText = '';
-  document.getElementById('permissionsResult').innerText = '';
-  encryptionKeyDisplay.innerText = '';
-  encryptMessageInput.value = '';
-  ciphertextDisplay.innerText = '';
-  cleartextDisplay.innerText = '';
-  batchTransferTokenIds.value = '';
-  batchTransferTokenAmounts.value = '';
-  tokenMethodsResult.value = '';
 };
 
 const updateOnboardElements = () => {

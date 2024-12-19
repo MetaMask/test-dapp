@@ -161,6 +161,11 @@ export function erc1155Component(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    batchTransferTokenIds.value = '';
+    batchTransferTokenAmounts.value = '';
+  });
+
   /**
    * ERC1155 Token
    */
