@@ -69,6 +69,13 @@ export function eip747Component(parentContainer) {
   const eip747WatchButton = document.getElementById('eip747WatchButton');
   const eip747Status = document.getElementById('eip747Status');
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      eip747WatchButton.disabled = false;
+    }
+  });
+
   /**
    *  EIP 747
    */

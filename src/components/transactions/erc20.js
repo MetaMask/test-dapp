@@ -211,6 +211,14 @@ export function erc20Component(parentContainer) {
   transferTokensDeeplink.href = `https://metamask.app.link/send/${globalContext.deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${globalContext.tokenDecimals}`;
   approveTokensDeeplink.href = `https://metamask.app.link/approve/${globalContext.deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${globalContext.tokenDecimals}`;
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      createToken.disabled = false; 
+      decimalUnitsInput.disabled = false; 
+    }
+  });
+
   /**
    * ERC20 Token
    */

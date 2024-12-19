@@ -154,6 +154,13 @@ export function erc1155Component(parentContainer) {
     'erc1155TokenAddresses',
   );
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      deployERC1155Button.disabled = false;
+    }
+  });
+
   /**
    * ERC1155 Token
    */

@@ -2,6 +2,10 @@ import MetaMaskOnboarding from '@metamask/onboarding';
 // eslint-disable-next-line camelcase
 import { ethers } from 'ethers';
 import {
+  isSepoliaNetworkId,
+  isBaseNetworkId
+} from './utils'; 
+import {
   handleSdkConnect,
   handleWalletConnect,
   walletConnect,
@@ -118,11 +122,6 @@ export default globalContext;
  * Page
  */
 
-const SEPOLIA_NETWORK_ID_HEX = '0xaa36a7';
-const SEPOLIA_NETWORK_ID_DEC = '11155111';
-const BASE_NETWORK_ID = '8453';
-const BASE_NETWORK_ID_HEX = '0x2105';
-
 const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
@@ -187,21 +186,17 @@ erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 
 // Contract Section
-const deployButton = document.getElementById('deployButton');
 const depositButton = document.getElementById('depositButton');
 const withdrawButton = document.getElementById('withdrawButton');
 const contractStatus = document.getElementById('contractStatus');
-const deployFailingButton = document.getElementById('deployFailingButton');
 const sendFailingButton = document.getElementById('sendFailingButton');
 const failingContractStatus = document.getElementById('failingContractStatus');
-const deployMultisigButton = document.getElementById('deployMultisigButton');
 const sendMultisigButton = document.getElementById('sendMultisigButton');
 const multisigContractStatus = document.getElementById(
   'multisigContractStatus',
 );
 
 // NFTs Section
-const deployNFTsButton = document.getElementById('deployNFTsButton');
 const mintButton = document.getElementById('mintButton');
 const watchNFTsButton = document.getElementById('watchNFTsButton');
 const watchNFTButtons = document.getElementById('watchNFTButtons');
@@ -224,8 +219,6 @@ const sign721Permit = document.getElementById('sign721Permit');
 const sign721PermitVerify = document.getElementById('sign721PermitVerify');
 
 // ERC 1155 Section
-
-const deployERC1155Button = document.getElementById('deployERC1155Button');
 const batchMintTokenIds = document.getElementById('batchMintTokenIds');
 const batchMintIdAmounts = document.getElementById('batchMintIdAmounts');
 const batchMintButton = document.getElementById('batchMintButton');
@@ -245,9 +238,6 @@ const watchAssetButton = document.getElementById('watchAssetButton');
 const erc1155Status = document.getElementById('erc1155Status');
 const erc1155TokenAddresses = document.getElementById('erc1155TokenAddresses');
 
-// ERC 747 Section
-const eip747WatchButton = document.getElementById('eip747WatchButton');
-
 // Send Eth Section
 const sendButton = document.getElementById('sendButton');
 const sendEIP1559Button = document.getElementById('sendEIP1559Button');
@@ -256,7 +246,6 @@ const sendEIP1559WithoutGasButton = document.getElementById(
 );
 
 // Send Tokens Section
-const decimalUnitsInput = document.getElementById('tokenDecimals');
 const approveTokensToInput = document.getElementById('approveTo');
 const transferFromSenderInput = document.getElementById(
   'transferFromSenderInput',
@@ -265,7 +254,6 @@ const transferFromRecipientInput = document.getElementById(
   'transferFromRecipientInput',
 );
 const erc20TokenAddresses = document.getElementById('erc20TokenAddresses');
-const createToken = document.getElementById('createToken');
 const watchAssets = document.getElementById('watchAssets');
 const transferTokens = document.getElementById('transferTokens');
 const transferFromTokens = document.getElementById('transferFromTokens');
@@ -433,10 +421,10 @@ ensResolutionComponent(resolutionsSection);
 
 // Buttons that require connecting an account
 const allConnectedButtons = [
-  deployButton,
+  document.getElementById('deployButton'),
   depositButton,
   withdrawButton,
-  deployNFTsButton,
+  document.getElementById('deployNFTsButton'),
   mintButton,
   sign721Permit,
   sign721PermitVerify,
@@ -450,7 +438,7 @@ const allConnectedButtons = [
   transferTokenInput,
   transferFromButton,
   watchNFTsButton,
-  deployERC1155Button,
+  document.getElementById('deployERC1155Button'),
   batchTransferTokenIds,
   batchTransferTokenAmounts,
   batchTransferFromButton,
@@ -458,13 +446,13 @@ const allConnectedButtons = [
   revokeERC1155Button,
   watchAssetInput,
   watchAssetButton,
-  deployFailingButton,
+  document.getElementById('deployFailingButton'),
   sendFailingButton,
-  deployMultisigButton,
+  document.getElementById('deployMultisigButton'),
   sendMultisigButton,
   sendButton,
-  createToken,
-  decimalUnitsInput,
+  document.getElementById('createToken'),
+  document.getElementById('tokenDecimals'),
   approveTokensToInput,
   watchAssets,
   transferTokens,
@@ -511,7 +499,7 @@ const allConnectedButtons = [
   signInvalidPrimaryType,
   signNoPrimaryTypeDefined,
   signInvalidVerifyingContractType,
-  eip747WatchButton,
+  document.getElementById('eip747WatchButton'),
   document.getElementById('maliciousApprovalButton'),
   maliciousContractInteractionButton,
   document.getElementById('maliciousSetApprovalForAll'),
@@ -536,15 +524,6 @@ const allConnectedButtons = [
 
 // Buttons that are available after initially connecting an account
 const initialConnectedButtons = [
-  deployButton,
-  deployNFTsButton,
-  deployERC1155Button,
-  sendButton,
-  deployFailingButton,
-  deployMultisigButton,
-  createToken,
-  decimalUnitsInput,
-  eip747WatchButton,
 ];
 
 /**
@@ -755,16 +734,6 @@ const handleNewChain = (chainId) => {
     handleScrollTo({ delay: true });
   }
 };
-
-function isSepoliaNetworkId(networkId) {
-  return (
-    networkId === SEPOLIA_NETWORK_ID_DEC || networkId === SEPOLIA_NETWORK_ID_HEX
-  );
-}
-
-function isBaseNetworkId(networkId) {
-  return networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
-}
 
 function toggleSepoliaMintButton(networkId) {
   mintSepoliaERC20.hidden = !isSepoliaNetworkId(networkId);
@@ -1015,9 +984,6 @@ export const updateFormElements = () => {
   }
   if (isMetaMaskConnected()) {
     globalContext.connected = true;
-    for (const button of initialConnectedButtons) {
-      button.disabled = false;
-    }
   }
 
   updateOnboardElements();

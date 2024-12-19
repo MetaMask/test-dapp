@@ -208,6 +208,13 @@ export function erc721Component(parentContainer) {
     'sign721PermitVerifyResult',
   );
 
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      deployNFTsButton.disabled = false;
+    }
+  });
+
   /**
    * ERC721 Token
    */
