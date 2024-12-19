@@ -62,6 +62,11 @@ export function personalSignComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    personalSign.disabled = true;
+    personalSignVerify.disabled = true;
+  });
+
   /**
    * Personal Sign
    */

@@ -124,6 +124,18 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    maliciousRawEthButton.disabled = true;
+    mintSepoliaERC20.disabled = true;
+    maliciousERC20TransferButton.disabled = true;
+    maliciousApprovalButton.disabled = true;
+    maliciousContractInteractionButton.disabled = true;
+    maliciousSetApprovalForAll.disabled = true;
+    maliciousPermit.disabled = true;
+    maliciousTradeOrder.disabled = true;
+    maliciousSeaport.disabled = true;
+  });
+
   // Malicious raw ETH transfer
   maliciousRawEthButton.onclick = async () => {
     const result = await globalContext.provider.request({

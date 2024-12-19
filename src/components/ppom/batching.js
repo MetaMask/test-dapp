@@ -103,6 +103,11 @@ export function ppomMaliciousBatchingAndQueueing(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    signTypedDataV4Batch.disabled = true;
+    signTypedDataV4Queue.disabled = true;
+  });
+
   /**
    *  Batch of 10 Malicious Transactions
    */

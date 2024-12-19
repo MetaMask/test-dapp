@@ -67,6 +67,11 @@ export function permitSignComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    signPermit.disabled = true;
+    signPermitVerify.disabled = true;
+  });
+
   /**
    *  Sign Permit
    */

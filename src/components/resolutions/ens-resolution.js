@@ -46,6 +46,10 @@ export function ensResolutionComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    ensSubmit.disabled = true;
+  });
+
   /**
    * ENS Resolution
    */

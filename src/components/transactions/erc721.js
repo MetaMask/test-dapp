@@ -215,6 +215,23 @@ export function erc721Component(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    deployNFTsButton.disabled = true;
+    mintButton.disabled = true;
+    sign721Permit.disabled = true;
+    sign721PermitVerify.disabled = true;
+    mintAmountInput.disabled = true;
+    approveTokenInput.disabled = true;
+    approveButton.disabled = true;
+    watchNFTInput.disabled = true;
+    watchNFTButton.disabled = true;
+    setApprovalForAllButton.disabled = true;
+    revokeButton.disabled = true;
+    transferTokenInput.disabled = true;
+    transferFromButton.disabled = true;
+    watchNFTsButton.disabled = true;
+  });
+
   /**
    * ERC721 Token
    */

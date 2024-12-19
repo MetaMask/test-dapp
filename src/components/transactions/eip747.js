@@ -76,6 +76,10 @@ export function eip747Component(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    eip747WatchButton.disabled = true;
+  });
+
   /**
    *  EIP 747
    */

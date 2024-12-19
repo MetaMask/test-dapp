@@ -85,6 +85,10 @@ export function encryptDecryptComponent(parentContainer) {
   });
 
   document.addEventListener('disableAndClear', function () {
+    getEncryptionKeyButton.disabled = true;
+    encryptMessageInput.disabled = true;
+    encryptButton.disabled = true;
+    decryptButton.disabled = true;
     encryptionKeyDisplay.innerText = '';
     encryptMessageInput.value = '';
     ciphertextDisplay.innerText = '';

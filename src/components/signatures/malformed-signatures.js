@@ -95,6 +95,15 @@ export function malformedSignaturesComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    signInvalidType.disabled = true;
+    signEmptyDomain.disabled = true;
+    signExtraDataNotTyped.disabled = true;
+    signInvalidPrimaryType.disabled = true;
+    signNoPrimaryTypeDefined.disabled = true;
+    signInvalidVerifyingContractType.disabled = true;
+  });
+
   /**
    * Sign Invalid Type
    */

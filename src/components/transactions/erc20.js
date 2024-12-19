@@ -220,6 +220,22 @@ export function erc20Component(parentContainer) {
   });
 
   document.addEventListener('disableAndClear', function () {
+    createToken.disabled = true;
+    decimalUnitsInput.disabled = true;
+    approveTokensToInput.disabled = true;
+    watchAssets.disabled = true;
+    transferTokens.disabled = true;
+    transferFromTokens.disabled = true;
+    approveTokens.disabled = true;
+    increaseTokenAllowance.disabled = true;
+    allowanceOwnerInput.disabled = true;
+    allowanceSpenderInput.disabled = true;
+    allowanceAmountResult.disabled = true;
+    getAllowance.disabled = true;
+    transferFromRecipientInput.disabled = true;
+    transferFromSenderInput.disabled = true;
+    transferTokensWithoutGas.disabled = true;
+    approveTokensWithoutGas.disabled = true;
     tokenMethodsResult.value = '';
   });
 

@@ -121,10 +121,17 @@ export function signTypedDataVariantsComponent(parentContainer) {
     if (e.detail.connected) {
       // MetaMask is connected, enable the button
       signBlurOrder.disabled = false;
-      signPermitBatch.disabled = false;
       signPermitSingle.disabled = false;
+      signPermitBatch.disabled = false;
       signSeaportBulkOrder.disabled = false;
     }
+  });
+
+  document.addEventListener('disableAndClear', function () {
+    signBlurOrder.disabled = true;
+    signPermitSingle.disabled = true;
+    signPermitBatch.disabled = true;
+    signSeaportBulkOrder.disabled = true;
   });
 
   signBlurOrder.onclick = async () => {

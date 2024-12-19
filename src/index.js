@@ -213,7 +213,6 @@ const nftsStatus = document.getElementById('nftsStatus');
 const erc721TokenAddresses = document.getElementById('erc721TokenAddresses');
 // 721 Permit
 const sign721Permit = document.getElementById('sign721Permit');
-const sign721PermitVerify = document.getElementById('sign721PermitVerify');
 
 // ERC 1155 Section
 const batchMintTokenIds = document.getElementById('batchMintTokenIds');
@@ -282,9 +281,6 @@ const encryptionSection = document.createElement('section');
 mainContainer.appendChild(encryptionSection);
 encryptDecryptComponent(encryptionSection);
 
-// Encrypt / Decrypt Section
-const encryptMessageInput = document.getElementById('encryptMessageInput');
-
 // Ethereum Signature Section
 const signaturesSection = document.createElement('section');
 mainContainer.appendChild(signaturesSection);
@@ -302,48 +298,6 @@ siweComponent(signaturesRow);
 malformedSignaturesComponent(signaturesRow);
 malformedTransactionsComponent(signaturesRow);
 
-const signTypedData = document.getElementById('signTypedData');
-const signTypedDataVerify = document.getElementById('signTypedDataVerify');
-const signTypedDataV3 = document.getElementById('signTypedDataV3');
-const signTypedDataV3Verify = document.getElementById('signTypedDataV3Verify');
-const signTypedDataV4 = document.getElementById('signTypedDataV4');
-const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify');
-const signPermit = document.getElementById('signPermit');
-const signPermitVerify = document.getElementById('signPermitVerify');
-
-// Sign Typed Data Variants
-
-const signBlurOrder = document.getElementById('signBlurOrder');
-const signPermitSingle = document.getElementById('signPermitSingle');
-const signPermitBatch = document.getElementById('signPermitBatch');
-const signSeaportBulkOrder = document.getElementById('signSeaportBulkOrder');
-
-const siwe = document.getElementById('siwe');
-const siweResources = document.getElementById('siweResources');
-const siweBadDomain = document.getElementById('siweBadDomain');
-const siweBadAccount = document.getElementById('siweBadAccount');
-const siweMalformed = document.getElementById('siweMalformed');
-
-// Malformed Signatues
-const signInvalidType = document.getElementById('signInvalidType');
-const signEmptyDomain = document.getElementById('signEmptyDomain');
-const signExtraDataNotTyped = document.getElementById('signExtraDataNotTyped');
-const signInvalidPrimaryType = document.getElementById(
-  'signInvalidPrimaryType',
-);
-const signNoPrimaryTypeDefined = document.getElementById(
-  'signNoPrimaryTypeDefined',
-);
-const signInvalidVerifyingContractType = document.getElementById(
-  'signInvalidVerifyingContractType',
-);
-
-// Malformed Transactions
-const sendWithInvalidValue = document.getElementById('sendWithInvalidValue');
-const sendWithInvalidTxType = document.getElementById('sendWithInvalidTxType');
-const sendWithInvalidRecipient = document.getElementById(
-  'sendWithInvalidRecipient',
-);
 const sendWithInvalidGasLimit = document.getElementById(
   'sendWithInvalidGasLimit',
 );
@@ -354,11 +308,9 @@ const sendWithInvalidMaxFeePerGas = document.getElementById(
 // End Ethereum Signature Section
 
 // Batch
-const signTypedDataV4Batch = document.getElementById('signTypedDataV4Batch');
 const sendEIP1559Batch = document.getElementById('sendEIP1559Batch');
 
 // Queue
-const signTypedDataV4Queue = document.getElementById('signTypedDataV4Queue');
 const sendEIP1559Queue = document.getElementById('sendEIP1559Queue');
 
 // PPOM
@@ -367,23 +319,7 @@ const maliciousContractInteractionButton = document.getElementById(
   'maliciousContractInteractionButton',
 );
 
-// PPOM - Malicious Warning Bypasses
-const maliciousSendWithOddHexData = document.getElementById(
-  'maliciousSendWithOddHexData',
-);
-const maliciousApproveERC20WithOddHexData = document.getElementById(
-  'maliciousApproveERC20WithOddHexData',
-);
-const maliciousSendWithoutHexPrefixValue = document.getElementById(
-  'maliciousSendWithoutHexPrefixValue',
-);
-const maliciousPermitHexPaddedChain = document.getElementById(
-  'maliciousPermitHexPaddedChain',
-);
-const maliciousPermitIntAddress = document.getElementById(
-  'maliciousPermitIntAddress',
-);
-
+// Interactions
 const interactionsSection = document.createElement('section');
 mainContainer.appendChild(interactionsSection);
 const interactionsRow = document.createElement('div');
@@ -410,109 +346,6 @@ const maxPriorityDiv = document.getElementById('maxPriorityDiv');
 const resolutionsSection = document.createElement('section');
 mainContainer.appendChild(resolutionsSection);
 ensResolutionComponent(resolutionsSection);
-
-// Buttons that require connecting an account
-const allConnectedButtons = [
-  document.getElementById('deployButton'),
-  depositButton,
-  withdrawButton,
-  document.getElementById('deployNFTsButton'),
-  mintButton,
-  sign721Permit,
-  sign721PermitVerify,
-  mintAmountInput,
-  approveTokenInput,
-  approveButton,
-  watchNFTInput,
-  watchNFTButton,
-  setApprovalForAllButton,
-  revokeButton,
-  transferTokenInput,
-  transferFromButton,
-  watchNFTsButton,
-  document.getElementById('deployERC1155Button'),
-  batchTransferTokenIds,
-  batchTransferTokenAmounts,
-  batchTransferFromButton,
-  setApprovalForAllERC1155Button,
-  revokeERC1155Button,
-  watchAssetInput,
-  watchAssetButton,
-  document.getElementById('deployFailingButton'),
-  sendFailingButton,
-  document.getElementById('deployMultisigButton'),
-  sendMultisigButton,
-  sendButton,
-  document.getElementById('createToken'),
-  document.getElementById('tokenDecimals'),
-  approveTokensToInput,
-  watchAssets,
-  transferTokens,
-  transferFromTokens,
-  approveTokens,
-  increaseTokenAllowance,
-  allowanceOwnerInput,
-  allowanceSpenderInput,
-  allowanceAmountResult,
-  getAllowance,
-  transferFromRecipientInput,
-  transferFromSenderInput,
-  transferTokensWithoutGas,
-  approveTokensWithoutGas,
-  document.getElementById('getEncryptionKeyButton'),
-  encryptMessageInput,
-  document.getElementById('encryptButton'),
-  document.getElementById('decryptButton'),
-  document.getElementById('ethSign'),
-  document.getElementById('personalSign'),
-  document.getElementById('personalSignVerify'),
-  signTypedData,
-  signTypedDataVerify,
-  signTypedDataV3,
-  signTypedDataV3Verify,
-  signTypedDataV4,
-  signTypedDataV4Verify,
-  signTypedDataV4Batch,
-  signTypedDataV4Queue,
-  signBlurOrder,
-  signPermit,
-  signPermitSingle,
-  signPermitBatch,
-  signPermitVerify,
-  signSeaportBulkOrder,
-  siwe,
-  siweResources,
-  siweBadDomain,
-  siweBadAccount,
-  siweMalformed,
-  signInvalidType,
-  signEmptyDomain,
-  signExtraDataNotTyped,
-  signInvalidPrimaryType,
-  signNoPrimaryTypeDefined,
-  signInvalidVerifyingContractType,
-  document.getElementById('eip747WatchButton'),
-  document.getElementById('maliciousApprovalButton'),
-  maliciousContractInteractionButton,
-  document.getElementById('maliciousSetApprovalForAll'),
-  document.getElementById('maliciousERC20TransferButton'),
-  document.getElementById('maliciousRawEthButton'),
-  document.getElementById('maliciousPermit'),
-  document.getElementById('maliciousTradeOrder'),
-  document.getElementById('maliciousSeaport'),
-  sendWithInvalidValue,
-  sendWithInvalidTxType,
-  sendWithInvalidRecipient,
-  mintSepoliaERC20,
-  document.getElementById('maliciousSendEthWithDeeplink'),
-  maliciousSendWithOddHexData,
-  maliciousSendWithoutHexPrefixValue,
-  maliciousApproveERC20WithOddHexData,
-  maliciousPermitHexPaddedChain,
-  maliciousPermitIntAddress,
-  maliciousPermitIntAddress,
-  document.getElementById('ensSubmit'),
-];
 
 /**
  * Provider
@@ -965,9 +798,6 @@ export const updateFormElements = () => {
   if (!isMetaMaskInstalled() || !isMetaMaskConnected()) {
     /* MetaMask is not installed or not connected */
     document.dispatchEvent(new Event('disableAndClear'));
-    for (const button of allConnectedButtons) {
-      button.disabled = true;
-    }
   } else if (isMetaMaskConnected()) {
     globalContext.connected = true;
   }

@@ -77,7 +77,6 @@ export function malformedTransactionsComponent(parentContainer) {
 
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
-      // MetaMask is connected, enable the button
       sendWithInvalidValue.disabled = false;
       sendWithInvalidTxType.disabled = false;
       sendWithInvalidRecipient.disabled = false;
@@ -86,6 +85,12 @@ export function malformedTransactionsComponent(parentContainer) {
       sendWithInvalidMaxFeePerGas.disabled = false; 
       */
     }
+  });
+
+  document.addEventListener('disableAndClear', function () {
+    sendWithInvalidValue.disabled = true;
+    sendWithInvalidTxType.disabled = true;
+    sendWithInvalidRecipient.disabled = true;
   });
 
   /**

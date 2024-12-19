@@ -162,6 +162,14 @@ export function erc1155Component(parentContainer) {
   });
 
   document.addEventListener('disableAndClear', function () {
+    deployERC1155Button.disabled = true;
+    batchTransferTokenIds.disabled = true;
+    batchTransferTokenAmounts.disabled = true;
+    batchTransferFromButton.disabled = true;
+    setApprovalForAllERC1155Button.disabled = true;
+    revokeERC1155Button.disabled = true;
+    watchAssetInput.disabled = true;
+    watchAssetButton.disabled = true;
     batchTransferTokenIds.value = '';
     batchTransferTokenAmounts.value = '';
   });

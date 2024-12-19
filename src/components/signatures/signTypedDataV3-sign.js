@@ -61,6 +61,11 @@ export function signTypedDataV3Component(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    signTypedDataV3.disabled = true;
+    signTypedDataV3Verify.disabled = true;
+  });
+
   /**
    * Sign Typed Data Version 3 Test
    */

@@ -76,6 +76,14 @@ export function siweComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    siwe.disabled = true;
+    siweResources.disabled = true;
+    siweBadDomain.disabled = true;
+    siweBadAccount.disabled = true;
+    siweMalformed.disabled = true;
+  });
+
   /**
    * Sign In With Ethereum helper
    */

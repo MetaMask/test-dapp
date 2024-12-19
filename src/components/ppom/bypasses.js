@@ -91,6 +91,14 @@ export function ppomMaliciousWarningBypasses(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    maliciousSendWithOddHexData.disabled = true;
+    maliciousSendWithoutHexPrefixValue.disabled = true;
+    maliciousApproveERC20WithOddHexData.disabled = true;
+    maliciousPermitHexPaddedChain.disabled = true;
+    maliciousPermitIntAddress.disabled = true;
+  });
+
   /**
    *  PPOM - Malicious Warning Bypasses
    */

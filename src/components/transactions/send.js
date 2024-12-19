@@ -164,6 +164,17 @@ export function sendComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    sendButton.disabled = true;
+    deployButton.disabled = true;
+    depositButton.disabled = true;
+    withdrawButton.disabled = true;
+    deployFailingButton.disabled = true;
+    sendFailingButton.disabled = true;
+    deployMultisigButton.disabled = true;
+    sendMultisigButton.disabled = true;
+  });
+
   /**
    * Sending ETH
    */

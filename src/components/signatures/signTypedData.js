@@ -55,6 +55,11 @@ export function signTypedDataComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    signTypedData.disabled = true;
+    signTypedDataVerify.disabled = true;
+  });
+
   /**
    * Sign Typed Data Test
    */

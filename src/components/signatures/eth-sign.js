@@ -36,6 +36,10 @@ export function ethSignComponent(parentContainer) {
     }
   });
 
+  document.addEventListener('disableAndClear', function () {
+    ethSign.disabled = true;
+  });
+
   ethSign.onclick = async () => {
     try {
       // const msg = 'Sample message to hash for signature'
