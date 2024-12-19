@@ -371,7 +371,7 @@ export function erc20Component(parentContainer) {
       console.log('result', result);
       tokenMethodsResult.innerHTML = result;
     } catch (error) {
-      tokenMethodsResult.innerHTML = `${error.message}`;
+      tokenMethodsResult.innerText = `${error.message}`;
     }
   };
 
