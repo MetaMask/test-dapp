@@ -68,7 +68,6 @@ const globalContext = {
   chainIdInt: undefined,
   chainIdPadded: undefined,
   networkName: undefined,
-  _connected: false,
   piggybankContract: undefined,
   piggybankFactory: undefined,
   failingContractFactory: undefined,
@@ -81,6 +80,8 @@ const globalContext = {
   nftsFactory: undefined,
   erc1155Contract: undefined,
   erc1155Factory: undefined,
+  tokenDecimals: '18',
+  _connected: false,
   get connected() {
     return this._connected;
   },
@@ -91,6 +92,20 @@ const globalContext = {
       });
       document.dispatchEvent(changeEvent);
       this._connected = value;
+    }
+  },
+  _deployedContractAddress: '',
+  get deployedContractAddress() { 
+    return this._deployedContractAddress; 
+  },
+  set deployedContractAddress(value) { 
+    if(typeof value !== 'string') return; 
+    if (this._deployedContractAddress !== value) { 
+      const changeEvent = new CustomEvent('deployedContractAddressChange', {
+        detail: { contractAddress: value },
+      });
+      document.dispatchEvent(changeEvent); 
+      this._deployedContractAddress = value; 
     }
   },
 };
@@ -110,14 +125,13 @@ const currentUrl = new URL(window.location.href);
 const forwarderOrigin =
   currentUrl.hostname === 'localhost' ? 'http://localhost:9010' : undefined;
 const urlSearchParams = new URLSearchParams(window.location.search);
-let deployedContractAddress = urlSearchParams.get('contract');
-if (!ethers.utils.isAddress(deployedContractAddress)) {
-  deployedContractAddress = '';
+const urlParamContractAddress = urlSearchParams.get('contract');
+if (ethers.utils.isAddress(urlParamContractAddress)) {
+  globalContext.deployedContractAddress = urlParamContractAddress; 
 }
-
-let tokenDecimals = urlSearchParams.get('decimals');
-if (!tokenDecimals) {
-  tokenDecimals = '18';
+const urlParamTokenDecimals = urlSearchParams.get('decimals');
+if(urlParamTokenDecimals) { 
+  globalContext.tokenDecimals = urlParamTokenDecimals; 
 }
 
 const scrollTo = urlSearchParams.get('scrollTo');
@@ -367,12 +381,6 @@ const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
 const maliciousContractInteractionButton = document.getElementById(
   'maliciousContractInteractionButton',
 );
-
-// Deeplinks
-const transferTokensDeeplink = document.getElementById(
-  'transferTokensDeeplink',
-);
-const approveTokensDeeplink = document.getElementById('approveTokensDeeplink');
 
 // PPOM - Malicious Warning Bypasses
 const maliciousSendWithOddHexData = document.getElementById(
@@ -916,34 +924,34 @@ const initializeContracts = () => {
       globalContext.provider,
       'any',
     );
-    if (deployedContractAddress) {
+    if (globalContext.deployedContractAddress) {
       globalContext.hstContract = new ethers.Contract(
-        deployedContractAddress,
+        globalContext.deployedContractAddress,
         hstAbi,
         globalContext.ethersProvider.getSigner(),
       );
       globalContext.piggybankContract = new ethers.Contract(
-        deployedContractAddress,
+        globalContext.deployedContractAddress,
         piggybankAbi,
         globalContext.ethersProvider.getSigner(),
       );
       globalContext.nftsContract = new ethers.Contract(
-        deployedContractAddress,
+        globalContext.deployedContractAddress,
         nftsAbi,
         globalContext.ethersProvider.getSigner(),
       );
       globalContext.failingContract = new ethers.Contract(
-        deployedContractAddress,
+        globalContext.deployedContractAddress,
         failingContractAbi,
         globalContext.ethersProvider.getSigner(),
       );
       globalContext.multisigContract = new ethers.Contract(
-        deployedContractAddress,
+        globalContext.deployedContractAddress,
         multisigAbi,
         globalContext.ethersProvider.getSigner(),
       );
       globalContext.erc1155Contract = new ethers.Contract(
-        deployedContractAddress,
+        globalContext.deployedContractAddress,
         erc1155Abi,
         globalContext.ethersProvider.getSigner(),
       );
@@ -1079,7 +1087,7 @@ const updateOnboardElements = () => {
 };
 
 const updateContractElements = () => {
-  if (deployedContractAddress) {
+  if (globalContext.deployedContractAddress) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
     depositButton.disabled = false;
@@ -1156,12 +1164,6 @@ const initializeFormElements = () => {
   useWindowProviderButton.onclick = setActiveProviderDetailWindowEthereum;
 };
 
-const setDeeplinks = () => {
-  
-  transferTokensDeeplink.href = `https://metamask.app.link/send/${deployedContractAddress}/transfer?address=0x2f318C334780961FB129D2a6c30D0763d9a5C970&uint256=4e${tokenDecimals}`;
-  approveTokensDeeplink.href = `https://metamask.app.link/approve/${deployedContractAddress}/approve?address=0x178e3e6c9f547A00E33150F7104427ea02cfc747&uint256=3e${tokenDecimals}`;
-};
-
 /**
  * Entrypoint
  */
@@ -1175,7 +1177,6 @@ const initialize = async () => {
     await setActiveProviderDetail(providerDetails[0]);
   }
   initializeFormElements();
-  setDeeplinks();
 };
 
 window.addEventListener('load', initialize);
