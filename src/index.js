@@ -8,8 +8,11 @@ import {
 } from './connections';
 import Constants from './constants.json';
 import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
-import { getPermissionsDisplayString } from './utils';
 
+import {
+  connectionsComponent,
+  permissionsComponent,
+} from './components/connections';
 import {
   sendComponent,
   erc20Component,
@@ -140,20 +143,18 @@ const chainIdDiv = document.getElementById('chainId');
 const accountsDiv = document.getElementById('accounts');
 const warningDiv = document.getElementById('warning');
 
+const connectionsContainer =
+  document.getElementById('components-connections') || document.body;
+const connectionsRow = document.createElement('div');
+connectionsRow.className = 'row d-flex justify-content-center';
+connectionsContainer.appendChild(connectionsRow);
+connectionsComponent(connectionsRow);
+permissionsComponent(connectionsRow);
+
 // Basic Actions Section
 const onboardButton = document.getElementById('connectButton');
-const getAccountsButton = document.getElementById('getAccounts');
-const getAccountsResult = document.getElementById('getAccountsResult');
 const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
-
-// Permissions Actions Section
-const requestPermissionsButton = document.getElementById('requestPermissions');
-const getPermissionsButton = document.getElementById('getPermissions');
-const permissionsResult = document.getElementById('permissionsResult');
-const revokeAccountsPermissionButton = document.getElementById(
-  'revokeAccountsPermission',
-);
 
 const transactionsContainer =
   document.getElementById('components-tranactions') || document.body;
@@ -1010,8 +1011,8 @@ export const updateFormElements = () => {
 };
 
 const clearDisplayElements = () => {
-  getAccountsResult.innerText = '';
-  permissionsResult.innerText = '';
+  document.getElementById('getAccountsResult').innerText = '';
+  document.getElementById('permissionsResult').innerText = '';
   encryptionKeyDisplay.innerText = '';
   encryptMessageInput.value = '';
   ciphertextDisplay.innerText = '';
@@ -1150,60 +1151,6 @@ const initializeFormElements = () => {
   /**
    * Permissions
    */
-
-  requestPermissionsButton.onclick = async () => {
-    try {
-      const permissionsArray = await globalContext.provider.request({
-        method: 'wallet_requestPermissions',
-        params: [{ eth_accounts: {} }],
-      });
-      permissionsResult.innerHTML =
-        getPermissionsDisplayString(permissionsArray);
-    } catch (err) {
-      console.error(err);
-      permissionsResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  getPermissionsButton.onclick = async () => {
-    try {
-      const permissionsArray = await globalContext.provider.request({
-        method: 'wallet_getPermissions',
-      });
-      permissionsResult.innerHTML =
-        getPermissionsDisplayString(permissionsArray);
-    } catch (err) {
-      console.error(err);
-      permissionsResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  getAccountsButton.onclick = async () => {
-    try {
-      const _accounts = await globalContext.provider.request({
-        method: 'eth_accounts',
-      });
-      getAccountsResult.innerHTML = _accounts || 'Not able to get accounts';
-    } catch (err) {
-      console.error(err);
-      getAccountsResult.innerHTML = `Error: ${err.message}`;
-    }
-  };
-
-  revokeAccountsPermissionButton.onclick = async () => {
-    try {
-      await globalContext.provider.request({
-        method: 'wallet_revokePermissions',
-        params: [
-          {
-            eth_accounts: {},
-          },
-        ],
-      });
-    } catch (err) {
-      permissionsResult.innerHTML = `${err.message}`;
-    }
-  };
 
   type.onchange = async () => {
     if (type.value === '0x0') {
