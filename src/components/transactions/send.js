@@ -135,7 +135,7 @@ export function sendComponent(parentContainer) {
   const sendEIP1559WithoutGasButton = document.getElementById(
     'sendEIP1559WithoutGasButton',
   );
-  // const sendDeeplinkButton = document.getElementById('sendDeeplinkButton');
+  const sendDeeplinkButton = document.getElementById('sendDeeplinkButton');
   const deployButton = document.getElementById('deployButton');
   const depositButton = document.getElementById('depositButton');
   const withdrawButton = document.getElementById('withdrawButton');
@@ -150,6 +150,9 @@ export function sendComponent(parentContainer) {
   const multisigContractStatus = document.getElementById(
     'multisigContractStatus',
   );
+
+  sendDeeplinkButton.href =
+    'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
 
   /**
    * Sending ETH
