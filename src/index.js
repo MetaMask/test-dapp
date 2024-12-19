@@ -1,10 +1,7 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 // eslint-disable-next-line camelcase
 import { ethers } from 'ethers';
-import {
-  isSepoliaNetworkId,
-  isBaseNetworkId
-} from './utils'; 
+import { isSepoliaNetworkId, isBaseNetworkId } from './utils';
 import {
   handleSdkConnect,
   handleWalletConnect,
@@ -520,10 +517,6 @@ const allConnectedButtons = [
   maliciousPermitIntAddress,
   maliciousPermitIntAddress,
   document.getElementById('ensSubmit'),
-];
-
-// Buttons that are available after initially connecting an account
-const initialConnectedButtons = [
 ];
 
 /**

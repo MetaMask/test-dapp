@@ -157,10 +157,10 @@ export function sendComponent(parentContainer) {
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
       // MetaMask is connected, enable the button
-      sendButton.disabled = false; 
+      sendButton.disabled = false;
       deployButton.disabled = false;
-      deployFailingButton.disabled = false; 
-      deployMultisigButton.disabled = false; 
+      deployFailingButton.disabled = false;
+      deployMultisigButton.disabled = false;
     }
   });
 

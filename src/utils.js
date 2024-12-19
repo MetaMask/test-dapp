@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { 
+import {
   SEPOLIA_NETWORK_ID_DEC,
   SEPOLIA_NETWORK_ID_HEX,
   BASE_NETWORK_ID,
-  BASE_NETWORK_ID_HEX
+  BASE_NETWORK_ID_HEX,
 } from './sample-networks';
 
 export const getPermissionsDisplayString = (permissionsArray) => {
@@ -20,7 +20,7 @@ export const stringifiableToHex = (value) => {
   return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)));
 };
 
-export const isSepoliaNetworkId = (networkId) => { 
+export const isSepoliaNetworkId = (networkId) => {
   return (
     networkId === SEPOLIA_NETWORK_ID_DEC || networkId === SEPOLIA_NETWORK_ID_HEX
   );
@@ -28,4 +28,4 @@ export const isSepoliaNetworkId = (networkId) => {
 
 export const isBaseNetworkId = (networkId) => {
   return networkId === BASE_NETWORK_ID || networkId === BASE_NETWORK_ID_HEX;
-}
+};

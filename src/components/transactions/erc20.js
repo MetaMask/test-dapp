@@ -214,8 +214,8 @@ export function erc20Component(parentContainer) {
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
       // MetaMask is connected, enable the button
-      createToken.disabled = false; 
-      decimalUnitsInput.disabled = false; 
+      createToken.disabled = false;
+      decimalUnitsInput.disabled = false;
     }
   });
 
