@@ -157,11 +157,13 @@ const chainIdDiv = document.getElementById('chainId');
 const accountsDiv = document.getElementById('accounts');
 const warningDiv = document.getElementById('warning');
 
-const connectionsContainer =
-  document.getElementById('components-connections') || document.body;
+const mainContainer = document.body.getElementsByTagName('main')[0] || document.body; 
+
+const connectionsSection = document.createElement('section'); 
+mainContainer.appendChild(connectionsSection); 
 const connectionsRow = document.createElement('div');
 connectionsRow.className = 'row d-flex justify-content-center';
-connectionsContainer.appendChild(connectionsRow);
+connectionsSection.appendChild(connectionsRow);
 connectionsComponent(connectionsRow);
 permissionsComponent(connectionsRow);
 
@@ -170,11 +172,11 @@ const onboardButton = document.getElementById('connectButton');
 const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
 
-const transactionsContainer =
-  document.getElementById('components-transactions') || document.body;
+const transactionsSection = document.createElement('section'); 
+mainContainer.appendChild(transactionsSection); 
 const transactionsRow = document.createElement('div');
 transactionsRow.className = 'row';
-transactionsContainer.appendChild(transactionsRow);
+transactionsSection.appendChild(transactionsRow);
 sendComponent(transactionsRow);
 erc20Component(transactionsRow);
 erc721Component(transactionsRow);
@@ -281,18 +283,18 @@ const approveTokensWithoutGas = document.getElementById(
 
 const tokenMethodsResult = document.getElementById('tokenMethodsResult');
 
-const ppomParentContainer =
-  document.getElementById('components-ppom') || document.body;
+const ppomSection = document.createElement('section'); 
+mainContainer.appendChild(ppomSection); 
 const ppomRow = document.createElement('div');
 ppomRow.className = 'row';
-ppomParentContainer.appendChild(ppomRow);
+ppomSection.appendChild(ppomRow);
 ppomMaliciousTransactionsAndSignatures(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
 
-const encryptionParentContainer =
-  document.getElementById('components-encryption') || document.body;
-encryptDecryptComponent(encryptionParentContainer);
+const encryptionSection = document.createElement('section'); 
+mainContainer.appendChild(encryptionSection); 
+encryptDecryptComponent(encryptionSection);
 
 // Encrypt / Decrypt Section
 const encryptMessageInput = document.getElementById('encryptMessageInput');
@@ -301,11 +303,11 @@ const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
-const signaturesParentContainer =
-  document.getElementById('components-signatures') || document.body;
+const signaturesSection = document.createElement('section'); 
+mainContainer.appendChild(signaturesSection); 
 const signaturesRow = document.createElement('div');
 signaturesRow.className = 'row';
-signaturesParentContainer.appendChild(signaturesRow);
+signaturesSection.appendChild(signaturesRow);
 ethSignComponent(signaturesRow);
 personalSignComponent(signaturesRow);
 signTypedDataComponent(signaturesRow);
@@ -399,12 +401,11 @@ const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
 
-const interactionsParentContainer = document.getElementById(
-  'components-interactions',
-);
+const interactionsSection = document.createElement('section'); 
+mainContainer.appendChild(interactionsSection); 
 const interactionsRow = document.createElement('div');
 interactionsRow.className = 'row d-flex justify-content-center';
-interactionsParentContainer.appendChild(interactionsRow);
+interactionsSection.appendChild(interactionsRow);
 jsonRpcResult(interactionsRow);
 ethereumChainInteractions(interactionsRow);
 emptyComponent(interactionsRow);
@@ -413,16 +414,19 @@ emptyComponent(interactionsRow);
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
-sendFormComponent(document.getElementById('components-forms'));
-
-ensResolutionComponent(document.getElementById('components-resolutions'));
+const sendSection = document.createElement('section'); 
+mainContainer.appendChild(sendSection); 
+sendFormComponent(sendSection); 
 
 // Send form controls (because they are updated by certain events in this file)
 const fromDiv = document.getElementById('fromInput');
-
 const gasPriceDiv = document.getElementById('gasPriceDiv');
 const maxFeeDiv = document.getElementById('maxFeeDiv');
 const maxPriorityDiv = document.getElementById('maxPriorityDiv');
+
+const resolutionsSection = document.createElement('section'); 
+mainContainer.appendChild(resolutionsSection); 
+ensResolutionComponent(resolutionsSection);
 
 // Buttons that require connecting an account
 const allConnectedButtons = [
