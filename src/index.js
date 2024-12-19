@@ -95,17 +95,19 @@ const globalContext = {
     }
   },
   _deployedContractAddress: '',
-  get deployedContractAddress() { 
-    return this._deployedContractAddress; 
+  get deployedContractAddress() {
+    return this._deployedContractAddress;
   },
-  set deployedContractAddress(value) { 
-    if(typeof value !== 'string') return; 
-    if (this._deployedContractAddress !== value) { 
+  set deployedContractAddress(value) {
+    if (typeof value !== 'string') {
+      return;
+    }
+    if (this._deployedContractAddress !== value) {
       const changeEvent = new CustomEvent('deployedContractAddressChange', {
         detail: { contractAddress: value },
       });
-      document.dispatchEvent(changeEvent); 
-      this._deployedContractAddress = value; 
+      document.dispatchEvent(changeEvent);
+      this._deployedContractAddress = value;
     }
   },
 };
@@ -127,11 +129,11 @@ const forwarderOrigin =
 const urlSearchParams = new URLSearchParams(window.location.search);
 const urlParamContractAddress = urlSearchParams.get('contract');
 if (ethers.utils.isAddress(urlParamContractAddress)) {
-  globalContext.deployedContractAddress = urlParamContractAddress; 
+  globalContext.deployedContractAddress = urlParamContractAddress;
 }
 const urlParamTokenDecimals = urlSearchParams.get('decimals');
-if(urlParamTokenDecimals) { 
-  globalContext.tokenDecimals = urlParamTokenDecimals; 
+if (urlParamTokenDecimals) {
+  globalContext.tokenDecimals = urlParamTokenDecimals;
 }
 
 const scrollTo = urlSearchParams.get('scrollTo');
@@ -157,10 +159,11 @@ const chainIdDiv = document.getElementById('chainId');
 const accountsDiv = document.getElementById('accounts');
 const warningDiv = document.getElementById('warning');
 
-const mainContainer = document.body.getElementsByTagName('main')[0] || document.body; 
+const mainContainer =
+  document.body.getElementsByTagName('main')[0] || document.body;
 
-const connectionsSection = document.createElement('section'); 
-mainContainer.appendChild(connectionsSection); 
+const connectionsSection = document.createElement('section');
+mainContainer.appendChild(connectionsSection);
 const connectionsRow = document.createElement('div');
 connectionsRow.className = 'row d-flex justify-content-center';
 connectionsSection.appendChild(connectionsRow);
@@ -172,8 +175,8 @@ const onboardButton = document.getElementById('connectButton');
 const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
 
-const transactionsSection = document.createElement('section'); 
-mainContainer.appendChild(transactionsSection); 
+const transactionsSection = document.createElement('section');
+mainContainer.appendChild(transactionsSection);
 const transactionsRow = document.createElement('div');
 transactionsRow.className = 'row';
 transactionsSection.appendChild(transactionsRow);
@@ -283,8 +286,8 @@ const approveTokensWithoutGas = document.getElementById(
 
 const tokenMethodsResult = document.getElementById('tokenMethodsResult');
 
-const ppomSection = document.createElement('section'); 
-mainContainer.appendChild(ppomSection); 
+const ppomSection = document.createElement('section');
+mainContainer.appendChild(ppomSection);
 const ppomRow = document.createElement('div');
 ppomRow.className = 'row';
 ppomSection.appendChild(ppomRow);
@@ -292,8 +295,8 @@ ppomMaliciousTransactionsAndSignatures(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
 
-const encryptionSection = document.createElement('section'); 
-mainContainer.appendChild(encryptionSection); 
+const encryptionSection = document.createElement('section');
+mainContainer.appendChild(encryptionSection);
 encryptDecryptComponent(encryptionSection);
 
 // Encrypt / Decrypt Section
@@ -303,8 +306,8 @@ const ciphertextDisplay = document.getElementById('ciphertextDisplay');
 const cleartextDisplay = document.getElementById('cleartextDisplay');
 
 // Ethereum Signature Section
-const signaturesSection = document.createElement('section'); 
-mainContainer.appendChild(signaturesSection); 
+const signaturesSection = document.createElement('section');
+mainContainer.appendChild(signaturesSection);
 const signaturesRow = document.createElement('div');
 signaturesRow.className = 'row';
 signaturesSection.appendChild(signaturesRow);
@@ -401,8 +404,8 @@ const maliciousPermitIntAddress = document.getElementById(
   'maliciousPermitIntAddress',
 );
 
-const interactionsSection = document.createElement('section'); 
-mainContainer.appendChild(interactionsSection); 
+const interactionsSection = document.createElement('section');
+mainContainer.appendChild(interactionsSection);
 const interactionsRow = document.createElement('div');
 interactionsRow.className = 'row d-flex justify-content-center';
 interactionsSection.appendChild(interactionsRow);
@@ -414,9 +417,9 @@ emptyComponent(interactionsRow);
 const addEthereumChain = document.getElementById('addEthereumChain');
 const switchEthereumChain = document.getElementById('switchEthereumChain');
 
-const sendSection = document.createElement('section'); 
-mainContainer.appendChild(sendSection); 
-sendFormComponent(sendSection); 
+const sendSection = document.createElement('section');
+mainContainer.appendChild(sendSection);
+sendFormComponent(sendSection);
 
 // Send form controls (because they are updated by certain events in this file)
 const fromDiv = document.getElementById('fromInput');
@@ -424,8 +427,8 @@ const gasPriceDiv = document.getElementById('gasPriceDiv');
 const maxFeeDiv = document.getElementById('maxFeeDiv');
 const maxPriorityDiv = document.getElementById('maxPriorityDiv');
 
-const resolutionsSection = document.createElement('section'); 
-mainContainer.appendChild(resolutionsSection); 
+const resolutionsSection = document.createElement('section');
+mainContainer.appendChild(resolutionsSection);
 ensResolutionComponent(resolutionsSection);
 
 // Buttons that require connecting an account
@@ -1159,8 +1162,6 @@ const updateContractElements = () => {
 
 // Initializes form button onclicks
 const initializeFormElements = () => {
-
-
   /**
    * Providers
    */

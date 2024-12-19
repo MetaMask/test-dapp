@@ -178,7 +178,9 @@ export function erc20Component(parentContainer) {
     'transferTokensDeeplink',
   );
   const approveTokens = document.getElementById('approveTokens');
-  const approveTokensDeeplink = document.getElementById('approveTokensDeeplink');
+  const approveTokensDeeplink = document.getElementById(
+    'approveTokensDeeplink',
+  );
   const increaseTokenAllowance = document.getElementById(
     'increaseTokenAllowance',
   );
