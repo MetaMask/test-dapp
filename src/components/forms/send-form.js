@@ -86,6 +86,7 @@ export function sendFormComponent(parentContainer) {
   );
 
   // Send form section
+  const fromDiv = document.getElementById('fromInput');
   const toDiv = document.getElementById('toInput');
   const type = document.getElementById('typeInput');
   const amount = document.getElementById('amountInput');
@@ -109,6 +110,13 @@ export function sendFormComponent(parentContainer) {
       maxPriorityDiv.style.display = 'block';
     }
   };
+
+  document.addEventListener('newAccounts', function (e) {
+    fromDiv.value = e.detail.newAccounts[0] || '';
+    gasPriceDiv.style.display = 'block';
+    maxFeeDiv.style.display = 'none';
+    maxPriorityDiv.style.display = 'none';
+  });
 
   document.getElementById('submitForm').onclick = async () => {
     let params;

@@ -31,6 +31,11 @@ export function ethereumChainInteractions(parentContainer) {
   const addEthereumChain = document.getElementById('addEthereumChain');
   const switchEthereumChain = document.getElementById('switchEthereumChain');
 
+  document.addEventListener('MetaMaskInstalled', function () {
+    addEthereumChain.disabled = false;
+    switchEthereumChain.disabled = false;
+  });
+
   addEthereumChain.onclick = async () => {
     await globalContext.provider.request({
       method: 'wallet_addEthereumChain',

@@ -144,6 +144,11 @@ const useWindowProviderButton = document.getElementById(
   'useWindowProviderButton',
 );
 
+// Basic Actions Section
+const onboardButton = document.getElementById('connectButton');
+const walletConnectBtn = document.getElementById('walletConnect');
+const sdkConnectBtn = document.getElementById('sdkConnect');
+
 // Dapp Status Section
 const networkDiv = document.getElementById('network');
 const chainIdDiv = document.getElementById('chainId');
@@ -160,11 +165,6 @@ connectionsRow.className = 'row d-flex justify-content-center';
 connectionsSection.appendChild(connectionsRow);
 connectionsComponent(connectionsRow);
 permissionsComponent(connectionsRow);
-
-// Basic Actions Section
-const onboardButton = document.getElementById('connectButton');
-const walletConnectBtn = document.getElementById('walletConnect');
-const sdkConnectBtn = document.getElementById('sdkConnect');
 
 const transactionsSection = document.createElement('section');
 mainContainer.appendChild(transactionsSection);
@@ -206,7 +206,6 @@ siweComponent(signaturesRow);
 malformedSignaturesComponent(signaturesRow);
 malformedTransactionsComponent(signaturesRow);
 
-// Interactions
 const interactionsSection = document.createElement('section');
 mainContainer.appendChild(interactionsSection);
 const interactionsRow = document.createElement('div');
@@ -216,19 +215,9 @@ jsonRpcResult(interactionsRow);
 ethereumChainInteractions(interactionsRow);
 emptyComponent(interactionsRow);
 
-// Miscellaneous
-const addEthereumChain = document.getElementById('addEthereumChain');
-const switchEthereumChain = document.getElementById('switchEthereumChain');
-
 const sendSection = document.createElement('section');
 mainContainer.appendChild(sendSection);
 sendFormComponent(sendSection);
-
-// Send form controls (because they are updated by certain events in this file)
-const fromDiv = document.getElementById('fromInput');
-const gasPriceDiv = document.getElementById('gasPriceDiv');
-const maxFeeDiv = document.getElementById('maxFeeDiv');
-const maxPriorityDiv = document.getElementById('maxPriorityDiv');
 
 const resolutionsSection = document.createElement('section');
 mainContainer.appendChild(resolutionsSection);
@@ -411,14 +400,14 @@ const renderProviderDetails = () => {
 
 export const handleNewAccounts = (newAccounts) => {
   globalContext.accounts = newAccounts;
-  updateFormElements();
-
   accountsDiv.innerHTML = globalContext.accounts;
-  fromDiv.value = globalContext.accounts[0] || '';
-  gasPriceDiv.style.display = 'block';
-  maxFeeDiv.style.display = 'none';
-  maxPriorityDiv.style.display = 'none';
 
+  const changeEvent = new CustomEvent('newAccounts', {
+    detail: { newAccounts },
+  });
+  document.dispatchEvent(changeEvent);
+
+  updateFormElements();
   handleEIP1559Support();
 };
 
@@ -672,8 +661,7 @@ const updateOnboardElements = () => {
   }
 
   if (isMetaMaskInstalled()) {
-    addEthereumChain.disabled = false;
-    switchEthereumChain.disabled = false;
+    document.dispatchEvent(new Event('MetaMaskInstalled'));
   } else {
     onboardButton.innerText = 'Click here to install MetaMask!';
     onboardButton.onclick = () => {
@@ -722,8 +710,7 @@ const updateOnboardElements = () => {
 
 const updateContractElements = () => {
   if (globalContext.deployedContractAddress) {
-    const changeEvent = new Event('contractIsDeployed');
-    document.dispatchEvent(changeEvent);
+    document.dispatchEvent(new Event('contractIsDeployed'));
   }
 };
 
