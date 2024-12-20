@@ -108,6 +108,20 @@ export function ppomMaliciousBatchingAndQueueing(parentContainer) {
     signTypedDataV4Queue.disabled = true;
   });
 
+  document.addEventListener('blockBaseFeePerGasUpdate', function (e) {
+    if (e.detail.supported) {
+      sendEIP1559Batch.disabled = false;
+      sendEIP1559Batch.hidden = false;
+      sendEIP1559Queue.disabled = false;
+      sendEIP1559Queue.hidden = false;
+    } else {
+      sendEIP1559Batch.disabled = true;
+      sendEIP1559Batch.hidden = true;
+      sendEIP1559Queue.disabled = true;
+      sendEIP1559Queue.hidden = true;
+    }
+  });
+
   /**
    *  Batch of 10 Malicious Transactions
    */

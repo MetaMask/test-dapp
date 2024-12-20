@@ -234,13 +234,6 @@ const watchAssetButton = document.getElementById('watchAssetButton');
 const erc1155Status = document.getElementById('erc1155Status');
 const erc1155TokenAddresses = document.getElementById('erc1155TokenAddresses');
 
-// Send Eth Section
-const sendButton = document.getElementById('sendButton');
-const sendEIP1559Button = document.getElementById('sendEIP1559Button');
-const sendEIP1559WithoutGasButton = document.getElementById(
-  'sendEIP1559WithoutGasButton',
-);
-
 // Send Tokens Section
 const approveTokensToInput = document.getElementById('approveTo');
 const transferFromSenderInput = document.getElementById(
@@ -277,11 +270,15 @@ ppomMaliciousTransactionsAndSignatures(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
 
+const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
+const maliciousContractInteractionButton = document.getElementById(
+  'maliciousContractInteractionButton',
+);
+
 const encryptionSection = document.createElement('section');
 mainContainer.appendChild(encryptionSection);
 encryptDecryptComponent(encryptionSection);
 
-// Ethereum Signature Section
 const signaturesSection = document.createElement('section');
 mainContainer.appendChild(signaturesSection);
 const signaturesRow = document.createElement('div');
@@ -297,27 +294,6 @@ signTypedDataVariantsComponent(signaturesRow);
 siweComponent(signaturesRow);
 malformedSignaturesComponent(signaturesRow);
 malformedTransactionsComponent(signaturesRow);
-
-const sendWithInvalidGasLimit = document.getElementById(
-  'sendWithInvalidGasLimit',
-);
-const sendWithInvalidMaxFeePerGas = document.getElementById(
-  'sendWithInvalidMaxFeePerGas',
-);
-
-// End Ethereum Signature Section
-
-// Batch
-const sendEIP1559Batch = document.getElementById('sendEIP1559Batch');
-
-// Queue
-const sendEIP1559Queue = document.getElementById('sendEIP1559Queue');
-
-// PPOM
-const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
-const maliciousContractInteractionButton = document.getElementById(
-  'maliciousContractInteractionButton',
-);
 
 // Interactions
 const interactionsSection = document.createElement('section');
@@ -605,33 +581,10 @@ const handleEIP1559Support = async () => {
 
   const supported = block.baseFeePerGas !== undefined;
 
-  if (supported) {
-    sendEIP1559Button.disabled = false;
-    sendEIP1559Button.hidden = false;
-    sendEIP1559WithoutGasButton.disabled = false;
-    sendEIP1559WithoutGasButton.hidden = false;
-    sendWithInvalidMaxFeePerGas.disabled = false;
-    sendWithInvalidMaxFeePerGas.hidden = false;
-    sendEIP1559Batch.disabled = false;
-    sendEIP1559Batch.hidden = false;
-    sendEIP1559Queue.disabled = false;
-    sendEIP1559Queue.hidden = false;
-    sendWithInvalidGasLimit.disabled = false;
-    sendWithInvalidGasLimit.hidden = false;
-    sendButton.innerText = 'Send Legacy Transaction';
-  } else {
-    sendEIP1559Button.disabled = true;
-    sendEIP1559Button.hidden = true;
-    sendEIP1559WithoutGasButton.disabled = true;
-    sendEIP1559WithoutGasButton.hidden = true;
-    sendEIP1559Batch.disabled = true;
-    sendEIP1559Batch.hidden = true;
-    sendEIP1559Queue.disabled = true;
-    sendEIP1559Queue.hidden = true;
-    sendWithInvalidGasLimit.disabled = true;
-    sendWithInvalidGasLimit.hidden = true;
-    sendButton.innerText = 'Send';
-  }
+  const changeEvent = new CustomEvent('blockBaseFeePerGasUpdate', {
+    detail: { supported },
+  });
+  document.dispatchEvent(changeEvent);
 };
 
 // Must be called before the active provider changes

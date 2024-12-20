@@ -175,6 +175,22 @@ export function sendComponent(parentContainer) {
     sendMultisigButton.disabled = true;
   });
 
+  document.addEventListener('blockBaseFeePerGasUpdate', function (e) {
+    if (e.detail.supported) {
+      sendEIP1559Button.disabled = false;
+      sendEIP1559Button.hidden = false;
+      sendEIP1559WithoutGasButton.disabled = false;
+      sendEIP1559WithoutGasButton.hidden = false;
+      sendButton.innerText = 'Send Legacy Transaction';
+    } else {
+      sendEIP1559Button.disabled = true;
+      sendEIP1559Button.hidden = true;
+      sendEIP1559WithoutGasButton.disabled = true;
+      sendEIP1559WithoutGasButton.hidden = true;
+      sendButton.innerText = 'Send';
+    }
+  });
+
   /**
    * Sending ETH
    */

@@ -75,6 +75,19 @@ export function malformedTransactionsComponent(parentContainer) {
   );
   const sendMalformedResult = document.getElementById('sendMalformedResult');
 
+  document.addEventListener('blockBaseFeePerGasUpdate', function (e) {
+    if (e.detail.supported) {
+      sendWithInvalidMaxFeePerGas.disabled = false;
+      sendWithInvalidMaxFeePerGas.hidden = false;
+      sendWithInvalidGasLimit.disabled = false;
+      sendWithInvalidGasLimit.hidden = false;
+    } else {
+      /* Why is there no equivalent case for InvalidMaxFeePerGas when it's false? */
+      sendWithInvalidGasLimit.disabled = true;
+      sendWithInvalidGasLimit.hidden = true;
+    }
+  });
+
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
       sendWithInvalidValue.disabled = false;
