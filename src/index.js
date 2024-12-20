@@ -86,13 +86,11 @@ const globalContext = {
     return this._connected;
   },
   set connected(value) {
-    if (this._connected !== value) {
-      const changeEvent = new CustomEvent('globalConnectionChange', {
-        detail: { connected: value },
-      });
-      document.dispatchEvent(changeEvent);
-      this._connected = value;
-    }
+    const changeEvent = new CustomEvent('globalConnectionChange', {
+      detail: { connected: value },
+    });
+    document.dispatchEvent(changeEvent);
+    this._connected = value;
   },
   _deployedContractAddress: '',
   get deployedContractAddress() {
@@ -102,13 +100,11 @@ const globalContext = {
     if (typeof value !== 'string') {
       return;
     }
-    if (this._deployedContractAddress !== value) {
-      const changeEvent = new CustomEvent('deployedContractAddressChange', {
-        detail: { contractAddress: value },
-      });
-      document.dispatchEvent(changeEvent);
-      this._deployedContractAddress = value;
-    }
+    const changeEvent = new CustomEvent('deployedContractAddressChange', {
+      detail: { contractAddress: value },
+    });
+    document.dispatchEvent(changeEvent);
+    this._deployedContractAddress = value;
   },
 };
 
