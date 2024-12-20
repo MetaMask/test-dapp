@@ -1,7 +1,6 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 // eslint-disable-next-line camelcase
 import { ethers } from 'ethers';
-import { isSepoliaNetworkId, isBaseNetworkId } from './utils';
 import {
   handleSdkConnect,
   handleWalletConnect,
@@ -190,11 +189,6 @@ ppomSection.appendChild(ppomRow);
 ppomMaliciousTransactionsAndSignatures(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
-
-const mintSepoliaERC20 = document.getElementById('mintSepoliaERC20');
-const maliciousContractInteractionButton = document.getElementById(
-  'maliciousContractInteractionButton',
-);
 
 const encryptionSection = document.createElement('section');
 mainContainer.appendChild(encryptionSection);
@@ -453,20 +447,13 @@ const handleNewChain = (chainId) => {
   }
 };
 
-function toggleSepoliaMintButton(networkId) {
-  mintSepoliaERC20.hidden = !isSepoliaNetworkId(networkId);
-}
-
-function toggleMaliciousContractInteractionButton(networkId) {
-  maliciousContractInteractionButton.hidden =
-    isBaseNetworkId(networkId) || isSepoliaNetworkId(networkId);
-}
-
 function handleNewNetwork(networkId) {
   networkDiv.innerHTML = networkId;
 
-  toggleSepoliaMintButton(networkId);
-  toggleMaliciousContractInteractionButton(networkId);
+  const changeEvent = new CustomEvent('newNetwork', {
+    detail: { networkId },
+  });
+  document.dispatchEvent(changeEvent);
 }
 
 const getNetworkAndChainId = async () => {

@@ -5,6 +5,7 @@ import {
   ERC721_SAMPLE_CONTRACTS,
   MALICIOUS_CONTRACT_ADDRESSES,
 } from '../../onchain-sample-contracts';
+import { isBaseNetworkId, isSepoliaNetworkId } from '../../utils';
 
 export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -134,6 +135,13 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     maliciousPermit.disabled = true;
     maliciousTradeOrder.disabled = true;
     maliciousSeaport.disabled = true;
+  });
+
+  document.addEventListener('newNetwork', function (e) {
+    mintSepoliaERC20.hidden = !isSepoliaNetworkId(e.detail.networkId);
+    maliciousContractInteractionButton.hidden =
+      isBaseNetworkId(e.detail.networkId) ||
+      isSepoliaNetworkId(e.detail.networkId);
   });
 
   // Malicious raw ETH transfer
