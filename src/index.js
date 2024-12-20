@@ -182,85 +182,6 @@ erc721Component(transactionsRow);
 erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 
-// Contract Section
-const depositButton = document.getElementById('depositButton');
-const withdrawButton = document.getElementById('withdrawButton');
-const contractStatus = document.getElementById('contractStatus');
-const sendFailingButton = document.getElementById('sendFailingButton');
-const failingContractStatus = document.getElementById('failingContractStatus');
-const sendMultisigButton = document.getElementById('sendMultisigButton');
-const multisigContractStatus = document.getElementById(
-  'multisigContractStatus',
-);
-
-// NFTs Section
-const mintButton = document.getElementById('mintButton');
-const watchNFTsButton = document.getElementById('watchNFTsButton');
-const watchNFTButtons = document.getElementById('watchNFTButtons');
-
-const mintAmountInput = document.getElementById('mintAmountInput');
-const approveTokenInput = document.getElementById('approveTokenInput');
-const approveButton = document.getElementById('approveButton');
-const watchNFTInput = document.getElementById('watchNFTInput');
-const watchNFTButton = document.getElementById('watchNFTButton');
-const setApprovalForAllButton = document.getElementById(
-  'setApprovalForAllButton',
-);
-const revokeButton = document.getElementById('revokeButton');
-const transferTokenInput = document.getElementById('transferTokenInput');
-const transferFromButton = document.getElementById('transferFromButton');
-const nftsStatus = document.getElementById('nftsStatus');
-const erc721TokenAddresses = document.getElementById('erc721TokenAddresses');
-// 721 Permit
-const sign721Permit = document.getElementById('sign721Permit');
-
-// ERC 1155 Section
-const batchMintTokenIds = document.getElementById('batchMintTokenIds');
-const batchMintIdAmounts = document.getElementById('batchMintIdAmounts');
-const batchMintButton = document.getElementById('batchMintButton');
-const batchTransferTokenIds = document.getElementById('batchTransferTokenIds');
-const batchTransferTokenAmounts = document.getElementById(
-  'batchTransferTokenAmounts',
-);
-const batchTransferFromButton = document.getElementById(
-  'batchTransferFromButton',
-);
-const setApprovalForAllERC1155Button = document.getElementById(
-  'setApprovalForAllERC1155Button',
-);
-const revokeERC1155Button = document.getElementById('revokeERC1155Button');
-const watchAssetInput = document.getElementById('watchAssetInput');
-const watchAssetButton = document.getElementById('watchAssetButton');
-const erc1155Status = document.getElementById('erc1155Status');
-const erc1155TokenAddresses = document.getElementById('erc1155TokenAddresses');
-
-// Send Tokens Section
-const approveTokensToInput = document.getElementById('approveTo');
-const transferFromSenderInput = document.getElementById(
-  'transferFromSenderInput',
-);
-const transferFromRecipientInput = document.getElementById(
-  'transferFromRecipientInput',
-);
-const erc20TokenAddresses = document.getElementById('erc20TokenAddresses');
-const watchAssets = document.getElementById('watchAssets');
-const transferTokens = document.getElementById('transferTokens');
-const transferFromTokens = document.getElementById('transferFromTokens');
-const approveTokens = document.getElementById('approveTokens');
-const increaseTokenAllowance = document.getElementById(
-  'increaseTokenAllowance',
-);
-const allowanceOwnerInput = document.getElementById('allowanceOwner');
-const allowanceSpenderInput = document.getElementById('allowanceSpender');
-const allowanceAmountResult = document.getElementById('allowanceAmountResult');
-const getAllowance = document.getElementById('getAllowance');
-const transferTokensWithoutGas = document.getElementById(
-  'transferTokensWithoutGas',
-);
-const approveTokensWithoutGas = document.getElementById(
-  'approveTokensWithoutGas',
-);
-
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
 const ppomRow = document.createElement('div');
@@ -818,68 +739,8 @@ const updateOnboardElements = () => {
 
 const updateContractElements = () => {
   if (globalContext.deployedContractAddress) {
-    // Piggy bank contract
-    contractStatus.innerHTML = 'Deployed';
-    depositButton.disabled = false;
-    withdrawButton.disabled = false;
-    // Failing contract
-    failingContractStatus.innerHTML = 'Deployed';
-    sendFailingButton.disabled = false;
-    // Multisig contract
-    multisigContractStatus.innerHTML = 'Deployed';
-    sendMultisigButton.disabled = false;
-    // ERC721 Token - NFTs contract
-    erc721TokenAddresses.innerHTML = globalContext.nftsContract
-      ? globalContext.nftsContract.address
-      : '';
-    nftsStatus.innerHTML = 'Deployed';
-    mintButton.disabled = false;
-    sign721Permit.disabled = false;
-    mintAmountInput.disabled = false;
-    approveTokenInput.disabled = false;
-    approveButton.disabled = false;
-    watchNFTInput.disabled = false;
-    watchNFTButton.disabled = false;
-    setApprovalForAllButton.disabled = false;
-    revokeButton.disabled = false;
-    transferTokenInput.disabled = false;
-    transferFromButton.disabled = false;
-    watchNFTsButton.disabled = false;
-    watchNFTButtons.innerHTML = '';
-
-    // ERC 1155 Multi Token
-    erc1155TokenAddresses.innerHTML = globalContext.erc1155Contract
-      ? globalContext.erc1155Contract.address
-      : '';
-    erc1155Status.innerHTML = 'Deployed';
-    batchMintButton.disabled = false;
-    batchMintTokenIds.disabled = false;
-    batchMintIdAmounts.disabled = false;
-    batchTransferTokenIds.disabled = false;
-    batchTransferTokenAmounts.disabled = false;
-    batchTransferFromButton.disabled = false;
-    setApprovalForAllERC1155Button.disabled = false;
-    revokeERC1155Button.disabled = false;
-    watchAssetInput.disabled = false;
-    watchAssetButton.disabled = false;
-    // ERC20 Token - Send Tokens
-    erc20TokenAddresses.innerHTML = globalContext.hstContract
-      ? globalContext.hstContract.address
-      : '';
-    watchAssets.disabled = false;
-    transferTokens.disabled = false;
-    transferFromTokens.disabled = false;
-    approveTokens.disabled = false;
-    increaseTokenAllowance.disabled = false;
-    allowanceOwnerInput.disabled = false;
-    allowanceSpenderInput.disabled = false;
-    allowanceAmountResult.disabled = false;
-    getAllowance.disabled = false;
-    transferTokensWithoutGas.disabled = false;
-    approveTokensWithoutGas.disabled = false;
-    transferFromSenderInput.disabled = false;
-    approveTokensToInput.disabled = false;
-    transferFromRecipientInput.disabled = false;
+    const changeEvent = new Event('contractIsDeployed');
+    document.dispatchEvent(changeEvent);
   }
 };
 

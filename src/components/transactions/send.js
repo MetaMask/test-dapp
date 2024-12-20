@@ -175,6 +175,19 @@ export function sendComponent(parentContainer) {
     sendMultisigButton.disabled = true;
   });
 
+  document.addEventListener('contractIsDeployed', function () {
+    // Piggy bank contract
+    contractStatus.innerHTML = 'Deployed';
+    depositButton.disabled = false;
+    withdrawButton.disabled = false;
+    // Failing contract
+    failingContractStatus.innerHTML = 'Deployed';
+    sendFailingButton.disabled = false;
+    // Multisig contract
+    multisigContractStatus.innerHTML = 'Deployed';
+    sendMultisigButton.disabled = false;
+  });
+
   document.addEventListener('blockBaseFeePerGasUpdate', function (e) {
     if (e.detail.supported) {
       sendEIP1559Button.disabled = false;

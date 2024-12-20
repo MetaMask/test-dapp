@@ -239,6 +239,27 @@ export function erc20Component(parentContainer) {
     tokenMethodsResult.value = '';
   });
 
+  document.addEventListener('contractIsDeployed', function () {
+    // ERC20 Token - Send Tokens
+    erc20TokenAddresses.innerHTML = globalContext.hstContract
+      ? globalContext.hstContract.address
+      : '';
+    watchAssets.disabled = false;
+    transferTokens.disabled = false;
+    transferFromTokens.disabled = false;
+    approveTokens.disabled = false;
+    increaseTokenAllowance.disabled = false;
+    allowanceOwnerInput.disabled = false;
+    allowanceSpenderInput.disabled = false;
+    allowanceAmountResult.disabled = false;
+    getAllowance.disabled = false;
+    transferTokensWithoutGas.disabled = false;
+    approveTokensWithoutGas.disabled = false;
+    transferFromSenderInput.disabled = false;
+    approveTokensToInput.disabled = false;
+    transferFromRecipientInput.disabled = false;
+  });
+
   /**
    * ERC20 Token
    */

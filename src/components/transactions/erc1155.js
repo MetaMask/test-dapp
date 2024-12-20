@@ -174,6 +174,24 @@ export function erc1155Component(parentContainer) {
     batchTransferTokenAmounts.value = '';
   });
 
+  document.addEventListener('contractIsDeployed', function () {
+    // ERC 1155 Multi Token
+    erc1155TokenAddresses.innerHTML = globalContext.erc1155Contract
+      ? globalContext.erc1155Contract.address
+      : '';
+    erc1155Status.innerHTML = 'Deployed';
+    batchMintButton.disabled = false;
+    batchMintTokenIds.disabled = false;
+    batchMintIdAmounts.disabled = false;
+    batchTransferTokenIds.disabled = false;
+    batchTransferTokenAmounts.disabled = false;
+    batchTransferFromButton.disabled = false;
+    setApprovalForAllERC1155Button.disabled = false;
+    revokeERC1155Button.disabled = false;
+    watchAssetInput.disabled = false;
+    watchAssetButton.disabled = false;
+  });
+
   /**
    * ERC1155 Token
    */
