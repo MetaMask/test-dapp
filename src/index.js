@@ -144,11 +144,6 @@ const useWindowProviderButton = document.getElementById(
   'useWindowProviderButton',
 );
 
-// Basic Actions Section
-const onboardButton = document.getElementById('connectButton');
-const walletConnectBtn = document.getElementById('walletConnect');
-const sdkConnectBtn = document.getElementById('sdkConnect');
-
 // Dapp Status Section
 const networkDiv = document.getElementById('network');
 const chainIdDiv = document.getElementById('chainId');
@@ -165,6 +160,11 @@ connectionsRow.className = 'row d-flex justify-content-center';
 connectionsSection.appendChild(connectionsRow);
 connectionsComponent(connectionsRow);
 permissionsComponent(connectionsRow);
+
+// Connection buttons set up by this file
+const onboardButton = document.getElementById('connectButton');
+const walletConnectBtn = document.getElementById('walletConnect');
+const sdkConnectBtn = document.getElementById('sdkConnect');
 
 const transactionsSection = document.createElement('section');
 mainContainer.appendChild(transactionsSection);
