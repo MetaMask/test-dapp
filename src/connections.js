@@ -1,5 +1,5 @@
 import { MetaMaskSDK } from '@metamask/sdk';
-import {
+import globalContext, {
   handleNewAccounts,
   handleNewProviderDetail,
   removeProviderDetail,
@@ -101,6 +101,7 @@ export async function handleWalletConnect(name, button, isConnected) {
     button.innerText = 'Wallet Connect';
     button.classList.add('btn-primary');
     button.classList.remove('btn-danger');
+    globalContext.connected = false;
   } else {
     const { provider } = walletConnect.getWalletProvider();
     const uuid = provider.signer.uri;
@@ -123,4 +124,5 @@ export async function handleWalletConnect(name, button, isConnected) {
       console.error('Error on init when getting accounts', err);
     }
   }
+  globalContext.connected = true;
 }
