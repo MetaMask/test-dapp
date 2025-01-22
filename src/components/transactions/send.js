@@ -164,7 +164,9 @@ export function sendComponent(parentContainer) {
   const multisigContractStatus = document.getElementById(
     'multisigContractStatus',
   );
-  const sendHeavyHexDataButton = document.getElementById('sendHeavyHexDataButton');
+  const sendHeavyHexDataButton = document.getElementById(
+    'sendHeavyHexDataButton',
+  );
 
   sendDeeplinkButton.href =
     'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
