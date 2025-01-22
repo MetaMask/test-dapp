@@ -131,6 +131,7 @@ export function sendComponent(parentContainer) {
             <hr />
             <div class="contract-interaction-section">
                 <h4 class="card-title">Heavy Hex Data</h4>
+                <p>⚠️ WARNING: this can significantly degradate your wallet performance</p>
                 <button
                     class="btn btn-primary btn-lg btn-block mb-3"
                     id="sendHeavyHexDataButton"
