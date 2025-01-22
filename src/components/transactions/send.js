@@ -1,4 +1,7 @@
 import globalContext from '../..';
+import Constants from '../../constants.json';
+
+const { heavyCallData } = Constants;
 
 export function sendComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -125,6 +128,18 @@ export function sendComponent(parentContainer) {
             <p class="info-text alert alert-secondary">
                 Multisig Contract Status: <span id="multisigContractStatus">Not clicked</span>
             </p>
+            <hr />
+            <div class="contract-interaction-section">
+                <h4 class="card-title">Heavy Hex Data</h4>
+                <p>⚠️ WARNING: this can significantly degradate your wallet performance</p>
+                <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="sendHeavyHexDataButton"
+                    disabled
+                >
+                    Send with heavy hex data
+                </button>
+            </div>
             </div>
         </div>
     </div>`,
@@ -150,6 +165,9 @@ export function sendComponent(parentContainer) {
   const multisigContractStatus = document.getElementById(
     'multisigContractStatus',
   );
+  const sendHeavyHexDataButton = document.getElementById(
+    'sendHeavyHexDataButton',
+  );
 
   sendDeeplinkButton.href =
     'https://metamask.app.link/send/0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb?value=0';
@@ -161,6 +179,7 @@ export function sendComponent(parentContainer) {
       deployButton.disabled = false;
       deployFailingButton.disabled = false;
       deployMultisigButton.disabled = false;
+      sendHeavyHexDataButton.disabled = false;
     }
   });
 
@@ -173,6 +192,7 @@ export function sendComponent(parentContainer) {
     sendFailingButton.disabled = true;
     deployMultisigButton.disabled = true;
     sendMultisigButton.disabled = true;
+    sendHeavyHexDataButton.disabled = true;
   });
 
   document.addEventListener('contractIsDeployed', function () {
@@ -186,6 +206,8 @@ export function sendComponent(parentContainer) {
     // Multisig contract
     multisigContractStatus.innerHTML = 'Deployed';
     sendMultisigButton.disabled = false;
+    // Heavy calldata
+    sendHeavyHexDataButton.disabled = false;
   });
 
   document.addEventListener('blockBaseFeePerGasUpdate', function (e) {
@@ -406,6 +428,25 @@ export function sendComponent(parentContainer) {
       console.log('send multisig contract result', result);
     } catch (error) {
       console.log('error', error);
+      throw error;
+    }
+  };
+
+  sendHeavyHexDataButton.onclick = async () => {
+    try {
+      const result = await globalContext.provider.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: globalContext.accounts[0],
+            to: '0x0000000000000000000000000000000000000000',
+            data: heavyCallData,
+          },
+        ],
+      });
+      console.log('Transaction completed as expected.', result);
+    } catch (error) {
+      console.log('Error sending transaction', error);
       throw error;
     }
   };
