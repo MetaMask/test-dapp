@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multichain API EVM Bridging Demo Dapp</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        svg {
+            width: 100vw;
+            height: 100vh;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .floating-div {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            background-color: lightgray;
+            z-index: 1;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Div -->
+    <div class="floating-div">
+        <input type="text" id="connectExtensionInput" value="nonfpcflonapegmnfeafnddgdniflbnk" />
+        <br>
+        <button id="connectExtensionButton">Connect Extension</button>
+        <button id="connectButton">Connect Wallet</button>
+        <br><br>
+        <a href="https://chainlist.org/chain/11155111" target="_blank">Sepolia</a>
+        <br>
+        <a href="https://chainlist.org/chain/59141" target="_blank">Linea Sepolia</a>
+        <br>
+        <a href="https://chainlist.org/chain/421614" target="_blank">Arbitrum Sepolia</a>
+        <br>
+        <a href="https://chainlist.org/chain/11155420" target="_blank">OP Sepolia</a>
+        <br>
+        <a href="https://chainlist.org/chain/168587773" target="_blank">Blast Sepolia</a>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-text"></div>
+        </div>
+    </div>
+
+    <script src="multichain_demo.js" defer></script>
+</body>
+</html>
