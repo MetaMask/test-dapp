@@ -12,6 +12,10 @@ textarea {
   font-size: 1.1em;
 }
 
+.wrap {
+  white-space: pre-wrap;
+}
+
 .full-width {
   width: 100%;
 }
