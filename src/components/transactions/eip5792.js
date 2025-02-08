@@ -19,7 +19,7 @@ export function eip5792Component(parentContainer) {
           </button>
 
           <p class="info-text alert alert-success">
-            Call ID: <span id="eip5792CallId"></span>
+            <span id="eip5792CallId"></span>
           </p>
 
           <button
@@ -55,34 +55,38 @@ export function eip5792Component(parentContainer) {
   document.addEventListener('disableAndClear', function () {
     sendCallsButton.disabled = true;
     getCallsStatusButton.disabled = true;
-    callId.innerHTML = '';
+    callId.innerHTML = 'Call ID: ';
     callStatus.innerHTML = '';
   });
 
   sendCallsButton.onclick = async () => {
-    const result = await globalContext.provider.request({
-      method: 'wallet_sendCalls',
-      params: [
-        {
-          version: '1.0',
-          from: globalContext.accounts[0],
-          calls: [
-            {
-              to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
-              data: '0x654365436543',
-              value: '0x1234123412341234',
-            },
-            {
-              to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-              data: '0x789078907890',
-              value: '0x4321432143214321',
-            },
-          ],
-        },
-      ],
-    });
+    try {
+      const result = await globalContext.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            version: '1.0',
+            from: globalContext.accounts[0],
+            calls: [
+              {
+                to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
+                data: '0x654365436543',
+                value: '0x1234123412341234',
+              },
+              {
+                to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+                data: '0x789078907890',
+                value: '0x4321432143214321',
+              },
+            ],
+          },
+        ],
+      });
 
-    callId.innerHTML = result;
+      callId.innerHTML = `Call ID: ${result}`;
+    } catch (error) {
+      callId.innerHTML = `Error: ${error.message}`;
+    }
   };
 
   getCallsStatusButton.onclick = async () => {
