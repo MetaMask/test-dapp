@@ -96,6 +96,29 @@ export function eip5792Component(parentContainer) {
             <span class="wrap">Status:\n</span><span class="wrap" id="eip5792CallStatus"></span>
           </p>
 
+          <hr/>
+
+          <div class="form-group">
+            <label>Account</label>
+            <input
+              class="form-control"
+              type="text"
+              id="eip5792Account"
+              />
+          </div>
+
+          <button
+            class="btn btn-primary btn-lg btn-block mb-3"
+            id="eip5792GetCapabilities"
+            disabled
+          >
+            Get Capabilities
+          </button>
+
+          <p class="info-text alert alert-success">
+            </span><span class="wrap" id="eip5792GetCapabilitiesResult">Status: </span>
+          </p>
+
         </div>
       </div>
     </div>`,
@@ -103,6 +126,9 @@ export function eip5792Component(parentContainer) {
 
   const sendCallsButton = document.getElementById('sendCalls');
   const getCallsStatusButton = document.getElementById('getCallsStatus');
+  const getCapabilitiesButton = document.getElementById(
+    'eip5792GetCapabilities',
+  );
   const callId = document.getElementById('eip5792CallId');
   const callStatus = document.getElementById('eip5792CallStatus');
   const editSendCallsButton = document.getElementById('sendCallsEdit');
@@ -116,6 +142,10 @@ export function eip5792Component(parentContainer) {
     'eip5792SendCallsErrorContainer',
   );
   const sendCallsError = document.getElementById('eip5792SendCallsError');
+  const getCapabilitiesAccount = document.getElementById('eip5792Account');
+  const getCapbilitiesResult = document.getElementById(
+    'eip5792GetCapabilitiesResult',
+  );
 
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
@@ -123,6 +153,8 @@ export function eip5792Component(parentContainer) {
       editSendCallsButton.disabled = false;
       sendCallsButton.disabled = false;
       getCallsStatusButton.disabled = false;
+      getCapabilitiesButton.disabled = false;
+      getCapabilitiesAccount.value = globalContext.accounts[0];
     }
   });
 
@@ -131,6 +163,7 @@ export function eip5792Component(parentContainer) {
     editSendCallsButton.disabled = true;
     sendCallsButton.disabled = true;
     getCallsStatusButton.disabled = true;
+    getCapabilitiesButton.disabled = true;
     callId.value = '';
     callStatus.innerHTML = '';
   });
@@ -184,6 +217,21 @@ export function eip5792Component(parentContainer) {
 
   addCallButton.onclick = () => {
     addCallInputs(calls);
+  };
+
+  getCapabilitiesButton.onclick = async () => {
+    try {
+      const account = getCapabilitiesAccount.value;
+
+      const result = await globalContext.provider.request({
+        method: 'wallet_getCapabilities',
+        params: [account],
+      });
+
+      getCapbilitiesResult.innerHTML = JSON.stringify(result, null, 2);
+    } catch (error) {
+      getCapbilitiesResult.innerHTML = `Error: ${error.message}`;
+    }
   };
 }
 
