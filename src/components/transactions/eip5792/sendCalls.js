@@ -4,12 +4,12 @@ const DEFAULT_CALLS = [
   {
     to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
     data: '0x654365436543',
-    value: '0x1234123412341234',
+    value: '0x3B9ACA00', // 1 Gwei
   },
   {
-    to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    to: '0xbc2114a988e9CEf5bA63548D432024f34B487048',
     data: '0x789078907890',
-    value: '0x4321432143214321',
+    value: '0x1DCD6500', // 0.5 Gwei
   },
 ];
 
