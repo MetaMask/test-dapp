@@ -20,6 +20,7 @@ module.exports = {
   devtool: 'eval-source-map',
   mode: 'development',
   entry: {
+    multichain_demo: './src/multichain_demo.js',
     main: './src/index.js',
     request: './src/request.js',
   },
