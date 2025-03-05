@@ -34,6 +34,9 @@
     "url": "https://github.com/MetaMask/test-dapp/issues"
   },
   "homepage": "https://metamask.github.io/test-dapp",
+  "resolutions": {
+    "elliptic": "^6.6.1"
+  },
   "dependencies": {},
   "devDependencies": {
     "@lavamoat/allow-scripts": "^2.5.1",
