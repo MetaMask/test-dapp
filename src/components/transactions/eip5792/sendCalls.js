@@ -128,7 +128,7 @@ export function sendCallsComponent(parentContainer) {
         params: [getParams()],
       });
 
-      document.getElementById('eip5792RequestIdInput').value = result;
+      document.getElementById('eip5792RequestIdInput').value = result.id;
       errorContainer.hidden = true;
       errorOutput.innerHTML = '';
     } catch (error) {
