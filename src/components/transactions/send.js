@@ -1,5 +1,6 @@
 import globalContext from '../..';
 import Constants from '../../constants.json';
+import { MIN_GAS_LIMIT } from '../../shared/constants';
 
 const { heavyCallData } = Constants;
 
@@ -255,7 +256,7 @@ export function sendComponent(parentContainer) {
           from: globalContext.accounts[0],
           to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
           value: '0x0',
-          gasLimit: '0x5028',
+          gasLimit: MIN_GAS_LIMIT,
           maxFeePerGas: '0x2540be400',
           maxPriorityFeePerGas: '0x3b9aca00',
         },
@@ -367,7 +368,7 @@ export function sendComponent(parentContainer) {
             from: globalContext.accounts[0],
             to: contract.address,
             value: '0x0',
-            gasLimit: '0x5028',
+            gasLimit: MIN_GAS_LIMIT,
             maxFeePerGas: '0x2540be400',
             maxPriorityFeePerGas: '0x3b9aca00',
           },
@@ -418,7 +419,7 @@ export function sendComponent(parentContainer) {
             from: globalContext.accounts[0],
             to: contract.address,
             value: '0x16345785D8A0', // 24414062500000
-            gasLimit: '0x5028',
+            gasLimit: MIN_GAS_LIMIT,
             maxFeePerGas: '0x2540be400',
             maxPriorityFeePerGas: '0x3b9aca00',
           },
