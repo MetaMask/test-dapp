@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [9.2.0]
+### Changed
+- Support updated send calls result ([#396](https://github.com/MetaMask/test-dapp/pull/396))
+- chore: add workflow_dispatch to security-code-scanner ([#392](https://github.com/MetaMask/test-dapp/pull/392))
+- Set yarn resolution for `elliptic@^6.6.1` ([#393](https://github.com/MetaMask/test-dapp/pull/393))
+
+### Fixed
+- fix: Increase hardcoded gas limit ([#397](https://github.com/MetaMask/test-dapp/pull/397))
+
 ## [9.1.0]
 ### Added
 - feat: add EIP-5792 section ([#388](https://github.com/MetaMask/test-dapp/pull/388))
@@ -240,7 +249,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v9.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v9.2.0...HEAD
+[9.2.0]: https://github.com/MetaMask/test-dapp/compare/v9.1.0...v9.2.0
 [9.1.0]: https://github.com/MetaMask/test-dapp/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/MetaMask/test-dapp/compare/v8.13.0...v9.0.0
 [8.13.0]: https://github.com/MetaMask/test-dapp/compare/v8.12.0...v8.13.0
