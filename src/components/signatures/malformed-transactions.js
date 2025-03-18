@@ -1,4 +1,5 @@
 import globalContext from '../..';
+import { MIN_GAS_LIMIT } from '../../shared/constants';
 
 // Malformed Signatues
 
@@ -219,7 +220,7 @@ export function malformedTransactionsComponent(parentContainer) {
             from,
             to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
             value: '0x0',
-            gasLimit: '0x5028',
+            gasLimit: MIN_GAS_LIMIT,
             maxFeePerGas: 'invalid', // invalid maxFeePerGas - expected int/hex value
             maxPriorityFeePerGas: '0x3b9aca00',
           },

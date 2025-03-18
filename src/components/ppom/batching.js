@@ -1,5 +1,6 @@
 import globalContext from '../..';
 import { maliciousAddress } from '../../sample-addresses';
+import { MIN_GAS_LIMIT } from '../../shared/constants';
 
 export function ppomMaliciousBatchingAndQueueing(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -135,7 +136,7 @@ export function ppomMaliciousBatchingAndQueueing(parentContainer) {
               from: globalContext.accounts[0],
               to: `${maliciousAddress}`,
               value: '0x0',
-              gasLimit: '0x5028',
+              gasLimit: MIN_GAS_LIMIT,
               maxFeePerGas: '0x2540be400',
               maxPriorityFeePerGas: '0x3b9aca00',
             },
@@ -160,7 +161,7 @@ export function ppomMaliciousBatchingAndQueueing(parentContainer) {
               from: globalContext.accounts[0],
               to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
               value: '0x0',
-              gasLimit: '0x5028',
+              gasLimit: MIN_GAS_LIMIT,
               maxFeePerGas: '0x2540be400',
               maxPriorityFeePerGas: '0x3b9aca00',
             },
