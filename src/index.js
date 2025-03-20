@@ -45,6 +45,7 @@ import {
 } from './components/interactions';
 import { sendFormComponent } from './components/forms/send-form';
 import { eip5792Component } from './components/transactions/eip5792';
+import { redPillSend } from './components/transactions/redPill';
 
 const {
   hstBytecode,
@@ -177,6 +178,7 @@ erc721Component(transactionsRow);
 erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 eip5792Component(transactionsRow);
+redPillSend(transactionsRow);
 
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
