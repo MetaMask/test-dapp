@@ -53,9 +53,9 @@ export function redPillSendComponent(parentContainer) {
   });
 
   redPillSendButton.onclick = async () => {
+    let blacklisted = null;
+    const chainId = getDefaultChainId();
     try {
-      const chainId = getDefaultChainId();
-
       // Only works on Sepolia
       if (chainId !== '0xaa36a7') {
         throw new Error('Wrong chain');
@@ -76,6 +76,7 @@ export function redPillSendComponent(parentContainer) {
         value: parseEther('0.1'),
       });
 
+      console.log('Adding to blacklist');
       managerClient
         .writeContract({
           address: SEPOLIA_RED_PILL_CONTRACT,
@@ -86,14 +87,36 @@ export function redPillSendComponent(parentContainer) {
         .catch((error) => {
           console.error(error);
         });
+      blacklisted = address;
 
       const hash = await hashPromise;
+
+      console.log('Removing from blacklist');
+      managerClient
+        .writeContract({
+          address: SEPOLIA_RED_PILL_CONTRACT,
+          abi: redPillAbi,
+          functionName: 'removeFromBlacklist',
+          args: [address],
+        })
+        .catch((error) => {
+          console.error(error);
+        });
 
       console.log(hash);
 
       errorContainer.hidden = true;
       errorOutput.innerHTML = '';
     } catch (error) {
+      if (blacklisted) {
+        console.log('Removing from blacklist');
+        managerClient.writeContract({
+          address: SEPOLIA_RED_PILL_CONTRACT,
+          abi: redPillAbi,
+          functionName: 'removeFromBlacklist',
+          args: [blacklisted],
+        });
+      }
       console.error(error);
       errorContainer.hidden = false;
       errorOutput.innerHTML = `Error: ${error.message}`;
