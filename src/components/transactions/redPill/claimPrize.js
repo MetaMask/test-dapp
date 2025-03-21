@@ -90,24 +90,15 @@ export function redPillSendComponent(parentContainer) {
       blacklisted = address;
 
       const hash = await hashPromise;
-
-      console.log('Removing from blacklist');
-      managerClient
-        .writeContract({
-          address: SEPOLIA_RED_PILL_CONTRACT,
-          abi: redPillAbi,
-          functionName: 'removeFromBlacklist',
-          args: [address],
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-
       console.log(hash);
 
       errorContainer.hidden = true;
       errorOutput.innerHTML = '';
     } catch (error) {
+      console.error(error);
+      errorContainer.hidden = false;
+      errorOutput.innerHTML = `Error: ${error.message}`;
+    } finally {
       if (blacklisted) {
         console.log('Removing from blacklist');
         managerClient.writeContract({
@@ -117,9 +108,6 @@ export function redPillSendComponent(parentContainer) {
           args: [blacklisted],
         });
       }
-      console.error(error);
-      errorContainer.hidden = false;
-      errorOutput.innerHTML = `Error: ${error.message}`;
     }
   };
 }
