@@ -1,7 +1,6 @@
 import { recoverTypedSignature } from '@metamask/eth-sig-util';
 import { toChecksumAddress } from 'ethereumjs-util';
 import globalContext from '../..';
-import { EIP712Domain } from '../../signatures/utils';
 
 export function signTypedDataV4WithSaltComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
