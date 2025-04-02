@@ -190,7 +190,28 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
       },
       primaryType: 'Mail',
       types: {
-        EIP712Domain,
+        EIP712Domain: [
+          {
+            name: 'name',
+            type: 'string',
+          },
+          {
+            name: 'version',
+            type: 'string',
+          },
+          {
+            name: 'chainId',
+            type: 'uint256',
+          },
+          {
+            name: 'verifyingContract',
+            type: 'string',
+          },
+          {
+            name: 'salt',
+            type: 'string',
+          },
+        ],
         Group: [
           { name: 'name', type: 'string' },
           { name: 'members', type: 'Person[]' },
