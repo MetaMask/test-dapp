@@ -1,10 +1,6 @@
 import globalContext from '../..';
-import { maliciousAddress } from '../../sample-addresses';
 import { DEFAULT_CALLS } from '../transactions/eip5792/sendCalls';
-import {
-  ERC20_SAMPLE_CONTRACTS,
-  ERC721_SAMPLE_CONTRACTS,
-} from '../../onchain-sample-contracts';
+import { getMaliciousTransactions } from './sharedConstants';
 
 export function ppomMaliciousSendCalls(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -26,6 +22,9 @@ export function ppomMaliciousSendCalls(parentContainer) {
           </button>
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousSetApprovalForAllButton">
             Send Calls with Malicious Set Approval for All (USDC)
+          </button>
+          <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousContractInteractionButton">
+            Send Calls with Malicious Contract Interaction
           </button>
           <hr/>
           <div id="ppomRequestIdContainer" hidden>
@@ -62,36 +61,32 @@ export function ppomMaliciousSendCalls(parentContainer) {
       await sendMaliciousCalls('setApprovalForAll');
     };
 
+  document.getElementById(
+    'ppomSendMaliciousContractInteractionButton',
+  ).onclick = async () => {
+    await sendMaliciousCalls('maliciousContractInteraction');
+  };
+
   async function sendMaliciousCalls(type) {
+    const maliciousTransactions = getMaliciousTransactions(globalContext);
+
     const calls = [];
 
     switch (type) {
       case 'eth':
-        calls.push({
-          to: maliciousAddress,
-          value: '0x9184e72a000',
-        });
+        calls.push(maliciousTransactions.eth); // Use the imported transaction data
         break;
       case 'erc20Transfer':
-        calls.push({
-          to: ERC20_SAMPLE_CONTRACTS[globalContext.networkName],
-          data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064', // Malicious ERC20 transfer data
-          value: '0x0',
-        });
+        calls.push(maliciousTransactions.erc20Transfer);
         break;
       case 'erc20Approval':
-        calls.push({
-          to: ERC20_SAMPLE_CONTRACTS[globalContext.networkName],
-          data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff', // Malicious ERC20 approval data
-          value: '0x0',
-        });
+        calls.push(maliciousTransactions.erc20Approval);
+        break;
+      case 'maliciousContractInteraction':
+        calls.push(maliciousTransactions.maliciousContractInteraction);
         break;
       case 'setApprovalForAll':
-        calls.push({
-          to: ERC721_SAMPLE_CONTRACTS[globalContext.networkName],
-          data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001', // Malicious set approval for all data
-          value: '0x0',
-        });
+        calls.push(maliciousTransactions.setApprovalForAll);
         break;
       default:
         // Do nothing

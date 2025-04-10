@@ -1,11 +1,8 @@
 import globalContext from '../..';
 import { maliciousAddress } from '../../sample-addresses';
-import {
-  ERC20_SAMPLE_CONTRACTS,
-  ERC721_SAMPLE_CONTRACTS,
-  MALICIOUS_CONTRACT_ADDRESSES,
-} from '../../onchain-sample-contracts';
-import { isBaseNetworkId, isSepoliaNetworkId } from '../../utils';
+import { MALICIOUS_CONTRACT_ADDRESSES } from '../../onchain-sample-contracts';
+import { isSepoliaNetworkId } from '../../utils';
+import { getMaliciousTransactions } from './sharedConstants';
 
 export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -139,11 +136,9 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   document.addEventListener('newNetwork', function (e) {
     mintSepoliaERC20.hidden = !isSepoliaNetworkId(e.detail.networkId);
-    maliciousContractInteractionButton.hidden =
-      isBaseNetworkId(e.detail.networkId) ||
-      isSepoliaNetworkId(e.detail.networkId);
   });
 
+  const maliciousTransactions = getMaliciousTransactions(globalContext);
   // Malicious raw ETH transfer
   maliciousRawEthButton.onclick = async () => {
     const result = await globalContext.provider.request({
@@ -151,8 +146,8 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
       params: [
         {
           from: globalContext.accounts[0],
-          to: `${maliciousAddress}`,
-          value: '0x9184e72a000',
+          to: maliciousTransactions.eth.to,
+          value: maliciousTransactions.eth.value,
         },
       ],
     });
@@ -183,21 +178,14 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious ERC20 transfer
   maliciousERC20TransferButton.onclick = async () => {
-    let erc20Contract;
-
-    if (globalContext.networkName) {
-      erc20Contract = ERC20_SAMPLE_CONTRACTS[globalContext.networkName];
-    } else {
-      erc20Contract = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-    }
-
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: globalContext.accounts[0],
-          to: erc20Contract,
-          data: '0xa9059cbb0000000000000000000000005fbdb2315678afecb367f032d93f642f64180aa30000000000000000000000000000000000000000000000000000000000000064',
+          to: maliciousTransactions.erc20Transfer.to,
+          data: maliciousTransactions.erc20Transfer.data,
+          value: maliciousTransactions.erc20Transfer.value,
         },
       ],
     });
@@ -206,20 +194,14 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
-    let erc20Contract;
-
-    if (globalContext.networkName) {
-      erc20Contract = ERC20_SAMPLE_CONTRACTS[globalContext.networkName];
-    } else {
-      erc20Contract = '0x4fabb145d64652a948d72533023f6e7a623c7c53';
-    }
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: globalContext.accounts[0],
-          to: erc20Contract,
-          data: '0x095ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+          to: maliciousTransactions.erc20Approval.to,
+          data: maliciousTransactions.erc20Approval.data,
+          value: maliciousTransactions.erc20Approval.value,
         },
       ],
     });
@@ -248,21 +230,14 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious Set Approval For All
   maliciousSetApprovalForAll.onclick = async () => {
-    let erc721Contract;
-
-    if (globalContext.networkName) {
-      erc721Contract = ERC721_SAMPLE_CONTRACTS[globalContext.networkName];
-    } else {
-      erc721Contract = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
-    }
-
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
         {
           from: globalContext.accounts[0],
-          to: erc721Contract,
-          data: '0xa22cb465000000000000000000000000b85492afc686d5ca405e3cd4f50b05d358c75ede0000000000000000000000000000000000000000000000000000000000000001',
+          to: maliciousTransactions.setApprovalForAll.to,
+          data: maliciousTransactions.setApprovalForAll.data,
+          value: maliciousTransactions.setApprovalForAll.value,
         },
       ],
     });
