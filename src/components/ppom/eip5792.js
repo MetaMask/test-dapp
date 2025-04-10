@@ -18,10 +18,10 @@ export function ppomMaliciousSendCalls(parentContainer) {
             Send Calls with Malicious ERC20 Transfer (USDC)
           </button>
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousERC20ApprovalButton">
-            Send Calls with Malicious ERC20 Approval (USDC)
+            Send Calls with Malicious ERC20 Approval (BUSDC)
           </button>
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousSetApprovalForAllButton">
-            Send Calls with Malicious Set Approval for All (USDC)
+            Send Calls with Malicious Set Approval for All
           </button>
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousContractInteractionButton">
             Send Calls with Malicious Contract Interaction
