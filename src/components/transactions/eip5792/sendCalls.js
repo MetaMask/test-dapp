@@ -2,7 +2,7 @@ import globalContext from '../../..';
 
 const VERSION = '1.0';
 
-const DEFAULT_CALLS = [
+export const DEFAULT_CALLS = [
   {
     to: '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb',
     data: '0x654365436543',

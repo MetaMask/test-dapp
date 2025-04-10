@@ -20,6 +20,7 @@ import {
   erc721Component,
 } from './components/transactions';
 import {
+  ppomMaliciousSendCalls,
   ppomMaliciousTransactionsAndSignatures,
   ppomMaliciousBatchingAndQueueing,
   ppomMaliciousWarningBypasses,
@@ -177,6 +178,10 @@ erc721Component(transactionsRow);
 erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 eip5792Component(transactionsRow);
+
+const ppomEip5792Section = document.createElement('section');
+mainContainer.appendChild(ppomEip5792Section);
+ppomMaliciousSendCalls(ppomEip5792Section);
 
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
