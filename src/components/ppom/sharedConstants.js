@@ -1,4 +1,3 @@
-// src/components/ppom/sharedConstants.js
 import { maliciousAddress } from '../../sample-addresses';
 import {
   ERC20_SAMPLE_CONTRACTS,
@@ -7,7 +6,7 @@ import {
 } from '../../onchain-sample-contracts';
 
 export const getMaliciousTransactions = (globalContext) => {
-  const networkName = globalContext.networkName || 'default'; // Fallback to 'default' if networkName is not set
+  const networkName = globalContext.networkName || 'default';
 
   return {
     eth: {

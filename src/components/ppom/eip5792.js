@@ -74,7 +74,7 @@ export function ppomMaliciousSendCalls(parentContainer) {
 
     switch (type) {
       case 'eth':
-        calls.push(maliciousTransactions.eth); // Use the imported transaction data
+        calls.push(maliciousTransactions.eth);
         break;
       case 'erc20Transfer':
         calls.push(maliciousTransactions.erc20Transfer);
