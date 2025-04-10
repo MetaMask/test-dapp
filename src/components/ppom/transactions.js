@@ -138,9 +138,9 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     mintSepoliaERC20.hidden = !isSepoliaNetworkId(e.detail.networkId);
   });
 
-  const maliciousTransactions = getMaliciousTransactions(globalContext);
   // Malicious raw ETH transfer
   maliciousRawEthButton.onclick = async () => {
+    const maliciousTransactions = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
@@ -178,6 +178,7 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious ERC20 transfer
   maliciousERC20TransferButton.onclick = async () => {
+    const maliciousTransactions = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
@@ -194,6 +195,7 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
+    const maliciousTransactions = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
@@ -230,6 +232,8 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious Set Approval For All
   maliciousSetApprovalForAll.onclick = async () => {
+    const maliciousTransactions = getMaliciousTransactions(globalContext);
+
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
       params: [
