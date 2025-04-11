@@ -9,7 +9,7 @@ export function ppomMaliciousSendCalls(parentContainer) {
       <div class="card full-width">
         <div class="card-body">
           <h4 class="card-title">
-            EIP 5792 - PPOM - Malicious Send Calls
+            PPOM - EIP 5792 - Malicious Send Calls
           </h4>
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousEthButton">
             Send Calls with Malicious ETH Transfer

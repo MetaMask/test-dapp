@@ -179,16 +179,13 @@ erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 eip5792Component(transactionsRow);
 
-const ppomEip5792Section = document.createElement('section');
-mainContainer.appendChild(ppomEip5792Section);
-ppomMaliciousSendCalls(ppomEip5792Section);
-
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
 const ppomRow = document.createElement('div');
 ppomRow.className = 'row';
 ppomSection.appendChild(ppomRow);
 ppomMaliciousTransactionsAndSignatures(ppomRow);
+ppomMaliciousSendCalls(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
 
