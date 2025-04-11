@@ -143,13 +143,11 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     const maliciousTransactions = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: maliciousTransactions.eth.to,
-          value: maliciousTransactions.eth.value,
-        },
-      ],
+      params: {
+        from: globalContext.accounts[0],
+        to: maliciousTransactions.eth.to,
+        value: maliciousTransactions.eth.value,
+      },
     });
     console.log(result);
   };
@@ -164,14 +162,12 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     const noPrefixedAddress = from.slice(2);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: [
-        {
-          from,
-          to: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
-          value: '0x0',
-          data: `0x40c10f19000000000000000000000000${noPrefixedAddress}000000000000000000000000000000000000000000000000000000001dcd6500`,
-        },
-      ],
+      params: {
+        from,
+        to: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
+        value: '0x0',
+        data: `0x40c10f19000000000000000000000000${noPrefixedAddress}000000000000000000000000000000000000000000000000000000001dcd6500`,
+      },
     });
     console.log(result);
   };
@@ -181,14 +177,12 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     const maliciousTransactions = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: maliciousTransactions.erc20Transfer.to,
-          data: maliciousTransactions.erc20Transfer.data,
-          value: maliciousTransactions.erc20Transfer.value,
-        },
-      ],
+      params: {
+        from: globalContext.accounts[0],
+        to: maliciousTransactions.erc20Transfer.to,
+        data: maliciousTransactions.erc20Transfer.data,
+        value: maliciousTransactions.erc20Transfer.value,
+      },
     });
     console.log(result);
   };
@@ -198,14 +192,12 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     const maliciousTransactions = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: maliciousTransactions.erc20Approval.to,
-          data: maliciousTransactions.erc20Approval.data,
-          value: maliciousTransactions.erc20Approval.value,
-        },
-      ],
+      params: {
+        from: globalContext.accounts[0],
+        to: maliciousTransactions.erc20Approval.to,
+        data: maliciousTransactions.erc20Approval.data,
+        value: maliciousTransactions.erc20Approval.value,
+      },
     });
     console.log(result);
   };
@@ -218,14 +210,12 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: contractAddress,
-          data: '0xef5cfb8c0000000000000000000000000b3e87a076ac4b0d1975f0f232444af6deb96c59',
-          value: '0x0',
-        },
-      ],
+      params: {
+        from: globalContext.accounts[0],
+        to: contractAddress,
+        data: '0xef5cfb8c0000000000000000000000000b3e87a076ac4b0d1975f0f232444af6deb96c59',
+        value: '0x0',
+      },
     });
     console.log(result);
   };
@@ -236,14 +226,12 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: [
-        {
-          from: globalContext.accounts[0],
-          to: maliciousTransactions.setApprovalForAll.to,
-          data: maliciousTransactions.setApprovalForAll.data,
-          value: maliciousTransactions.setApprovalForAll.value,
-        },
-      ],
+      params: {
+        from: globalContext.accounts[0],
+        to: maliciousTransactions.setApprovalForAll.to,
+        data: maliciousTransactions.setApprovalForAll.data,
+        value: maliciousTransactions.setApprovalForAll.value,
+      },
     });
     console.log(result);
   };

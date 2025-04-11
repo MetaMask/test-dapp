@@ -42,30 +42,64 @@ export function ppomMaliciousSendCalls(parentContainer) {
     </div>`,
   );
 
-  document.getElementById('ppomSendMaliciousEthButton').onclick = async () => {
+  const ppomSendMaliciousEthButton = document.getElementById(
+    'ppomSendMaliciousEthButton',
+  );
+
+  ppomSendMaliciousEthButton.onclick = async () => {
     await sendMaliciousCalls('eth');
   };
 
-  document.getElementById('ppomSendMaliciousERC20TransferButton').onclick =
-    async () => {
-      await sendMaliciousCalls('erc20Transfer');
-    };
+  const ppomSendMaliciousERC20TransferButton = document.getElementById(
+    'ppomSendMaliciousERC20TransferButton',
+  );
 
-  document.getElementById('ppomSendMaliciousERC20ApprovalButton').onclick =
-    async () => {
-      await sendMaliciousCalls('erc20Approval');
-    };
+  ppomSendMaliciousERC20TransferButton.onclick = async () => {
+    await sendMaliciousCalls('erc20Transfer');
+  };
 
-  document.getElementById('ppomSendMaliciousSetApprovalForAllButton').onclick =
-    async () => {
-      await sendMaliciousCalls('setApprovalForAll');
-    };
+  const ppomSendMaliciousERC20ApprovalButton = document.getElementById(
+    'ppomSendMaliciousERC20ApprovalButton',
+  );
 
-  document.getElementById(
+  ppomSendMaliciousERC20ApprovalButton.onclick = async () => {
+    await sendMaliciousCalls('erc20Approval');
+  };
+
+  const ppomSendMaliciousSetApprovalForAllButton = document.getElementById(
+    'ppomSendMaliciousSetApprovalForAllButton',
+  );
+
+  ppomSendMaliciousSetApprovalForAllButton.onclick = async () => {
+    await sendMaliciousCalls('setApprovalForAll');
+  };
+
+  const ppomSendMaliciousContractInteractionButton = document.getElementById(
     'ppomSendMaliciousContractInteractionButton',
-  ).onclick = async () => {
+  );
+
+  ppomSendMaliciousContractInteractionButton.onclick = async () => {
     await sendMaliciousCalls('maliciousContractInteraction');
   };
+
+  document.addEventListener('globalConnectionChange', function (e) {
+    if (e.detail.connected) {
+      // MetaMask is connected, enable the button
+      ppomSendMaliciousEthButton.disabled = false;
+      ppomSendMaliciousERC20TransferButton.disabled = false;
+      ppomSendMaliciousERC20ApprovalButton.disabled = false;
+      ppomSendMaliciousSetApprovalForAllButton.disabled = false;
+      ppomSendMaliciousContractInteractionButton.disabled = false;
+    }
+  });
+
+  document.addEventListener('disableAndClear', function () {
+    ppomSendMaliciousEthButton.disabled = true;
+    ppomSendMaliciousERC20TransferButton.disabled = true;
+    ppomSendMaliciousERC20ApprovalButton.disabled = true;
+    ppomSendMaliciousSetApprovalForAllButton.disabled = true;
+    ppomSendMaliciousContractInteractionButton.disabled = true;
+  });
 
   async function sendMaliciousCalls(type) {
     const maliciousTransactions = getMaliciousTransactions(globalContext);
