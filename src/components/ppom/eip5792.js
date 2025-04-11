@@ -34,6 +34,9 @@ export function ppomMaliciousSendCalls(parentContainer) {
             <label>Request ID:</label>
             <input type="text" id="ppomRequestIdInput" class="form-control" readonly />
           </div>
+          <p class="info-text alert alert-warning" id="ppomSendCallsErrorContainer" hidden>
+            <span class="wrap" id="ppomSendCallsError"></span>
+          </p>
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomGetCallsStatusButton" disabled>
             Get Calls Status
           </button>
@@ -114,7 +117,6 @@ export function ppomMaliciousSendCalls(parentContainer) {
 
   async function sendMaliciousCalls(type) {
     const maliciousTransactions = getMaliciousTransactions(globalContext);
-
     const calls = [];
 
     switch (type) {
@@ -148,8 +150,13 @@ export function ppomMaliciousSendCalls(parentContainer) {
       document.getElementById('ppomRequestIdInput').value = result.id;
       document.getElementById('ppomRequestIdContainer').hidden = false;
       document.getElementById('ppomGetCallsStatusButton').disabled = false;
+      document.getElementById('ppomSendCallsErrorContainer').hidden = true;
     } catch (error) {
       console.error(error);
+      document.getElementById('ppomSendCallsErrorContainer').hidden = false;
+      document.getElementById(
+        'ppomSendCallsError',
+      ).innerHTML = `Error: ${error.message}`;
     }
   }
 
@@ -170,8 +177,13 @@ export function ppomMaliciousSendCalls(parentContainer) {
       document.getElementById('ppomRequestIdInput').value = result.id;
       document.getElementById('ppomRequestIdContainer').hidden = false;
       document.getElementById('ppomGetCallsStatusButton').disabled = false;
+      document.getElementById('ppomSendCallsErrorContainer').hidden = true;
     } catch (error) {
       console.error(error);
+      document.getElementById('ppomSendCallsErrorContainer').hidden = false;
+      document.getElementById(
+        'ppomSendCallsError',
+      ).innerHTML = `Error: ${error.message}`;
     }
   }
 
