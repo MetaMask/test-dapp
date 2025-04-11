@@ -104,6 +104,7 @@ export function ppomMaliciousSendCalls(parentContainer) {
       ppomSendMaliciousERC20ApprovalButton.disabled = false;
       ppomSendMaliciousSetApprovalForAllButton.disabled = false;
       ppomSendMaliciousContractInteractionButton.disabled = false;
+      ppomSendThreeMaliciousTxsButton.disabled = false;
     }
   });
 
@@ -113,6 +114,7 @@ export function ppomMaliciousSendCalls(parentContainer) {
     ppomSendMaliciousERC20ApprovalButton.disabled = true;
     ppomSendMaliciousSetApprovalForAllButton.disabled = true;
     ppomSendMaliciousContractInteractionButton.disabled = true;
+    ppomSendThreeMaliciousTxsButton.disabled = true;
   });
 
   async function sendMaliciousCalls(type) {
