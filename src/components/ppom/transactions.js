@@ -1,6 +1,5 @@
 import globalContext from '../..';
 import { maliciousAddress } from '../../sample-addresses';
-import { MALICIOUS_CONTRACT_ADDRESSES } from '../../onchain-sample-contracts';
 import { isSepoliaNetworkId } from '../../utils';
 import { getMaliciousTransactions } from './sharedConstants';
 
@@ -48,17 +47,17 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
           </button>
           <button
             class="btn btn-primary btn-lg btn-block mb-3"
-            id="maliciousContractInteractionButton"
-            disabled
-          >
-              Malicious Contract Interaction
-          </button>
-          <button
-            class="btn btn-primary btn-lg btn-block mb-3"
             id="maliciousSetApprovalForAll"
             disabled
           >
             Malicious Set Approval For All
+          </button>
+          <button
+            class="btn btn-primary btn-lg btn-block mb-3"
+            id="maliciousContractInteractionButton"
+            disabled
+          >
+            Malicious Contract Interaction
           </button>
           <h5>Signatures</h5>
           <button
@@ -140,14 +139,15 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
 
   // Malicious raw ETH transfer
   maliciousRawEthButton.onclick = async () => {
-    const maliciousTransactions = getMaliciousTransactions(globalContext);
+    const { eth } = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: {
-        from: globalContext.accounts[0],
-        to: maliciousTransactions.eth.to,
-        value: maliciousTransactions.eth.value,
-      },
+      params: [
+        {
+          from: globalContext.accounts[0],
+          ...eth,
+        },
+      ],
     });
     console.log(result);
   };
@@ -162,76 +162,77 @@ export function ppomMaliciousTransactionsAndSignatures(parentContainer) {
     const noPrefixedAddress = from.slice(2);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: {
-        from,
-        to: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
-        value: '0x0',
-        data: `0x40c10f19000000000000000000000000${noPrefixedAddress}000000000000000000000000000000000000000000000000000000001dcd6500`,
-      },
+      params: [
+        {
+          from,
+          to: '0x27A56df30bC838BCA36141E517e7b5376dea68eE',
+          value: '0x0',
+          data: `0x40c10f19000000000000000000000000${noPrefixedAddress}000000000000000000000000000000000000000000000000000000001dcd6500`,
+        },
+      ],
     });
     console.log(result);
   };
 
   // Malicious ERC20 transfer
   maliciousERC20TransferButton.onclick = async () => {
-    const maliciousTransactions = getMaliciousTransactions(globalContext);
+    const { erc20Transfer } = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: {
-        from: globalContext.accounts[0],
-        to: maliciousTransactions.erc20Transfer.to,
-        data: maliciousTransactions.erc20Transfer.data,
-        value: maliciousTransactions.erc20Transfer.value,
-      },
+      params: [
+        {
+          from: globalContext.accounts[0],
+          ...erc20Transfer,
+        },
+      ],
     });
     console.log(result);
   };
 
   // Malicious ERC20 Approval
   maliciousApprovalButton.onclick = async () => {
-    const maliciousTransactions = getMaliciousTransactions(globalContext);
+    const { erc20Approval } = getMaliciousTransactions(globalContext);
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: {
-        from: globalContext.accounts[0],
-        to: maliciousTransactions.erc20Approval.to,
-        data: maliciousTransactions.erc20Approval.data,
-        value: maliciousTransactions.erc20Approval.value,
-      },
+      params: [
+        {
+          from: globalContext.accounts[0],
+          ...erc20Approval,
+        },
+      ],
     });
     console.log(result);
   };
 
   // Malicious Contract interaction
   maliciousContractInteractionButton.onclick = async () => {
-    const contractAddress =
-      MALICIOUS_CONTRACT_ADDRESSES[globalContext.networkName] ||
-      MALICIOUS_CONTRACT_ADDRESSES.default;
+    const { maliciousContractInteraction } =
+      getMaliciousTransactions(globalContext);
 
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: {
-        from: globalContext.accounts[0],
-        to: contractAddress,
-        data: '0xef5cfb8c0000000000000000000000000b3e87a076ac4b0d1975f0f232444af6deb96c59',
-        value: '0x0',
-      },
+      params: [
+        {
+          from: globalContext.accounts[0],
+          ...maliciousContractInteraction,
+        },
+      ],
     });
     console.log(result);
   };
 
   // Malicious Set Approval For All
   maliciousSetApprovalForAll.onclick = async () => {
-    const maliciousTransactions = getMaliciousTransactions(globalContext);
+    const { setApprovalForAll } = getMaliciousTransactions(globalContext);
 
     const result = await globalContext.provider.request({
       method: 'eth_sendTransaction',
-      params: {
-        from: globalContext.accounts[0],
-        to: maliciousTransactions.setApprovalForAll.to,
-        data: maliciousTransactions.setApprovalForAll.data,
-        value: maliciousTransactions.setApprovalForAll.value,
-      },
+      params: [
+        {
+          from: globalContext.accounts[0],
+          ...setApprovalForAll,
+        },
+      ],
     });
     console.log(result);
   };
