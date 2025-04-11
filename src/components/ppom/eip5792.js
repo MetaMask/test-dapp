@@ -26,6 +26,9 @@ export function ppomMaliciousSendCalls(parentContainer) {
           <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendMaliciousContractInteractionButton">
             Send Calls with Malicious Contract Interaction
           </button>
+          <button class="btn btn-primary btn-lg btn-block mb-3" id="ppomSendThreeMaliciousTxsButton">
+            Send Calls with 3 Malicious Transactions
+          </button>
           <hr/>
           <div id="ppomRequestIdContainer" hidden>
             <label>Request ID:</label>
@@ -82,6 +85,14 @@ export function ppomMaliciousSendCalls(parentContainer) {
     await sendMaliciousCalls('maliciousContractInteraction');
   };
 
+  const ppomSendThreeMaliciousTxsButton = document.getElementById(
+    'ppomSendThreeMaliciousTxsButton',
+  );
+
+  ppomSendThreeMaliciousTxsButton.onclick = async () => {
+    await sendThreeMaliciousCalls();
+  };
+
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
       // MetaMask is connected, enable the button
@@ -128,6 +139,28 @@ export function ppomMaliciousSendCalls(parentContainer) {
     }
 
     calls.push(...DEFAULT_CALLS);
+
+    try {
+      const result = await globalContext.provider.request({
+        method: 'wallet_sendCalls',
+        params: [getParams(calls)],
+      });
+      document.getElementById('ppomRequestIdInput').value = result.id;
+      document.getElementById('ppomRequestIdContainer').hidden = false;
+      document.getElementById('ppomGetCallsStatusButton').disabled = false;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function sendThreeMaliciousCalls() {
+    const maliciousTransactions = getMaliciousTransactions(globalContext);
+
+    const calls = [
+      maliciousTransactions.erc20Approval,
+      maliciousTransactions.setApprovalForAll,
+      maliciousTransactions.maliciousContractInteraction,
+    ];
 
     try {
       const result = await globalContext.provider.request({
