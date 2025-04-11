@@ -3,10 +3,12 @@ import {
   ERC20_SAMPLE_CONTRACTS,
   ERC721_SAMPLE_CONTRACTS,
   MALICIOUS_CONTRACT_ADDRESSES,
+  NETWORKS_BY_CHAIN_ID,
 } from '../../onchain-sample-contracts';
 
 export const getMaliciousTransactions = (globalContext) => {
-  const networkName = globalContext.networkName || 'default';
+  const chainId = globalContext.chainIdInt;
+  const networkName = NETWORKS_BY_CHAIN_ID[chainId] || 'default';
 
   return {
     eth: {
