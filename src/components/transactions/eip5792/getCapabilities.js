@@ -11,6 +11,14 @@ export function getCapabilitiesComponent(parentContainer) {
             id="eip5792AccountInput"
         />
     </div>
+    <div class="form-group">
+        <label>Chain IDs</label>
+        <input
+            class="form-control"
+            type="text"
+            id="eip5792ChainIdsInput"
+        />
+    </div>
 
     <button
         class="btn btn-primary btn-lg btn-block mb-3"
@@ -26,6 +34,7 @@ export function getCapabilitiesComponent(parentContainer) {
   );
 
   const accountInput = document.getElementById('eip5792AccountInput');
+  const chainIdsInput = document.getElementById('eip5792ChainIdsInput');
   const getCapabilitiesButton = document.getElementById(
     'eip5792GetCapabilitiesButton',
   );
@@ -46,9 +55,16 @@ export function getCapabilitiesComponent(parentContainer) {
 
   getCapabilitiesButton.onclick = async () => {
     try {
+      const params = [accountInput.value];
+
+      if (chainIdsInput.value) {
+        const chainIds = chainIdsInput.value.split(',').map((id) => id.trim());
+        params.push(chainIds);
+      }
+
       const result = await globalContext.provider.request({
         method: 'wallet_getCapabilities',
-        params: [accountInput.value],
+        params,
       });
 
       resultOutput.innerHTML = JSON.stringify(result, null, 2);

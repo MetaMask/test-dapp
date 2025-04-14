@@ -1,6 +1,6 @@
 import globalContext from '../../..';
 
-const VERSION = '1.0';
+const VERSION = '2.0.0';
 
 const DEFAULT_CALLS = [
   {
@@ -148,6 +148,7 @@ export function sendCallsComponent(parentContainer) {
       version: VERSION,
       from,
       chainId,
+      atomicRequired: true,
       calls,
     };
   }
