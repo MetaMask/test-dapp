@@ -1,1 +1,1 @@
-export const maliciousAddress = '0x63605E53D422C4F1ac0e01390AC59aAf84C44A51';
+export const maliciousAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
