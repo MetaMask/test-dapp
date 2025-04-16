@@ -1,5 +1,5 @@
 import globalContext from '../..';
-import { DEFAULT_CALLS } from '../transactions/eip5792/sendCalls';
+import { DEFAULT_CALLS, VERSION } from '../transactions/eip5792/sendCalls';
 import { getMaliciousTransactions } from './sharedConstants';
 
 export function ppomMaliciousSendCalls(parentContainer) {
@@ -210,9 +210,10 @@ export function ppomMaliciousSendCalls(parentContainer) {
 
   function getParams(calls) {
     return {
-      version: '1.0',
+      version: VERSION,
       from: globalContext.accounts[0],
       chainId: `0x${globalContext.chainIdInt.toString(16)}`,
+      atomicRequired: true,
       calls,
     };
   }
