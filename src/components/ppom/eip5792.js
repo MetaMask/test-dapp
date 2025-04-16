@@ -1,6 +1,6 @@
 import globalContext from '../..';
-import { DEFAULT_CALLS, VERSION } from '../transactions/eip5792/sendCalls';
-import { getMaliciousTransactions } from './sharedConstants';
+import { DEFAULT_CALLS } from '../transactions/eip5792/sendCalls';
+import { getMaliciousTransactions, getWalletSendCallsParams } from './sharedConstants';
 
 export function ppomMaliciousSendCalls(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -147,7 +147,7 @@ export function ppomMaliciousSendCalls(parentContainer) {
     try {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
-        params: [getParams(calls)],
+        params: [getWalletSendCallsParams(calls)],
       });
       document.getElementById('ppomRequestIdInput').value = result.id;
       document.getElementById('ppomRequestIdContainer').hidden = false;
@@ -207,14 +207,4 @@ export function ppomMaliciousSendCalls(parentContainer) {
       resultOutput.innerHTML = `Error: ${error.message}`;
     }
   };
-
-  function getParams(calls) {
-    return {
-      version: VERSION,
-      from: globalContext.accounts[0],
-      chainId: `0x${globalContext.chainIdInt.toString(16)}`,
-      atomicRequired: true,
-      calls,
-    };
-  }
 }

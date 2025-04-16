@@ -5,6 +5,7 @@ import {
   MALICIOUS_CONTRACT_ADDRESSES,
   NETWORKS_BY_CHAIN_ID,
 } from '../../onchain-sample-contracts';
+import { VERSION } from './eip5792';
 
 export const getMaliciousTransactions = (globalContext) => {
   const chainId = globalContext.chainIdInt;
@@ -60,5 +61,15 @@ export const getMaliciousTransactionBypasses = (globalContext) => {
       value: 'ffffffffffffff', // value without 0x prefix
       data: '0x0',
     },
+  };
+};
+
+export const getWalletSendCallsParams = (calls) => {
+  return {
+    version: VERSION,
+    from: globalContext.accounts[0],
+    chainId: `0x${globalContext.chainIdInt.toString(16)}`,
+    atomicRequired: true,
+    calls,
   };
 };
