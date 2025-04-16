@@ -159,7 +159,7 @@ export function ppomMaliciousBatchingAndQueueing(parentContainer) {
           params: [
             {
               from: globalContext.accounts[0],
-              to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+              to: maliciousAddress,
               value: '0x0',
               gasLimit: MIN_GAS_LIMIT,
               maxFeePerGas: '0x2540be400',

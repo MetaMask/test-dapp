@@ -20,6 +20,7 @@ import {
   erc721Component,
 } from './components/transactions';
 import {
+  ppomMaliciousSendCalls,
   ppomMaliciousTransactionsAndSignatures,
   ppomMaliciousBatchingAndQueueing,
   ppomMaliciousWarningBypasses,
@@ -184,6 +185,7 @@ const ppomRow = document.createElement('div');
 ppomRow.className = 'row';
 ppomSection.appendChild(ppomRow);
 ppomMaliciousTransactionsAndSignatures(ppomRow);
+ppomMaliciousSendCalls(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
 
