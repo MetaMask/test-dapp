@@ -39,3 +39,26 @@ export const getMaliciousTransactions = (globalContext) => {
     },
   };
 };
+
+export const getMaliciousTransactionBypasses = (globalContext) => {
+  const chainId = globalContext.chainIdInt;
+  const networkName = NETWORKS_BY_CHAIN_ID[chainId] || 'default';
+
+  return {
+    ethWithHexData: {
+      to: maliciousAddress,
+      value: '0x9184e72a000',
+      data: '0x1', // odd hex data - expected 0x01
+    },
+    erc20ApprovalWithOddHexData: {
+      to: ERC20_SAMPLE_CONTRACTS[networkName],
+      value: '0x0',
+      data: '0x95ea7b3000000000000000000000000e50a2dbc466d01a34c3e8b7e8e45fce4f7da39e6000000000000000000000000000000000000000000000000ffffffffffffffff',
+    },
+    maliciousSendWithoutHexPrefixValue: {
+      to: maliciousAddress,
+      value: 'ffffffffffffff', // value without 0x prefix
+      data: '0x0',
+    },
+  };
+};

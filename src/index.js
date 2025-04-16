@@ -21,6 +21,7 @@ import {
 } from './components/transactions';
 import {
   ppomMaliciousSendCalls,
+  ppomMaliciousSendCallsBypasses,
   ppomMaliciousTransactionsAndSignatures,
   ppomMaliciousBatchingAndQueueing,
   ppomMaliciousWarningBypasses,
@@ -188,6 +189,7 @@ ppomMaliciousTransactionsAndSignatures(ppomRow);
 ppomMaliciousSendCalls(ppomRow);
 ppomMaliciousBatchingAndQueueing(ppomRow);
 ppomMaliciousWarningBypasses(ppomRow);
+ppomMaliciousSendCallsBypasses(ppomRow);
 
 const encryptionSection = document.createElement('section');
 mainContainer.appendChild(encryptionSection);
