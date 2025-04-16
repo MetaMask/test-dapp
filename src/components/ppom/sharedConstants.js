@@ -64,7 +64,7 @@ export const getMaliciousTransactionBypasses = (globalContext) => {
   };
 };
 
-export const getWalletSendCallsParams = (calls) => {
+export const getWalletSendCallsParams = (calls, globalContext) => {
   return {
     version: VERSION,
     from: globalContext.accounts[0],

@@ -85,7 +85,6 @@ export function ppomMaliciousSendCallsBypasses(parentContainer) {
         break;
       case 'erc20ApprovalWithOddHexData':
         calls.push({
-          from: globalContext.accounts[0],
           to: maliciousTransactions.erc20ApprovalWithOddHexData.to,
           value: '0x0',
           data: maliciousTransactions.erc20ApprovalWithOddHexData.data,
@@ -107,7 +106,7 @@ export function ppomMaliciousSendCallsBypasses(parentContainer) {
     try {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
-        params: [getWalletSendCallsParams(calls)],
+        params: [getWalletSendCallsParams(calls, globalContext)],
       });
       maliciousSendCallsWarningBypassResult.innerHTML = result.id;
     } catch (err) {
@@ -121,7 +120,7 @@ export function ppomMaliciousSendCallsBypasses(parentContainer) {
     try {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
-        params: [getWalletSendCallsParams(calls)],
+        params: [getWalletSendCallsParams(calls, globalContext)],
       });
       maliciousSendCallsWarningBypassResult.innerHTML = result.id;
     } catch (err) {
@@ -135,7 +134,7 @@ export function ppomMaliciousSendCallsBypasses(parentContainer) {
     try {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
-        params: [getWalletSendCallsParams(calls)],
+        params: [getWalletSendCallsParams(calls, globalContext)],
       });
       maliciousSendCallsWarningBypassResult.innerHTML = result.id;
     } catch (err) {

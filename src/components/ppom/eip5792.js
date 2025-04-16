@@ -147,7 +147,7 @@ export function ppomMaliciousSendCalls(parentContainer) {
     try {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
-        params: [getWalletSendCallsParams(calls)],
+        params: [getWalletSendCallsParams(calls, globalContext)],
       });
       document.getElementById('ppomRequestIdInput').value = result.id;
       document.getElementById('ppomRequestIdContainer').hidden = false;
