@@ -101,10 +101,6 @@ export function signTypedDataV4Component(parentContainer) {
       primaryType: 'Mail',
       types: {
         EIP712Domain,
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
-        ],
         Mail: [
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person[]' },
@@ -166,10 +162,6 @@ export function signTypedDataV4Component(parentContainer) {
       primaryType: 'Mail',
       types: {
         EIP712Domain,
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
-        ],
         Mail: [
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person[]' },

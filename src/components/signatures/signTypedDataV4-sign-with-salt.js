@@ -77,7 +77,7 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
         name: 'Ether Mail',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
-        salt: 'test',
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
       },
       message: {
         contents: 'Hello, Bob!',
@@ -121,12 +121,8 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
           },
           {
             name: 'salt',
-            type: 'string',
+            type: 'bytes32',
           },
-        ],
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
         ],
         Mail: [
           { name: 'from', type: 'Person' },
@@ -164,7 +160,7 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
         name: 'Ether Mail',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
-        salt: 'test',
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
       },
       message: {
         contents: 'Hello, Bob!',
@@ -208,12 +204,8 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
           },
           {
             name: 'salt',
-            type: 'string',
+            type: 'bytes32',
           },
-        ],
-        Group: [
-          { name: 'name', type: 'string' },
-          { name: 'members', type: 'Person[]' },
         ],
         Mail: [
           { name: 'from', type: 'Person' },
