@@ -5,6 +5,11 @@ export const EIP712Domain = [
   { name: 'verifyingContract', type: 'address' },
 ];
 
+export const EIP712DomainWithSalt = [
+  ...EIP712Domain,
+  { name: 'salt', type: 'bytes32' },
+];
+
 export const MSG_PRIMARY_TYPE = {
   BLUR_ORDER: 'Order',
   BLUR_ROOT: 'Root',
