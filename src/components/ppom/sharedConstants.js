@@ -6,11 +6,18 @@ import {
   NETWORKS_BY_CHAIN_ID,
 } from '../../onchain-sample-contracts';
 
+const maliciousTransactionsCache = {};
+
 export const getMaliciousTransactions = (globalContext) => {
   const chainId = globalContext.chainIdInt;
   const networkName = NETWORKS_BY_CHAIN_ID[chainId] || 'default';
 
-  return {
+  // to avoid recalculating the tx object everytime if the chainId hasn't changed
+  if (maliciousTransactionsCache[chainId]) {
+    return maliciousTransactionsCache[chainId];
+  }
+
+  const transactions = {
     eth: {
       to: maliciousAddress,
       value: '0x9184e72a000',
@@ -38,4 +45,7 @@ export const getMaliciousTransactions = (globalContext) => {
       value: '0x0',
     },
   };
+
+  maliciousTransactionsCache[chainId] = transactions;
+  return transactions;
 };
