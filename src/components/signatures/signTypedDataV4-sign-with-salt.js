@@ -1,7 +1,6 @@
 import { recoverTypedSignature } from '@metamask/eth-sig-util';
 import { toChecksumAddress } from 'ethereumjs-util';
 import globalContext from '../..';
-import { EIP712DomainWithSalt } from '../../signatures/utils';
 
 export function signTypedDataV4WithSaltComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -78,7 +77,7 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
         name: 'Ether Mail',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
-        salt: 'test',
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000002',
       },
       message: {
         contents: 'Hello, Bob!',
@@ -103,7 +102,13 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
       },
       primaryType: 'Mail',
       types: {
-        EIP712DomainWithSalt,
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+          { name: 'salt', type: 'bytes32' },
+        ],
         Mail: [
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person[]' },
@@ -140,7 +145,7 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
         name: 'Ether Mail',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
-        salt: 'test',
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000002',
       },
       message: {
         contents: 'Hello, Bob!',
@@ -165,7 +170,13 @@ export function signTypedDataV4WithSaltComponent(parentContainer) {
       },
       primaryType: 'Mail',
       types: {
-        EIP712DomainWithSalt,
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+          { name: 'salt', type: 'bytes32' },
+        ],
         Mail: [
           { name: 'from', type: 'Person' },
           { name: 'to', type: 'Person[]' },
