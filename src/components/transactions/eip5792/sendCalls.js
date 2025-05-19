@@ -15,6 +15,26 @@ export const DEFAULT_CALLS = [
   },
 ];
 
+const CALL_APPROVAL_USDC_PERMIT_2 = {
+  to: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+  data: '0x87517c45000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb000000000000000000000000000000000000000000000000000000000012C4B00000000000000000000000000000000000000000000000000000000068437af0',
+};
+
+const CALL_APPROVAL_USDC_LEGACY = {
+  data: '0x095ea7b30000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000459480',
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+};
+
+const CALL_APPROVAL_USDC_INCREASE_ALLOWANCE = {
+  data: '0x395093510000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000786450',
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+};
+
+const CALL_APPROVAL_ENS_APPROVE_ALL = {
+  to: '0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401',
+  data: '0xa22cb4650000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000000001',
+};
+
 export function sendCallsComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
     'beforeend',
@@ -63,6 +83,14 @@ export function sendCallsComponent(parentContainer) {
         Send Calls
     </button>
 
+     <button
+        class="btn btn-primary btn-lg btn-block mb-3"
+        id="eip5792SendCallsApprovalButton"
+        disabled
+    >
+        Send Calls - Multiple Approvals
+    </button>
+
     <p class="info-text alert alert-warning" id="eip5792SendCallsErrorContainer" hidden>
         <span class="wrap" id="eip5792SendCallsError"></span>
     </p>`,
@@ -76,6 +104,9 @@ export function sendCallsComponent(parentContainer) {
   const callsContainer = document.getElementById('eip5792Calls');
   const addCallButton = document.getElementById('eip5792AddCall');
   const sendCallsButton = document.getElementById('eip5792SendCallsButton');
+  const sendCallsApprovalButton = document.getElementById(
+    'eip5792SendCallsApprovalButton',
+  );
   const errorContainer = document.getElementById(
     'eip5792SendCallsErrorContainer',
   );
@@ -86,6 +117,7 @@ export function sendCallsComponent(parentContainer) {
       editButton.disabled = false;
       addCallButton.disabled = false;
       sendCallsButton.disabled = false;
+      sendCallsApprovalButton.disabled = false;
     }
   });
 
@@ -93,6 +125,7 @@ export function sendCallsComponent(parentContainer) {
     editButton.disabled = true;
     addCallButton.disabled = true;
     sendCallsButton.disabled = true;
+    sendCallsApprovalButton.disabled = true;
   });
 
   editButton.onclick = async () => {
@@ -126,6 +159,33 @@ export function sendCallsComponent(parentContainer) {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
         params: [getParams()],
+      });
+
+      document.getElementById('eip5792RequestIdInput').value = result.id;
+      errorContainer.hidden = true;
+      errorOutput.innerHTML = '';
+    } catch (error) {
+      console.error(error);
+      errorContainer.hidden = false;
+      errorOutput.innerHTML = `Error: ${error.message}`;
+    }
+  };
+
+  sendCallsApprovalButton.onclick = async () => {
+    try {
+      const result = await globalContext.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            ...getParams(),
+            calls: [
+              CALL_APPROVAL_USDC_PERMIT_2,
+              CALL_APPROVAL_USDC_LEGACY,
+              CALL_APPROVAL_USDC_INCREASE_ALLOWANCE,
+              CALL_APPROVAL_ENS_APPROVE_ALL,
+            ],
+          },
+        ],
       });
 
       document.getElementById('eip5792RequestIdInput').value = result.id;
