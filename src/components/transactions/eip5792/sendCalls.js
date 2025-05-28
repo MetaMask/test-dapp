@@ -30,9 +30,19 @@ const CALL_APPROVAL_USDC_INCREASE_ALLOWANCE = {
   to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 };
 
+const CALL_APPROVAL_USDT_LEGACY_UNLIMITED = {
+  data: '0x095ea7b30000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFF',
+  to: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+};
+
 const CALL_APPROVAL_ENS_APPROVE_ALL = {
   to: '0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401',
   data: '0xa22cb4650000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000000001',
+};
+
+const CALL_APPROVAL_ENS_APPROVE = {
+  to: '0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401',
+  data: '0x095ea7b30000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000459480',
 };
 
 export function sendCallsComponent(parentContainer) {
@@ -155,35 +165,28 @@ export function sendCallsComponent(parentContainer) {
   };
 
   sendCallsButton.onclick = async () => {
-    try {
-      const result = await globalContext.provider.request({
-        method: 'wallet_sendCalls',
-        params: [getParams()],
-      });
-
-      document.getElementById('eip5792RequestIdInput').value = result.id;
-      errorContainer.hidden = true;
-      errorOutput.innerHTML = '';
-    } catch (error) {
-      console.error(error);
-      errorContainer.hidden = false;
-      errorOutput.innerHTML = `Error: ${error.message}`;
-    }
+    submitRequest();
   };
 
-  sendCallsApprovalButton.onclick = async () => {
+  sendCallsApprovalButton.onclick = () => {
+    submitRequest([
+      CALL_APPROVAL_USDC_PERMIT_2,
+      CALL_APPROVAL_USDC_LEGACY,
+      CALL_APPROVAL_USDC_INCREASE_ALLOWANCE,
+      CALL_APPROVAL_USDT_LEGACY_UNLIMITED,
+      CALL_APPROVAL_ENS_APPROVE_ALL,
+      CALL_APPROVAL_ENS_APPROVE,
+    ]);
+  };
+
+  async function submitRequest(calls) {
     try {
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
             ...getParams(),
-            calls: [
-              CALL_APPROVAL_USDC_PERMIT_2,
-              CALL_APPROVAL_USDC_LEGACY,
-              CALL_APPROVAL_USDC_INCREASE_ALLOWANCE,
-              CALL_APPROVAL_ENS_APPROVE_ALL,
-            ],
+            ...(calls ? { calls } : {}),
           },
         ],
       });
@@ -196,7 +199,7 @@ export function sendCallsComponent(parentContainer) {
       errorContainer.hidden = false;
       errorOutput.innerHTML = `Error: ${error.message}`;
     }
-  };
+  }
 
   function getParams() {
     const useInputs = isCustom();
