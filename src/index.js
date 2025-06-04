@@ -46,6 +46,7 @@ import {
 } from './components/interactions';
 import { sendFormComponent } from './components/forms/send-form';
 import { eip5792Component } from './components/transactions/eip5792';
+import { transactionBatchComponent } from './components/transactions/transaction-batch';
 
 const {
   hstBytecode,
@@ -178,6 +179,7 @@ erc721Component(transactionsRow);
 erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 eip5792Component(transactionsRow);
+transactionBatchComponent(transactionsRow);
 
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
