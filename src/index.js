@@ -243,12 +243,15 @@ const getSavedTheme = () => {
   if (savedTheme) {
     return savedTheme;
   }
-  
+
   // Check system preference
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  if (
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+  ) {
     return 'dark';
   }
-  
+
   return 'light';
 };
 
@@ -270,11 +273,13 @@ darkModeToggle.addEventListener('click', toggleTheme);
 
 // Listen for system theme changes
 if (window.matchMedia) {
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (!localStorage.getItem('theme')) {
-      setTheme(e.matches ? 'dark' : 'light');
-    }
-  });
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
 }
 
 /**
