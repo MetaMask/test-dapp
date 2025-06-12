@@ -244,14 +244,7 @@ const getSavedTheme = () => {
     return savedTheme;
   }
 
-  // Check system preference
-  if (
-    window.matchMedia &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  ) {
-    return 'dark';
-  }
-
+  // Default to light mode
   return 'light';
 };
 
@@ -271,13 +264,15 @@ const toggleTheme = () => {
 // Add event listener
 darkModeToggle.addEventListener('click', toggleTheme);
 
-// Listen for system theme changes
+// Listen for system theme changes (only if user hasn't set a preference)
 if (window.matchMedia) {
   window
     .matchMedia('(prefers-color-scheme: dark)')
-    .addEventListener('change', (e) => {
+    .addEventListener('change', () => {
+      // Only follow system preference if user hasn't explicitly set a theme
       if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light');
+        // Still default to light mode even when system changes
+        setTheme('light');
       }
     });
 }
