@@ -48,10 +48,8 @@ export function networksComponent(parentContainer) {
   const openButton = document.getElementById('openNetworkPicker');
   const closeButton = modal.querySelector('.network-modal-close');
 
-  // Populate network lists
   populateNetworkLists();
 
-  // Event listeners
   openButton.addEventListener('click', () => {
     modal.style.display = 'flex';
     updateActiveNetworkInModal();
@@ -69,6 +67,5 @@ export function networksComponent(parentContainer) {
     }
   });
 
-  // Initial update
   updateCurrentNetworkDisplay();
 }

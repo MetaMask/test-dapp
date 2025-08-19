@@ -190,26 +190,18 @@ export async function switchNetwork(chainId) {
 export function updateCurrentNetworkDisplay() {
   const currentNetworkName = document.getElementById('currentNetworkName');
 
-  if (
-    globalContext.chainIdInt !== undefined &&
-    globalContext.chainIdInt !== null
-  ) {
-    const network = NETWORKS.find((n) => {
-      const networkChainId = parseInt(n.chainId, 16);
-      return networkChainId === globalContext.chainIdInt;
-    });
-
-    if (network) {
-      currentNetworkName.textContent = `Current Network: ${network.name}`;
-    } else {
-      // Fallback to chain ID if network not found
-      currentNetworkName.textContent = `Current Network: Chain ID 0x${globalContext.chainIdInt.toString(
-        16,
-      )}`;
-    }
-  } else {
+  if (!globalContext.chainIdInt) {
     currentNetworkName.textContent = 'Current Network: Not Connected';
+    return;
   }
+  const network = NETWORKS.find((n) => {
+    const networkChainId = parseInt(n.chainId, 16);
+    return networkChainId === globalContext.chainIdInt;
+  });
+  // Fallback to chain ID if network not found
+  currentNetworkName.textContent = network
+    ? `Current Network: ${network.name}`
+    : `Current Network: Chain ID 0x${globalContext.chainIdInt.toString(16)}`;
 }
 
 export function updateActiveNetworkInModal() {
