@@ -191,41 +191,24 @@ export async function switchNetwork(chainId) {
 }
 
 export function updateCurrentNetworkDisplay() {
-  const currentChainId = globalContext.chainIdInt
-    ? globalContext.chainIdInt.toString(16)
-    : globalContext.chainIdPadded;
   const currentNetworkName = document.getElementById('currentNetworkName');
 
-  if (currentChainId) {
-    // Convert chainId to proper format for comparison
-    let normalizedChainId;
-    if (typeof currentChainId === 'string') {
-      if (currentChainId.startsWith('0x')) {
-        normalizedChainId = currentChainId;
-      } else {
-        normalizedChainId = `0x${currentChainId}`;
-      }
-    } else {
-      normalizedChainId = `0x${currentChainId.toString(16)}`;
-    }
-
-    const network = NETWORKS.find((n) => n.chainId === normalizedChainId);
+  if (
+    globalContext.chainIdInt !== undefined &&
+    globalContext.chainIdInt !== null
+  ) {
+    const network = NETWORKS.find((n) => {
+      const networkChainId = parseInt(n.chainId, 16);
+      return networkChainId === globalContext.chainIdInt;
+    });
 
     if (network) {
       currentNetworkName.textContent = `Current Network: ${network.name}`;
     } else {
-      // Extract the actual chain ID from the padded version if needed
-      let displayChainId = normalizedChainId;
-      if (normalizedChainId.length > 10) {
-        // If it's a padded chain ID, try to extract the actual chain ID
-        const actualChainId = globalContext.chainIdInt
-          ? globalContext.chainIdInt.toString(16)
-          : null;
-        if (actualChainId) {
-          displayChainId = `0x${actualChainId}`;
-        }
-      }
-      currentNetworkName.textContent = `Current Network: Chain ID ${displayChainId}`;
+      // Fallback to chain ID if network not found
+      currentNetworkName.textContent = `Current Network: Chain ID 0x${globalContext.chainIdInt.toString(
+        16,
+      )}`;
     }
   } else {
     currentNetworkName.textContent = 'Current Network: Not Connected';
@@ -233,18 +216,12 @@ export function updateCurrentNetworkDisplay() {
 }
 
 export function updateActiveNetworkInModal() {
-  const currentChainId =
-    globalContext.chainIdPadded ||
-    (globalContext.chainIdInt ? globalContext.chainIdInt.toString(16) : null);
   const networkItems = document.querySelectorAll('.network-modal-item');
 
   networkItems.forEach((item) => {
     const itemChainId = item.dataset.chainId;
-    const isActive =
-      currentChainId &&
-      (itemChainId === currentChainId ||
-        itemChainId === `0x${currentChainId}` ||
-        itemChainId === parseInt(currentChainId, 16).toString(16));
+    const itemChainIdInt = parseInt(itemChainId, 16);
+    const isActive = itemChainIdInt === globalContext.chainIdInt;
 
     if (isActive) {
       item.classList.add('active');
