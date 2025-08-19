@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## [9.5.0]
 ### Added
-- feat: add network picker ([#414](https://github.com/MetaMask/test-dapp/pull/414))
-- feat: add batch approval button ([#410](https://github.com/MetaMask/test-dapp/pull/410))
+- Add network picker ([#414](https://github.com/MetaMask/test-dapp/pull/414))
+- Add batch approval button ([#410](https://github.com/MetaMask/test-dapp/pull/410))
 
 ## [9.4.0]
 ### Added
