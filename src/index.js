@@ -47,6 +47,10 @@ import {
 } from './components/interactions';
 import { sendFormComponent } from './components/forms/send-form';
 import { eip5792Component } from './components/transactions/eip5792';
+import {
+  updateCurrentNetworkDisplay,
+  updateActiveNetworkInModal,
+} from './components/connections/networks-helpers';
 
 const {
   hstBytecode,
@@ -435,6 +439,8 @@ const handleNewChain = (chainId) => {
   if (!scrollToHandled) {
     handleScrollTo({ delay: true });
   }
+  updateCurrentNetworkDisplay();
+  updateActiveNetworkInModal();
 };
 
 function handleNewNetwork(networkId) {

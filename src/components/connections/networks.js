@@ -69,11 +69,6 @@ export function networksComponent(parentContainer) {
     }
   });
 
-  // Update current network display when chain changes
-  document.addEventListener('newNetwork', () => {
-    updateCurrentNetworkDisplay();
-  });
-
   // Initial update
   updateCurrentNetworkDisplay();
 }
