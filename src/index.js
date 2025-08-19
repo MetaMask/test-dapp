@@ -10,8 +10,8 @@ import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 
 import {
   connectionsComponent,
-  permissionsComponent,
   networksComponent,
+  permissionsComponent,
 } from './components/connections';
 import {
   sendComponent,
