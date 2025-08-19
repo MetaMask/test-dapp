@@ -2,6 +2,7 @@ import {
   populateNetworkLists,
   updateCurrentNetworkDisplay,
   updateActiveNetworkInModal,
+  hideNetworkError,
 } from './networks-helpers';
 
 export function networksComponent(parentContainer) {
@@ -58,11 +59,13 @@ export function networksComponent(parentContainer) {
 
   closeButton.addEventListener('click', () => {
     modal.style.display = 'none';
+    hideNetworkError();
   });
 
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       modal.style.display = 'none';
+      hideNetworkError();
     }
   });
 

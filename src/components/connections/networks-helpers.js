@@ -125,11 +125,45 @@ export function createNetworkItem(network) {
   `;
 
   item.addEventListener('click', async () => {
+    hideNetworkError(); // Hide any existing error before attempting to switch
     await switchNetwork(network.chainId);
     document.querySelector('.network-modal').style.display = 'none';
   });
 
   return item;
+}
+
+export function showNetworkError(message) {
+  // Remove any existing error message
+  hideNetworkError();
+
+  // Create error message element
+  const errorDiv = document.createElement('div');
+  errorDiv.id = 'networkError';
+  errorDiv.className = 'error-message';
+  errorDiv.style.marginTop = '10px';
+  errorDiv.style.width = '100%';
+  errorDiv.innerHTML = `
+    <img src="alert-red.svg" alt="" class="error-message-icon" />
+    <div class="error-message-text">${message}</div>
+  `;
+
+  // Find the network picker button and insert error after it
+  const networkButton = document.getElementById('openNetworkPicker');
+  const cardBody = networkButton.closest('.card-body');
+  cardBody.appendChild(errorDiv);
+
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    hideNetworkError();
+  }, 5000);
+}
+
+export function hideNetworkError() {
+  const existingError = document.getElementById('networkError');
+  if (existingError) {
+    existingError.remove();
+  }
 }
 
 export async function switchNetwork(chainId) {
@@ -146,29 +180,12 @@ export async function switchNetwork(chainId) {
   } catch (switchError) {
     // This error code indicates that the chain has not been added to MetaMask.
     if (switchError.code === 4902) {
-      try {
-        const network = NETWORKS.find((n) => n.chainId === chainId);
-        await globalContext.provider.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId,
-              chainName: network ? network.name : 'Unknown Network',
-              nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18,
-              },
-              rpcUrls: ['https://rpc.example.com'],
-              blockExplorerUrls: ['https://explorer.example.com'],
-            },
-          ],
-        });
-      } catch (addError) {
-        console.error('Error adding network:', addError);
-      }
+      const network = NETWORKS.find((n) => n.chainId === chainId);
+      const networkName = network ? network.name : `Chain ID ${chainId}`;
+      showNetworkError(`${networkName} is not available in your wallet`);
     } else {
       console.error('Error switching network:', switchError);
+      showNetworkError('Failed to switch network');
     }
   }
 }
