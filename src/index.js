@@ -11,6 +11,7 @@ import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 import {
   connectionsComponent,
   permissionsComponent,
+  networksComponent,
 } from './components/connections';
 import {
   sendComponent,
@@ -161,6 +162,7 @@ connectionsRow.className = 'row d-flex justify-content-center';
 connectionsSection.appendChild(connectionsRow);
 connectionsComponent(connectionsRow);
 permissionsComponent(connectionsRow);
+networksComponent(connectionsRow);
 
 // Connection buttons set up by this file
 const onboardButton = document.getElementById('connectButton');
