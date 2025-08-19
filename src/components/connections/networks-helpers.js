@@ -143,10 +143,7 @@ export function showNetworkError(message) {
   errorDiv.className = 'error-message';
   errorDiv.style.marginTop = '10px';
   errorDiv.style.width = '100%';
-  errorDiv.innerHTML = `
-    <img src="alert-red.svg" alt="" class="error-message-icon" />
-    <div class="error-message-text">${message}</div>
-  `;
+  errorDiv.innerHTML = `<div class="error-message-text">${message}</div>`;
 
   // Find the network picker button and insert error after it
   const networkButton = document.getElementById('openNetworkPicker');
