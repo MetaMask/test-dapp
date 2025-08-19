@@ -10,6 +10,7 @@ import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 
 import {
   connectionsComponent,
+  networksComponent,
   permissionsComponent,
 } from './components/connections';
 import {
@@ -46,6 +47,10 @@ import {
 } from './components/interactions';
 import { sendFormComponent } from './components/forms/send-form';
 import { eip5792Component } from './components/transactions/eip5792';
+import {
+  updateCurrentNetworkDisplay,
+  updateActiveNetworkInModal,
+} from './components/connections/networks-helpers';
 
 const {
   hstBytecode,
@@ -161,6 +166,7 @@ connectionsRow.className = 'row d-flex justify-content-center';
 connectionsSection.appendChild(connectionsRow);
 connectionsComponent(connectionsRow);
 permissionsComponent(connectionsRow);
+networksComponent(connectionsRow);
 
 // Connection buttons set up by this file
 const onboardButton = document.getElementById('connectButton');
@@ -433,6 +439,8 @@ const handleNewChain = (chainId) => {
   if (!scrollToHandled) {
     handleScrollTo({ delay: true });
   }
+  updateCurrentNetworkDisplay();
+  updateActiveNetworkInModal();
 };
 
 function handleNewNetwork(networkId) {
