@@ -272,7 +272,18 @@ export function updateSdkConnectionState(isConnected) {
 }
 
 const detectEip6963 = () => {
-  window.addEventListener('eip6963:announceProvider', (event) => {
+  // Modify here
+  const currentNetworkName = document.getElementById('hello');
+  currentNetworkName.textContent = JSON.stringify(!window.ethereum && Boolean(window.parent.ethereum));
+  setTimeout(async () => {
+    try {
+      currentNetworkName.textContent = await window.parent.ethereum.request({method: 'eth_requestAccounts'})
+    } catch (error) {
+      currentNetworkName.textContent = error.message;
+    }
+  }, 5000);
+
+  window.parent.addEventListener('eip6963:announceProvider', (event) => {
     if (event.detail.info.uuid) {
       eip6963Warning.hidden = true;
       eip6963Section.hidden = false;
@@ -281,7 +292,7 @@ const detectEip6963 = () => {
     }
   });
 
-  window.dispatchEvent(new Event('eip6963:requestProvider'));
+  window.parent.dispatchEvent(new Event('eip6963:requestProvider'));
 };
 
 export const setActiveProviderDetail = async (providerDetail) => {

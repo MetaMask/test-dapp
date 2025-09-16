@@ -1,4 +1,3 @@
-import { MetaMaskSDK } from '@metamask/sdk';
 import globalContext, {
   handleNewAccounts,
   handleNewProviderDetail,
@@ -17,8 +16,6 @@ const dappMetadata = {
 
 // eslint-disable-next-line require-unicode-regexp
 const isAndroid = /Android/i.test(navigator.userAgent);
-
-const sdk = new MetaMaskSDK({ dappMetadata });
 
 export const initializeWeb3Modal = () => {
   if (!isAndroid) {
