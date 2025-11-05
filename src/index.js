@@ -19,6 +19,7 @@ import {
   erc1155Component,
   eip747Component,
   erc721Component,
+  swapComparisonComponent,
 } from './components/transactions';
 import {
   ppomMaliciousSendCalls,
@@ -184,6 +185,7 @@ erc721Component(transactionsRow);
 erc1155Component(transactionsRow);
 eip747Component(transactionsRow);
 eip5792Component(transactionsRow);
+swapComparisonComponent(transactionsRow);
 
 const ppomSection = document.createElement('section');
 mainContainer.appendChild(ppomSection);
