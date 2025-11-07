@@ -273,8 +273,12 @@ export function swapComparisonComponent(parentContainer) {
     updateSwapDetailsDisplay();
   });
 
+  document.addEventListener('newChainIdInt', function (e) {
+    swapButton.disabled = e.detail.chainIdInt !== 1;
+  });
+
   document.addEventListener('globalConnectionChange', function (e) {
-    if (e.detail.connected) {
+    if (e.detail.connected && globalContext.chainIdInt === 1) {
       swapButton.disabled = false;
     }
   });

@@ -441,6 +441,12 @@ const handleNewChain = (chainId) => {
   if (!scrollToHandled) {
     handleScrollTo({ delay: true });
   }
+
+  const changeEvent = new CustomEvent('newChainIdInt', {
+    detail: { chainIdInt: globalContext.chainIdInt },
+  });
+  document.dispatchEvent(changeEvent);
+
   updateCurrentNetworkDisplay();
   updateActiveNetworkInModal();
 };
