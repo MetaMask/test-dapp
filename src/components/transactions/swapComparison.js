@@ -145,7 +145,7 @@ export function swapComparisonComponent(parentContainer) {
         <div class="card full-width">
             <div class="card-body">
             <h4 class="card-title">
-                Swap Comparison (High Fee Test)
+                Swap Comparison (High Fee Test - Mainnet only)
             </h4>
 
             <p class="info-text alert alert-warning">
