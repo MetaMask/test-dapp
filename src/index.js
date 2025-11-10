@@ -36,6 +36,7 @@ import {
   signTypedDataVariantsComponent,
   signTypedDataV3Component,
   signTypedDataV4Component,
+  signTypedDataV4WithSaltComponent,
   siweComponent,
   malformedSignaturesComponent,
   malformedTransactionsComponent,
@@ -211,6 +212,7 @@ personalSignComponent(signaturesRow);
 signTypedDataComponent(signaturesRow);
 signTypedDataV3Component(signaturesRow);
 signTypedDataV4Component(signaturesRow);
+signTypedDataV4WithSaltComponent(signaturesRow);
 permitSignComponent(signaturesRow);
 signTypedDataVariantsComponent(signaturesRow);
 siweComponent(signaturesRow);
