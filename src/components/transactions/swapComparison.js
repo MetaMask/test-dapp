@@ -43,6 +43,15 @@ const V4_BASE_ACTIONS_ABI_DEFINITION = {
 };
 
 // Helper functions for input validation and parsing
+function stripLeadingZeros(hexString) {
+  // Handle 0x0 or 0x00...0 -> return 0x0
+  if (hexString === '0x' || /^0x0+$/u.test(hexString)) {
+    return '0x0';
+  }
+  // Remove leading zeros: 0x0110d... -> 0x110d...
+  return hexString.replace(/^0x0+/u, '0x');
+}
+
 function isValidAddress(address) {
   return ethers.utils.isAddress(address);
 }
@@ -58,8 +67,10 @@ function parseEthAmount(input) {
     if (isNaN(parsed) || parsed < 0) {
       return null;
     }
-    // Convert ETH to wei and then to hex
-    return ethers.utils.parseEther(value.toString()).toHexString();
+    // Convert ETH to wei and then to hex, stripping leading zeros
+    return stripLeadingZeros(
+      ethers.utils.parseEther(value.toString()).toHexString(),
+    );
   } catch {
     return null;
   }
@@ -104,7 +115,9 @@ function getConfigValues() {
 
   const ethAmountHex =
     parseEthAmount(ethAmountInput) ||
-    ethers.utils.parseEther(DEFAULT_ETH_AMOUNT).toHexString();
+    stripLeadingZeros(
+      ethers.utils.parseEther(DEFAULT_ETH_AMOUNT).toHexString(),
+    );
 
   const feeBips =
     parseFeePercentage(feePercentageInput) || DEFAULT_FEE_PERCENTAGE * 100;
