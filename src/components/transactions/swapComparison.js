@@ -1,99 +1,23 @@
 import { ethers } from 'ethers';
 import globalContext from '../..';
+import {
+  UNIVERSAL_ROUTER,
+  USDC_ADDRESS,
+  DEFAULT_FEE_RECIPIENT,
+  DEFAULT_FEE_PERCENTAGE,
+  EMPTY_BYTES,
+  Actions,
+  isValidAddress,
+  parseEthAmount,
+  parseFeePercentage,
+  stripLeadingZeros,
+  addAction,
+} from './swapUtils';
 
-// Constants
-const UNIVERSAL_ROUTER = '0x66a9893cc07d91d95644aedd05d03f95e1dba8af';
-const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-const DEFAULT_FEE_RECIPIENT = '0x58c51ee8998e8ef06362df26a0d966bbd0cf5113';
+// Comparison-specific constants
 const DEFAULT_ETH_AMOUNT = '0.0003'; // 0.0003 ETH
-const DEFAULT_FEE_PERCENTAGE = 50; // 50%
-const EMPTY_BYTES = '0x';
 
-const Actions = {
-  SWAP_EXACT_IN_SINGLE: 0x06,
-  SETTLE_ALL: 0x0c,
-  TAKE_PORTION: 0x10,
-  TAKE_ALL: 0x0f,
-};
-
-const POOL_KEY_STRUCT =
-  '(address currency0,address currency1,uint24 fee,int24 tickSpacing,address hooks)';
-const SWAP_EXACT_IN_SINGLE_STRUCT = `(${POOL_KEY_STRUCT} poolKey,bool zeroForOne,uint128 amountIn,uint128 amountOutMinimum,bytes hookData)`;
-
-const V4_BASE_ACTIONS_ABI_DEFINITION = {
-  [Actions.SWAP_EXACT_IN_SINGLE]: [
-    {
-      name: 'swap',
-      type: SWAP_EXACT_IN_SINGLE_STRUCT,
-    },
-  ],
-  [Actions.SETTLE_ALL]: [
-    { name: 'currency', type: 'address' },
-    { name: 'maxAmount', type: 'uint256' },
-  ],
-  [Actions.TAKE_PORTION]: [
-    { name: 'currency', type: 'address' },
-    { name: 'recipient', type: 'address' },
-    { name: 'bips', type: 'uint256' },
-  ],
-  [Actions.TAKE_ALL]: [
-    { name: 'currency', type: 'address' },
-    { name: 'minAmount', type: 'uint256' },
-  ],
-};
-
-// Helper functions for input validation and parsing
-function stripLeadingZeros(hexString) {
-  // Handle 0x0 or 0x00...0 -> return 0x0
-  if (hexString === '0x' || /^0x0+$/u.test(hexString)) {
-    return '0x0';
-  }
-  // Remove leading zeros: 0x0110d... -> 0x110d...
-  return hexString.replace(/^0x0+/u, '0x');
-}
-
-function isValidAddress(address) {
-  return ethers.utils.isAddress(address);
-}
-
-function parseEthAmount(input) {
-  const value = input.trim();
-  if (!value) {
-    return null;
-  }
-
-  try {
-    const parsed = parseFloat(value);
-    if (isNaN(parsed) || parsed < 0) {
-      return null;
-    }
-    // Convert ETH to wei and then to hex, stripping leading zeros
-    return stripLeadingZeros(
-      ethers.utils.parseEther(value.toString()).toHexString(),
-    );
-  } catch {
-    return null;
-  }
-}
-
-function parseFeePercentage(input) {
-  const value = input.trim();
-  if (!value) {
-    return null;
-  }
-
-  try {
-    const parsed = parseFloat(value);
-    if (isNaN(parsed) || parsed < 0 || parsed > 100) {
-      return null;
-    }
-    // Convert percentage to basis points (1% = 100 basis points)
-    return Math.round(parsed * 100);
-  } catch {
-    return null;
-  }
-}
-
+// Helper function to get configuration values from UI
 function getConfigValues() {
   const feeRecipientElement = document.getElementById('feeRecipientInput');
   const ethAmountElement = document.getElementById('ethAmountInput');
@@ -129,25 +53,6 @@ function getConfigValues() {
     ethAmountDisplay: ethAmountInput || DEFAULT_ETH_AMOUNT,
     feePercentageDisplay:
       feePercentageInput || DEFAULT_FEE_PERCENTAGE.toString(),
-  };
-}
-
-function createAction(action, parameters) {
-  const encodedInput = ethers.utils.defaultAbiCoder.encode(
-    V4_BASE_ACTIONS_ABI_DEFINITION[action].map((v) => v.type),
-    parameters,
-  );
-  return { action, encodedInput };
-}
-
-function addAction(type, parameters) {
-  const command = createAction(type, parameters);
-  const newParam = command.encodedInput;
-  const newAction = command.action.toString(16).padStart(2, '0');
-
-  return {
-    newParam,
-    newAction,
   };
 }
 
