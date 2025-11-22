@@ -248,18 +248,21 @@ const isMetaMaskConnected = () =>
 let isWalletConnectConnected = false;
 let isSdkConnected = false;
 
-// TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () =>
   globalContext.provider && globalContext.provider.isMetaMask;
 
 walletConnectBtn.onclick = () => {
   walletConnect.open();
-  walletConnect.subscribeProvider(() => {
-    handleWalletConnect(
-      'wallet-connect',
-      walletConnectBtn,
-      isWalletConnectConnected,
-    );
+
+  walletConnect.subscribeState((state) => {
+    if (state.open === false && state.isConnected) {
+      // This will run when the modal is closed and the user is connected
+      handleWalletConnect(
+        'wallet-connect',
+        walletConnectBtn,
+        isWalletConnectConnected,
+      );
+    }
   });
 };
 
@@ -269,6 +272,7 @@ sdkConnectBtn.onclick = async () => {
 
 export function updateWalletConnectState(isConnected) {
   isWalletConnectConnected = isConnected;
+
 }
 
 export function updateSdkConnectionState(isConnected) {

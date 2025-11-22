@@ -16,6 +16,10 @@ module.exports = {
       zlib: false,
       url: false,
     },
+    alias: {
+      // Add this to directly map process/browser to the module
+      'process/browser': require.resolve('process/browser'),
+    },
   },
   devtool: 'eval-source-map',
   mode: 'development',
@@ -44,7 +48,8 @@ module.exports = {
   plugins: [
     new ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
-      process: ['process/browser'],
+      // Update this to use the string instead of array
+      process: 'process/browser',
     }),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
 
