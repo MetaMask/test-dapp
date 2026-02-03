@@ -17,9 +17,13 @@ export const DEFAULT_CALLS = [
 
 const ERC20_USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const ERC20_USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+const MAINNET_CHAIN_ID = '0x1';
+const MAINNET_CHAIN_ID_INT = 1;
+const POINT_ONE_USDC_IN_HEX = '0x186a0'; // 0.1 USDC (100000 units, 6 decimals)
 const ERC721_BORED_APE = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
 const ERC1155_OPENSTORE = '0x495f947276749ce646f68ac8c248420045cb7b5e';
 const PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
+const TEST_RECIPIENT_ADDRESS = '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb';
 
 const CALL_APPROVAL_ERC20_LEGACY = {
   data: '0x095ea7b30000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000459480',
@@ -112,6 +116,14 @@ export function sendCallsComponent(parentContainer) {
         Send Calls - Multiple Approvals
     </button>
 
+    <button
+        class="btn btn-primary btn-lg btn-block mb-3"
+        id="eip5792SendCallsRequiredAssetsButton"
+        disabled
+    >
+        Send Calls - Required Assets
+    </button>
+
     <p class="info-text alert alert-warning" id="eip5792SendCallsErrorContainer" hidden>
         <span class="wrap" id="eip5792SendCallsError"></span>
     </p>`,
@@ -128,10 +140,20 @@ export function sendCallsComponent(parentContainer) {
   const sendCallsApprovalButton = document.getElementById(
     'eip5792SendCallsApprovalButton',
   );
+  const sendCallsRequiredAssetsButton = document.getElementById(
+    'eip5792SendCallsRequiredAssetsButton',
+  );
   const errorContainer = document.getElementById(
     'eip5792SendCallsErrorContainer',
   );
   const errorOutput = document.getElementById('eip5792SendCallsError');
+
+  function updateRequiredAssetsButtonState() {
+    const isConnected =
+      globalContext.accounts && globalContext.accounts.length > 0;
+    const isMainnet = globalContext.chainIdInt === MAINNET_CHAIN_ID_INT;
+    sendCallsRequiredAssetsButton.disabled = !isConnected || !isMainnet;
+  }
 
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
@@ -139,7 +161,12 @@ export function sendCallsComponent(parentContainer) {
       addCallButton.disabled = false;
       sendCallsButton.disabled = false;
       sendCallsApprovalButton.disabled = false;
+      updateRequiredAssetsButtonState();
     }
+  });
+
+  document.addEventListener('chainChanged', function () {
+    updateRequiredAssetsButtonState();
   });
 
   document.addEventListener('disableAndClear', function () {
@@ -147,6 +174,7 @@ export function sendCallsComponent(parentContainer) {
     addCallButton.disabled = true;
     sendCallsButton.disabled = true;
     sendCallsApprovalButton.disabled = true;
+    sendCallsRequiredAssetsButton.disabled = true;
   });
 
   editButton.onclick = async () => {
@@ -191,16 +219,44 @@ export function sendCallsComponent(parentContainer) {
     ]);
   };
 
-  async function submitRequest(calls) {
+  sendCallsRequiredAssetsButton.onclick = () => {
+    submitRequest(
+      [{ to: TEST_RECIPIENT_ADDRESS, value: '0x0' }],
+      {
+        auxiliaryFunds: {
+          supported: true,
+          requiredAssets: [
+            {
+              address: ERC20_USDC,
+              amount: POINT_ONE_USDC_IN_HEX,
+              standard: 'erc20',
+            },
+          ],
+        },
+      },
+      MAINNET_CHAIN_ID,
+    );
+  };
+
+  async function submitRequest(calls, capabilities, chainIdOverride) {
     try {
+      const params = getParams();
+
+      if (calls) {
+        params.calls = calls;
+      }
+
+      if (capabilities) {
+        params.capabilities = capabilities;
+      }
+
+      if (chainIdOverride) {
+        params.chainId = chainIdOverride;
+      }
+
       const result = await globalContext.provider.request({
         method: 'wallet_sendCalls',
-        params: [
-          {
-            ...getParams(),
-            ...(calls ? { calls } : {}),
-          },
-        ],
+        params: [params],
       });
 
       document.getElementById('eip5792RequestIdInput').value = result.id;
