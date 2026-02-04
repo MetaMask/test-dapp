@@ -15,9 +15,18 @@ export const DEFAULT_CALLS = [
   },
 ];
 
-const ERC20_USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+const USDC_BY_CHAIN = {
+  1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // Mainnet
+  10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', // Optimism
+  137: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', // Polygon
+  8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base
+  42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', // Arbitrum
+  43114: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', // Avalanche
+  59144: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff', // Linea
+};
+
+const ERC20_USDC_MAINNET = USDC_BY_CHAIN[1];
 const ERC20_USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
-const CHAIN_ID_MAINNET = 1;
 const REQUIRED_AMOUNT = '0x186a0'; // 0.1 USDC (100000 units, 6 decimals)
 const ERC721_BORED_APE = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
 const ERC1155_OPENSTORE = '0x495f947276749ce646f68ac8c248420045cb7b5e';
@@ -26,7 +35,7 @@ const TEST_RECIPIENT_ADDRESS = '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb';
 
 const CALL_APPROVAL_ERC20_LEGACY = {
   data: '0x095ea7b30000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000459480',
-  to: ERC20_USDC,
+  to: ERC20_USDC_MAINNET,
 };
 
 const CALL_APPROVAL_ERC20_PERMIT_2 = {
@@ -36,7 +45,7 @@ const CALL_APPROVAL_ERC20_PERMIT_2 = {
 
 const CALL_APPROVAL_ERC20_INCREASE_ALLOWANCE = {
   data: '0x395093510000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000786450',
-  to: ERC20_USDC,
+  to: ERC20_USDC_MAINNET,
 };
 
 const CALL_APPROVAL_ERC20_LEGACY_UNLIMITED = {
@@ -150,8 +159,8 @@ export function sendCallsComponent(parentContainer) {
   function updateRequiredAssetsButtonState() {
     const isConnected =
       globalContext.accounts && globalContext.accounts.length > 0;
-    const isMainnet = globalContext.chainIdInt === CHAIN_ID_MAINNET;
-    sendCallsRequiredAssetsButton.disabled = !isConnected || !isMainnet;
+    const hasUsdc = Boolean(USDC_BY_CHAIN[globalContext.chainIdInt]);
+    sendCallsRequiredAssetsButton.disabled = !isConnected || !hasUsdc;
   }
 
   document.addEventListener('globalConnectionChange', function (e) {
@@ -219,12 +228,14 @@ export function sendCallsComponent(parentContainer) {
   };
 
   sendCallsRequiredAssetsButton.onclick = () => {
+    const usdcAddress = USDC_BY_CHAIN[globalContext.chainIdInt];
+
     submitRequest([{ to: TEST_RECIPIENT_ADDRESS, value: '0x0' }], {
       auxiliaryFunds: {
         supported: true,
         requiredAssets: [
           {
-            address: ERC20_USDC,
+            address: usdcAddress,
             amount: REQUIRED_AMOUNT,
             standard: 'erc20',
           },
