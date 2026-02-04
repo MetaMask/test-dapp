@@ -159,7 +159,9 @@ export function sendCallsComponent(parentContainer) {
   function updateRequiredAssetsButtonState() {
     const isConnected =
       globalContext.accounts && globalContext.accounts.length > 0;
+
     const hasUsdc = Boolean(USDC_BY_CHAIN[globalContext.chainIdInt]);
+
     sendCallsRequiredAssetsButton.disabled = !isConnected || !hasUsdc;
   }
 
@@ -173,7 +175,7 @@ export function sendCallsComponent(parentContainer) {
     }
   });
 
-  document.addEventListener('chainChanged', function () {
+  document.addEventListener('newChainIdInt', function () {
     updateRequiredAssetsButtonState();
   });
 
