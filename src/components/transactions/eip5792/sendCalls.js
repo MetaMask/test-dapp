@@ -15,15 +15,27 @@ export const DEFAULT_CALLS = [
   },
 ];
 
-const ERC20_USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+const USDC_BY_CHAIN = {
+  1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // Mainnet
+  10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', // Optimism
+  137: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', // Polygon
+  8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base
+  42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', // Arbitrum
+  43114: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', // Avalanche
+  59144: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff', // Linea
+};
+
+const ERC20_USDC_MAINNET = USDC_BY_CHAIN[1];
 const ERC20_USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+const REQUIRED_AMOUNT = '0x186a0'; // 0.1 USDC (100000 units, 6 decimals)
 const ERC721_BORED_APE = '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d';
 const ERC1155_OPENSTORE = '0x495f947276749ce646f68ac8c248420045cb7b5e';
 const PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
+const TEST_RECIPIENT_ADDRESS = '0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb';
 
 const CALL_APPROVAL_ERC20_LEGACY = {
   data: '0x095ea7b30000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000459480',
-  to: ERC20_USDC,
+  to: ERC20_USDC_MAINNET,
 };
 
 const CALL_APPROVAL_ERC20_PERMIT_2 = {
@@ -33,7 +45,7 @@ const CALL_APPROVAL_ERC20_PERMIT_2 = {
 
 const CALL_APPROVAL_ERC20_INCREASE_ALLOWANCE = {
   data: '0x395093510000000000000000000000000c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb0000000000000000000000000000000000000000000000000000000000786450',
-  to: ERC20_USDC,
+  to: ERC20_USDC_MAINNET,
 };
 
 const CALL_APPROVAL_ERC20_LEGACY_UNLIMITED = {
@@ -112,6 +124,14 @@ export function sendCallsComponent(parentContainer) {
         Send Calls - Multiple Approvals
     </button>
 
+    <button
+        class="btn btn-primary btn-lg btn-block mb-3"
+        id="eip5792SendCallsRequiredAssetsButton"
+        disabled
+    >
+        Send Calls - Required Assets
+    </button>
+
     <p class="info-text alert alert-warning" id="eip5792SendCallsErrorContainer" hidden>
         <span class="wrap" id="eip5792SendCallsError"></span>
     </p>`,
@@ -128,10 +148,22 @@ export function sendCallsComponent(parentContainer) {
   const sendCallsApprovalButton = document.getElementById(
     'eip5792SendCallsApprovalButton',
   );
+  const sendCallsRequiredAssetsButton = document.getElementById(
+    'eip5792SendCallsRequiredAssetsButton',
+  );
   const errorContainer = document.getElementById(
     'eip5792SendCallsErrorContainer',
   );
   const errorOutput = document.getElementById('eip5792SendCallsError');
+
+  function updateRequiredAssetsButtonState() {
+    const isConnected =
+      globalContext.accounts && globalContext.accounts.length > 0;
+
+    const hasUsdc = Boolean(USDC_BY_CHAIN[globalContext.chainIdInt]);
+
+    sendCallsRequiredAssetsButton.disabled = !isConnected || !hasUsdc;
+  }
 
   document.addEventListener('globalConnectionChange', function (e) {
     if (e.detail.connected) {
@@ -139,7 +171,12 @@ export function sendCallsComponent(parentContainer) {
       addCallButton.disabled = false;
       sendCallsButton.disabled = false;
       sendCallsApprovalButton.disabled = false;
+      updateRequiredAssetsButtonState();
     }
+  });
+
+  document.addEventListener('newChainIdInt', function () {
+    updateRequiredAssetsButtonState();
   });
 
   document.addEventListener('disableAndClear', function () {
@@ -147,6 +184,7 @@ export function sendCallsComponent(parentContainer) {
     addCallButton.disabled = true;
     sendCallsButton.disabled = true;
     sendCallsApprovalButton.disabled = true;
+    sendCallsRequiredAssetsButton.disabled = true;
   });
 
   editButton.onclick = async () => {
@@ -191,16 +229,38 @@ export function sendCallsComponent(parentContainer) {
     ]);
   };
 
-  async function submitRequest(calls) {
-    try {
-      const result = await globalContext.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
+  sendCallsRequiredAssetsButton.onclick = () => {
+    const usdcAddress = USDC_BY_CHAIN[globalContext.chainIdInt];
+
+    submitRequest([{ to: TEST_RECIPIENT_ADDRESS, value: '0x0' }], {
+      auxiliaryFunds: {
+        supported: true,
+        requiredAssets: [
           {
-            ...getParams(),
-            ...(calls ? { calls } : {}),
+            address: usdcAddress,
+            amount: REQUIRED_AMOUNT,
+            standard: 'erc20',
           },
         ],
+      },
+    });
+  };
+
+  async function submitRequest(calls, capabilities) {
+    try {
+      const params = getParams();
+
+      if (calls) {
+        params.calls = calls;
+      }
+
+      if (capabilities) {
+        params.capabilities = capabilities;
+      }
+
+      const result = await globalContext.provider.request({
+        method: 'wallet_sendCalls',
+        params: [params],
       });
 
       document.getElementById('eip5792RequestIdInput').value = result.id;
