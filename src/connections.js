@@ -15,31 +15,24 @@ const dappMetadata = {
   url: 'https://metamask.github.io/test-dapp/',
 };
 
-// eslint-disable-next-line require-unicode-regexp
-const isAndroid = /Android/i.test(navigator.userAgent);
-
 const sdk = new MetaMaskSDK({ dappMetadata });
 
 export const initializeWeb3Modal = () => {
-  if (!isAndroid) {
-    try {
-      // eslint-disable-next-line node/global-require
-      const { createWeb3Modal, defaultConfig } = require('@web3modal/ethers5');
+  try {
+    // eslint-disable-next-line node/global-require
+    const { createWeb3Modal, defaultConfig } = require('@web3modal/ethers5');
 
-      const web3Modal = createWeb3Modal({
-        ethersConfig: defaultConfig({ metadata: dappMetadata }),
-        projectId: 'e6360eaee594162688065f1c70c863b7',
-      });
+    const web3Modal = createWeb3Modal({
+      ethersConfig: defaultConfig({ metadata: dappMetadata }),
+      projectId: 'e6360eaee594162688065f1c70c863b7',
+    });
 
-      console.log('Web3Modal initialized successfully');
-      return web3Modal;
-    } catch (error) {
-      console.error('Error initializing Web3Modal', error);
-    }
+    console.log('Web3Modal initialized successfully');
+    return web3Modal;
+  } catch (error) {
+    console.error('Error initializing Web3Modal', error);
+    return null;
   }
-
-  console.log('Web3Modal is not initialized');
-  return null;
 };
 
 export const walletConnect = initializeWeb3Modal();
