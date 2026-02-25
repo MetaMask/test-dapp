@@ -237,6 +237,57 @@ mainContainer.appendChild(resolutionsSection);
 ensResolutionComponent(resolutionsSection);
 
 /**
+ * Dark Mode Toggle
+ */
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+// Function to set theme
+const setTheme = (theme) => {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+};
+
+// Function to get saved theme or default
+const getSavedTheme = () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    return savedTheme;
+  }
+
+  // Default to light mode
+  return 'light';
+};
+
+// Initialize theme
+const initializeTheme = () => {
+  const currentTheme = getSavedTheme();
+  setTheme(currentTheme);
+};
+
+// Toggle theme
+const toggleTheme = () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  setTheme(newTheme);
+};
+
+// Add event listener
+darkModeToggle.addEventListener('click', toggleTheme);
+
+// Listen for system theme changes (only if user hasn't set a preference)
+if (window.matchMedia) {
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', () => {
+      // Only follow system preference if user hasn't explicitly set a theme
+      if (!localStorage.getItem('theme')) {
+        // Still default to light mode even when system changes
+        setTheme('light');
+      }
+    });
+}
+
+/**
  * Provider
  */
 
@@ -740,6 +791,7 @@ const updateContractElements = () => {
  */
 
 const initialize = async () => {
+  initializeTheme();
   await setActiveProviderDetailWindowEthereum();
   detectEip6963();
   // We only want to set the activeProviderDetail is there is one instead of
