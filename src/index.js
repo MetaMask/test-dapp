@@ -53,6 +53,7 @@ import {
   updateCurrentNetworkDisplay,
   updateActiveNetworkInModal,
 } from './components/connections/networks-helpers';
+import { tempoTransactionsComponent } from './components/tempo-transactions/tempo-transactions';
 
 const {
   hstBytecode,
@@ -218,6 +219,7 @@ signTypedDataVariantsComponent(signaturesRow);
 siweComponent(signaturesRow);
 malformedSignaturesComponent(signaturesRow);
 malformedTransactionsComponent(signaturesRow);
+tempoTransactionsComponent(signaturesRow);
 
 const interactionsSection = document.createElement('section');
 mainContainer.appendChild(interactionsSection);
