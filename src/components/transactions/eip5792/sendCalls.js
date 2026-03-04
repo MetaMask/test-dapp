@@ -232,18 +232,28 @@ export function sendCallsComponent(parentContainer) {
   sendCallsRequiredAssetsButton.onclick = () => {
     const usdcAddress = USDC_BY_CHAIN[globalContext.chainIdInt];
 
-    submitRequest([{ to: TEST_RECIPIENT_ADDRESS, value: '0x0' }], {
-      auxiliaryFunds: {
-        supported: true,
-        requiredAssets: [
-          {
-            address: usdcAddress,
-            amount: REQUIRED_AMOUNT,
-            standard: 'erc20',
-          },
-        ],
+    submitRequest(
+      [
+        {
+          to: TEST_RECIPIENT_ADDRESS,
+          value: '0x0',
+          // test(uint256 -> 123)
+          data: '0x29e99f07000000000000000000000000000000000000000000000000000000000000007b',
+        },
+      ],
+      {
+        auxiliaryFunds: {
+          supported: true,
+          requiredAssets: [
+            {
+              address: usdcAddress,
+              amount: REQUIRED_AMOUNT,
+              standard: 'erc20',
+            },
+          ],
+        },
       },
-    });
+    );
   };
 
   async function submitRequest(calls, capabilities) {
