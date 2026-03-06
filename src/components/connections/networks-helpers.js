@@ -62,6 +62,24 @@ const NETWORKS = [
     color: '#8e71c7',
     category: 'main',
   },
+  {
+    name: 'HyperEVM',
+    chainId: '0x3e7',
+    color: '#50e3a4',
+    category: 'main',
+  },
+  {
+    name: 'MegaETH',
+    chainId: '0x10e6',
+    color: '#f43f5e',
+    category: 'main',
+  },
+  {
+    name: 'Monad',
+    chainId: '0x8f',
+    color: '#836ef9',
+    category: 'main',
+  },
 
   // Test networks
   {

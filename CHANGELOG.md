@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [9.8.0]
+### Added
+- Add a new Send Calls - Required Assets button to the EIP-5792 send calls section ([#423](https://github.com/MetaMask/test-dapp/pull/423))
+
+### Changed
+- Enable importing and rendering the Web3Modal on Android ([#424](https://github.com/MetaMask/test-dapp/pull/424))
+
 ## [9.7.0]
 ### Added
 - Add swap comparison card for batch transactions ([#420](https://github.com/MetaMask/test-dapp/pull/420))
