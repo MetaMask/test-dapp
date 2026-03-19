@@ -80,6 +80,12 @@ const NETWORKS = [
     color: '#836ef9',
     category: 'main',
   },
+  {
+    name: 'Tempo Mainnet (Presto)',
+    chainId: '0x1079',
+    color: '#dcdcdc',
+    category: 'main',
+  },
 
   // Test networks
   {
@@ -104,6 +110,12 @@ const NETWORKS = [
     name: 'Monad Testnet',
     chainId: '0x1a5',
     color: '#ff6b35',
+    category: 'test',
+  },
+  {
+    name: 'Tempo Testnet (Moderato)',
+    chainId: '0xa5bf',
+    color: '#dcdcdc',
     category: 'test',
   },
 ];

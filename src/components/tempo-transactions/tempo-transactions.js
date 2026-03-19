@@ -3,9 +3,9 @@ import globalContext from '../..';
 // Tempo Transactions
 
 // ERC20 TST token created and owned by shared account 0x13b7e6EBcd40777099E4c45d407745aB2de1D1F8
-const defaultErc20TokenAddress = '0x86fA047df5b69df0CBD6dF566F1468756dCF339D';
-const defaultChainId = '0x89'; // Forcing to Polygon PoS for now since EIP7702 not available on Tempo
-const defaultFeeToken = '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359'; // USDC Coin (PoS) for Polygon Mainnet testing
+const defaultErc20TokenAddress = '0x54a114fecE3dffd7c5D4089D0A43E01F0939464c';
+// pathUSD (default Tempo fee token
+const defaultFeeToken = '0x20c0000000000000000000000000000000000000';
 
 export function tempoTransactionsComponent(parentContainer) {
   parentContainer.insertAdjacentHTML(
@@ -18,16 +18,6 @@ export function tempoTransactionsComponent(parentContainer) {
           <h4>
             Tempo Transactions
           </h4>
-          <div class="mb-3">
-            <label for="tempoChainIdInput" class="form-label">Chain ID</label>
-            <input
-              type="text"
-              class="form-control"
-              id="tempoChainIdInput"
-              value="${defaultChainId}"
-              placeholder="${defaultChainId}"
-            />
-          </div>
 
           <div class="mb-3">
             <label for="tempoErc20TokenAddressInput" class="form-label">ERC20 Token Address</label>
@@ -57,7 +47,7 @@ export function tempoTransactionsComponent(parentContainer) {
           >
           Send Tempo (0x76) Batch Transaction
           </button>
-          <p>Sends a minimalistic 0x76 batch with 2 ERC20 transfers on chain [chainId] (hex) for initial testing:</p>
+          <p>Sends a minimalistic 0x76 batch with 2 ERC20 transfers for initial testing:</p>
           <ul>
             <li>0.01 [erc20Token] to 0x2367e6eca6e1fcc2d112133c896e3bddad375aff</li>
             <li>0.01 [erc20Token] to 0x1e3abc74428056924cEeE2F45f060879c3F063ed</li>
@@ -96,10 +86,9 @@ export function tempoTransactionsComponent(parentContainer) {
       const erc20TokenAddress = document.getElementById(
         'tempoErc20TokenAddressInput',
       ).value;
-      const chainId = document.getElementById('tempoChainIdInput').value;
       const feeToken = document.getElementById('tempoFeeTokenInput').value;
       // As sent by some Tempo example dapps
-      const send = await globalContext.provider.request({
+      const ethRequest = {
         method: 'eth_sendTransaction',
         params: [
           {
@@ -115,13 +104,13 @@ export function tempoTransactionsComponent(parentContainer) {
                 value: '0x',
               },
             ],
-            chainId,
             feeToken,
             from,
             type: '0x76', // Tempo in-house tx type.
           },
         ],
-      });
+      };
+      const send = await globalContext.provider.request(ethRequest);
       sendTempoBatchTxResult.innerHTML = send;
     } catch (err) {
       console.error(err);
