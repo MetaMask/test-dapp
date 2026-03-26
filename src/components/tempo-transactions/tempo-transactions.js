@@ -3,7 +3,7 @@ import globalContext from '../..';
 // Tempo Transactions
 
 // ERC20 TST token created and owned by shared account 0x13b7e6EBcd40777099E4c45d407745aB2de1D1F8
-const defaultErc20TokenAddress = '0x54a114fecE3dffd7c5D4089D0A43E01F0939464c';
+const defaultErc20TokenAddress = '0x8757b7EABAAaC8173DF72B868B4947FaE1368784';
 // pathUSD (default Tempo fee token
 const defaultFeeToken = '0x20c0000000000000000000000000000000000000';
 
