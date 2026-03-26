@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [9.9.0]
+### Added
+- Add Tempo to the network picker ([#429](https://github.com/MetaMask/test-dapp/pull/429))
+- Add Tempo panel with batch tx ([#427](https://github.com/MetaMask/test-dapp/pull/427))
+- Add transaction data for EIP5792 sendCalls ([#428](https://github.com/MetaMask/test-dapp/pull/428))
+- Add HyperEVM, MegaETH and Monad to the network picker ([#426](https://github.com/MetaMask/test-dapp/pull/426))
+
+### Changed
+- Change Tempo default ERC20 address to a Mainnet address ([#430](https://github.com/MetaMask/test-dapp/pull/430))
+
 ## [9.8.0]
 ### Added
 - Add a new Send Calls - Required Assets button to the EIP-5792 send calls section ([#423](https://github.com/MetaMask/test-dapp/pull/423))
@@ -280,7 +291,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v9.7.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v9.9.0...HEAD
+[9.9.0]: https://github.com/MetaMask/test-dapp/compare/v9.8.0...v9.9.0
+[9.8.0]: https://github.com/MetaMask/test-dapp/compare/v9.7.0...v9.8.0
 [9.7.0]: https://github.com/MetaMask/test-dapp/compare/v9.6.0...v9.7.0
 [9.6.0]: https://github.com/MetaMask/test-dapp/compare/v9.5.0...v9.6.0
 [9.5.0]: https://github.com/MetaMask/test-dapp/compare/v9.4.0...v9.5.0
