@@ -39,6 +39,7 @@
 ### Task 1: Add Published Dependency And Shared Metadata
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `yarn.lock`
 - Create: `src/dapp-metadata.js`
@@ -125,6 +126,7 @@ Expected:
 ### Task 2: Add Connect EVM Integration Module
 
 **Files:**
+
 - Create: `src/connect-evm.js`
 
 - [ ] **Step 1: Create the Connect EVM module**
@@ -283,6 +285,7 @@ Expected:
 ### Task 3: Add The Connect EVM Button
 
 **Files:**
+
 - Modify: `src/components/connections/connections.js:22-34`
 
 - [ ] **Step 1: Add the button markup**
@@ -290,12 +293,9 @@ Expected:
 In `src/components/connections/connections.js`, insert the new button after the existing SDK button and before `<hr />`:
 
 ```html
-          <button
-            class="btn btn-primary btn-lg btn-block mb-3"
-            id="connectEvm"
-          >
-          Connect EVM
-          </button>
+<button class="btn btn-primary btn-lg btn-block mb-3" id="connectEvm">
+  Connect EVM
+</button>
 ```
 
 The Connect Actions button block should become:
@@ -327,7 +327,7 @@ The Connect Actions button block should become:
 Update the comment block in `src/components/connections/connections.js` to include the new button:
 
 ```javascript
-  /*
+/*
   const onboardButton = document.getElementById('connectButton');
   const walletConnectBtn = document.getElementById('walletConnect');
   const sdkConnectBtn = document.getElementById('sdkConnect');
@@ -366,6 +366,7 @@ Expected:
 ### Task 4: Wire Connect EVM Into The Main Page
 
 **Files:**
+
 - Modify: `src/index.js:3-7`
 - Modify: `src/index.js:174-178`
 - Modify: `src/index.js:248-278`
@@ -425,11 +426,7 @@ After `sdkConnectBtn.onclick`, add:
 
 ```javascript
 connectEvmBtn.onclick = async () => {
-  await handleConnectEvm(
-    'connect-evm',
-    connectEvmBtn,
-    isConnectEvmConnected,
-  );
+  await handleConnectEvm('connect-evm', connectEvmBtn, isConnectEvmConnected);
 };
 ```
 
@@ -474,6 +471,7 @@ Expected:
 ### Task 5: Make Provider Initialization EIP-1193 Based
 
 **Files:**
+
 - Modify: `src/index.js:253-255`
 - Modify: `src/index.js:467-483`
 - Modify: `src/index.js:506-552`
@@ -711,6 +709,7 @@ Expected:
 ### Task 6: Run Build Verification And Fix Integration Issues
 
 **Files:**
+
 - Modify only files already touched in Tasks 1-5 unless the build output identifies a specific missing browser fallback.
 
 - [ ] **Step 1: Run full lint**
@@ -772,6 +771,7 @@ Expected:
 ### Task 7: Manual Smoke Verification
 
 **Files:**
+
 - No planned source edits.
 
 - [ ] **Step 1: Start the dev server**
@@ -848,6 +848,7 @@ Expected:
 ### Task 8: Final Review
 
 **Files:**
+
 - No planned source edits.
 
 - [ ] **Step 1: Review final diff**
