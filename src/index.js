@@ -400,6 +400,10 @@ export const removeProviderDetail = (name) => {
     console.log(`ProviderDetail with name ${name} not found`);
     return;
   }
+  const providerDetail = providerDetails[index];
+  if (globalContext.provider === providerDetail.provider) {
+    closeProvider();
+  }
   providerDetails.splice(index, 1);
   renderProviderDetails();
   console.log(`ProviderDetail with name ${name} removed successfully`);
@@ -542,6 +546,7 @@ const closeProvider = () => {
   handleNewAccounts([]);
   handleNewChain('');
   handleNewNetwork('');
+  globalContext.connected = false;
 
   removeProviderListener(previousProvider, 'chainChanged', handleNewChain);
   removeProviderListener(
@@ -773,18 +778,6 @@ const updateOnboardElements = () => {
   if (isWalletConnectConnected) {
     if (onboarding) {
       onboarding.stopOnboarding();
-    }
-    if ('autoRefreshOnNetworkChange' in globalContext.provider) {
-      globalContext.provider.autoRefreshOnNetworkChange = false;
-    }
-    getNetworkAndChainId();
-
-    if (canSubscribeToProviderEvents()) {
-      globalContext.provider.on('chainChanged', handleNewChain);
-      globalContext.provider.on('chainChanged', handleEIP1559Support);
-      globalContext.provider.on('chainChanged', handleNewNetwork);
-      globalContext.provider.on('accountsChanged', handleNewAccounts);
-      globalContext.provider.on('accountsChanged', handleEIP1559Support);
     }
   }
 };
