@@ -111,6 +111,6 @@ export async function handleWalletConnect(name, button, isConnected) {
     } catch (err) {
       console.error('Error on init when getting accounts', err);
     }
+    globalContext.connected = true;
   }
-  globalContext.connected = true;
 }
