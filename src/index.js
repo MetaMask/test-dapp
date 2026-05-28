@@ -455,14 +455,45 @@ export const handleNewAccounts = (newAccounts) => {
   handleEIP1559Support();
 };
 
+const clearActiveProviderState = () => {
+  activeProviderUUIDResult.innerText = '';
+  activeProviderNameResult.innerText = '';
+  activeProviderIconResult.innerHTML = '';
+
+  globalContext.ethersProvider = undefined;
+  globalContext.chainIdInt = undefined;
+  globalContext.chainIdPadded = undefined;
+  globalContext.networkName = undefined;
+  globalContext.hstContract = undefined;
+  globalContext.hstFactory = undefined;
+  globalContext.piggybankContract = undefined;
+  globalContext.piggybankFactory = undefined;
+  globalContext.nftsContract = undefined;
+  globalContext.nftsFactory = undefined;
+  globalContext.failingContract = undefined;
+  globalContext.failingContractFactory = undefined;
+  globalContext.multisigContract = undefined;
+  globalContext.multisigFactory = undefined;
+  globalContext.erc1155Contract = undefined;
+  globalContext.erc1155Factory = undefined;
+};
+
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
+  const chainIdInt = parseInt(chainIdDiv.innerHTML, 16);
   const networkId = parseInt(networkDiv.innerHTML, 10);
-  globalContext.chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
-  globalContext.chainIdPadded = `0x${globalContext.chainIdInt
-    .toString(16)
-    .padStart(77, '0')}`;
-  globalContext.networkName = NETWORKS_BY_CHAIN_ID[globalContext.chainIdInt];
+  globalContext.chainIdInt = Number.isNaN(chainIdInt) ? networkId : chainIdInt;
+  if (Number.isNaN(globalContext.chainIdInt)) {
+    globalContext.chainIdInt = undefined;
+  }
+  globalContext.chainIdPadded =
+    globalContext.chainIdInt === undefined
+      ? undefined
+      : `0x${globalContext.chainIdInt.toString(16).padStart(77, '0')}`;
+  globalContext.networkName =
+    globalContext.chainIdInt === undefined
+      ? undefined
+      : NETWORKS_BY_CHAIN_ID[globalContext.chainIdInt];
 
   if (chainId === '0x1') {
     warningDiv.classList.remove('warning-invisible');
@@ -544,8 +575,9 @@ const closeProvider = () => {
 
   globalContext.provider = undefined;
   handleNewAccounts([]);
-  handleNewChain('');
   handleNewNetwork('');
+  handleNewChain('');
+  clearActiveProviderState();
   globalContext.connected = false;
 
   removeProviderListener(previousProvider, 'chainChanged', handleNewChain);
