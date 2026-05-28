@@ -66,13 +66,13 @@ function getConnectEvmProviderDetail(provider, name) {
 }
 
 function setConnectedButtonState(button) {
-  button.innerText = 'Connect EVM - Disconnect';
+  button.innerText = 'MetaMask Connect - Disconnect';
   button.classList.remove('btn-primary');
   button.classList.add('btn-danger');
 }
 
 function setDisconnectedButtonState(button) {
-  button.innerText = 'Connect EVM';
+  button.innerText = 'MetaMask Connect';
   button.classList.add('btn-primary');
   button.classList.remove('btn-danger');
 }

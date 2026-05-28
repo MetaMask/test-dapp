@@ -34,7 +34,7 @@ export function connectionsComponent(parentContainer) {
           <button
             class="btn btn-primary btn-lg btn-block mb-3"
             id="connectEvm"
-          >Connect EVM</button>
+          >MetaMask Connect</button>
           <hr />
           <button
             class="btn btn-primary btn-lg btn-block mb-3"
