@@ -94,12 +94,12 @@ export async function handleConnectEvm(
 
     if (isConnected) {
       await client.disconnect();
-      handleNewAccounts([]);
-      updateFormElements();
       updateConnectionState(false);
-      removeProviderDetail(name);
+      const activeProviderRemoved = removeProviderDetail(name);
       setDisconnectedButtonState(button);
-      globalContext.connected = false;
+      if (activeProviderRemoved) {
+        updateFormElements();
+      }
       return;
     }
 

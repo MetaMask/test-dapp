@@ -248,17 +248,20 @@ ensResolutionComponent(resolutionsSection);
 const providerDetails = [];
 let scrollToHandled = false;
 
+const WINDOW_ETHEREUM_PROVIDER_UUID = 'window.ethereum';
+
 const isMetaMaskConnected = () =>
   globalContext.accounts && globalContext.accounts.length > 0;
 let isWalletConnectConnected = false;
 let isSdkConnected = false;
 let isConnectEvmConnected = false;
+let unsubscribeWalletConnectProvider;
+
+const canProviderRequest = (provider) =>
+  Boolean(provider && typeof provider.request === 'function');
 
 const isProviderAvailableForDapp = () =>
-  Boolean(
-    globalContext.provider &&
-      typeof globalContext.provider.request === 'function',
-  );
+  canProviderRequest(globalContext.provider);
 
 const canSubscribeToProviderEvents = (provider = globalContext.provider) =>
   Boolean(provider && typeof provider.on === 'function');
@@ -275,15 +278,29 @@ const removeProviderListener = (provider, eventName, listener) => {
   }
 };
 
+const ensureWalletConnectSubscription = () => {
+  if (unsubscribeWalletConnectProvider) {
+    return;
+  }
+
+  unsubscribeWalletConnectProvider = walletConnect.subscribeProvider(
+    ({ isConnected }) => {
+      if (isConnected === isWalletConnectConnected) {
+        return;
+      }
+
+      handleWalletConnect(
+        'wallet-connect',
+        walletConnectBtn,
+        isWalletConnectConnected,
+      );
+    },
+  );
+};
+
 walletConnectBtn.onclick = () => {
+  ensureWalletConnectSubscription();
   walletConnect.open();
-  walletConnect.subscribeProvider(() => {
-    handleWalletConnect(
-      'wallet-connect',
-      walletConnectBtn,
-      isWalletConnectConnected,
-    );
-  });
 };
 
 sdkConnectBtn.onclick = async () => {
@@ -325,14 +342,16 @@ const detectEip6963 = () => {
 };
 
 export const setActiveProviderDetail = async (providerDetail) => {
-  closeProvider();
-  // When the extension is not installed the providerDetails comes in undefined
-  // but because the SDK is already init the window.ethereum has been injected
-  // this doesn't mean we can refer to it directly as the connection may have
-  // not been approved which is there uuid comes in as empty
-  if (!providerDetail || providerDetail.info.uuid === '') {
+  if (
+    !providerDetail ||
+    !providerDetail.info ||
+    !providerDetail.info.uuid ||
+    !canProviderRequest(providerDetail.provider)
+  ) {
     return;
   }
+
+  closeProvider();
   globalContext.provider = providerDetail.provider;
   await initializeProvider();
 
@@ -348,7 +367,7 @@ export const setActiveProviderDetail = async (providerDetail) => {
 const setActiveProviderDetailWindowEthereum = async () => {
   const providerDetail = {
     info: {
-      uuid: '',
+      uuid: WINDOW_ETHEREUM_PROVIDER_UUID,
       name: 'window.ethereum',
       icon: '',
     },
@@ -398,15 +417,18 @@ export const removeProviderDetail = (name) => {
   );
   if (index === -1) {
     console.log(`ProviderDetail with name ${name} not found`);
-    return;
+    return false;
   }
   const providerDetail = providerDetails[index];
+  let activeProviderRemoved = false;
   if (globalContext.provider === providerDetail.provider) {
     closeProvider();
+    activeProviderRemoved = true;
   }
   providerDetails.splice(index, 1);
   renderProviderDetails();
   console.log(`ProviderDetail with name ${name} removed successfully`);
+  return activeProviderRemoved;
 };
 
 const renderProviderDetails = () => {

@@ -47,14 +47,15 @@ function _setProviderDetail(provider, name, uuid) {
 
 export async function handleSdkConnect(name, button, isConnected) {
   if (isConnected) {
-    handleNewAccounts([]);
-    updateFormElements();
     updateSdkConnectionState(false);
-    removeProviderDetail(name);
+    const activeProviderRemoved = removeProviderDetail(name);
     await sdk.terminate();
     button.innerText = 'Sdk Connect';
     button.classList.add('btn-primary');
     button.classList.remove('btn-danger');
+    if (activeProviderRemoved) {
+      updateFormElements();
+    }
   } else {
     await sdk.connect();
     const provider = sdk.getProvider();
@@ -82,14 +83,14 @@ export async function handleSdkConnect(name, button, isConnected) {
 
 export async function handleWalletConnect(name, button, isConnected) {
   if (isConnected) {
-    handleNewAccounts([]);
-    updateFormElements();
     updateWalletConnectState(false);
-    removeProviderDetail(name);
+    const activeProviderRemoved = removeProviderDetail(name);
     button.innerText = 'Wallet Connect';
     button.classList.add('btn-primary');
     button.classList.remove('btn-danger');
-    globalContext.connected = false;
+    if (activeProviderRemoved) {
+      updateFormElements();
+    }
   } else {
     const { provider } = walletConnect.getWalletProvider();
     const uuid = provider.signer.uri;
