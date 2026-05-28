@@ -5,6 +5,7 @@ import {
   handleWalletConnect,
   walletConnect,
 } from './connections';
+import { handleConnectEvm } from './connect-evm';
 import Constants from './constants.json';
 import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 
@@ -175,6 +176,7 @@ networksComponent(connectionsRow);
 const onboardButton = document.getElementById('connectButton');
 const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
+const connectEvmBtn = document.getElementById('connectEvm');
 
 const transactionsSection = document.createElement('section');
 mainContainer.appendChild(transactionsSection);
@@ -249,6 +251,7 @@ const isMetaMaskConnected = () =>
   globalContext.accounts && globalContext.accounts.length > 0;
 let isWalletConnectConnected = false;
 let isSdkConnected = false;
+let isConnectEvmConnected = false;
 
 // TODO: Need to align with @metamask/onboarding
 const isMetaMaskInstalled = () =>
@@ -269,12 +272,25 @@ sdkConnectBtn.onclick = async () => {
   await handleSdkConnect('sdk-connect', sdkConnectBtn, isSdkConnected);
 };
 
+connectEvmBtn.onclick = async () => {
+  await handleConnectEvm(
+    'connect-evm',
+    connectEvmBtn,
+    isConnectEvmConnected,
+    updateConnectEvmConnectionState,
+  );
+};
+
 export function updateWalletConnectState(isConnected) {
   isWalletConnectConnected = isConnected;
 }
 
 export function updateSdkConnectionState(isConnected) {
   isSdkConnected = isConnected;
+}
+
+export function updateConnectEvmConnectionState(isConnected) {
+  isConnectEvmConnected = isConnected;
 }
 
 const detectEip6963 = () => {
