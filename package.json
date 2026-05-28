@@ -42,6 +42,7 @@
     "@lavamoat/allow-scripts": "^2.5.1",
     "@lavamoat/preinstall-always-fail": "^2.0.0",
     "@metamask/auto-changelog": "^2.5.0",
+    "@metamask/connect-evm": "^1.4.0",
     "@metamask/eslint-config": "^6.0.0",
     "@metamask/eslint-config-nodejs": "^6.0.0",
     "@metamask/eth-sig-util": "^7.0.1",

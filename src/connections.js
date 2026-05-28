@@ -1,4 +1,5 @@
 import { MetaMaskSDK } from '@metamask/sdk';
+import dappMetadata from './dapp-metadata';
 import globalContext, {
   handleNewAccounts,
   handleNewProviderDetail,
@@ -8,12 +9,6 @@ import globalContext, {
   updateSdkConnectionState,
   updateWalletConnectState,
 } from '.';
-
-const dappMetadata = {
-  name: 'E2e Test Dapp',
-  description: 'This is the E2e Test Dapp',
-  url: 'https://metamask.github.io/test-dapp/',
-};
 
 const sdk = new MetaMaskSDK({ dappMetadata });
 
