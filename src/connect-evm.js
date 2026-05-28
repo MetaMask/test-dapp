@@ -44,8 +44,13 @@ async function getConnectEvmClient() {
     });
   }
 
-  connectEvmClient = await connectEvmClientPromise;
-  return connectEvmClient;
+  try {
+    connectEvmClient = await connectEvmClientPromise;
+    return connectEvmClient;
+  } catch (err) {
+    connectEvmClientPromise = undefined;
+    throw err;
+  }
 }
 
 function getConnectEvmProviderDetail(provider, name) {
