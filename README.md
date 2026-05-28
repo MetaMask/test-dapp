@@ -22,7 +22,7 @@ It can be used by navigating to `/request.html?method=${METHOD}&params=${PARAMS}
 
 ### Setup
 
-- Install [Node.js](https://nodejs.org) version 16
+- Install [Node.js](https://nodejs.org) version 20.19.0 or later
   - If you are using [nvm](https://github.com/creationix/nvm#installation) (recommended) running `nvm use` will automatically choose the right node version for you.
 - Install [Yarn v1](https://yarnpkg.com/en/docs/install)
 - Run `yarn setup` to install dependencies and run any required post-install scripts

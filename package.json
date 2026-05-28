@@ -3,7 +3,7 @@
   "version": "9.9.0",
   "description": "A simple dapp used in MetaMask e2e tests.",
   "engines": {
-    "node": ">= 18.0.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "setup": "yarn install && yarn allow-scripts",
