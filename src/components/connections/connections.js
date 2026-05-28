@@ -31,6 +31,12 @@ export function connectionsComponent(parentContainer) {
           >
           SDK Connect
           </button>
+          <button
+            class="btn btn-primary btn-lg btn-block mb-3"
+            id="connectEvm"
+          >
+          Connect EVM
+          </button>
           <hr />
           <button
             class="btn btn-primary btn-lg btn-block mb-3"
@@ -51,6 +57,7 @@ export function connectionsComponent(parentContainer) {
   const onboardButton = document.getElementById('connectButton');
   const walletConnectBtn = document.getElementById('walletConnect');
   const sdkConnectBtn = document.getElementById('sdkConnect');
+  const connectEvmBtn = document.getElementById('connectEvm');
   */
   const getAccounts = document.getElementById('getAccounts');
   const getAccountsResult = document.getElementById('getAccountsResult');
