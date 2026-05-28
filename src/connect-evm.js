@@ -1,15 +1,12 @@
 import { createEVMClient } from '@metamask/connect-evm';
 import dappMetadata from './dapp-metadata';
-/* eslint-disable import/named */
 import globalContext, {
   handleNewAccounts,
   handleNewProviderDetail,
   removeProviderDetail,
   setActiveProviderDetail,
-  updateConnectEvmConnectionState,
   updateFormElements,
 } from '.';
-/* eslint-enable import/named */
 
 export const CONNECT_EVM_PROVIDER_NAME = 'connect-evm';
 export const CONNECT_EVM_PROVIDER_UUID = 'connect-evm';
@@ -18,7 +15,7 @@ export const CONNECT_EVM_SUPPORTED_NETWORKS = {
   '0x1': 'https://ethereum.publicnode.com',
   '0xaa36a7': 'https://ethereum-sepolia.publicnode.com',
   '0xa': 'https://optimism.publicnode.com',
-  '0x89': 'https://polygon-bor.publicnode.com',
+  '0x89': 'https://polygon-bor-rpc.publicnode.com',
   '0x2105': 'https://base.publicnode.com',
   '0xa4b1': 'https://arbitrum-one.publicnode.com',
   '0xa86a': 'https://avalanche-c-chain-rpc.publicnode.com',
@@ -34,6 +31,8 @@ export const CONNECT_EVM_CHAIN_IDS = Object.keys(
 let connectEvmClientPromise;
 let connectEvmClient;
 let connectEvmProvider;
+
+const noop = () => undefined;
 
 async function getConnectEvmClient() {
   if (!connectEvmClientPromise) {
@@ -77,7 +76,12 @@ export function isConnectEvmProvider(provider) {
   return Boolean(provider && provider === connectEvmProvider);
 }
 
-export async function handleConnectEvm(name, button, isConnected) {
+export async function handleConnectEvm(
+  name,
+  button,
+  isConnected,
+  updateConnectionState = noop,
+) {
   button.disabled = true;
 
   try {
@@ -87,7 +91,7 @@ export async function handleConnectEvm(name, button, isConnected) {
       await client.disconnect();
       handleNewAccounts([]);
       updateFormElements();
-      updateConnectEvmConnectionState(false);
+      updateConnectionState(false);
       removeProviderDetail(name);
       setDisconnectedButtonState(button);
       globalContext.connected = false;
@@ -103,10 +107,11 @@ export async function handleConnectEvm(name, button, isConnected) {
     const providerDetail = getConnectEvmProviderDetail(provider, name);
     await setActiveProviderDetail(providerDetail);
     handleNewProviderDetail(providerDetail);
-    updateConnectEvmConnectionState(true);
+    updateConnectionState(true);
     setConnectedButtonState(button);
     updateFormElements();
     handleNewAccounts(accounts);
+    globalContext.connected = true;
   } catch (err) {
     console.error('Error connecting with MetaMask Connect EVM', err);
     if (isConnected) {
