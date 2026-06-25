@@ -83,7 +83,10 @@
       "@metamask/sdk>@metamask/sdk-communication-layer>bufferutil": false,
       "@metamask/sdk>@metamask/sdk-communication-layer>utf-8-validate": false,
       "@metamask/sdk>eciesjs>secp256k1": false,
-      "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>rpc-websockets>utf-8-validate": false
+      "@web3modal/ethers5>@coinbase/wallet-sdk>@solana/web3.js>rpc-websockets>utf-8-validate": false,
+      "@metamask/connect-evm>@metamask/connect-multichain>@metamask/mobile-wallet-protocol-core>centrifuge>protobufjs": false,
+      "ethereumjs-util>ethereum-cryptography>keccak": false,
+      "ethereumjs-util>ethereum-cryptography>secp256k1": false
     }
   },
   "packageManager": "yarn@1.22.22"
