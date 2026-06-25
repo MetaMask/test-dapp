@@ -8,7 +8,6 @@ import globalContext, {
   updateFormElements,
 } from '.';
 
-export const CONNECT_EVM_PROVIDER_NAME = 'connect-evm';
 export const CONNECT_EVM_PROVIDER_UUID = 'connect-evm';
 
 export const CONNECT_EVM_SUPPORTED_NETWORKS = {
@@ -29,8 +28,6 @@ export const CONNECT_EVM_CHAIN_IDS = Object.keys(
 );
 
 let connectEvmClientPromise;
-let connectEvmClient;
-let connectEvmProvider;
 
 const noop = () => undefined;
 
@@ -45,8 +42,7 @@ async function getConnectEvmClient() {
   }
 
   try {
-    connectEvmClient = await connectEvmClientPromise;
-    return connectEvmClient;
+    return await connectEvmClientPromise;
   } catch (err) {
     connectEvmClientPromise = undefined;
     throw err;
@@ -77,10 +73,6 @@ function setDisconnectedButtonState(button) {
   button.classList.remove('btn-danger');
 }
 
-export function isConnectEvmProvider(provider) {
-  return Boolean(provider && provider === connectEvmProvider);
-}
-
 export async function handleConnectEvm(
   name,
   button,
@@ -107,7 +99,6 @@ export async function handleConnectEvm(
       chainIds: CONNECT_EVM_CHAIN_IDS,
     });
     const provider = client.getProvider();
-    connectEvmProvider = provider;
 
     const providerDetail = getConnectEvmProviderDetail(provider, name);
     await setActiveProviderDetail(providerDetail);
