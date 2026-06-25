@@ -177,7 +177,6 @@ const onboardButton = document.getElementById('connectButton');
 const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
 const connectEvmBtn = document.getElementById('connectEvm');
-const metafoxLogo = document.getElementById('mm-logo');
 
 const transactionsSection = document.createElement('section');
 mainContainer.appendChild(transactionsSection);
@@ -800,13 +799,7 @@ const updateOnboardElements = () => {
     return;
   }
 
-  if (metafoxLogo) {
-    metafoxLogo.dispatchEvent(
-      new Event('MetaMaskInstalled', { bubbles: true }),
-    );
-  } else {
-    document.dispatchEvent(new Event('MetaMaskInstalled'));
-  }
+  document.dispatchEvent(new Event('MetaMaskInstalled'));
 
   if (isMetaMaskConnected()) {
     onboardButton.innerText = 'Connected';

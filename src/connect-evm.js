@@ -54,7 +54,7 @@ function getConnectEvmProviderDetail(provider, name) {
     info: {
       uuid: CONNECT_EVM_PROVIDER_UUID,
       name,
-      icon: './sdk-connect.svg',
+      icon: './metamask-fox.svg',
       rdns: 'io.metamask',
     },
     provider,
