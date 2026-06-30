@@ -5,6 +5,7 @@ import {
   handleWalletConnect,
   walletConnect,
 } from './connections';
+import { handleConnectEvm } from './connect-evm';
 import Constants from './constants.json';
 import { NETWORKS_BY_CHAIN_ID } from './onchain-sample-contracts';
 
@@ -175,6 +176,7 @@ networksComponent(connectionsRow);
 const onboardButton = document.getElementById('connectButton');
 const walletConnectBtn = document.getElementById('walletConnect');
 const sdkConnectBtn = document.getElementById('sdkConnect');
+const connectEvmBtn = document.getElementById('connectEvm');
 
 const transactionsSection = document.createElement('section');
 mainContainer.appendChild(transactionsSection);
@@ -245,28 +247,72 @@ ensResolutionComponent(resolutionsSection);
 const providerDetails = [];
 let scrollToHandled = false;
 
+const WINDOW_ETHEREUM_PROVIDER_UUID = 'window.ethereum';
+
 const isMetaMaskConnected = () =>
   globalContext.accounts && globalContext.accounts.length > 0;
 let isWalletConnectConnected = false;
 let isSdkConnected = false;
+let isConnectEvmConnected = false;
+let unsubscribeWalletConnectProvider;
 
-// TODO: Need to align with @metamask/onboarding
-const isMetaMaskInstalled = () =>
-  globalContext.provider && globalContext.provider.isMetaMask;
+const canProviderRequest = (provider) =>
+  Boolean(provider && typeof provider.request === 'function');
+
+const isProviderAvailableForDapp = () =>
+  canProviderRequest(globalContext.provider);
+
+const canSubscribeToProviderEvents = (provider = globalContext.provider) =>
+  Boolean(provider && typeof provider.on === 'function');
+
+const removeProviderListener = (provider, eventName, listener) => {
+  if (!provider) {
+    return;
+  }
+
+  if (typeof provider.removeListener === 'function') {
+    provider.removeListener(eventName, listener);
+  } else if (typeof provider.off === 'function') {
+    provider.off(eventName, listener);
+  }
+};
+
+const ensureWalletConnectSubscription = () => {
+  if (unsubscribeWalletConnectProvider) {
+    return;
+  }
+
+  unsubscribeWalletConnectProvider = walletConnect.subscribeProvider(
+    ({ isConnected }) => {
+      if (isConnected === isWalletConnectConnected) {
+        return;
+      }
+
+      handleWalletConnect(
+        'wallet-connect',
+        walletConnectBtn,
+        isWalletConnectConnected,
+      );
+    },
+  );
+};
 
 walletConnectBtn.onclick = () => {
+  ensureWalletConnectSubscription();
   walletConnect.open();
-  walletConnect.subscribeProvider(() => {
-    handleWalletConnect(
-      'wallet-connect',
-      walletConnectBtn,
-      isWalletConnectConnected,
-    );
-  });
 };
 
 sdkConnectBtn.onclick = async () => {
   await handleSdkConnect('sdk-connect', sdkConnectBtn, isSdkConnected);
+};
+
+connectEvmBtn.onclick = async () => {
+  await handleConnectEvm(
+    'connect-evm',
+    connectEvmBtn,
+    isConnectEvmConnected,
+    updateConnectEvmConnectionState,
+  );
 };
 
 export function updateWalletConnectState(isConnected) {
@@ -275,6 +321,10 @@ export function updateWalletConnectState(isConnected) {
 
 export function updateSdkConnectionState(isConnected) {
   isSdkConnected = isConnected;
+}
+
+export function updateConnectEvmConnectionState(isConnected) {
+  isConnectEvmConnected = isConnected;
 }
 
 const detectEip6963 = () => {
@@ -291,25 +341,18 @@ const detectEip6963 = () => {
 };
 
 export const setActiveProviderDetail = async (providerDetail) => {
-  closeProvider();
-  // When the extension is not installed the providerDetails comes in undefined
-  // but because the SDK is already init the window.ethereum has been injected
-  // this doesn't mean we can refer to it directly as the connection may have
-  // not been approved which is there uuid comes in as empty
-  if (!providerDetail || providerDetail.info.uuid === '') {
+  if (
+    !providerDetail ||
+    !providerDetail.info ||
+    !providerDetail.info.uuid ||
+    !canProviderRequest(providerDetail.provider)
+  ) {
     return;
   }
+
+  closeProvider();
   globalContext.provider = providerDetail.provider;
   await initializeProvider();
-
-  try {
-    const newAccounts = await globalContext.provider.request({
-      method: 'eth_accounts',
-    });
-    handleNewAccounts(newAccounts);
-  } catch (err) {
-    console.error('Error on init when getting accounts', err);
-  }
 
   const { uuid, name, icon } = providerDetail.info;
   activeProviderUUIDResult.innerText = uuid;
@@ -323,7 +366,7 @@ export const setActiveProviderDetail = async (providerDetail) => {
 const setActiveProviderDetailWindowEthereum = async () => {
   const providerDetail = {
     info: {
-      uuid: '',
+      uuid: WINDOW_ETHEREUM_PROVIDER_UUID,
       name: 'window.ethereum',
       icon: '',
     },
@@ -373,11 +416,18 @@ export const removeProviderDetail = (name) => {
   );
   if (index === -1) {
     console.log(`ProviderDetail with name ${name} not found`);
-    return;
+    return false;
+  }
+  const providerDetail = providerDetails[index];
+  let activeProviderRemoved = false;
+  if (globalContext.provider === providerDetail.provider) {
+    closeProvider();
+    activeProviderRemoved = true;
   }
   providerDetails.splice(index, 1);
   renderProviderDetails();
   console.log(`ProviderDetail with name ${name} removed successfully`);
+  return activeProviderRemoved;
 };
 
 const renderProviderDetails = () => {
@@ -426,14 +476,45 @@ export const handleNewAccounts = (newAccounts) => {
   handleEIP1559Support();
 };
 
+const clearActiveProviderState = () => {
+  activeProviderUUIDResult.innerText = '';
+  activeProviderNameResult.innerText = '';
+  activeProviderIconResult.innerHTML = '';
+
+  globalContext.ethersProvider = undefined;
+  globalContext.chainIdInt = undefined;
+  globalContext.chainIdPadded = undefined;
+  globalContext.networkName = undefined;
+  globalContext.hstContract = undefined;
+  globalContext.hstFactory = undefined;
+  globalContext.piggybankContract = undefined;
+  globalContext.piggybankFactory = undefined;
+  globalContext.nftsContract = undefined;
+  globalContext.nftsFactory = undefined;
+  globalContext.failingContract = undefined;
+  globalContext.failingContractFactory = undefined;
+  globalContext.multisigContract = undefined;
+  globalContext.multisigFactory = undefined;
+  globalContext.erc1155Contract = undefined;
+  globalContext.erc1155Factory = undefined;
+};
+
 const handleNewChain = (chainId) => {
   chainIdDiv.innerHTML = chainId;
+  const chainIdInt = parseInt(chainIdDiv.innerHTML, 16);
   const networkId = parseInt(networkDiv.innerHTML, 10);
-  globalContext.chainIdInt = parseInt(chainIdDiv.innerHTML, 16) || networkId;
-  globalContext.chainIdPadded = `0x${globalContext.chainIdInt
-    .toString(16)
-    .padStart(77, '0')}`;
-  globalContext.networkName = NETWORKS_BY_CHAIN_ID[globalContext.chainIdInt];
+  globalContext.chainIdInt = Number.isNaN(chainIdInt) ? networkId : chainIdInt;
+  if (Number.isNaN(globalContext.chainIdInt)) {
+    globalContext.chainIdInt = undefined;
+  }
+  globalContext.chainIdPadded =
+    globalContext.chainIdInt === undefined
+      ? undefined
+      : `0x${globalContext.chainIdInt.toString(16).padStart(77, '0')}`;
+  globalContext.networkName =
+    globalContext.chainIdInt === undefined
+      ? undefined
+      : NETWORKS_BY_CHAIN_ID[globalContext.chainIdInt];
 
   if (chainId === '0x1') {
     warningDiv.classList.remove('warning-invisible');
@@ -471,9 +552,14 @@ const getNetworkAndChainId = async () => {
     });
     handleNewChain(chainId);
 
-    const networkId = await globalContext.provider.request({
-      method: 'net_version',
-    });
+    let networkId;
+    try {
+      networkId = await globalContext.provider.request({
+        method: 'net_version',
+      });
+    } catch {
+      networkId = String(parseInt(chainId, 16));
+    }
     handleNewNetwork(networkId);
 
     handleEIP1559Support();
@@ -506,48 +592,66 @@ const handleEIP1559Support = async () => {
 // Must be called before the active provider changes
 // Resets provider state and removes any listeners from active provider
 const closeProvider = () => {
-  // move these
+  const previousProvider = globalContext.provider;
+
+  globalContext.provider = undefined;
   handleNewAccounts([]);
-  handleNewChain('');
   handleNewNetwork('');
-  if (isMetaMaskInstalled()) {
-    globalContext.provider.removeListener('chainChanged', handleNewChain);
-    globalContext.provider.removeListener('chainChanged', handleEIP1559Support);
-    globalContext.provider.removeListener('networkChanged', handleNewNetwork);
-    globalContext.provider.removeListener('accountsChanged', handleNewAccounts);
-    globalContext.provider.removeListener(
-      'accountsChanged',
-      handleEIP1559Support,
-    );
-  }
+  handleNewChain('');
+  clearActiveProviderState();
+  globalContext.connected = false;
+
+  removeProviderListener(previousProvider, 'chainChanged', handleNewChain);
+  removeProviderListener(
+    previousProvider,
+    'chainChanged',
+    handleEIP1559Support,
+  );
+  removeProviderListener(previousProvider, 'networkChanged', handleNewNetwork);
+  removeProviderListener(
+    previousProvider,
+    'accountsChanged',
+    handleNewAccounts,
+  );
+  removeProviderListener(
+    previousProvider,
+    'accountsChanged',
+    handleEIP1559Support,
+  );
 };
 
 // Must be called after the active provider changes
 // Initializes active provider and adds any listeners
 const initializeProvider = async () => {
+  if (!isProviderAvailableForDapp()) {
+    updateFormElements();
+    handleScrollTo();
+    return;
+  }
+
   initializeContracts();
   updateFormElements();
 
-  if (isMetaMaskInstalled()) {
+  if ('autoRefreshOnNetworkChange' in globalContext.provider) {
     globalContext.provider.autoRefreshOnNetworkChange = false;
-    await getNetworkAndChainId();
+  }
+  await getNetworkAndChainId();
 
+  if (canSubscribeToProviderEvents()) {
     globalContext.provider.on('chainChanged', handleNewChain);
     globalContext.provider.on('chainChanged', handleEIP1559Support);
     globalContext.provider.on('networkChanged', handleNewNetwork);
     globalContext.provider.on('accountsChanged', handleNewAccounts);
     globalContext.provider.on('accountsChanged', handleEIP1559Support);
+  }
 
-    try {
-      const newAccounts = await globalContext.provider.request({
-        method: 'eth_accounts',
-      });
-      handleNewAccounts(newAccounts);
-    } catch (err) {
-      console.error('Error on init when getting accounts', err);
-    }
-  } else {
-    handleScrollTo();
+  try {
+    const newAccounts = await globalContext.provider.request({
+      method: 'eth_accounts',
+    });
+    handleNewAccounts(newAccounts);
+  } catch (err) {
+    console.error('Error on init when getting accounts', err);
   }
 };
 
@@ -664,8 +768,7 @@ const initializeContracts = () => {
 // Must be called after the provider or connect acccounts change
 // Updates form elements content and disabled status
 export const updateFormElements = () => {
-  if (!isMetaMaskInstalled() || !isMetaMaskConnected()) {
-    /* MetaMask is not installed or not connected */
+  if (!isProviderAvailableForDapp() || !isMetaMaskConnected()) {
     document.dispatchEvent(new Event('disableAndClear'));
   } else if (isMetaMaskConnected()) {
     globalContext.connected = true;
@@ -683,17 +786,20 @@ const updateOnboardElements = () => {
     console.error(error);
   }
 
-  if (isMetaMaskInstalled()) {
-    document.dispatchEvent(new Event('MetaMaskInstalled'));
-  } else {
+  if (!isProviderAvailableForDapp()) {
     onboardButton.innerText = 'Click here to install MetaMask!';
     onboardButton.onclick = () => {
       onboardButton.innerText = 'Onboarding in progress';
       onboardButton.disabled = true;
-      onboarding.startOnboarding();
+      if (onboarding) {
+        onboarding.startOnboarding();
+      }
     };
     onboardButton.disabled = false;
+    return;
   }
+
+  document.dispatchEvent(new Event('MetaMaskInstalled'));
 
   if (isMetaMaskConnected()) {
     onboardButton.innerText = 'Connected';
@@ -720,14 +826,6 @@ const updateOnboardElements = () => {
     if (onboarding) {
       onboarding.stopOnboarding();
     }
-    globalContext.provider.autoRefreshOnNetworkChange = false;
-    getNetworkAndChainId();
-
-    globalContext.provider.on('chainChanged', handleNewChain);
-    globalContext.provider.on('chainChanged', handleEIP1559Support);
-    globalContext.provider.on('chainChanged', handleNewNetwork);
-    globalContext.provider.on('accountsChanged', handleNewAccounts);
-    globalContext.provider.on('accountsChanged', handleEIP1559Support);
   }
 };
 
