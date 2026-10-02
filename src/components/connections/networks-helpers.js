@@ -81,6 +81,12 @@ const NETWORKS = [
     category: 'main',
   },
   {
+    name: 'Pharos',
+    chainId: '0x688',
+    color: '#3B82F6',
+    category: 'main',
+  },
+  {
     name: 'Tempo Mainnet (Presto)',
     chainId: '0x1079',
     color: '#dcdcdc',
