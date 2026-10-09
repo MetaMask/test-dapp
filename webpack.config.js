@@ -44,7 +44,7 @@ module.exports = {
   plugins: [
     new ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
-      process: ['process/browser'],
+      process: ['process/browser.js'],
     }),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
 

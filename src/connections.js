@@ -1,4 +1,5 @@
 import { MetaMaskSDK } from '@metamask/sdk';
+import dappMetadata from './dapp-metadata';
 import globalContext, {
   handleNewAccounts,
   handleNewProviderDetail,
@@ -8,12 +9,6 @@ import globalContext, {
   updateSdkConnectionState,
   updateWalletConnectState,
 } from '.';
-
-const dappMetadata = {
-  name: 'E2e Test Dapp',
-  description: 'This is the E2e Test Dapp',
-  url: 'https://metamask.github.io/test-dapp/',
-};
 
 const sdk = new MetaMaskSDK({ dappMetadata });
 
@@ -52,14 +47,15 @@ function _setProviderDetail(provider, name, uuid) {
 
 export async function handleSdkConnect(name, button, isConnected) {
   if (isConnected) {
-    handleNewAccounts([]);
-    updateFormElements();
     updateSdkConnectionState(false);
-    removeProviderDetail(name);
+    const activeProviderRemoved = removeProviderDetail(name);
     await sdk.terminate();
     button.innerText = 'Sdk Connect';
     button.classList.add('btn-primary');
     button.classList.remove('btn-danger');
+    if (activeProviderRemoved) {
+      updateFormElements();
+    }
   } else {
     await sdk.connect();
     const provider = sdk.getProvider();
@@ -87,14 +83,14 @@ export async function handleSdkConnect(name, button, isConnected) {
 
 export async function handleWalletConnect(name, button, isConnected) {
   if (isConnected) {
-    handleNewAccounts([]);
-    updateFormElements();
     updateWalletConnectState(false);
-    removeProviderDetail(name);
+    const activeProviderRemoved = removeProviderDetail(name);
     button.innerText = 'Wallet Connect';
     button.classList.add('btn-primary');
     button.classList.remove('btn-danger');
-    globalContext.connected = false;
+    if (activeProviderRemoved) {
+      updateFormElements();
+    }
   } else {
     const { provider } = walletConnect.getWalletProvider();
     const uuid = provider.signer.uri;
@@ -116,6 +112,6 @@ export async function handleWalletConnect(name, button, isConnected) {
     } catch (err) {
       console.error('Error on init when getting accounts', err);
     }
+    globalContext.connected = true;
   }
-  globalContext.connected = true;
 }
