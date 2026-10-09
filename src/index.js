@@ -16,6 +16,7 @@ import {
 } from './components/connections';
 import {
   sendComponent,
+  sponsorshipComponent,
   erc20Component,
   erc1155Component,
   eip747Component,
@@ -184,6 +185,7 @@ const transactionsRow = document.createElement('div');
 transactionsRow.className = 'row';
 transactionsSection.appendChild(transactionsRow);
 sendComponent(transactionsRow);
+sponsorshipComponent(transactionsRow);
 erc20Component(transactionsRow);
 erc721Component(transactionsRow);
 erc1155Component(transactionsRow);
