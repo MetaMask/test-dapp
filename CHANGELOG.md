@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.10.0]
+### Added
+- Add Gas burner contract for gas sponsorship testing ([#437](https://github.com/MetaMask/test-dapp/pull/437))
+- Add MetaMask Connect ([#433](https://github.com/MetaMask/test-dapp/pull/433))
+
+### Changed
+- Bump `@metamask/sdk` from 0.30.1 to 0.34.0 ([#432](https://github.com/MetaMask/test-dapp/pull/432))
+
 ## [9.9.0]
 ### Added
 - Add Tempo to the network picker ([#429](https://github.com/MetaMask/test-dapp/pull/429))
@@ -291,7 +299,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix repository standardization issues ([#118](https://github.com/MetaMask/test-dapp/pull/118))
 - Fix addEthereumChain button disable logic ([#93](https://github.com/MetaMask/test-dapp/pull/93))
 
-[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v9.9.0...HEAD
+[Unreleased]: https://github.com/MetaMask/test-dapp/compare/v9.10.0...HEAD
+[9.10.0]: https://github.com/MetaMask/test-dapp/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/MetaMask/test-dapp/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/MetaMask/test-dapp/compare/v9.7.0...v9.8.0
 [9.7.0]: https://github.com/MetaMask/test-dapp/compare/v9.6.0...v9.7.0

@@ -92,6 +92,13 @@ const NETWORKS = [
     color: '#dcdcdc',
     category: 'main',
   },
+  {
+    name: 'Arc',
+    chainId: '0x13b2',
+    color: '#7b3fe4',
+    gradient: 'linear-gradient(135deg, #a855f7 0%, #6d28d9 50%, #4c1d95 100%)',
+    category: 'main',
+  },
 
   // Test networks
   {
@@ -152,7 +159,9 @@ export function createNetworkItem(network) {
   item.dataset.chainId = network.chainId;
   item.innerHTML = `
     <div class="network-modal-item-content">
-      <div class="network-modal-item-icon" style="background-color: ${network.color}"></div>
+      <div class="network-modal-item-icon" style="background: ${
+        network.gradient || network.color
+      }"></div>
       <div class="network-modal-item-info">
         <div class="network-modal-item-name">${network.name}</div>
         <div class="network-modal-item-chain-id">${network.chainId}</div>
