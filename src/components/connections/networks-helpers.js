@@ -89,7 +89,7 @@ const NETWORKS = [
   {
     name: 'RISE Mainnet',
     chainId: '0x1039',
-    color: '#111111',
+    color: '#04DF83',
     category: 'main',
   },
   {
