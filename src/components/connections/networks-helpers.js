@@ -87,6 +87,12 @@ const NETWORKS = [
     category: 'main',
   },
   {
+    name: 'RISE Mainnet',
+    chainId: '0x1039',
+    color: '#04DF83',
+    category: 'main',
+  },
+  {
     name: 'Tempo Mainnet (Presto)',
     chainId: '0x1079',
     color: '#dcdcdc',
