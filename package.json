@@ -35,11 +35,14 @@
   },
   "homepage": "https://metamask.github.io/test-dapp",
   "resolutions": {
-    "elliptic": "^6.6.1"
+    "**/@ethersproject/providers/ws": "^7.5.11",
+    "**/engine.io-client/ws": "^8.21.0",
+    "elliptic": "^6.6.1",
+    "uuid": "^11.1.1"
   },
   "dependencies": {},
   "devDependencies": {
-    "@lavamoat/allow-scripts": "^2.5.1",
+    "@lavamoat/allow-scripts": "^4.0.0",
     "@lavamoat/preinstall-always-fail": "^2.0.0",
     "@metamask/auto-changelog": "^2.5.0",
     "@metamask/connect-evm": "^1.4.0",
@@ -54,7 +57,7 @@
     "assert": "^2.1.0",
     "base64-sol": "1.1.0",
     "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^11.0.0",
+    "copy-webpack-plugin": "^14.0.0",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
@@ -68,7 +71,7 @@
     "stream-browserify": "^3.0.0",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^5.2.7"
   },
   "lavamoat": {
     "allowScripts": {
