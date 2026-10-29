@@ -105,6 +105,12 @@ const NETWORKS = [
     gradient: 'linear-gradient(135deg, #a855f7 0%, #6d28d9 50%, #4c1d95 100%)',
     category: 'main',
   },
+  {
+    name: '0G',
+    chainId: '0x4115',
+    color: '#B75FFF',
+    category: 'main',
+  },
 
   // Test networks
   {
