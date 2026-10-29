@@ -1,3 +1,75 @@
+/* CSS Variables for Light/Dark Mode */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --card-bg: #ffffff;
+  --border-color: #dee2e6;
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --btn-primary-bg: #007bff;
+  --btn-primary-border: #007bff;
+  --alert-primary-bg: #d1ecf1;
+  --alert-primary-border: #bee5eb;
+  --alert-secondary-bg: #e2e3e5;
+  --alert-secondary-border: #d6d8db;
+  --alert-success-bg: #d4edda;
+  --alert-success-border: #c3e6cb;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #e9ecef;
+  --card-bg: #2d2d2d;
+  --border-color: #495057;
+  --input-bg: #343a40;
+  --input-border: #495057;
+  --btn-primary-bg: #0d6efd;
+  --btn-primary-border: #0d6efd;
+  --alert-primary-bg: #0c5460;
+  --alert-primary-border: #086972;
+  --alert-secondary-bg: #41464b;
+  --alert-secondary-border: #565e64;
+  --alert-success-bg: #0f5132;
+  --alert-success-border: #0a3622;
+}
+
+/* Apply theme variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  margin-bottom: 20px;
+}
+
+.form-control {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-color);
+}
+
+.alert-primary {
+  background-color: var(--alert-primary-bg);
+  border-color: var(--alert-primary-border);
+  color: var(--text-color);
+}
+
+.alert-secondary {
+  background-color: var(--alert-secondary-bg);
+  border-color: var(--alert-secondary-border);
+  color: var(--text-color);
+}
+
+.alert-success {
+  background-color: var(--alert-success-bg);
+  border-color: var(--alert-success-border);
+  color: var(--text-color);
+}
+
 section {
   margin: 20px 0 20px 0;
 }
@@ -20,16 +92,13 @@ textarea {
   width: 100%;
 }
 
-.card {
-  margin-bottom: 20px;
-}
-
 /* Logo & Header */
 
 header {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 #logo-container {
@@ -44,6 +113,46 @@ header {
 
 #mm-logo {
   width: 100%;
+}
+
+/* Dark Mode Toggle */
+#dark-mode-toggle-container {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: 2px solid var(--border-color);
+  border-radius: 50px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.05);
+  border-color: var(--btn-primary-border);
+}
+
+.dark-mode-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+[data-theme="light"] .dark-mode-icon {
+  display: none;
+}
+
+[data-theme="dark"] .light-mode-icon {
+  display: none;
 }
 
 /* EIP6963 Section */
