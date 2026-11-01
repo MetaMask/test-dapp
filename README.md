@@ -22,9 +22,10 @@ It can be used by navigating to `/request.html?method=${METHOD}&params=${PARAMS}
 
 ### Setup
 
-- Install [Node.js](https://nodejs.org) version 20.19.0 or later
-  - If you are using [nvm](https://github.com/creationix/nvm#installation) (recommended) running `nvm use` will automatically choose the right node version for you.
-- Install [Yarn v1](https://yarnpkg.com/en/docs/install)
+- Install [Node.js](https://nodejs.org) 24.22.2 (the recommended development version)
+  - If you are using [nvm](https://github.com/creationix/nvm#installation) (recommended), running `nvm use` will automatically choose the version from `.nvmrc`.
+  - Node.js 24.22.1 or later is required, including when installing the published package. Node.js 20 and 22 are no longer supported. CI tests Node.js 24.22.2.
+- Install [Yarn 1.22.22](https://classic.yarnpkg.com/en/docs/install)
 - Run `yarn setup` to install dependencies and run any required post-install scripts
   - **Warning:** Do not use the `yarn` / `yarn install` command directly. Use `yarn setup` instead. The normal install command will skip required post-install scripts, leaving your development environment in an invalid state.
 
@@ -32,7 +33,7 @@ It can be used by navigating to `/request.html?method=${METHOD}&params=${PARAMS}
 
 Run `yarn lint` to run the linter, or run `yarn lint:fix` to run the linter and fix any automatically fixable issues.
 
-This package has no tests.
+Run `yarn build && yarn test:smoke` to check that the production artifact contains both pages and their local assets. This does not execute the browser JavaScript, test wallet flows, or verify the deployed GitHub Pages site.
 
 ### Deploying
 
