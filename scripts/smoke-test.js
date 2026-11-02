@@ -20,48 +20,56 @@ function fail(message) {
   throw new Error(message);
 }
 
-function resolveArtifactPath(urlPath) {
-  const decodedPath = decodeURIComponent(urlPath.split('?')[0]);
-  const relativePath =
-    decodedPath === '/' ? 'index.html' : decodedPath.slice(1);
-  const resolvedPath = path.resolve(artifactDirectory, relativePath);
+async function createServer() {
+  const artifacts = new Map();
 
-  if (
-    resolvedPath !== artifactDirectory &&
-    !resolvedPath.startsWith(`${artifactDirectory}${path.sep}`)
-  ) {
-    return null;
+  // Only filesystem-discovered files may be served. Never follow symlinks or
+  // construct filesystem paths from incoming request URLs.
+  async function loadArtifacts(directory, urlPrefix) {
+    const entries = await fsPromises.readdir(directory, {
+      withFileTypes: true,
+    });
+
+    for (const entry of entries) {
+      const filePath = path.join(directory, entry.name);
+      const urlPath = `${urlPrefix}/${entry.name}`;
+
+      if (entry.isDirectory()) {
+        await loadArtifacts(filePath, urlPath);
+      } else if (entry.isFile()) {
+        artifacts.set(urlPath, {
+          body: await fsPromises.readFile(filePath),
+          contentType:
+            contentTypes[path.extname(entry.name)] ||
+            'application/octet-stream',
+        });
+      }
+    }
   }
 
-  return resolvedPath;
-}
+  await loadArtifacts(artifactDirectory, '');
 
-function createServer() {
-  return http.createServer(async (incomingRequest, response) => {
-    let filePath;
+  return http.createServer((incomingRequest, response) => {
+    let urlPath;
 
     try {
-      filePath = resolveArtifactPath(incomingRequest.url);
+      urlPath = decodeURIComponent(incomingRequest.url.split('?')[0]);
     } catch {
       response.writeHead(400);
       response.end();
       return;
     }
 
-    let file;
+    const artifact = artifacts.get(urlPath === '/' ? '/index.html' : urlPath);
 
-    try {
-      file = await fsPromises.readFile(filePath);
-    } catch {
+    if (!artifact) {
       response.writeHead(404);
       response.end();
       return;
     }
 
-    const contentType =
-      contentTypes[path.extname(filePath)] || 'application/octet-stream';
-    response.writeHead(200, { 'Content-Type': contentType });
-    response.end(file);
+    response.writeHead(200, { 'Content-Type': artifact.contentType });
+    response.end(artifact.body);
   });
 }
 
@@ -114,7 +122,7 @@ async function runSmokeTest() {
     throw error;
   }
 
-  const server = createServer();
+  const server = await createServer();
   activeServer = server;
 
   await new Promise((resolve, reject) => {

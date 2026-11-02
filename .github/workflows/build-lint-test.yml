@@ -9,7 +9,7 @@ jobs:
   build-lint-test:
     name: Build, Lint, and Test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
       contents: read
     strategy:
