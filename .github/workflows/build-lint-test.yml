@@ -9,23 +9,37 @@ jobs:
   build-lint-test:
     name: Build, Lint, and Test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [24.22.2]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn --frozen-lockfile
+      - name: Install Yarn
+        run: npm install --global yarn@1.22.22
+      - name: Verify toolchain
+        run: |
+          test "$(node --version)" = "v${{ matrix.node-version }}"
+          test "$(yarn --version)" = "1.22.22"
+      - run: yarn install --frozen-lockfile
       - run: yarn allow-scripts
       - run: yarn build
-      - run: yarn lint
+      - name: Smoke-test production artifact
+        run: yarn test:smoke
       - run: yarn test
   all-jobs-pass:
     name: All jobs pass
     runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
     needs:
       - build-lint-test
     steps:
