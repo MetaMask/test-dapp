@@ -106,6 +106,12 @@ const NETWORKS = [
     category: 'main',
   },
   {
+    name: 'Elysium Mainnet',
+    chainId: '0x1863d',
+    color: '#04181C',
+    category: 'main',
+  },
+  {
     name: '0G',
     chainId: '0x4115',
     color: '#B75FFF',
